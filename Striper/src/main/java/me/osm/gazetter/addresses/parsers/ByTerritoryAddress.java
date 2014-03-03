@@ -24,7 +24,7 @@ public class ByTerritoryAddress extends AddressBase {
 	public String asFullText() {
 		String boundaries = joinBndriesText();
 		String hn = addrPoint.getJSONObject("properties").optString("addr:housenumber");
-		return hn + ", " + boundaries;
+		return hn + DELIMITTER + boundaries;
 	}
 
 	@Override

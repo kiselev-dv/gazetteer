@@ -24,7 +24,7 @@ public class RegularAddress extends AddressBase {
 		String boundaries = joinBndriesText();
 		String hn = addrPoint.getJSONObject("properties").optString("addr:housenumber");
 		String street = addrPoint.getJSONObject("properties").optString("addr:street");
-		return hn + ", " + street + ", " + boundaries;
+		return hn + DELIMITTER + street + DELIMITTER + boundaries;
 		
 	}
 

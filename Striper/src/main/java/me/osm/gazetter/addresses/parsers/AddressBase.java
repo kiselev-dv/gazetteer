@@ -14,6 +14,8 @@ public abstract class AddressBase implements Address {
 	protected AddrElementsOrder order;
 	protected JSONObject addrPoint;
 	protected List<JSONObject> boundaries;
+	
+	public static final String DELIMITTER = ", ";
 
 	public AddressBase(AddrElementsOrder order,
 			JSONObject addrPoint, List<JSONObject> boundaries) {
@@ -41,8 +43,8 @@ public abstract class AddressBase implements Address {
 			}
 		}
 		
-		if(sb.length() > 2) {
-			return sb.substring(2);
+		if(sb.length() > DELIMITTER.length()) {
+			return sb.substring(DELIMITTER.length());
 		}
 		
 		return "";
