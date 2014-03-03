@@ -1,0 +1,11 @@
+Striper/bin
+Striper/target
+.metadata/*
+RemoteSystemsTempFiles/
+
+*.json
+*.jar
+
+Striper/.classpath
+Striper/.project
+Striper/.settings/*
