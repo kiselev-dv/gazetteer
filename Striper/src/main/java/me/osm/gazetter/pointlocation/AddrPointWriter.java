@@ -19,7 +19,7 @@ public class AddrPointWriter {
 	}
 	
 	public synchronized void write(JSONObject obj) {
-		writer.write(obj.toString());
+		writer.println(obj.toString());
 	}
 	
 	public void close() {
