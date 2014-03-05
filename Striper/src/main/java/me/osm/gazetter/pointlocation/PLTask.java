@@ -33,28 +33,19 @@ public class PLTask implements Runnable {
 	private final List<JSONObject> points = new ArrayList<>();
 	private final List<JSONObject> polygons = new ArrayList<>();
 	private JointHandler handler;
+	private List<JSONObject> common;
 	
 	private static final GeometryFactory factory = new GeometryFactory();
 		
-	public PLTask(JointHandler handler, File src, String[] pointFTypes, String[] polygonFTypes) {
+	public PLTask(JointHandler handler, File src, List<JSONObject> common, String[] pointFTypes, String[] polygonFTypes) {
 		this.src = src;
 		this.pointFTypes = pointFTypes;
 		this.polygonFTypes = polygonFTypes;
 		this.handler = handler;
+		this.common = common;
 	}
 	
 	private static final ByIdComparator BY_ID_COMPARATOR = new ByIdComparator();
-
-	private static final BoundariesComparator BOUNDARIES_COMPARATOR = new BoundariesComparator();
-	private static final class BoundariesComparator implements Comparator<JSONObject> {
-
-		@Override
-		public int compare(JSONObject o1, JSONObject o2) {
-			String admLevel1 = o1.getJSONObject("properties").optString("admin_level");
-			String admLevel2 = o2.getJSONObject("properties").optString("admin_level");
-			return admLevel2.compareTo(admLevel1);
-		}
-	}
 
 	private static final class ByIdComparator implements Comparator<JSONObject>{
 		@Override
@@ -99,7 +90,7 @@ public class PLTask implements Runnable {
 	private void write() {
 		for(Entry<JSONObject, List<JSONObject>> entry : map.entrySet()) {
 			List<JSONObject> boundaries = entry.getValue();
-			Collections.sort(boundaries, BOUNDARIES_COMPARATOR);
+			boundaries.addAll(common);
 			JSONObject point = entry.getKey();
 			
 			handler.handle(point, boundaries);
