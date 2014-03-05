@@ -2,10 +2,13 @@ package me.osm.gazetter.pointlocation;
 
 import java.io.File;
 import java.io.FilenameFilter;
+import java.util.Date;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import org.apache.commons.lang3.time.DurationFormatUtils;
 
 import me.osm.gazetter.striper.Constants;
 
@@ -39,7 +42,7 @@ public class PointLocation {
 
 	public static void run(String stripesFolder, String coomonPartFile) {
 		
-		
+		long start = (new Date()).getTime();
 		
 		File folder = new File(stripesFolder);
 		for(File stripeF : folder.listFiles(sfnf)) {
@@ -54,7 +57,7 @@ public class PointLocation {
 			e.printStackTrace();
 		}
 		
-		System.err.println(counter.get() + " lines writed");
+		System.err.println("Done in " + DurationFormatUtils.formatDurationHMS(new Date().getTime() - start));
 	}
 
 }

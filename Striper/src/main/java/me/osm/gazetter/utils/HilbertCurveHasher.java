@@ -5,6 +5,7 @@ package me.osm.gazetter.utils;
  * */
 public class HilbertCurveHasher {
 
+	private static final long FFFFFFFF = 4294967295l;
 	private static final int A = 0;
 	private static final int B = 1;
 	private static final int C = 2;
@@ -114,8 +115,8 @@ public class HilbertCurveHasher {
 	
 	private static int[] intCoordinates(double x, double y) {
 		return new int[]{
-			(int) new Double((x + 180.0) * 0xFFFFFFFF / 360.0).longValue() & 0xFFFFFFFF, 
-			(int) new Double((y + 90.0) * 0xFFFFFFFF / 180.0).longValue() & 0xFFFFFFFF
+			(int) (new Double((x + 180.0) * FFFFFFFF / 360.0).longValue() & FFFFFFFF), 
+			(int) (new Double((y + 90.0) * FFFFFFFF / 180.0).longValue() & FFFFFFFF)
 		};
 	}
 
