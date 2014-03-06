@@ -98,6 +98,7 @@ public class PLTask implements Runnable {
 	}
 
 	private void join() {
+		//TODO: Optimize with Hilbert hash prefix search
 		for(JSONObject polygon : polygons) {
 			Polygon polyg = getPolygonGeometry(polygon);
 			for (JSONObject pnt : points) {
