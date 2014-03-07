@@ -203,7 +203,7 @@ public class Slicer implements BoundariesBuilder.BoundariesHandler, AddrPointHan
 	}
 
 	private String getId(String type, Point point, JSONObject meta) {
-		return type + "-" + HilbertCurveHasher.encode(point.getX(), point.getY()) + "-" + meta.optInt("id");
+		return type + "-" + HilbertCurveHasher.encode(point.getX(), point.getY()) + "-" + meta.getString("type").charAt(0) + meta.optLong("id");
 	}
 
 	private String getFilePrefix(double x) {
