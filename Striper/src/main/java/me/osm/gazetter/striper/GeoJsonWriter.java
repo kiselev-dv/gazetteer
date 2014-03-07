@@ -33,7 +33,7 @@ public class GeoJsonWriter {
 		
 	}
 	
-	public static final class JSONOFeature extends JSONObject {
+	public static final class JSONFeature extends JSONObject {
 		
 		@Override
 		@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -74,7 +74,7 @@ public class GeoJsonWriter {
 	
 	public static String featureAsGeoJSON(String id, String type, Map<String, String> attributes, Geometry g, JSONObject meta) {
 		
-		JSONObject feature = new JSONOFeature();
+		JSONObject feature = new JSONFeature();
 		
 		if(id != null)
 			feature.put("id", id);
