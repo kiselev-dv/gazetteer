@@ -6,6 +6,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.zip.GZIPInputStream;
 
+import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream;
+
 import me.osm.gazetter.striper.builders.Builder;
 import me.osm.gazetter.striper.readers.ComplexReader;
 import me.osm.gazetter.striper.readers.PointsReader;
@@ -50,6 +52,9 @@ public class Engine {
 			FileNotFoundException {
 		if(osmFilePath.endsWith("gz")) {
 			return new GZIPInputStream(new FileInputStream(osmFilePath));
+		}
+		if(osmFilePath.endsWith("bz2")) {
+			return new BZip2CompressorInputStream(new FileInputStream(osmFilePath));
 		}
 		return new FileInputStream(osmFilePath);
 	}
