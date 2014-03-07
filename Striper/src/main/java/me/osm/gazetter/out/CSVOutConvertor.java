@@ -36,6 +36,7 @@ public class CSVOutConvertor implements OutConverter {
 	
 	public CSVOutConvertor() {
 		writer = new CSVWriter(new OutputStreamWriter(System.out));
+		writer.writeNext(header);
 	}
 	
 	
@@ -53,9 +54,10 @@ public class CSVOutConvertor implements OutConverter {
 			double lat = coords.getDouble(1);
 			
 			JSONArray addrArray = json.getJSONArray("addresses");
+			JSONObject meta = json.getJSONObject("metainfo");
 
 			for(int i = 0; i < addrArray.length(); i++) {
-				String[] row = getArray(lon, lat, addrArray.getJSONObject(i));
+				String[] row = getArray(lon, lat, addrArray.getJSONObject(i), json.getString("id"),  String.valueOf(meta.getString("type").charAt(0)) + meta.getLong("id"));
 				writer.writeNext(row);
 			}
 			
@@ -63,14 +65,12 @@ public class CSVOutConvertor implements OutConverter {
 
 	}
 
-	private String[] getArray(double lon, double lat, JSONObject addrObj) {
+	private String[] getArray(double lon, double lat, JSONObject addrObj, String id, String osmId) {
 		//2id + 13 addr levels and 2 coords
 		String[] result = new String[header.length];
 		
-		JSONObject meta = addrObj.getJSONObject("metainfo");
-		
-		result[0] = addrObj.getString("id");
-		result[1] = String.valueOf(meta.getString("type").charAt(0)) + meta.getLong("id");
+		result[0] = id;
+		result[1] = osmId;
 		
 		result[2] = String.valueOf(lon);
 		result[3] = String.valueOf(lat);
