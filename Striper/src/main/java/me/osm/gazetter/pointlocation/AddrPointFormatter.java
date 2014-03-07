@@ -13,13 +13,13 @@ public class AddrPointFormatter implements JointHandler {
 	private static final AddressesParser parser = new AddressesParser(); 
 
 	@Override
-	public void handle(JSONObject addrPoint, List<JSONObject> boundaries) {
+	public JSONObject handle(JSONObject addrPoint, List<JSONObject> boundaries) {
 		
 		JSONArray addresses = parser.parse(addrPoint, boundaries);
 		
 		addrPoint.put("addresses", addresses);
 		
-		JSONWriter.get().write(addrPoint);
+		return addrPoint;
 	}
 	
 }

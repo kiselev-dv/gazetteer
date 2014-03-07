@@ -1,6 +1,7 @@
 package me.osm.gazetter.pointlocation;
 
 import java.io.File;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -23,7 +24,7 @@ import com.vividsolutions.jts.geom.Polygon;
 public class PLTask implements Runnable {
 	
 	public static interface JointHandler {
-		public void handle(JSONObject addrPoint, List<JSONObject> polygons);
+		public JSONObject handle(JSONObject addrPoint, List<JSONObject> polygons);
 	}
 	
 	private File src;
@@ -88,12 +89,46 @@ public class PLTask implements Runnable {
 	}
 
 	private void write() {
+		//use clar because we will populate list with a same number of lines
+		points.clear();
+		
 		for(Entry<JSONObject, List<JSONObject>> entry : map.entrySet()) {
 			List<JSONObject> boundaries = entry.getValue();
 			boundaries.addAll(common);
-			JSONObject point = entry.getKey();
+			
+			//copy map key to preserve hash and not to brake hashing
+			JSONObject point = (JSONObject) JSONObject.wrap(entry.getKey());
 			
 			handler.handle(point, boundaries);
+			
+			points.add(handler.handle(point, boundaries));
+		}
+		
+		/* XXX: Reafctor with partial source modification
+		 * to preserve features which not affected by this
+		 * task. 
+		 */
+		PrintWriter printWriter = null;
+		try {
+			printWriter = new PrintWriter(src);
+			
+			for(JSONObject json : points) {
+				printWriter.println(json.toString());
+			}
+			
+			for(JSONObject json : polygons) {
+				printWriter.println(json.toString());
+			}
+			
+			printWriter.flush();
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
+		finally {
+			if(printWriter != null) {
+				printWriter.close();
+			}
 		}
 	}
 

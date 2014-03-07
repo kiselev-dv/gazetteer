@@ -34,7 +34,7 @@ public class PointLocation {
 		run(args[0], args.length > 1 ? args[1] : null);
 	}
 	
-	private static class StripeFilenameFilter implements FilenameFilter {
+	public static class StripeFilenameFilter implements FilenameFilter {
 		
 		@Override
 		public boolean accept(File dir, String name) {
@@ -43,7 +43,7 @@ public class PointLocation {
 	
 	}
 	
-	private static final StripeFilenameFilter sfnf = new StripeFilenameFilter();
+	public static final StripeFilenameFilter STRIPE_FILE_FN_FILTER = new StripeFilenameFilter();
 	
 
 	public static void run(String stripesFolder, String coomonPartFile) {
@@ -53,7 +53,7 @@ public class PointLocation {
 		List<JSONObject> common = getCommonPart(coomonPartFile);
 		
 		File folder = new File(stripesFolder);
-		for(File stripeF : folder.listFiles(sfnf)) {
+		for(File stripeF : folder.listFiles(STRIPE_FILE_FN_FILTER)) {
 			executorService.execute(new PLTask(addrPointFormatter, stripeF, common,	POINT_F_TYPES, POLYGON_F_TYPES));
 		}
 		

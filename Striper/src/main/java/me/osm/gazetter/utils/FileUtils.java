@@ -8,6 +8,8 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
+import me.osm.gazetter.out.OutConverter;
+
 public class FileUtils {
 	
 	public static interface LineFilter {
@@ -64,4 +66,5 @@ public class FileUtils {
 		
 		return result;
 	}
+
 }
