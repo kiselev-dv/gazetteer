@@ -19,7 +19,7 @@ public class AddrPointFormatter implements JointHandler {
 		
 		addrPoint.put("addresses", addresses);
 		
-		AddrPointWriter.get().write(addrPoint);
+		JSONWriter.get().write(addrPoint);
 	}
 	
 }

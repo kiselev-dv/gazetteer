@@ -4,17 +4,17 @@ import java.io.PrintWriter;
 
 import org.json.JSONObject;
 
-public class AddrPointWriter {
+public class JSONWriter {
 	
-	private static final AddrPointWriter instance = new AddrPointWriter();
+	private static final JSONWriter instance = new JSONWriter();
 	
 	private PrintWriter writer = new PrintWriter(System.out);
 	
-	public static AddrPointWriter get() {
+	public static JSONWriter get() {
 		return instance;
 	}
 	
-	private AddrPointWriter(){
+	private JSONWriter(){
 		
 	}
 	
