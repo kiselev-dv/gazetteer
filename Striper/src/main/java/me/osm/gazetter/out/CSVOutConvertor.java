@@ -3,7 +3,7 @@ package me.osm.gazetter.out;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 
-import me.osm.gazetter.striper.Constants;
+import me.osm.gazetter.striper.FeatureTypes;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -48,7 +48,7 @@ public class CSVOutConvertor implements OutConverter {
 		 * later rewrite output for particular types
 		 * of objects.
 		 */
-		if(Constants.ADDR_POINT_FTYPE.equals(json.optString("ftype"))) {
+		if(FeatureTypes.ADDR_POINT_FTYPE.equals(json.optString("ftype"))) {
 			JSONArray coords = json.getJSONObject("geometry").getJSONArray("coordinates");
 			double lon = coords.getDouble(0);
 			double lat = coords.getDouble(1);

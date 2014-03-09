@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import me.osm.gazetter.striper.GeoJsonWriter;
 import me.osm.gazetter.utils.FileUtils;
 import me.osm.gazetter.utils.FileUtils.LineHandler;
 
@@ -17,9 +18,11 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LinearRing;
 import com.vividsolutions.jts.geom.Polygon;
+import com.vividsolutions.jts.index.quadtree.Quadtree;
 
 public class PLTask implements Runnable {
 	
@@ -31,7 +34,8 @@ public class PLTask implements Runnable {
 	private String[] pointFTypes; 
 	private String[] polygonFTypes;
 
-	private final List<JSONObject> points = new ArrayList<>();
+	private final List<JSONObject> addrPoints = new ArrayList<>();
+	private final Quadtree addrPointsIndex = new Quadtree();
 	private final List<JSONObject> polygons = new ArrayList<>();
 	private JointHandler handler;
 	private List<JSONObject> common;
@@ -68,7 +72,7 @@ public class PLTask implements Runnable {
 			public void handle(String line) {
 				for(String sf : pointFTypes) {
 					if(line.substring(0, Math.min(25, line.length())).contains(sf)) {
-						points.add(new JSONObject(line));
+						addrPoints.add(new JSONObject(line));
 					}
 				}
 				
@@ -81,7 +85,11 @@ public class PLTask implements Runnable {
 			
 		});
 		
-		Collections.sort(points, BY_ID_COMPARATOR);
+		Collections.sort(addrPoints, BY_ID_COMPARATOR);
+		for(JSONObject point : addrPoints) {
+			JSONArray ca = point.getJSONObject(GeoJsonWriter.GEOMETRY).getJSONArray(GeoJsonWriter.COORDINATES);
+			addrPointsIndex.insert(new Envelope(new Coordinate(ca.getDouble(0), ca.getDouble(1))), point);
+		}
 		Collections.sort(polygons, BY_ID_COMPARATOR);
 		
 		join();
@@ -90,7 +98,7 @@ public class PLTask implements Runnable {
 
 	private void write() {
 		//use clar because we will populate list with a same number of lines
-		points.clear();
+		addrPoints.clear();
 		
 		for(Entry<JSONObject, List<JSONObject>> entry : map.entrySet()) {
 			List<JSONObject> boundaries = entry.getValue();
@@ -101,7 +109,7 @@ public class PLTask implements Runnable {
 			
 			handler.handle(point, boundaries);
 			
-			points.add(handler.handle(point, boundaries));
+			addrPoints.add(handler.handle(point, boundaries));
 		}
 		
 		/* XXX: Reafctor with partial source modification
@@ -112,7 +120,7 @@ public class PLTask implements Runnable {
 		try {
 			printWriter = new PrintWriter(src);
 			
-			for(JSONObject json : points) {
+			for(JSONObject json : addrPoints) {
 				printWriter.println(json.toString());
 			}
 			
@@ -132,11 +140,13 @@ public class PLTask implements Runnable {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	private void join() {
-		//TODO: Optimize with Hilbert hash prefix search
 		for(JSONObject polygon : polygons) {
 			Polygon polyg = getPolygonGeometry(polygon);
-			for (JSONObject pnt : points) {
+			
+			Envelope polygonEnvelop = polyg.getEnvelopeInternal();
+			for (JSONObject pnt : (List<JSONObject>)addrPointsIndex.query(polygonEnvelop)) {
 				JSONArray pntg = pnt.getJSONObject("geometry").getJSONArray("coordinates");
 				if(polyg.contains(factory.createPoint(new Coordinate(pntg.getDouble(0), pntg.getDouble(1))))){
 					if(map.get(pnt) == null) {

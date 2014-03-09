@@ -15,23 +15,23 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import me.osm.gazetter.striper.builders.AddrPointsBuilder;
+import me.osm.gazetter.striper.builders.PlacePointsBuilder;
 import me.osm.gazetter.striper.builders.AddrPointsBuilder.AddrPointHandler;
+import me.osm.gazetter.striper.builders.PlacePointsBuilder.PlacePointHandler;
 import me.osm.gazetter.striper.builders.BoundariesBuilder;
 import me.osm.gazetter.utils.GeometryUtils;
-import me.osm.gazetter.utils.HilbertCurveHasher;
 
 import org.apache.commons.lang3.time.DurationFormatUtils;
 import org.json.JSONObject;
 
 import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
 import com.vividsolutions.jts.io.WKTWriter;
 
-public class Slicer implements BoundariesBuilder.BoundariesHandler, AddrPointHandler {
+public class Slicer implements BoundariesBuilder.BoundariesHandler, AddrPointHandler, PlacePointHandler {
 
 	private static final GeometryFactory factory = new GeometryFactory();
 	private static final ExecutorService executorService = Executors.newFixedThreadPool(4);
@@ -65,7 +65,10 @@ public class Slicer implements BoundariesBuilder.BoundariesHandler, AddrPointHan
 		long start = new Date().getTime(); 
 		instance = new Slicer(osmSlicesPath);
 		
-		new Engine().filter(osmFilePath, new BoundariesBuilder(instance), new AddrPointsBuilder(instance));
+		new Engine().filter(osmFilePath, 
+				new BoundariesBuilder(instance), 
+				new AddrPointsBuilder(instance), 
+				new PlacePointsBuilder(instance));
 		
 		System.err.println("Done in " + DurationFormatUtils.formatDurationHMS(new Date().getTime() - start));
 	}
@@ -96,7 +99,6 @@ public class Slicer implements BoundariesBuilder.BoundariesHandler, AddrPointHan
 	public void handleBoundary(Map<String, String> attributes,
 			MultiPolygon multiPolygon, JSONObject meta) {
 		executorService.execute(new SliceTask(attributes, multiPolygon, meta, this));
-		//stripeBoundary(attributes, multiPolygon, meta);
 	}
 
 	private void stripeBoundary(Map<String, String> attributes,
@@ -104,10 +106,12 @@ public class Slicer implements BoundariesBuilder.BoundariesHandler, AddrPointHan
 		if(multiPolygon != null) {
 			
 			String id = null;
-			if(attributes.containsKey("place"))
-				id = getId(Constants.PLACE_BOUNDARY_FTYPE, multiPolygon.getEnvelope().getCentroid(), meta);
-			else
-				id = getId(Constants.ADMIN_BOUNDARY_FTYPE, multiPolygon.getEnvelope().getCentroid(), meta);
+			if(attributes.containsKey("place")){
+				id = GeoJsonWriter.getId(FeatureTypes.PLACE_BOUNDARY_FTYPE, multiPolygon.getEnvelope().getCentroid(), meta);
+			}
+			else {
+				id = GeoJsonWriter.getId(FeatureTypes.ADMIN_BOUNDARY_FTYPE, multiPolygon.getEnvelope().getCentroid(), meta);
+			}
 			
 			List<Polygon> polygons = new ArrayList<>();
 			
@@ -123,18 +127,21 @@ public class Slicer implements BoundariesBuilder.BoundariesHandler, AddrPointHan
 			}
 			
 			for(Polygon p : polygons) {
-				if(attributes.containsKey("place"))
-					writeOut(id,Constants.PLACE_BOUNDARY_FTYPE, attributes, meta, p);
-				else
-					writeOut(id,Constants.ADMIN_BOUNDARY_FTYPE, attributes, meta, p);
+				String n = getFilePrefix(p.getEnvelope().getCentroid().getX());
+				if(attributes.containsKey("place")) {
+					writeOut(GeoJsonWriter.featureAsGeoJSON(id, FeatureTypes.PLACE_BOUNDARY_FTYPE, attributes, p, meta), n);
+				}
+				else {
+					writeOut(GeoJsonWriter.featureAsGeoJSON(id, FeatureTypes.ADMIN_BOUNDARY_FTYPE, attributes, p, meta), n);
+				}
 			}
 		}
 	}
 
-	private synchronized void writeOut(String id, String type, Map<String, String> attributes, JSONObject meta,
-			Geometry g) {
+	public synchronized void writeOut(String line, String n) {
+		
 		try {
-			String n = getFilePrefix(g.getEnvelope().getCentroid().getX());
+
 			File file = new File(this.dirPath + "/stripe" + n + ".gjson");
 			if(!file.exists()) {
 				file.createNewFile();
@@ -142,9 +149,10 @@ public class Slicer implements BoundariesBuilder.BoundariesHandler, AddrPointHan
 			
 			FileOutputStream fos = new FileOutputStream(file, true);
 			PrintWriter printWriter = new PrintWriter(fos);
-			printWriter.println(GeoJsonWriter.featureAsGeoJSON(id, type, attributes, g, meta));
+			printWriter.println(line);
 			printWriter.flush();
-			fos.close();
+			printWriter.close();
+			
 		} catch (IOException e) {
 			e.printStackTrace(System.err);
 		}
@@ -198,17 +206,22 @@ public class Slicer implements BoundariesBuilder.BoundariesHandler, AddrPointHan
 	@Override
 	public void handleAddrPoint(Map<String, String> attributes, Point point,
 			JSONObject meta) {
-		String id = getId(Constants.ADDR_POINT_FTYPE, point, meta);
-		writeOut(id, Constants.ADDR_POINT_FTYPE, attributes, meta, point);
-	}
-
-	private String getId(String type, Point point, JSONObject meta) {
-		return type + "-" + HilbertCurveHasher.encode(point.getX(), point.getY()) + "-" + meta.getString("type").charAt(0) + meta.optLong("id");
+		String id = GeoJsonWriter.getId(FeatureTypes.ADDR_POINT_FTYPE, point, meta);
+		String n = getFilePrefix(point.getX());
+		
+		writeOut(GeoJsonWriter.featureAsGeoJSON(id, FeatureTypes.ADDR_POINT_FTYPE, attributes, point, meta), n);
 	}
 
 	private String getFilePrefix(double x) {
 		return String.format("%04d", (new Double((x + 180.0) * 10.0).intValue()));
-		//return String.format(Locale.US, "%.2f", round(snap(x + 180.0), 2));
+	}
+
+	@Override
+	public void handlePlacePoint(Map<String, String> tags, Point pnt,
+			JSONObject meta) {
+		String fid = GeoJsonWriter.getId(FeatureTypes.PLACE_POINT_FTYPE, pnt, meta);
+		String n = getFilePrefix(pnt.getX());
+		writeOut(GeoJsonWriter.featureAsGeoJSON(fid, FeatureTypes.PLACE_POINT_FTYPE, tags, pnt, meta), n);
 	}
 
 }

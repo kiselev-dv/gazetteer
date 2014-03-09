@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import me.osm.gazetter.utils.HilbertCurveHasher;
+
 import org.json.JSONObject;
 import org.json.JSONString;
 
@@ -18,6 +20,11 @@ import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
 
 public class GeoJsonWriter {
+	
+	public static final String META = "metainfo";
+	public static final String PROPERTIES = "properties";
+	public static final String COORDINATES = "coordinates";
+	public static final String GEOMETRY = "geometry";
 	
 	private static final class JsonStringWrapper implements JSONString {
 
@@ -58,13 +65,13 @@ public class GeoJsonWriter {
 		if(g instanceof Polygon) {
 			JSONObject geomJSON = new JSONObject();
 			geomJSON.put("type", "Polygon");
-			geomJSON.put("coordinates", new JsonStringWrapper(asJsonString((Polygon) g)));
+			geomJSON.put(COORDINATES, new JsonStringWrapper(asJsonString((Polygon) g)));
 			return geomJSON;
 		}
 		else if(g instanceof Point) {
 			JSONObject geomJSON = new JSONObject();
 			geomJSON.put("type", "Point");
-			geomJSON.put("coordinates", new JsonStringWrapper("[" + 
+			geomJSON.put(COORDINATES, new JsonStringWrapper("[" + 
 					String.format(Locale.US, "%.8f", ((Point)g).getX()) + "," + 
 					String.format(Locale.US, "%.8f", ((Point)g).getY()) + "]"));
 			return geomJSON;
@@ -74,6 +81,13 @@ public class GeoJsonWriter {
 	
 	public static String featureAsGeoJSON(String id, String type, Map<String, String> attributes, Geometry g, JSONObject meta) {
 		
+		JSONObject feature = createFeature(id, type, attributes, g, meta);
+		
+		return feature.toString();
+	}
+
+	public static JSONObject createFeature(String id, String type,
+			Map<String, String> attributes, Geometry g, JSONObject meta) {
 		JSONObject feature = new JSONFeature();
 		
 		if(id != null)
@@ -81,12 +95,13 @@ public class GeoJsonWriter {
 		
 		feature.put("ftype", type);
 		feature.put("type", "Feature");
-		feature.put("geometry", geometryToJSON(g));
-		feature.put("properties", attributes);
-		feature.put("metainfo", meta);
-		
-		return feature.toString();
+		feature.put(GEOMETRY, geometryToJSON(g));
+		feature.put(PROPERTIES, attributes);
+		feature.put(META, meta);
+		return feature;
 	}
+	
+	
 
 	private static String asJsonString(Polygon polygon) {
 		StringBuilder rings = new StringBuilder();
@@ -108,6 +123,11 @@ public class GeoJsonWriter {
 		}
 		
 		return "[" + sb.substring(1) + "]";
+	}
+	
+	public static String getId(String type, Point point, JSONObject meta) {
+		long hash = HilbertCurveHasher.encode(point.getX(), point.getY());
+		return type + "-" + String.format("%010d", hash) + "-" + meta.getString("type").charAt(0) + meta.optLong("id");
 	}
 
 }

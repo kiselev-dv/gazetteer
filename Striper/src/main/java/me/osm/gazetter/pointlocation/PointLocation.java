@@ -11,7 +11,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import me.osm.gazetter.striper.Constants;
+import me.osm.gazetter.striper.FeatureTypes;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.time.DurationFormatUtils;
@@ -20,9 +20,9 @@ import org.json.JSONObject;
 
 public class PointLocation {
 	
-	private static final String[] POLYGON_F_TYPES = new String[]{Constants.ADMIN_BOUNDARY_FTYPE, Constants.PLACE_BOUNDARY_FTYPE};
+	private static final String[] POLYGON_F_TYPES = new String[]{FeatureTypes.ADMIN_BOUNDARY_FTYPE, FeatureTypes.PLACE_BOUNDARY_FTYPE};
 
-	private static final String[] POINT_F_TYPES = new String[]{Constants.ADDR_POINT_FTYPE};
+	private static final String[] POINT_F_TYPES = new String[]{FeatureTypes.ADDR_POINT_FTYPE};
 
 	private static final ExecutorService executorService = Executors.newFixedThreadPool(4);
 	

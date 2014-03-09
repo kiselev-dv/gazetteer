@@ -1,6 +1,6 @@
 package me.osm.gazetter.out;
 
-import me.osm.gazetter.striper.Constants;
+import me.osm.gazetter.striper.FeatureTypes;
 
 import org.json.JSONObject;
 
@@ -14,7 +14,7 @@ public class JSONOutConvertor implements OutConverter {
 		 * later rewrite output for particular types
 		 * of objects.
 		 */
-		if(Constants.ADDR_POINT_FTYPE.equals(json.optString("ftype"))) {
+		if(FeatureTypes.ADDR_POINT_FTYPE.equals(json.optString("ftype"))) {
 			System.out.println(s);
 		} 
 	}
