@@ -112,7 +112,7 @@ public class PLTask implements Runnable {
 			addrPoints.add(handler.handle(point, boundaries));
 		}
 		
-		/* XXX: Reafctor with partial source modification
+		/* TODO: Reafctor with partial source (file) modification
 		 * to preserve features which not affected by this
 		 * task. 
 		 */
