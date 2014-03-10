@@ -212,7 +212,7 @@ public class Slicer implements BoundariesBuilder.BoundariesHandler, AddrPointHan
 		writeOut(GeoJsonWriter.featureAsGeoJSON(id, FeatureTypes.ADDR_POINT_FTYPE, attributes, point, meta), n);
 	}
 
-	private String getFilePrefix(double x) {
+	public static String getFilePrefix(double x) {
 		return String.format("%04d", (new Double((x + 180.0) * 10.0).intValue()));
 	}
 
