@@ -25,6 +25,7 @@ public class GeoJsonWriter {
 	public static final String PROPERTIES = "properties";
 	public static final String COORDINATES = "coordinates";
 	public static final String GEOMETRY = "geometry";
+	public static final String META_SLICES = "slices";
 	
 	private static final class JsonStringWrapper implements JSONString {
 

@@ -22,6 +22,7 @@ import me.osm.gazetter.striper.builders.BoundariesBuilder;
 import me.osm.gazetter.utils.GeometryUtils;
 
 import org.apache.commons.lang3.time.DurationFormatUtils;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import com.vividsolutions.jts.geom.Coordinate;
@@ -125,6 +126,13 @@ public class Slicer implements BoundariesBuilder.BoundariesHandler, AddrPointHan
 					System.err.println("Couldn't slice " + meta.getString("type") + " " + meta.getLong("id") + " " + new WKTWriter().write(p));
 				}
 			}
+			
+			JSONArray slices = new JSONArray();
+			for(Polygon p : polygons) {
+				String n = getFilePrefix(p.getEnvelope().getCentroid().getX());
+				slices.put(n);
+			}
+			meta.put(GeoJsonWriter.META_SLICES, slices);
 			
 			for(Polygon p : polygons) {
 				String n = getFilePrefix(p.getEnvelope().getCentroid().getX());

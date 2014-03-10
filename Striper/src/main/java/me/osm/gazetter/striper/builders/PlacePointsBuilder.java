@@ -238,10 +238,9 @@ public class PlacePointsBuilder extends ABuilder {
 		
 		//original coords
 		JSONObject rfeature = mergeDeloneyCenter(placeFeature, originalCityPolygon, FeatureTypes.PLACE_DELONEY_FTYPE);
-		String rstring = rfeature.toString();
 		
 		//original coordinates
-		writePolygonToExistFiles(originalCityPolygon, rstring);
+		writePolygonToExistFiles(originalCityPolygon, rfeature);
 		
 		buildNighboursVoronoiPolygons(cityPolygon, neighboursQT, rfeature);
 	}
@@ -311,14 +310,13 @@ public class PlacePointsBuilder extends ABuilder {
 		
 		JSONObject rfeature = mergeDeloneyCenter(neighbourFeature, neighbourPolygon, FeatureTypes.NEIGHBOUR_DELONEY_FTYPE);
 		rfeature.put("cityID", cityFeature.getString("id"));
-		String rstring = rfeature.toString();
 		
-		writePolygonToExistFiles(neighbourPolygon, rstring);
+		writePolygonToExistFiles(neighbourPolygon, rfeature);
 		
 	}
 
 	private void writePolygonToExistFiles(Polygon polygon,
-			String rstring) {
+			JSONObject rfeature) {
 		
 		Envelope env = polygon.getEnvelopeInternal();
 		
@@ -329,6 +327,25 @@ public class PlacePointsBuilder extends ABuilder {
 		double dx = Math.abs(maxX - minX);
 		double dxt = Math.abs(moveTo(maxX) - moveTo(minX));
 
+		JSONArray slices = new JSONArray();
+		if(dxt < dx) {
+			int from = (new Double((-180.0 + 180.0) * 10.0).intValue());
+			int to = (new Double((minX + 180.0) * 10.0).intValue());
+			fillSlicesMetaArray(slices, from, to);
+			
+			from = (new Double((maxX + 180.0) * 10.0).intValue());
+			to = (new Double((180.0 + 180.0) * 10.0).intValue());
+			fillSlicesMetaArray(slices, from, to);
+		}
+		else {
+			int from = (new Double((minX + 180.0) * 10.0).intValue());
+			int to = (new Double((maxX + 180.0) * 10.0).intValue());
+			fillSlicesMetaArray(slices, from, to);
+		}
+		rfeature.getJSONObject(GeoJsonWriter.META).put(GeoJsonWriter.META_SLICES, slices);
+		
+		String rstring = rfeature.toString();
+		
 		if(dxt < dx) {
 			
 			int from = (new Double((-180.0 + 180.0) * 10.0).intValue());
@@ -344,6 +361,15 @@ public class PlacePointsBuilder extends ABuilder {
 			int from = (new Double((minX + 180.0) * 10.0).intValue());
 			int to = (new Double((maxX + 180.0) * 10.0).intValue());
 			writeToExistFiles(rstring, from, to);
+		}
+	}
+
+	private void fillSlicesMetaArray(JSONArray slices, int from, int to) {
+		for(int i = from; i <= to; i++) {
+			String filePrefix = String.format("%04d", i);
+			if(files.contains(filePrefix)) {
+				slices.put(filePrefix);
+			}
 		}
 	}
 
