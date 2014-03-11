@@ -142,7 +142,15 @@ public class GeoJsonWriter {
 	
 	public static String getId(String type, Point point, JSONObject meta) {
 		long hash = HilbertCurveHasher.encode(point.getX(), point.getY());
-		return type + "-" + String.format("%010d", hash) + "-" + meta.getString("type").charAt(0) + meta.optLong("id");
+		String mainPart = type + "-" + String.format("%010d", hash) + "-" + 
+				meta.getString("type").charAt(0) + meta.optLong("id");
+		
+		int counter = meta.optInt("counter", -1); 
+		if(counter >= 0) {
+			mainPart += "-" + counter;
+		}
+		
+		return mainPart;
 	}
 
 	public static void addTimestamp(JSONObject json) {

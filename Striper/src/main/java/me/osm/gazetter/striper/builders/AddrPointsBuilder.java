@@ -149,6 +149,7 @@ public class AddrPointsBuilder extends ABuilder {
 
 			long prevPID = -1;
 			short prevHN = -1;
+			int counter = 0;
 
 			List<double[]> coords = new ArrayList<>();
 			
@@ -165,7 +166,7 @@ public class AddrPointsBuilder extends ABuilder {
 						coords.add(new double[]{lon, lat});
 						
 						if(hn > 0 && coords.size() > 1) {
-							interpolateSegment(step, prevHN, hn, coords, line, pid, prevPID);
+							counter = interpolateSegment(step, prevHN, hn, coords, line, pid, prevPID, counter);
 							coords.clear();
 							coords.add(new double[]{lon, lat});
 						}
@@ -190,8 +191,8 @@ public class AddrPointsBuilder extends ABuilder {
 		
 	}
 
-	private void interpolateSegment(int s, short prevHN, short hn,
-			List<double[]> coords, Way way, long pid, long prevPID) {
+	private int interpolateSegment(int s, short prevHN, short hn,
+			List<double[]> coords, Way way, long pid, long prevPID, int counter) {
 		
 		int from = Math.min(prevHN, hn);
 		int to = Math.max(prevHN, hn);
@@ -233,8 +234,11 @@ public class AddrPointsBuilder extends ABuilder {
 				
 				way.tags.put(ADDR_HOUSENUMBER, String.valueOf(i));
 				
+				meta.put("counter", counter++);
 				handler.handleAddrPoint(way.tags, factory.createPoint(c), meta);
 		}
+		
+		return counter;
 		
 	}
 
