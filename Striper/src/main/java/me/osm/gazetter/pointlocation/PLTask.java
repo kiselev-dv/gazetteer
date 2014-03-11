@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import me.osm.gazetter.striper.FeatureTypes;
 import me.osm.gazetter.striper.GeoJsonWriter;
 import me.osm.gazetter.utils.FileUtils;
 import me.osm.gazetter.utils.FileUtils.LineHandler;
@@ -27,26 +28,22 @@ import com.vividsolutions.jts.index.quadtree.Quadtree;
 
 public class PLTask implements Runnable {
 	
-	public static interface JointHandler {
-		public JSONObject handle(JSONObject addrPoint, List<JSONObject> polygons);
-	}
-	
 	private File src;
-	private String[] pointFTypes; 
-	private String[] polygonFTypes;
-
+	
 	private final List<JSONObject> addrPoints = new ArrayList<>();
 	private final Quadtree addrPointsIndex = new Quadtree();
-	private final List<JSONObject> polygons = new ArrayList<>();
-	private JointHandler handler;
+	
+	private final List<JSONObject> boundaries = new ArrayList<>();
+	private final List<JSONObject> placesVoronoi = new ArrayList<>();
+	private final List<JSONObject> neighboursVoronoi = new ArrayList<>();
+
+	private AddrJointHandler handler;
 	private List<JSONObject> common;
 	
 	private static final GeometryFactory factory = new GeometryFactory();
 		
-	public PLTask(JointHandler handler, File src, List<JSONObject> common, String[] pointFTypes, String[] polygonFTypes) {
+	public PLTask(AddrJointHandler handler, File src, List<JSONObject> common) {
 		this.src = src;
-		this.pointFTypes = pointFTypes;
-		this.polygonFTypes = polygonFTypes;
 		this.handler = handler;
 		this.common = common;
 	}
@@ -62,7 +59,9 @@ public class PLTask implements Runnable {
 		}
 	} 
 	
-	private final Map<JSONObject, List<JSONObject>> map = new HashMap<JSONObject, List<JSONObject>>(); 
+	private final Map<JSONObject, List<JSONObject>> addr2bndries = new HashMap<JSONObject, List<JSONObject>>(); 
+	private final Map<JSONObject, JSONObject> addr2PlaceVoronoy = new HashMap<>(); 
+	private final Map<JSONObject, JSONObject> addr2NeighbourVoronoy = new HashMap<>(); 
 
 	@Override
 	public void run() {
@@ -71,16 +70,23 @@ public class PLTask implements Runnable {
 			
 			@Override
 			public void handle(String line) {
-				for(String sf : pointFTypes) {
-					if(line.substring(0, Math.min(25, line.length())).contains(sf)) {
-						addrPoints.add(new JSONObject(line));
-					}
+				String ftype = GeoJsonWriter.getFtype(line);
+				
+				if(FeatureTypes.ADDR_POINT_FTYPE.equals(ftype)) {
+					addrPoints.add(new JSONObject(line));
+				}
+
+				else if(FeatureTypes.ADMIN_BOUNDARY_FTYPE.equals(ftype) 
+						|| FeatureTypes.PLACE_BOUNDARY_FTYPE.equals(ftype)) {
+					boundaries.add(new JSONObject(line));
 				}
 				
-				for(String pf : polygonFTypes) {
-					if(line.substring(0, Math.min(25, line.length())).contains(pf)) {
-						polygons.add(new JSONObject(line));
-					}
+				else if(FeatureTypes.NEIGHBOUR_DELONEY_FTYPE.equals(ftype)) {
+					neighboursVoronoi.add(new JSONObject(line));
+				}
+
+				else if(FeatureTypes.PLACE_DELONEY_FTYPE.equals(ftype)) {
+					placesVoronoi.add(new JSONObject(line));
 				}
 			}
 			
@@ -91,26 +97,27 @@ public class PLTask implements Runnable {
 			JSONArray ca = point.getJSONObject(GeoJsonWriter.GEOMETRY).getJSONArray(GeoJsonWriter.COORDINATES);
 			addrPointsIndex.insert(new Envelope(new Coordinate(ca.getDouble(0), ca.getDouble(1))), point);
 		}
-		Collections.sort(polygons, BY_ID_COMPARATOR);
+		Collections.sort(boundaries, BY_ID_COMPARATOR);
 		
 		join();
+		
 		write();
 	}
 
 	private void write() {
-		//use clar because we will populate list with a same number of lines
+		//use clear because we will populate list with a same number of lines
 		addrPoints.clear();
 		
-		for(Entry<JSONObject, List<JSONObject>> entry : map.entrySet()) {
+		for(Entry<JSONObject, List<JSONObject>> entry : addr2bndries.entrySet()) {
 			List<JSONObject> boundaries = entry.getValue();
 			boundaries.addAll(common);
 			
 			//copy map key to preserve hash and not to brake hashing
 			JSONObject point = (JSONObject) JSONObject.wrap(entry.getKey());
 			
-			handler.handle(point, boundaries);
-			
-			addrPoints.add(handler.handle(point, boundaries));
+			addrPoints.add(handler.handle(point, boundaries, 
+					addr2PlaceVoronoy.get(entry.getKey()), 
+					addr2NeighbourVoronoy.get(entry.getKey())));
 		}
 		
 		PrintWriter printWriter = null;
@@ -119,10 +126,6 @@ public class PLTask implements Runnable {
 			
 			for(JSONObject json : addrPoints) {
 				GeoJsonWriter.addTimestamp(json);
-				printWriter.println(json.toString());
-			}
-			
-			for(JSONObject json : polygons) {
 				printWriter.println(json.toString());
 			}
 			
@@ -140,18 +143,35 @@ public class PLTask implements Runnable {
 
 	@SuppressWarnings("unchecked")
 	private void join() {
-		for(JSONObject polygon : polygons) {
+		for(JSONObject polygon : boundaries) {
 			Polygon polyg = getPolygonGeometry(polygon);
 			
 			Envelope polygonEnvelop = polyg.getEnvelopeInternal();
 			for (JSONObject pnt : (List<JSONObject>)addrPointsIndex.query(polygonEnvelop)) {
-				JSONArray pntg = pnt.getJSONObject("geometry").getJSONArray("coordinates");
+				JSONArray pntg = pnt.getJSONObject(GeoJsonWriter.GEOMETRY).getJSONArray(GeoJsonWriter.COORDINATES);
 				if(polyg.contains(factory.createPoint(new Coordinate(pntg.getDouble(0), pntg.getDouble(1))))){
-					if(map.get(pnt) == null) {
-						map.put(pnt, new ArrayList<JSONObject>());
+					if(addr2bndries.get(pnt) == null) {
+						addr2bndries.put(pnt, new ArrayList<JSONObject>());
 					}
 					
-					map.get(pnt).add(polygon);
+					addr2bndries.get(pnt).add(polygon);
+				}
+			}
+		}
+		
+		one2OneJoin(placesVoronoi, addr2PlaceVoronoy);
+		one2OneJoin(neighboursVoronoi, addr2NeighbourVoronoy);
+	}
+
+	@SuppressWarnings("unchecked")
+	private void one2OneJoin(List<JSONObject> polygons, Map<JSONObject, JSONObject> result) {
+		for(JSONObject placeV : polygons) {
+			Polygon polyg = getPolygonGeometry(placeV);
+			Envelope polygonEnvelop = polyg.getEnvelopeInternal();
+			for (JSONObject pnt : (List<JSONObject>)addrPointsIndex.query(polygonEnvelop)) {
+				JSONArray pntg = pnt.getJSONObject(GeoJsonWriter.GEOMETRY).getJSONArray(GeoJsonWriter.COORDINATES);
+				if(polyg.contains(factory.createPoint(new Coordinate(pntg.getDouble(0), pntg.getDouble(1))))){
+					result.put(pnt, placeV);
 				}
 			}
 		}

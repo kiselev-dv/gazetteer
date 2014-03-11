@@ -11,8 +11,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import me.osm.gazetter.striper.FeatureTypes;
-
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.time.DurationFormatUtils;
 import org.json.JSONArray;
@@ -20,13 +18,9 @@ import org.json.JSONObject;
 
 public class PointLocation {
 	
-	private static final String[] POLYGON_F_TYPES = new String[]{FeatureTypes.ADMIN_BOUNDARY_FTYPE, FeatureTypes.PLACE_BOUNDARY_FTYPE};
-
-	private static final String[] POINT_F_TYPES = new String[]{FeatureTypes.ADDR_POINT_FTYPE};
-
 	private static final ExecutorService executorService = Executors.newFixedThreadPool(4);
 	
-	private static final AddrPointFormatter addrPointFormatter = new AddrPointFormatter();
+	private static final AddrJointHandler addrPointFormatter = new AddrPointFormatter();
 	
 	public static AtomicInteger counter = new AtomicInteger(); 
 	
@@ -54,10 +48,11 @@ public class PointLocation {
 		
 		File folder = new File(stripesFolder);
 		for(File stripeF : folder.listFiles(STRIPE_FILE_FN_FILTER)) {
-			executorService.execute(new PLTask(addrPointFormatter, stripeF, common,	POINT_F_TYPES, POLYGON_F_TYPES));
+			executorService.execute(new PLTask(addrPointFormatter, stripeF, common));
 		}
+		
 		for(File stripeF : folder.listFiles(STRIPE_FILE_FN_FILTER)) {
-			executorService.execute(new SortAndUpdateTask(stripeF));
+			executorService.execute( new SortAndUpdateTask(stripeF));
 		}
 		
 		executorService.shutdown();
@@ -67,7 +62,7 @@ public class PointLocation {
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-		
+		System.err.println(SortAndUpdateTask.countUpdatedLines() + " lines was updated.");
 		System.err.println("Done in " + DurationFormatUtils.formatDurationHMS(new Date().getTime() - start));
 	}
 

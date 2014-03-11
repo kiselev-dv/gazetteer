@@ -1,8 +1,11 @@
 package me.osm.gazetter.striper;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
@@ -22,6 +25,11 @@ import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
 
 public class GeoJsonWriter {
+	
+	private static final String TIMESTAMP_PATTERN = "\"" + GeoJsonWriter.TIMESTAMP +  "\":\"";
+	private static final String ID_PATTERN = "\"id\":\"";
+	private static final String FTYPE_PATTERN = "\"ftype\":\"";
+	private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.S");
 	
 	public static final String META = "metainfo";
 	public static final String PROPERTIES = "properties";
@@ -142,4 +150,28 @@ public class GeoJsonWriter {
 		json.put(TIMESTAMP, date.toDateTime(timeZone).toInstant().toString());
 	}
 
+	public static Date getTimestamp(String line) {
+		int begin = line.indexOf(TIMESTAMP_PATTERN) + TIMESTAMP_PATTERN.length();
+		int end = line.indexOf("\"", begin);
+		try {
+			return sdf.parse(line.substring(begin, end - 1));
+		} catch (ParseException e) {
+			e.printStackTrace();
+			System.exit(1);
+		}
+		return null;
+	}
+
+	public static String getId(String line) {
+		int begin = line.indexOf(ID_PATTERN) + ID_PATTERN.length();
+		int end = line.indexOf("\"", begin);
+		return line.substring(begin, end);
+	}
+	
+	public static String getFtype(String line) {
+		int begin = line.indexOf(FTYPE_PATTERN) + FTYPE_PATTERN.length();
+		int end = line.indexOf("\"", begin);
+		return line.substring(begin, end);
+	}
+	
 }

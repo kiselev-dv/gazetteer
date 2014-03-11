@@ -1,7 +1,7 @@
 package me.osm.gazetter.test;
 
-import static org.junit.Assert.*;
-import me.osm.gazetter.pointlocation.SortAndUpdateTask;
+import static org.junit.Assert.assertEquals;
+import me.osm.gazetter.striper.GeoJsonWriter;
 
 import org.junit.Test;
 
@@ -11,8 +11,8 @@ public class TimestampsTest {
 	
 	@Test
 	public void test() {
-		assertEquals("plcpnt-3965682819-n1410323545", SortAndUpdateTask.getId(TEST));
-		SortAndUpdateTask.getTimestamp(TEST);
+		assertEquals("plcpnt-3965682819-n1410323545", GeoJsonWriter.getId(TEST));
+		GeoJsonWriter.getTimestamp(TEST);
 	}
 
 }
