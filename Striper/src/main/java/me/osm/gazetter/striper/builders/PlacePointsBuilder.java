@@ -327,22 +327,15 @@ public class PlacePointsBuilder extends ABuilder {
 		double dx = Math.abs(maxX - minX);
 		double dxt = Math.abs(moveTo(maxX) - moveTo(minX));
 
-		JSONArray slices = new JSONArray();
-		if(dxt < dx) {
-			int from = (new Double((-180.0 + 180.0) * 10.0).intValue());
-			int to = (new Double((minX + 180.0) * 10.0).intValue());
-			fillSlicesMetaArray(slices, from, to);
-			
-			from = (new Double((maxX + 180.0) * 10.0).intValue());
-			to = (new Double((180.0 + 180.0) * 10.0).intValue());
-			fillSlicesMetaArray(slices, from, to);
-		}
-		else {
-			int from = (new Double((minX + 180.0) * 10.0).intValue());
-			int to = (new Double((maxX + 180.0) * 10.0).intValue());
-			fillSlicesMetaArray(slices, from, to);
-		}
-		rfeature.getJSONObject(GeoJsonWriter.META).put(GeoJsonWriter.META_SLICES, slices);
+		Envelope envelope = polygon.getEnvelopeInternal();
+		JSONArray bbox = new JSONArray();
+		bbox.put(envelope.getMinX());
+		bbox.put(envelope.getMinY());
+		bbox.put(envelope.getMaxX());
+		bbox.put(envelope.getMaxY());
+		
+		rfeature.getJSONObject(GeoJsonWriter.META).put(GeoJsonWriter.ORIGINAL_BBOX, bbox);
+		GeoJsonWriter.addTimestamp(rfeature);
 		
 		String rstring = rfeature.toString();
 		
@@ -361,15 +354,6 @@ public class PlacePointsBuilder extends ABuilder {
 			int from = (new Double((minX + 180.0) * 10.0).intValue());
 			int to = (new Double((maxX + 180.0) * 10.0).intValue());
 			writeToExistFiles(rstring, from, to);
-		}
-	}
-
-	private void fillSlicesMetaArray(JSONArray slices, int from, int to) {
-		for(int i = from; i <= to; i++) {
-			String filePrefix = String.format("%04d", i);
-			if(files.contains(filePrefix)) {
-				slices.put(filePrefix);
-			}
 		}
 	}
 

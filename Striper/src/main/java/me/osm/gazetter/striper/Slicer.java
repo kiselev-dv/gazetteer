@@ -26,6 +26,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Point;
@@ -107,6 +108,14 @@ public class Slicer implements BoundariesBuilder.BoundariesHandler, AddrPointHan
 		if(multiPolygon != null) {
 			
 			String id = null;
+			
+			Envelope envelope = multiPolygon.getEnvelopeInternal();
+			JSONArray bbox = new JSONArray();
+			bbox.put(envelope.getMinX());
+			bbox.put(envelope.getMinY());
+			bbox.put(envelope.getMaxX());
+			bbox.put(envelope.getMaxY());
+			
 			if(attributes.containsKey("place")){
 				id = GeoJsonWriter.getId(FeatureTypes.PLACE_BOUNDARY_FTYPE, multiPolygon.getEnvelope().getCentroid(), meta);
 			}
@@ -127,12 +136,7 @@ public class Slicer implements BoundariesBuilder.BoundariesHandler, AddrPointHan
 				}
 			}
 			
-			JSONArray slices = new JSONArray();
-			for(Polygon p : polygons) {
-				String n = getFilePrefix(p.getEnvelope().getCentroid().getX());
-				slices.put(n);
-			}
-			meta.put(GeoJsonWriter.META_SLICES, slices);
+			meta.put(GeoJsonWriter.ORIGINAL_BBOX, bbox);
 			
 			for(Polygon p : polygons) {
 				String n = getFilePrefix(p.getEnvelope().getCentroid().getX());

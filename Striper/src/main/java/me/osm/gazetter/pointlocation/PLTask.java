@@ -1,6 +1,7 @@
 package me.osm.gazetter.pointlocation;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -112,15 +113,12 @@ public class PLTask implements Runnable {
 			addrPoints.add(handler.handle(point, boundaries));
 		}
 		
-		/* TODO: Reafctor with partial source (file) modification
-		 * to preserve features which not affected by this
-		 * task. 
-		 */
 		PrintWriter printWriter = null;
 		try {
-			printWriter = new PrintWriter(src);
+			printWriter = new PrintWriter(new FileOutputStream(src, true));
 			
 			for(JSONObject json : addrPoints) {
+				GeoJsonWriter.addTimestamp(json);
 				printWriter.println(json.toString());
 			}
 			

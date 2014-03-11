@@ -56,6 +56,9 @@ public class PointLocation {
 		for(File stripeF : folder.listFiles(STRIPE_FILE_FN_FILTER)) {
 			executorService.execute(new PLTask(addrPointFormatter, stripeF, common,	POINT_F_TYPES, POLYGON_F_TYPES));
 		}
+		for(File stripeF : folder.listFiles(STRIPE_FILE_FN_FILTER)) {
+			executorService.execute(new SortAndUpdateTask(stripeF));
+		}
 		
 		executorService.shutdown();
 		

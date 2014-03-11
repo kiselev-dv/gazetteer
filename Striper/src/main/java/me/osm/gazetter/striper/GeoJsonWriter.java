@@ -10,6 +10,8 @@ import java.util.Map;
 
 import me.osm.gazetter.utils.HilbertCurveHasher;
 
+import org.joda.time.DateTimeZone;
+import org.joda.time.LocalDateTime;
 import org.json.JSONObject;
 import org.json.JSONString;
 
@@ -25,7 +27,10 @@ public class GeoJsonWriter {
 	public static final String PROPERTIES = "properties";
 	public static final String COORDINATES = "coordinates";
 	public static final String GEOMETRY = "geometry";
-	public static final String META_SLICES = "slices";
+	public static final String ORIGINAL_BBOX = "origBBOX";
+	public static final String TIMESTAMP = "timestamp";
+	
+	private static final DateTimeZone timeZone = DateTimeZone.getDefault();
 	
 	private static final class JsonStringWrapper implements JSONString {
 
@@ -51,8 +56,8 @@ public class GeoJsonWriter {
 			Collections.sort(keys, new Comparator<String>() {
 				@Override
 				public int compare(String o1, String o2) {
-					int i1 = "id".equals(o1) ? 0 : "ftype".equals(o1) ? 1 : 10; 
-					int i2 = "id".equals(o2) ? 0 : "ftype".equals(o2) ? 1 : 10; 
+					int i1 = "id".equals(o1) ? 0 : "ftype".equals(o1) ? 1 : TIMESTAMP.equals(o1) ? 2 : 10; 
+					int i2 = "id".equals(o2) ? 0 : "ftype".equals(o2) ? 1 : TIMESTAMP.equals(o2) ? 2 : 10; 
 					
 					return i1 - i2;
 				}
@@ -83,6 +88,7 @@ public class GeoJsonWriter {
 	public static String featureAsGeoJSON(String id, String type, Map<String, String> attributes, Geometry g, JSONObject meta) {
 		
 		JSONObject feature = createFeature(id, type, attributes, g, meta);
+		addTimestamp(feature);
 		
 		return feature.toString();
 	}
@@ -129,6 +135,11 @@ public class GeoJsonWriter {
 	public static String getId(String type, Point point, JSONObject meta) {
 		long hash = HilbertCurveHasher.encode(point.getX(), point.getY());
 		return type + "-" + String.format("%010d", hash) + "-" + meta.getString("type").charAt(0) + meta.optLong("id");
+	}
+
+	public static void addTimestamp(JSONObject json) {
+		LocalDateTime date = LocalDateTime.now();
+		json.put(TIMESTAMP, date.toDateTime(timeZone).toInstant().toString());
 	}
 
 }
