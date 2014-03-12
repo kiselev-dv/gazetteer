@@ -24,6 +24,8 @@ import me.osm.gazetter.utils.GeometryUtils;
 import org.apache.commons.lang3.time.DurationFormatUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
@@ -34,6 +36,8 @@ import com.vividsolutions.jts.geom.Polygon;
 import com.vividsolutions.jts.io.WKTWriter;
 
 public class Slicer implements BoundariesBuilder.BoundariesHandler, AddrPointHandler, PlacePointHandler {
+	
+	private static final Logger log = LoggerFactory.getLogger(Slicer.class.getName()); 
 
 	private static final GeometryFactory factory = new GeometryFactory();
 	private static final ExecutorService executorService = Executors.newFixedThreadPool(4);
@@ -72,7 +76,7 @@ public class Slicer implements BoundariesBuilder.BoundariesHandler, AddrPointHan
 				new AddrPointsBuilder(instance), 
 				new PlacePointsBuilder(instance));
 		
-		System.err.println("Done in " + DurationFormatUtils.formatDurationHMS(new Date().getTime() - start));
+		log.info("Slice done in {}", DurationFormatUtils.formatDurationHMS(new Date().getTime() - start));
 	}
 
 	private static class SliceTask implements Runnable {
@@ -132,7 +136,11 @@ public class Slicer implements BoundariesBuilder.BoundariesHandler, AddrPointHan
 					stripe(p, polygons);
 				}
 				else {
-					System.err.println("Couldn't slice " + meta.getString("type") + " " + meta.getLong("id") + " " + new WKTWriter().write(p));
+					log.warn("Couldn't slice {} {}.\nPolygon:\n{}", new Object[]{
+						meta.getString("type"), 
+						meta.getLong("id"),
+						new WKTWriter().write(p)
+					});
 				}
 			}
 			
@@ -152,9 +160,9 @@ public class Slicer implements BoundariesBuilder.BoundariesHandler, AddrPointHan
 
 	public synchronized void writeOut(String line, String n) {
 		
+		String fileName = this.dirPath + "/stripe" + n + ".gjson";
 		try {
-
-			File file = new File(this.dirPath + "/stripe" + n + ".gjson");
+			File file = new File(fileName);
 			if(!file.exists()) {
 				file.createNewFile();
 			}
@@ -166,7 +174,7 @@ public class Slicer implements BoundariesBuilder.BoundariesHandler, AddrPointHan
 			printWriter.close();
 			
 		} catch (IOException e) {
-			e.printStackTrace(System.err);
+			log.error("Couldn't write out {}", fileName, e);
 		}
 	}
 
@@ -211,7 +219,7 @@ public class Slicer implements BoundariesBuilder.BoundariesHandler, AddrPointHan
 		try {
 			executorService.awaitTermination(1, TimeUnit.SECONDS);
 		} catch (InterruptedException e) {
-			e.printStackTrace(System.err);
+			log.error("Termination awaiting was interrupted", e);
 		}
 	}
 

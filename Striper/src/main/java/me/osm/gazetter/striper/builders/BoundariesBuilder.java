@@ -22,6 +22,8 @@ import me.osm.gazetter.striper.readers.WaysReader.Way;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
@@ -33,6 +35,8 @@ import com.vividsolutions.jts.io.WKTWriter;
 import com.vividsolutions.jts.operation.polygonize.Polygonizer;
 
 public class BoundariesBuilder extends ABuilder {
+	
+	private static final Logger log = LoggerFactory.getLogger(BoundariesBuilder.class.getName());
 	
 	public static interface BoundariesHandler {
 		public void handleBoundary(Map<String, String> attributes, MultiPolygon multiPolygon, JSONObject meta);
@@ -182,12 +186,21 @@ public class BoundariesBuilder extends ABuilder {
 				}
 			}
 			catch (Exception e) {
-				System.err.println("Cant polygonize:");
-				WKTWriter wktWriter = new WKTWriter();
-				for(LineString ls : lines) {
-					System.err.println(wktWriter.write(ls));
+				if(log.isWarnEnabled()) {
+
+					StringBuilder sb = new StringBuilder();
+					WKTWriter wktWriter = new WKTWriter();
+					for(LineString ls : lines) {
+						sb.append("\n").append(wktWriter.write(ls));
+					}
+					
+					log.warn("Cant polygonize relation: {} \nLines ({}):{}\nCause: {}", new Object[]{
+							rel.id,
+							lines.size(),
+							sb.toString(),
+							e.getMessage()
+					});
 				}
-				e.printStackTrace(System.err);
 			}
 			
 		}
@@ -389,7 +402,7 @@ public class BoundariesBuilder extends ABuilder {
 		try {
 			executorService.awaitTermination(1, TimeUnit.SECONDS);
 		} catch (InterruptedException e) {
-			e.printStackTrace(System.err);
+			log.error("Awaiting for thread pull was terminated.", e);
 		}
 		finally {
 			handler.afterLastRun();

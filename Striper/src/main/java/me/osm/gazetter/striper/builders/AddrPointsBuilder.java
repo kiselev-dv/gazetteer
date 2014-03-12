@@ -17,6 +17,8 @@ import me.osm.gazetter.utils.LocatePoint;
 
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
@@ -24,6 +26,8 @@ import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.Point;
 
 public class AddrPointsBuilder extends ABuilder {
+	
+	private static final Logger log = LoggerFactory.getLogger(AddrPointsBuilder.class.getName());
 	
 	private static final String ADDR_STREET = "addr:street";
 
@@ -172,7 +176,7 @@ public class AddrPointsBuilder extends ABuilder {
 						}
 						
 						if (hn <= 0 && line.nodes.get(0).equals(pid)) {
-							System.err.println("Broken interpolation at point " + pid + " First point has no recognizeable addr:housenumber");
+							log.warn("Broken interpolation at point {}. First point has no recognizeable addr:housenumber", pid);
 						}
 						
 						prevPID = pid;
@@ -181,12 +185,12 @@ public class AddrPointsBuilder extends ABuilder {
 				}
 				
 				if(coords.size() > 1) {
-					System.err.println("Broken interpolation at point " + prevPID + " Last point has no recognizeable addr:housenumber");
+					log.warn("Broken interpolation at point {}. Last point has no recognizeable addr:housenumber", prevPID);
 				}
 			}
 		}
 		else {
-			System.err.println("Unsupported interpolation type: " + interpolation);
+			log.warn("Unsupported interpolation type: {}", interpolation);
 		}
 		
 	}
@@ -405,8 +409,9 @@ public class AddrPointsBuilder extends ABuilder {
 						interpolation2Street.put(intWayId, street);
 					}
 					else if(!interpolation2Street.get(intWayId).equals(street)) {
-						System.err.println("Different streets on addr interpolated nodes. Interpolation way id: "
-								+ intWayId + " street: " + street + " (" + interpolation2Street.get(intWayId) + ") Node: " + node.id);
+						log.warn("Different streets on addr interpolated nodes. "
+								+ "Interpolation way id: {} street: {} ({}) Node: {}", 
+								new Object[]{intWayId, street, interpolation2Street.get(intWayId), node.id});
 					}
 				}
 			}

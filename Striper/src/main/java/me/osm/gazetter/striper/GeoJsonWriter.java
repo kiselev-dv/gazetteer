@@ -1,7 +1,5 @@
 package me.osm.gazetter.striper;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -13,10 +11,13 @@ import java.util.Map;
 
 import me.osm.gazetter.utils.HilbertCurveHasher;
 
+import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.LocalDateTime;
 import org.json.JSONObject;
 import org.json.JSONString;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
@@ -26,10 +27,11 @@ import com.vividsolutions.jts.geom.Polygon;
 
 public class GeoJsonWriter {
 	
+	private static final Logger log = LoggerFactory.getLogger(GeoJsonWriter.class.getName());
+	
 	private static final String TIMESTAMP_PATTERN = "\"" + GeoJsonWriter.TIMESTAMP +  "\":\"";
 	private static final String ID_PATTERN = "\"id\":\"";
 	private static final String FTYPE_PATTERN = "\"ftype\":\"";
-	private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.S");
 	
 	public static final String META = "metainfo";
 	public static final String PROPERTIES = "properties";
@@ -73,6 +75,15 @@ public class GeoJsonWriter {
 			
 			return keys.iterator();
 		}
+		
+		public JSONFeature (JSONObject obj) {
+			super(obj, JSONObject.getNames(obj));
+		}
+		
+		public JSONFeature() {
+			super();
+		}
+
 	}
 	
 	private static JSONObject geometryToJSON(Geometry g) {
@@ -161,11 +172,11 @@ public class GeoJsonWriter {
 	public static Date getTimestamp(String line) {
 		int begin = line.indexOf(TIMESTAMP_PATTERN) + TIMESTAMP_PATTERN.length();
 		int end = line.indexOf("\"", begin);
+		String timestampString = line.substring(begin, end);
 		try {
-			return sdf.parse(line.substring(begin, end - 1));
-		} catch (ParseException e) {
-			e.printStackTrace();
-			System.exit(1);
+			return (new DateTime(timestampString)).toDate();
+		} catch (Exception e) {
+			log.error("Can't parse timestamp {} for line {}", timestampString, line);
 		}
 		return null;
 	}

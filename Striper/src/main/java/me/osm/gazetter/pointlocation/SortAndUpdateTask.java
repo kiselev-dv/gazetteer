@@ -12,6 +12,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import me.osm.gazetter.striper.GeoJsonWriter;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.time.DateUtils;
 
 public class SortAndUpdateTask implements Runnable {
 
@@ -40,7 +41,7 @@ public class SortAndUpdateTask implements Runnable {
 					if (id1.equals(id2)) {
 						Date d1 = GeoJsonWriter.getTimestamp(paramT1);
 						Date d2 = GeoJsonWriter.getTimestamp(paramT2);
-
+						
 						return d2.compareTo(d1);
 					}
 

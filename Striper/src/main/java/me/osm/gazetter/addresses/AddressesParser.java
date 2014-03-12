@@ -11,8 +11,12 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class AddressesParser {
+	
+	private static final Logger log = LoggerFactory.getLogger(AddressesParser.class.getName());
 	
 	private static final Map<String, Integer> type2level = new HashMap<>();
 	static {
@@ -243,7 +247,7 @@ public class AddressesParser {
 				}
 				else if(addr2.has("addr:street")) {
 					addr2.remove("addr:street");
-					System.err.println("Ambiquit addresses " + properties);
+					log.warn("Ambvalent addresses {}", properties);
 				}
 				
 				result.add(addr2);

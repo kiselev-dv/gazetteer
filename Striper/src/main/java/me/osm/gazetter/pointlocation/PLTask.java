@@ -13,6 +13,7 @@ import java.util.Map.Entry;
 
 import me.osm.gazetter.striper.FeatureTypes;
 import me.osm.gazetter.striper.GeoJsonWriter;
+import me.osm.gazetter.striper.GeoJsonWriter.JSONFeature;
 import me.osm.gazetter.utils.FileUtils;
 import me.osm.gazetter.utils.FileUtils.LineHandler;
 
@@ -112,10 +113,7 @@ public class PLTask implements Runnable {
 			List<JSONObject> boundaries = entry.getValue();
 			boundaries.addAll(common);
 			
-			//copy map key to preserve hash and not to brake hashing
-			JSONObject point = (JSONObject) JSONObject.wrap(entry.getKey());
-			
-			addrPoints.add(handler.handle(point, boundaries, 
+			addrPoints.add(handler.handle(entry.getKey(), boundaries, 
 					addr2PlaceVoronoy.get(entry.getKey()), 
 					addr2NeighbourVoronoy.get(entry.getKey())));
 		}
@@ -126,7 +124,7 @@ public class PLTask implements Runnable {
 			
 			for(JSONObject json : addrPoints) {
 				GeoJsonWriter.addTimestamp(json);
-				printWriter.println(json.toString());
+				printWriter.println(new JSONFeature(json).toString());
 			}
 			
 			printWriter.flush();

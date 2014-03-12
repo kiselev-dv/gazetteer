@@ -15,12 +15,16 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.time.DurationFormatUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class PointLocation {
 	
 	private static final ExecutorService executorService = Executors.newFixedThreadPool(4);
 	
-	private static final AddrJointHandler addrPointFormatter = new AddrPointFormatter();
+	private static final AddrJointHandler addrPointFormatter = (AddrJointHandler) new AddrPointFormatter();
+	
+	private static final Logger log = LoggerFactory.getLogger(PointLocation.class.getName());
 	
 	public static AtomicInteger counter = new AtomicInteger(); 
 	
@@ -62,8 +66,9 @@ public class PointLocation {
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-		System.err.println(SortAndUpdateTask.countUpdatedLines() + " lines was updated.");
-		System.err.println("Done in " + DurationFormatUtils.formatDurationHMS(new Date().getTime() - start));
+		
+		log.info("{} lines was updated.", SortAndUpdateTask.countUpdatedLines());
+		log.info("Join done in {}", DurationFormatUtils.formatDurationHMS(new Date().getTime() - start));
 	}
 
 

@@ -21,6 +21,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONString;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
@@ -34,6 +36,8 @@ import com.vividsolutions.jts.triangulate.VoronoiDiagramBuilder;
 import com.vividsolutions.jts.triangulate.quadedge.QuadEdgeSubdivision;
 
 public class PlacePointsBuilder extends ABuilder {
+	
+	private static final Logger log = LoggerFactory.getLogger(PlacePointsBuilder.class.getName());
 	
 	public static interface PlacePointHandler {
 		public void handlePlacePoint(Map<String, String> tags, Point pnt,
@@ -170,7 +174,7 @@ public class PlacePointsBuilder extends ABuilder {
 		// move it back while writing
 		if(originalBBOX.getDX() > translatedBBOX.getDX() + 0.0001) {
 			weAreInRussia = true;
-			System.err.println("Warn: we are in Russia!");
+			log.trace("Wrap 180 degree line.");
 			
 			Map<Coordinate, JSONObject> russianCityes = new HashMap<>();
 			for(Entry<Coordinate, JSONObject> entry : cityes.entrySet()) {
