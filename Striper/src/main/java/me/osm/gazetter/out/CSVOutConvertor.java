@@ -53,14 +53,15 @@ public class CSVOutConvertor implements OutConverter {
 			double lon = coords.getDouble(0);
 			double lat = coords.getDouble(1);
 			
-			JSONArray addrArray = json.getJSONArray("addresses");
-			JSONObject meta = json.getJSONObject("metainfo");
-
-			for(int i = 0; i < addrArray.length(); i++) {
-				String[] row = getArray(lon, lat, addrArray.getJSONObject(i), json.getString("id"),  String.valueOf(meta.getString("type").charAt(0)) + meta.getLong("id"));
-				writer.writeNext(row);
+			JSONArray addrArray = json.optJSONArray("addresses");
+			if(addrArray != null) {
+				JSONObject meta = json.getJSONObject("metainfo");
+				
+				for(int i = 0; i < addrArray.length(); i++) {
+					String[] row = getArray(lon, lat, addrArray.getJSONObject(i), json.getString("id"),  String.valueOf(meta.getString("type").charAt(0)) + meta.getLong("id"));
+					writer.writeNext(row);
+				}
 			}
-			
 		}
 
 	}

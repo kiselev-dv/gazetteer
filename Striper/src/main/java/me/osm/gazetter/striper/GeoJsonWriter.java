@@ -27,6 +27,8 @@ import com.vividsolutions.jts.geom.Polygon;
 
 public class GeoJsonWriter {
 	
+	private static final String GEOMETRY_TYPE = "type";
+
 	private static final Logger log = LoggerFactory.getLogger(GeoJsonWriter.class.getName());
 	
 	private static final String TIMESTAMP_PATTERN = "\"" + GeoJsonWriter.TIMESTAMP +  "\":\"";
@@ -89,13 +91,18 @@ public class GeoJsonWriter {
 	private static JSONObject geometryToJSON(Geometry g) {
 		if(g instanceof Polygon) {
 			JSONObject geomJSON = new JSONObject();
-			geomJSON.put("type", "Polygon");
+			geomJSON.put(GEOMETRY_TYPE, "Polygon");
 			geomJSON.put(COORDINATES, new JsonStringWrapper(asJsonString((Polygon) g)));
 			return geomJSON;
 		}
+		else if (g instanceof LineString) {
+			JSONObject geomJSON = new JSONObject();
+			geomJSON.put(GEOMETRY_TYPE, "Point");
+			geomJSON.put(COORDINATES, new JsonStringWrapper(asJsonString((LineString) g)));
+		}
 		else if(g instanceof Point) {
 			JSONObject geomJSON = new JSONObject();
-			geomJSON.put("type", "Point");
+			geomJSON.put(GEOMETRY_TYPE, "Point");
 			geomJSON.put(COORDINATES, new JsonStringWrapper("[" + 
 					String.format(Locale.US, "%.8f", ((Point)g).getX()) + "," + 
 					String.format(Locale.US, "%.8f", ((Point)g).getY()) + "]"));
@@ -120,7 +127,7 @@ public class GeoJsonWriter {
 			feature.put("id", id);
 		
 		feature.put("ftype", type);
-		feature.put("type", "Feature");
+		feature.put(GEOMETRY_TYPE, "Feature");
 		feature.put(GEOMETRY, geometryToJSON(g));
 		feature.put(PROPERTIES, attributes);
 		feature.put(META, meta);
@@ -154,7 +161,7 @@ public class GeoJsonWriter {
 	public static String getId(String type, Point point, JSONObject meta) {
 		long hash = HilbertCurveHasher.encode(point.getX(), point.getY());
 		String mainPart = type + "-" + String.format("%010d", hash) + "-" + 
-				meta.getString("type").charAt(0) + meta.optLong("id");
+				meta.getString(GEOMETRY_TYPE).charAt(0) + meta.optLong("id");
 		
 		int counter = meta.optInt("counter", -1); 
 		if(counter >= 0) {

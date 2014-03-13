@@ -7,6 +7,7 @@ import java.io.PrintWriter;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -15,10 +16,14 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import me.osm.gazetter.striper.builders.AddrPointsBuilder;
-import me.osm.gazetter.striper.builders.PlacePointsBuilder;
 import me.osm.gazetter.striper.builders.AddrPointsBuilder.AddrPointHandler;
-import me.osm.gazetter.striper.builders.PlacePointsBuilder.PlacePointHandler;
 import me.osm.gazetter.striper.builders.BoundariesBuilder;
+import me.osm.gazetter.striper.builders.HighwaysBuilder;
+import me.osm.gazetter.striper.builders.HighwaysBuilder.HighwaysHandler;
+import me.osm.gazetter.striper.builders.HighwaysBuilder.JunctionsHandler;
+import me.osm.gazetter.striper.builders.PlacePointsBuilder;
+import me.osm.gazetter.striper.builders.PlacePointsBuilder.PlacePointHandler;
+import me.osm.gazetter.striper.readers.WaysReader.Way;
 import me.osm.gazetter.utils.GeometryUtils;
 
 import org.apache.commons.lang3.time.DurationFormatUtils;
@@ -29,13 +34,16 @@ import org.slf4j.LoggerFactory;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
+import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
 import com.vividsolutions.jts.io.WKTWriter;
 
-public class Slicer implements BoundariesBuilder.BoundariesHandler, AddrPointHandler, PlacePointHandler {
+public class Slicer implements BoundariesBuilder.BoundariesHandler, 
+	AddrPointHandler, PlacePointHandler, HighwaysHandler, JunctionsHandler {
 	
 	private static final Logger log = LoggerFactory.getLogger(Slicer.class.getName()); 
 
@@ -45,7 +53,7 @@ public class Slicer implements BoundariesBuilder.BoundariesHandler, AddrPointHan
 	private static double dx = 0.1;
 	private static double x0 = 0;
 	
-	private String dirPath;
+	private String dirPath; 
 
 	private static Slicer instance;
 	
@@ -74,7 +82,8 @@ public class Slicer implements BoundariesBuilder.BoundariesHandler, AddrPointHan
 		new Engine().filter(osmFilePath, 
 				new BoundariesBuilder(instance), 
 				new AddrPointsBuilder(instance), 
-				new PlacePointsBuilder(instance));
+				new PlacePointsBuilder(instance),
+				new HighwaysBuilder(instance, instance));
 		
 		log.info("Slice done in {}", DurationFormatUtils.formatDurationHMS(new Date().getTime() - start));
 	}
@@ -198,6 +207,29 @@ public class Slicer implements BoundariesBuilder.BoundariesHandler, AddrPointHan
 		}
 
 	}
+
+	private static void stripe(LineString l, List<LineString> result) {
+		Envelope bbox = l.getEnvelopeInternal();
+		
+		double snapX = round(snap(bbox.getMinX() + bbox.getWidth() / 2.0), 4);
+		
+		double minX = bbox.getMinX();
+		double maxX = bbox.getMaxX();
+		if(snapX > minX && snapX < maxX) {
+			LineString blade = factory.createLineString(new Coordinate[]{new Coordinate(snapX, 89.0), new Coordinate(snapX, -89.0)});
+			Geometry intersection = l.intersection(blade);
+			if(!intersection.isEmpty()) {
+				Point ip = intersection.getCentroid();
+				for(LineString split : GeometryUtils.split(l, ip.getCoordinate(), false)) {
+					stripe(split, result);
+				}
+			}
+		}
+		else {
+			result.add(l);
+		}
+		
+	}
 	
 	public static double round(double value, int places) {
 	    if (places < 0) throw new IllegalArgumentException();
@@ -243,5 +275,61 @@ public class Slicer implements BoundariesBuilder.BoundariesHandler, AddrPointHan
 		String n = getFilePrefix(pnt.getX());
 		writeOut(GeoJsonWriter.featureAsGeoJSON(fid, FeatureTypes.PLACE_POINT_FTYPE, tags, pnt, meta), n);
 	}
+
+	@Override
+	public void handleJunction(Coordinate coordinates, long nodeID,
+			List<Long> highways) {
+		
+		Point pnt = factory.createPoint(coordinates);
+		JSONObject meta = new JSONObject();
+		meta.put("id", nodeID);
+		meta.put("type", "node");
+		String fid = GeoJsonWriter.getId(FeatureTypes.JUNCTION_FTYPE, pnt, meta);
+		String n = getFilePrefix(pnt.getX());
+		
+		@SuppressWarnings("unchecked")
+		JSONObject r = GeoJsonWriter.createFeature(fid, FeatureTypes.JUNCTION_FTYPE, Collections.EMPTY_MAP, pnt, meta);
+		r.put("ways", new JSONArray(highways));
+		writeOut(r.toString(), n);
+	}
+
+	@Override
+	public void handleHighway(LineString geometry, Way way) {
+		
+		JSONObject meta = new JSONObject();
+		meta.put("id", way.id);
+		meta.put("type", "way");
+		
+		Envelope env = geometry.getEnvelopeInternal();
+		
+		// most of highways hits only one stripe so it's faster to write
+		// it into all of them without splitting 
+		int min = new Double((env.getMinX() + 180.0) * 10.0).intValue();
+		int max = new Double((env.getMaxX() + 180.0) * 10.0).intValue();
+		
+		
+		Point centroid = geometry.getCentroid();
+		String fid = GeoJsonWriter.getId(FeatureTypes.HIGHWAY_FEATURE_TYPE, centroid, meta);
+		if(min == max) {
+			String n = getFilePrefix(centroid.getX());
+			writeOut(GeoJsonWriter.featureAsGeoJSON(fid, FeatureTypes.HIGHWAY_FEATURE_TYPE, way.tags, geometry, meta), n);
+		}
+		else if(max - min == 1) {
+			//it's faster to write geometry as is in such case.
+			for(int i = min; i <= max; i++) {
+				String n = String.format("%04d", i); 
+				writeOut(GeoJsonWriter.featureAsGeoJSON(fid, FeatureTypes.HIGHWAY_FEATURE_TYPE, way.tags, geometry, meta), n);
+			}
+		}
+		else {
+			List<LineString> segments = new ArrayList<>();
+			stripe(geometry, segments);
+			for(LineString stripe : segments) {
+				String n = getFilePrefix(stripe.getCentroid().getX());
+				writeOut(GeoJsonWriter.featureAsGeoJSON(fid, FeatureTypes.HIGHWAY_FEATURE_TYPE, way.tags, stripe, meta), n);
+			}
+		}
+	}
+
 
 }
