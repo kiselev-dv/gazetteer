@@ -4,16 +4,18 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import me.osm.gazetter.striper.readers.PointsReader.Node;
 import me.osm.gazetter.striper.readers.RelationsReader.Relation;
 import me.osm.gazetter.striper.readers.WaysReader.Way;
+
+import org.apache.commons.lang3.time.DurationFormatUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
@@ -24,7 +26,7 @@ public class HighwaysBuilder extends ABuilder {
 	private static final Logger log = LoggerFactory
 			.getLogger(HighwaysBuilder.class.getName());
 
-	private static final ExecutorService executorService = Executors.newFixedThreadPool(4);
+	private static volatile ExecutorService executorService = Executors.newFixedThreadPool(4);
 	
 	private static final class BuildWayGeometryTask implements Runnable {
 
@@ -42,14 +44,14 @@ public class HighwaysBuilder extends ABuilder {
 		}
 		
 	} 
-	
+
 	private static final String HIGHWAY_TAG = "highway";
 	private JunctionsHandler junctionsHandler;
 	private HighwaysHandler highwaysHandler;
 
 	private static final int LON_OFFSET = 8 + 8;
 	private static final int LAT_OFFSET = 8 + 8 + 8;
-
+	
 	public HighwaysBuilder(HighwaysHandler highwaysHandler,
 			JunctionsHandler junctionsHandler) {
 		this.highwaysHandler = highwaysHandler;
@@ -69,6 +71,8 @@ public class HighwaysBuilder extends ABuilder {
 	private boolean indexFilled = false;
 	private boolean byWayOrdered = false;
 
+	private boolean doneReadNodes = false;
+
 	private static final GeometryFactory factory = new GeometryFactory();
 
 	@Override
@@ -80,6 +84,10 @@ public class HighwaysBuilder extends ABuilder {
 	public void handle(Way line) {
 		if (isHighway(line) && isNamed(line)) {
 			if (indexFilled) {
+				if(!this.doneReadNodes) {
+					doneReadNodes();
+					this.doneReadNodes = true;
+				}
 				orderByWay();
 				executorService.execute(new BuildWayGeometryTask(line, highwaysHandler));
 			} else {
@@ -95,6 +103,10 @@ public class HighwaysBuilder extends ABuilder {
 				}
 			}
 		}
+	}
+
+	private void doneReadNodes() {
+		log.info("Nodes coordinates loaded");
 	}
 
 	private boolean isHighway(Way line) {
@@ -158,11 +170,13 @@ public class HighwaysBuilder extends ABuilder {
 	private void orderByWay() {
 		if (!byWayOrdered) {
 			Collections.sort(node2way, ABuilder.SECOND_LONG_FIELD_COMPARATOR);
+			byWayOrdered = true;
 		}
 	}
 
 	@Override
 	public void handle(final Node node) {
+		
 		int ni = Collections.binarySearch(node2way, null,
 				new Comparator<ByteBuffer>() {
 					@Override
@@ -181,7 +195,11 @@ public class HighwaysBuilder extends ABuilder {
 	@Override
 	public void beforeLastRun() {
 		indexFilled = true;
+		
+		long start = (new Date()).getTime();
+		log.info("Start order {} nodes in index.", node2way.size());
 		Collections.sort(node2way, ABuilder.FIRST_LONG_FIELD_COMPARATOR);
+		log.info("Done order nodes in {}.", DurationFormatUtils.formatDurationHMS(new Date().getTime() - start));
 	}
 
 	@Override

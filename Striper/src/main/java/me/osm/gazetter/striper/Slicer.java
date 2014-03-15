@@ -1,9 +1,7 @@
 package me.osm.gazetter.striper;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
@@ -15,6 +13,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import me.osm.gazetter.dao.FileWriteDao;
+import me.osm.gazetter.dao.WriteDao;
 import me.osm.gazetter.striper.builders.AddrPointsBuilder;
 import me.osm.gazetter.striper.builders.AddrPointsBuilder.AddrPointHandler;
 import me.osm.gazetter.striper.builders.BoundariesBuilder;
@@ -53,7 +53,7 @@ public class Slicer implements BoundariesBuilder.BoundariesHandler,
 	private static double dx = 0.1;
 	private static double x0 = 0;
 	
-	private String dirPath; 
+	private static WriteDao writeDAO;
 
 	private static Slicer instance;
 	
@@ -62,8 +62,7 @@ public class Slicer implements BoundariesBuilder.BoundariesHandler,
 	}
 	
 	public Slicer(String dirPath) {
-		this.dirPath = dirPath;
-		new File(this.dirPath).mkdirs();
+		writeDAO = new FileWriteDao(new File(dirPath));
 	}
 	
 	public static void main(String[] args) {
@@ -84,6 +83,8 @@ public class Slicer implements BoundariesBuilder.BoundariesHandler,
 				new AddrPointsBuilder(instance), 
 				new PlacePointsBuilder(instance),
 				new HighwaysBuilder(instance, instance));
+		
+		writeDAO.close();
 		
 		log.info("Slice done in {}", DurationFormatUtils.formatDurationHMS(new Date().getTime() - start));
 	}
@@ -167,21 +168,11 @@ public class Slicer implements BoundariesBuilder.BoundariesHandler,
 		}
 	}
 
-	public synchronized void writeOut(String line, String n) {
+	public void writeOut(String line, String n) {
 		
-		String fileName = this.dirPath + "/stripe" + n + ".gjson";
+		String fileName = "stripe" + n + ".gjson";
 		try {
-			File file = new File(fileName);
-			if(!file.exists()) {
-				file.createNewFile();
-			}
-			
-			FileOutputStream fos = new FileOutputStream(file, true);
-			PrintWriter printWriter = new PrintWriter(fos);
-			printWriter.println(line);
-			printWriter.flush();
-			printWriter.close();
-			
+			writeDAO.write(line, fileName);
 		} catch (IOException e) {
 			log.error("Couldn't write out {}", fileName, e);
 		}
@@ -253,6 +244,7 @@ public class Slicer implements BoundariesBuilder.BoundariesHandler,
 		} catch (InterruptedException e) {
 			log.error("Termination awaiting was interrupted", e);
 		}
+		
 	}
 
 	@Override
@@ -324,7 +316,12 @@ public class Slicer implements BoundariesBuilder.BoundariesHandler,
 		}
 		else {
 			List<LineString> segments = new ArrayList<>();
-			stripe(geometry, segments);
+			try {
+				stripe(geometry, segments);
+			}
+			catch (Throwable t) {
+				log.error("Failed to stripe {}. {}", geometry, t.toString());
+			}
 			for(LineString stripe : segments) {
 				String n = getFilePrefix(stripe.getCentroid().getX());
 				writeOut(GeoJsonWriter.featureAsGeoJSON(fid, FeatureTypes.HIGHWAY_FEATURE_TYPE, way.tags, stripe, meta), n);

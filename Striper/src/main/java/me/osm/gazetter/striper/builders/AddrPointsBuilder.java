@@ -46,7 +46,6 @@ public class AddrPointsBuilder extends ABuilder {
 	
 	private Map<Long, String> interpolation2Street = new HashMap<>();
 	
-	
 	private boolean indexFilled = false;
 	private boolean orderedByway = false;
 	private AddrPointHandler handler; 
@@ -66,6 +65,9 @@ public class AddrPointsBuilder extends ABuilder {
 			}
 		}
 		else {
+			if(!byRealtionOrdered) {
+				log.info("Done read ways.");
+			}
 			orderByRelation();
 			orderByWay();
 			
@@ -125,6 +127,7 @@ public class AddrPointsBuilder extends ABuilder {
 	@Override
 	public void firstRunDoneRelations() {
 		Collections.sort(way2relation, Builder.FIRST_LONG_FIELD_COMPARATOR);
+		log.info("Done read relations. {} ways added to index.", way2relation.size());
 	}
 	
 	@Override
@@ -133,6 +136,9 @@ public class AddrPointsBuilder extends ABuilder {
 			indexWay(line);
 		}
 		else {
+			if(!this.orderedByway) {
+				log.info("Nodes readed.");
+			}
 			orderByWay();
 			if(line.isClosed() && hasAddr(line.tags)) {
 				buildAddrPointForWay(line);
@@ -359,6 +365,7 @@ public class AddrPointsBuilder extends ABuilder {
 	public void firstRunDoneWays() {
 		Collections.sort(node2way, Builder.FIRST_LONG_FIELD_COMPARATOR);
 		Collections.sort(nodeInterpolation, Builder.FIRST_LONG_FIELD_COMPARATOR);
+		log.info("Done read ways. {} nodes added to index.", node2way.size());
 	}
 
 	private int findRelMemberIndex(final long id) {

@@ -95,7 +95,6 @@ public class BoundariesBuilder extends ABuilder {
 			}
 			else {
 				executorService.execute(new Task(rel, this));
-				//handleAdminBoundaryRelation(rel);
 			}
 		}
 	}
@@ -340,6 +339,7 @@ public class BoundariesBuilder extends ABuilder {
 			Collections.sort(way2relation, Builder.FIRST_LONG_FIELD_COMPARATOR);
 			byMemberOrdered = true;
 		}
+		log.info("Done read relations. {} ways addes to index.", way2relation.size());
 	}
 
 	@Override
@@ -349,6 +349,7 @@ public class BoundariesBuilder extends ABuilder {
 			byNodeOrdered = true;
 			byWayOrdered = false;
 		}
+		log.info("Done read ways. {} nodes addes to index.", node2way.size());
 	}
 
 	public void orderByWay() {
