@@ -62,8 +62,9 @@ public class GeoJsonWriter {
 		}
 		else if (g instanceof LineString) {
 			JSONObject geomJSON = new JSONObject();
-			geomJSON.put(GEOMETRY_TYPE, "Point");
+			geomJSON.put(GEOMETRY_TYPE, "LineString");
 			geomJSON.put(COORDINATES, new JsonStringWrapper(asJsonString((LineString) g)));
+			return geomJSON;
 		}
 		else if(g instanceof Point) {
 			JSONObject geomJSON = new JSONObject();
