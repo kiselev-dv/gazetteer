@@ -13,7 +13,7 @@ import java.util.Map.Entry;
 
 import me.osm.gazetter.striper.FeatureTypes;
 import me.osm.gazetter.striper.GeoJsonWriter;
-import me.osm.gazetter.striper.GeoJsonWriter.JSONFeature;
+import me.osm.gazetter.striper.JSONFeature;
 import me.osm.gazetter.utils.FileUtils;
 import me.osm.gazetter.utils.FileUtils.LineHandler;
 
@@ -22,12 +22,18 @@ import org.json.JSONObject;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
+import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.LinearRing;
+import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Polygon;
 import com.vividsolutions.jts.index.quadtree.Quadtree;
+import com.vividsolutions.jts.operation.buffer.BufferOp;
 
 public class PLTask implements Runnable {
+	
+	private static final double BUFFER_DISTANCE = 1.0 / 111195.0 * 250;
 	
 	private File src;
 	
@@ -37,6 +43,7 @@ public class PLTask implements Runnable {
 	private final List<JSONObject> boundaries = new ArrayList<>();
 	private final List<JSONObject> placesVoronoi = new ArrayList<>();
 	private final List<JSONObject> neighboursVoronoi = new ArrayList<>();
+	private final List<JSONObject> streets = new ArrayList<>();
 
 	private AddrJointHandler handler;
 	private List<JSONObject> common;
@@ -60,6 +67,7 @@ public class PLTask implements Runnable {
 		}
 	} 
 	
+	private final Map<JSONObject, List<JSONObject>> addr2streets = new HashMap<JSONObject, List<JSONObject>>(); 
 	private final Map<JSONObject, List<JSONObject>> addr2bndries = new HashMap<JSONObject, List<JSONObject>>(); 
 	private final Map<JSONObject, JSONObject> addr2PlaceVoronoy = new HashMap<>(); 
 	private final Map<JSONObject, JSONObject> addr2NeighbourVoronoy = new HashMap<>(); 
@@ -89,6 +97,10 @@ public class PLTask implements Runnable {
 				else if(FeatureTypes.PLACE_DELONEY_FTYPE.equals(ftype)) {
 					placesVoronoi.add(new JSONObject(line));
 				}
+
+				else if(FeatureTypes.HIGHWAY_FEATURE_TYPE.equals(ftype)) {
+					streets.add(new JSONObject(line));
+				}
 			}
 			
 		});
@@ -113,9 +125,13 @@ public class PLTask implements Runnable {
 			List<JSONObject> boundaries = entry.getValue();
 			boundaries.addAll(common);
 			
-			addrPoints.add(handler.handle(entry.getKey(), boundaries, 
+			addrPoints.add(handler.handle(
+					entry.getKey(), 
+					boundaries, 
+					addr2streets.get(entry.getKey()),
 					addr2PlaceVoronoy.get(entry.getKey()), 
-					addr2NeighbourVoronoy.get(entry.getKey())));
+					addr2NeighbourVoronoy.get(entry.getKey()))
+			);
 		}
 		
 		PrintWriter printWriter = null;
@@ -139,26 +155,46 @@ public class PLTask implements Runnable {
 		}
 	}
 
-	@SuppressWarnings("unchecked")
 	private void join() {
 		for(JSONObject polygon : boundaries) {
 			Polygon polyg = getPolygonGeometry(polygon);
 			
-			Envelope polygonEnvelop = polyg.getEnvelopeInternal();
-			for (JSONObject pnt : (List<JSONObject>)addrPointsIndex.query(polygonEnvelop)) {
-				JSONArray pntg = pnt.getJSONObject(GeoJsonWriter.GEOMETRY).getJSONArray(GeoJsonWriter.COORDINATES);
-				if(polyg.contains(factory.createPoint(new Coordinate(pntg.getDouble(0), pntg.getDouble(1))))){
-					if(addr2bndries.get(pnt) == null) {
-						addr2bndries.put(pnt, new ArrayList<JSONObject>());
+			many2ManyJoin(polygon, polyg, addr2bndries);
+		}
+		
+		for (JSONObject strtJSON : streets) {
+			LineString ls = getLineStringGeometry(strtJSON);
+			Geometry buffer = ls.buffer(BUFFER_DISTANCE, 2, BufferOp.CAP_ROUND);
+			if(buffer instanceof Polygon) {
+				many2ManyJoin(strtJSON, (Polygon) buffer, addr2streets);
+			}
+			else if(buffer instanceof MultiPolygon) {
+				for(int i = 0; i < buffer.getNumGeometries(); i++) {
+					Polygon p = (Polygon) buffer.getGeometryN(i);
+					if(p.isValid()) {
+						many2ManyJoin(strtJSON, p, addr2streets);
 					}
-					
-					addr2bndries.get(pnt).add(polygon);
 				}
 			}
 		}
 		
 		one2OneJoin(placesVoronoi, addr2PlaceVoronoy);
 		one2OneJoin(neighboursVoronoi, addr2NeighbourVoronoy);
+	}
+
+	@SuppressWarnings("unchecked")
+	private void many2ManyJoin(JSONObject object, Polygon polyg, Map<JSONObject, List<JSONObject>> result) {
+		Envelope polygonEnvelop = polyg.getEnvelopeInternal();
+		for (JSONObject pnt : (List<JSONObject>)addrPointsIndex.query(polygonEnvelop)) {
+			JSONArray pntg = pnt.getJSONObject(GeoJsonWriter.GEOMETRY).getJSONArray(GeoJsonWriter.COORDINATES);
+			if(polyg.contains(factory.createPoint(new Coordinate(pntg.getDouble(0), pntg.getDouble(1))))){
+				if(result.get(pnt) == null) {
+					result.put(pnt, new ArrayList<JSONObject>());
+				}
+				
+				result.get(pnt).add(object);
+			}
+		}
 	}
 
 	@SuppressWarnings("unchecked")
@@ -182,7 +218,7 @@ public class PLTask implements Runnable {
 		LinearRing[] holes = new LinearRing[coords.length() - 1];
 		for(int lineIndex = 0;lineIndex < coords.length(); lineIndex++) {
 			JSONArray line = coords.getJSONArray(lineIndex);
-			LinearRing lg = getLineGeometry(line);
+			LinearRing lg = getLinearRingGeometry(line);
 			if(lineIndex == 0) {
 				shell = lg;
 			}
@@ -193,7 +229,7 @@ public class PLTask implements Runnable {
 		return factory.createPolygon(shell, holes);
 	}
 
-	private LinearRing getLineGeometry(JSONArray line) {
+	private LinearRing getLinearRingGeometry(JSONArray line) {
 		Coordinate[] coords = new Coordinate[line.length()];
 		
 		for(int i = 0; i < line.length(); i++) {
@@ -204,5 +240,16 @@ public class PLTask implements Runnable {
 		return factory.createLinearRing(coords);
 	}
 
+	private LineString getLineStringGeometry(JSONObject strtJSON) {
+		JSONArray coordsJSON = strtJSON.getJSONObject("geometry").getJSONArray("coordinates");
+		Coordinate[] coords = new Coordinate[coordsJSON.length()];
+		
+		for(int i = 0; i < coordsJSON.length(); i++) {
+			JSONArray p = coordsJSON.getJSONArray(i);
+			coords[i] = new Coordinate(p.getDouble(0), p.getDouble(1));
+		}
+		
+		return factory.createLineString(coords);
+	}
 	
 }

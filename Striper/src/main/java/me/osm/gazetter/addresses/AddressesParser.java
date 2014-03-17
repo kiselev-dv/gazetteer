@@ -42,7 +42,7 @@ public class AddressesParser {
 	}
 	
 
-	public JSONArray parse(JSONObject addrPoint, List<JSONObject> boundaries) {
+	public JSONArray parse(JSONObject addrPoint, List<JSONObject> boundaries, List<JSONObject> nearbyStreets) {
 		
 		JSONArray result = new JSONArray();
 		
@@ -54,7 +54,7 @@ public class AddressesParser {
 			
 			addrJsonRow.add(hnAsJSON(addrPoint, addrRow));
 			
-			JSONObject streetAsJSON = streetAsJSON(addrPoint, addrRow, null, null);
+			JSONObject streetAsJSON = streetAsJSON(addrPoint, addrRow, null, nearbyStreets);
 			if(streetAsJSON != null) {
 				addrJsonRow.add(streetAsJSON);
 			}
@@ -147,7 +147,8 @@ public class AddressesParser {
 		baseJSON.put("names", AddressesUtils.filterNameTags(bndry));
 	}
 
-	private JSONObject streetAsJSON(JSONObject addrPoint, JSONObject addrRow, JSONObject associatedStreet, List<JSONObject> linkedStreets) {
+	private JSONObject streetAsJSON(JSONObject addrPoint, JSONObject addrRow, 
+			JSONObject associatedStreet, List<JSONObject> nearbyStreets) {
 		
 		if(!addrRow.has("addr:street")) {
 			return null;
@@ -155,8 +156,8 @@ public class AddressesParser {
 		
 		String street = addrRow.getString("addr:street");
 
-		if(associatedStreet == null && linkedStreets != null) {
-			for(JSONObject ls : linkedStreets) {
+		if(associatedStreet == null && nearbyStreets != null) {
+			for(JSONObject ls : nearbyStreets) {
 				if(containValue(street, AddressesUtils.filterNameTags(ls))) {
 					associatedStreet = ls;
 					break;

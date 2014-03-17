@@ -290,6 +290,7 @@ public class Slicer implements BoundariesBuilder.BoundariesHandler,
 		@SuppressWarnings("unchecked")
 		JSONObject r = GeoJsonWriter.createFeature(fid, FeatureTypes.JUNCTION_FTYPE, Collections.EMPTY_MAP, pnt, meta);
 		r.put("ways", new JSONArray(highways));
+		GeoJsonWriter.addTimestamp(r);
 		writeOut(r.toString(), n);
 	}
 

@@ -3,7 +3,7 @@ package me.osm.gazetter.pointlocation;
 import java.util.List;
 
 import me.osm.gazetter.addresses.AddressesParser;
-import me.osm.gazetter.striper.GeoJsonWriter;
+import me.osm.gazetter.striper.JSONFeature;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -14,30 +14,29 @@ public class AddrPointFormatter implements AddrJointHandler {
 
 	@Override
 	public JSONObject handle(JSONObject addrPoint, List<JSONObject> boundaries, 
-			JSONObject nearestPlace, JSONObject nearesNeighbour) {
+			List<JSONObject> nearbyStreets,
+			JSONObject nearestPlace, 
+			JSONObject nearesNeighbour) {
 		
-		JSONArray addresses = parser.parse(addrPoint, boundaries);
+		List<JSONObject> streetsRefers = JSONFeature.asRefers(nearbyStreets);
+		JSONArray addresses = parser.parse(addrPoint, boundaries, streetsRefers);
 		
 		addrPoint.put("addresses", addresses);
 		
 		if(nearestPlace != null) {
-			addrPoint.put("nearestCity", asRefer(nearestPlace));
+			addrPoint.put("nearestCity", JSONFeature.asRefer(nearestPlace));
 		}
 		
 		if(nearesNeighbour != null) {
-			addrPoint.put("nearestNeighbour", asRefer(nearesNeighbour));
+			addrPoint.put("nearestNeighbour", JSONFeature.asRefer(nearesNeighbour));
+		}
+		
+		if(nearbyStreets != null) {
+			addrPoint.put("nearbyStreets", new JSONArray(streetsRefers));
 		}
 		
 		return addrPoint;
 	}
 
-	private JSONObject asRefer(JSONObject nearestPlace) {
-		JSONObject result = new JSONObject();
-		result.put("id", nearestPlace.getString("id"));
-		result.put(GeoJsonWriter.PROPERTIES, nearestPlace.getJSONObject(GeoJsonWriter.PROPERTIES));
-		return result;
-	}
-
-	
 	
 }
