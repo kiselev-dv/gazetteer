@@ -7,10 +7,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
+import me.osm.gazetter.addresses.AddressesParser;
 import me.osm.gazetter.striper.FeatureTypes;
 import me.osm.gazetter.striper.GeoJsonWriter;
 import me.osm.gazetter.striper.JSONFeature;
@@ -39,6 +42,7 @@ public class PLTask implements Runnable {
 	
 	private final List<JSONObject> addrPoints = new ArrayList<>();
 	private final Quadtree addrPointsIndex = new Quadtree();
+	private final Quadtree streetsPointsIndex = new Quadtree();
 	
 	private final List<JSONObject> boundaries = new ArrayList<>();
 	private final List<JSONObject> placesVoronoi = new ArrayList<>();
@@ -69,6 +73,7 @@ public class PLTask implements Runnable {
 	
 	private final Map<JSONObject, List<JSONObject>> addr2streets = new HashMap<JSONObject, List<JSONObject>>(); 
 	private final Map<JSONObject, List<JSONObject>> addr2bndries = new HashMap<JSONObject, List<JSONObject>>(); 
+	private final Map<JSONObject, Set<JSONObject>> street2bndries = new HashMap<JSONObject, Set<JSONObject>>(); 
 	private final Map<JSONObject, JSONObject> addr2PlaceVoronoy = new HashMap<>(); 
 	private final Map<JSONObject, JSONObject> addr2NeighbourVoronoy = new HashMap<>(); 
 
@@ -112,6 +117,15 @@ public class PLTask implements Runnable {
 		}
 		Collections.sort(boundaries, BY_ID_COMPARATOR);
 		
+		for(JSONObject street : streets) {
+			JSONArray ca = street.getJSONObject(GeoJsonWriter.GEOMETRY).getJSONArray(GeoJsonWriter.COORDINATES);
+			for(int i =0; i < ca.length(); i++) {
+				JSONArray p = ca.getJSONArray(i);
+				Coordinate coordinate = new Coordinate(p.getDouble(0), p.getDouble(1));
+				streetsPointsIndex.insert(new Envelope(coordinate), new Object[]{coordinate, street});
+			}
+		}
+		
 		join();
 		
 		write();
@@ -143,6 +157,16 @@ public class PLTask implements Runnable {
 				printWriter.println(new JSONFeature(json).toString());
 			}
 			
+			for(Entry<JSONObject, Set<JSONObject>> entry : street2bndries.entrySet()) {
+				List<JSONObject> boundaries = new ArrayList<>(entry.getValue());
+				boundaries.addAll(common);
+				JSONObject street = entry.getKey();
+				//TODO split in case of two or more parts with same lvl
+				street.put("boundaries", AddressesParser.boundariesAsArray(boundaries));
+				GeoJsonWriter.addTimestamp(street);
+				printWriter.println(street.toString());
+			}
+			
 			printWriter.flush();
 		}
 		catch (Exception e) {
@@ -156,23 +180,25 @@ public class PLTask implements Runnable {
 	}
 
 	private void join() {
-		for(JSONObject polygon : boundaries) {
-			Polygon polyg = getPolygonGeometry(polygon);
+		for(JSONObject boundary : boundaries) {
+			Polygon polygon = getPolygonGeometry(boundary);
 			
-			many2ManyJoin(polygon, polyg, addr2bndries);
+			many2ManyJoin(boundary, polygon, addr2bndries, addrPointsIndex);
+			many2ManyHashJoin(boundary, polygon, street2bndries, streetsPointsIndex);
 		}
 		
 		for (JSONObject strtJSON : streets) {
 			LineString ls = getLineStringGeometry(strtJSON);
+			
 			Geometry buffer = ls.buffer(BUFFER_DISTANCE, 2, BufferOp.CAP_ROUND);
 			if(buffer instanceof Polygon) {
-				many2ManyJoin(strtJSON, (Polygon) buffer, addr2streets);
+				many2ManyJoin(strtJSON, (Polygon) buffer, addr2streets, addrPointsIndex);
 			}
 			else if(buffer instanceof MultiPolygon) {
 				for(int i = 0; i < buffer.getNumGeometries(); i++) {
 					Polygon p = (Polygon) buffer.getGeometryN(i);
 					if(p.isValid()) {
-						many2ManyJoin(strtJSON, p, addr2streets);
+						many2ManyJoin(strtJSON, p, addr2streets, addrPointsIndex);
 					}
 				}
 			}
@@ -182,17 +208,37 @@ public class PLTask implements Runnable {
 		one2OneJoin(neighboursVoronoi, addr2NeighbourVoronoy);
 	}
 
-	@SuppressWarnings("unchecked")
-	private void many2ManyJoin(JSONObject object, Polygon polyg, Map<JSONObject, List<JSONObject>> result) {
+	private void many2ManyJoin(JSONObject object, Polygon polyg, Map<JSONObject, List<JSONObject>> result, Quadtree index) {
 		Envelope polygonEnvelop = polyg.getEnvelopeInternal();
-		for (JSONObject pnt : (List<JSONObject>)addrPointsIndex.query(polygonEnvelop)) {
-			JSONArray pntg = pnt.getJSONObject(GeoJsonWriter.GEOMETRY).getJSONArray(GeoJsonWriter.COORDINATES);
-			if(polyg.contains(factory.createPoint(new Coordinate(pntg.getDouble(0), pntg.getDouble(1))))){
-				if(result.get(pnt) == null) {
-					result.put(pnt, new ArrayList<JSONObject>());
+		for (Object entry : index.query(polygonEnvelop)) {
+			
+			JSONArray pntg = ((JSONObject)entry).getJSONObject(GeoJsonWriter.GEOMETRY).getJSONArray(GeoJsonWriter.COORDINATES);
+			Coordinate pnt = new Coordinate(pntg.getDouble(0), pntg.getDouble(1));;
+			JSONObject obj = (JSONObject) entry;
+			
+			if(polyg.intersects(factory.createPoint(pnt))) {
+				if(result.get(obj) == null) {
+					result.put(obj, new ArrayList<JSONObject>());
 				}
 				
-				result.get(pnt).add(object);
+				result.get(obj).add(object);
+			}
+		}
+	}
+
+	private void many2ManyHashJoin(JSONObject object, Polygon polyg, Map<JSONObject, Set<JSONObject>> result, Quadtree index) {
+		Envelope polygonEnvelop = polyg.getEnvelopeInternal();
+		for (Object entry : index.query(polygonEnvelop)) {
+			
+			Coordinate pnt = (Coordinate) ((Object[])entry)[0];
+			JSONObject obj = (JSONObject) ((Object[])entry)[1];
+			
+			if(polyg.intersects(factory.createPoint(pnt))) {
+				if(result.get(obj) == null) {
+					result.put(obj, new HashSet<JSONObject>());
+				}
+				
+				result.get(obj).add(object);
 			}
 		}
 	}

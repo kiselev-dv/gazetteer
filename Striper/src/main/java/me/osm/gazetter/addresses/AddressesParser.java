@@ -127,7 +127,7 @@ public class AddressesParser {
 		return result;
 	}
 
-	private String joinNames(List<JSONObject> addrJsonRow) {
+	private static String joinNames(List<JSONObject> addrJsonRow) {
 		
 		StringBuilder sb = new StringBuilder();
 		
@@ -306,5 +306,47 @@ public class AddressesParser {
 		
 		return result;
 	}
+	
+	public static JSONObject boundariesAsArray(List<JSONObject> input) {
+		List<JSONObject> result = new ArrayList<>();
+		
+		for(JSONObject bndry : input) {
+			int addrLevel = getAddrLevel(bndry); 
+			if(addrLevel >= 0) {
+				
+				JSONObject addrLVL = new JSONObject();
+				addrLVL.put("lnk", bndry.getString("id"));
+				
+				Map<String, String> nTags = AddressesUtils.filterNameTags(bndry);
+				
+				if(!nTags.containsKey("name")) {
+					continue;
+				}
+				
+				addrLVL.put("lvl", addrLevel);
+				addrLVL.put("name", nTags.get("name"));
+				addrLVL.put("names", new JSONObject(nTags));
+				
+				result.add(addrLVL);
+			}
+		}
+
+		JSONObject fullAddressRow = new JSONObject();
+		Collections.sort(result, new Comparator<JSONObject>() {
+			
+			@Override
+			public int compare(JSONObject o1, JSONObject o2) {
+				int i1 = o1.getInt("lvl");
+				int i2 = o2.getInt("lvl");
+				return i1 - i2;
+			}
+			
+		});
+		
+		fullAddressRow.put("text", joinNames(result));
+		fullAddressRow.put("parts", new JSONArray(result));
+		
+		return fullAddressRow;
+	} 
 	
 }
