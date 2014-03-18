@@ -53,7 +53,11 @@ public class GeoJsonWriter {
 		
 	}
 	
-	private static JSONObject geometryToJSON(Geometry g) {
+	public static JSONObject geometryToJSON(Geometry g) {
+		if(g == null) {
+			return null;
+		}
+		
 		if(g instanceof Polygon) {
 			JSONObject geomJSON = new JSONObject();
 			geomJSON.put(GEOMETRY_TYPE, "Polygon");

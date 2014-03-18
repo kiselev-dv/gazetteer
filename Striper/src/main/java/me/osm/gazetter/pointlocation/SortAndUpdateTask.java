@@ -12,7 +12,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import me.osm.gazetter.striper.GeoJsonWriter;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.time.DateUtils;
 
 public class SortAndUpdateTask implements Runnable {
 

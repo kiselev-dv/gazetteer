@@ -12,17 +12,19 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import me.osm.gazetter.dao.FileWriteDao;
 import me.osm.gazetter.dao.WriteDao;
 import me.osm.gazetter.striper.builders.AddrPointsBuilder;
 import me.osm.gazetter.striper.builders.AddrPointsBuilder.AddrPointHandler;
 import me.osm.gazetter.striper.builders.BoundariesBuilder;
+import me.osm.gazetter.striper.builders.BoundariesHandler;
 import me.osm.gazetter.striper.builders.HighwaysBuilder;
 import me.osm.gazetter.striper.builders.HighwaysBuilder.HighwaysHandler;
 import me.osm.gazetter.striper.builders.HighwaysBuilder.JunctionsHandler;
-import me.osm.gazetter.striper.builders.PlacePointsBuilder;
-import me.osm.gazetter.striper.builders.PlacePointsBuilder.PlacePointHandler;
+import me.osm.gazetter.striper.builders.PlaceBuilder;
+import me.osm.gazetter.striper.builders.PlaceBuilder.PlacePointHandler;
 import me.osm.gazetter.striper.readers.WaysReader.Way;
 import me.osm.gazetter.utils.GeometryUtils;
 
@@ -42,10 +44,11 @@ import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
 import com.vividsolutions.jts.io.WKTWriter;
 
-public class Slicer implements BoundariesBuilder.BoundariesHandler, 
+public class Slicer implements BoundariesHandler, 
 	AddrPointHandler, PlacePointHandler, HighwaysHandler, JunctionsHandler {
 	
-	private static final Logger log = LoggerFactory.getLogger(Slicer.class.getName()); 
+	private static final Logger log = LoggerFactory.getLogger(Slicer.class.getName());
+	private static volatile int threadPoolUsers = 0;
 
 	private static final GeometryFactory factory = new GeometryFactory();
 	private static final ExecutorService executorService = Executors.newFixedThreadPool(4);
@@ -81,7 +84,7 @@ public class Slicer implements BoundariesBuilder.BoundariesHandler,
 		new Engine().filter(osmFilePath, 
 				new BoundariesBuilder(instance), 
 				new AddrPointsBuilder(instance), 
-				new PlacePointsBuilder(instance),
+				new PlaceBuilder(instance, instance),
 				new HighwaysBuilder(instance, instance));
 		
 		writeDAO.close();
@@ -91,37 +94,35 @@ public class Slicer implements BoundariesBuilder.BoundariesHandler,
 
 	private static class SliceTask implements Runnable {
 
-		private Map<String, String> attributes;
 		private MultiPolygon multiPolygon;
-		private JSONObject meta;
 		private Slicer slicer;
+		private JSONObject featureWG;
 		
-		public SliceTask(Map<String, String> attributes,
-				MultiPolygon multiPolygon, JSONObject meta, Slicer slicer) {
-			this.attributes = attributes;
+		public SliceTask(JSONObject featureWG,
+				MultiPolygon multiPolygon, Slicer slicer) {
+			this.featureWG = featureWG;
 			this.multiPolygon = multiPolygon;
-			this.meta = meta;
 			this.slicer = slicer;
 		}
 
 		@Override
 		public void run() {
-			slicer.stripeBoundary(attributes, multiPolygon, meta);
+			slicer.stripeBoundary(featureWG, multiPolygon);
 		}
 		
 	}
 	
 	@Override
-	public void handleBoundary(Map<String, String> attributes,
-			MultiPolygon multiPolygon, JSONObject meta) {
-		executorService.execute(new SliceTask(attributes, multiPolygon, meta, this));
+	public void handleBoundary(JSONObject featureWG,
+			MultiPolygon multiPolygon) {
+		executorService.execute(new SliceTask(featureWG, multiPolygon, this));
 	}
 
-	private void stripeBoundary(Map<String, String> attributes,
-			MultiPolygon multiPolygon, JSONObject meta) {
+	private void stripeBoundary(JSONObject featureWithoutGeometry,
+			MultiPolygon multiPolygon) {
 		if(multiPolygon != null) {
 			
-			String id = null;
+			JSONObject meta = featureWithoutGeometry.getJSONObject(GeoJsonWriter.META);
 			
 			Envelope envelope = multiPolygon.getEnvelopeInternal();
 			JSONArray bbox = new JSONArray();
@@ -130,12 +131,7 @@ public class Slicer implements BoundariesBuilder.BoundariesHandler,
 			bbox.put(envelope.getMaxX());
 			bbox.put(envelope.getMaxY());
 			
-			if(attributes.containsKey("place")){
-				id = GeoJsonWriter.getId(FeatureTypes.PLACE_BOUNDARY_FTYPE, multiPolygon.getEnvelope().getCentroid(), meta);
-			}
-			else {
-				id = GeoJsonWriter.getId(FeatureTypes.ADMIN_BOUNDARY_FTYPE, multiPolygon.getEnvelope().getCentroid(), meta);
-			}
+			meta.put(GeoJsonWriter.ORIGINAL_BBOX, bbox);
 			
 			List<Polygon> polygons = new ArrayList<>();
 			
@@ -154,16 +150,11 @@ public class Slicer implements BoundariesBuilder.BoundariesHandler,
 				}
 			}
 			
-			meta.put(GeoJsonWriter.ORIGINAL_BBOX, bbox);
 			
 			for(Polygon p : polygons) {
 				String n = getFilePrefix(p.getEnvelope().getCentroid().getX());
-				if(attributes.containsKey("place")) {
-					writeOut(GeoJsonWriter.featureAsGeoJSON(id, FeatureTypes.PLACE_BOUNDARY_FTYPE, attributes, p, meta), n);
-				}
-				else {
-					writeOut(GeoJsonWriter.featureAsGeoJSON(id, FeatureTypes.ADMIN_BOUNDARY_FTYPE, attributes, p, meta), n);
-				}
+				featureWithoutGeometry.put(GeoJsonWriter.GEOMETRY, GeoJsonWriter.geometryToJSON(p));
+				writeOut(featureWithoutGeometry.toString(), n);
 			}
 		}
 	}
@@ -232,17 +223,19 @@ public class Slicer implements BoundariesBuilder.BoundariesHandler,
 
 
 	@Override
-	public void beforeLastRun() {
-		
+	public synchronized void beforeLastRun() {
+		threadPoolUsers++;
 	}
 
 	@Override
-	public void afterLastRun() {
-		executorService.shutdown();
-		try {
-			executorService.awaitTermination(1, TimeUnit.SECONDS);
-		} catch (InterruptedException e) {
-			log.error("Termination awaiting was interrupted", e);
+	public synchronized void afterLastRun() {
+		if(--threadPoolUsers == 0) {
+			executorService.shutdown();
+			try {
+				executorService.awaitTermination(10, TimeUnit.SECONDS);
+			} catch (InterruptedException e) {
+				log.error("Termination awaiting was interrupted", e);
+			}
 		}
 		
 	}
