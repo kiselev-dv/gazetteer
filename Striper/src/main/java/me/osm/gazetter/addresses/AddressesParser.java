@@ -16,6 +16,20 @@ import org.slf4j.LoggerFactory;
 
 public class AddressesParser {
 	
+	private static final String ADDR_NAMES = "names";
+
+	private static final String ADDR_NAME = "name";
+
+	private static final String ADDR_LVL = "lvl";
+
+	private static final String ADDR_PARTS = "parts";
+
+	private static final String ADDR_TEXT = "text";
+
+	private static final String ADDR_SCHEME = "addr-scheme";
+
+	private static final String ADDR_FULL = "addr:full";
+
 	private static final Logger log = LoggerFactory.getLogger(AddressesParser.class.getName());
 	
 	private static final Map<String, Integer> type2level = new HashMap<>();
@@ -62,16 +76,16 @@ public class AddressesParser {
 			JSONObject quarterJSON = null;
 			if(addrRow.has("addr:quarter")) {
 				quarterJSON = new JSONObject();
-				quarterJSON.put("name", addrRow.getString("addr:quarter"));
-				quarterJSON.put("lvl", type2level.get("place:quarter"));
+				quarterJSON.put(ADDR_NAME, addrRow.getString("addr:quarter"));
+				quarterJSON.put(ADDR_LVL, type2level.get("place:quarter"));
 				addrJsonRow.add(quarterJSON);
 			}
 
 			JSONObject cityJSON = null;
 			if(addrRow.has("addr:city")) {
 				cityJSON = new JSONObject();
-				cityJSON.put("name", addrRow.getString("addr:city"));
-				cityJSON.put("lvl", type2level.get("place:city"));
+				cityJSON.put(ADDR_NAME, addrRow.getString("addr:city"));
+				cityJSON.put(ADDR_LVL, type2level.get("place:city"));
 				addrJsonRow.add(cityJSON);
 			}
 			
@@ -94,13 +108,13 @@ public class AddressesParser {
 					
 					Map<String, String> nTags = AddressesUtils.filterNameTags(bndry);
 					
-					if(!nTags.containsKey("name")) {
+					if(!nTags.containsKey(ADDR_NAME)) {
 						continue;
 					}
 					
-					addrLVL.put("lvl", addrLevel);
-					addrLVL.put("name", nTags.get("name"));
-					addrLVL.put("names", new JSONObject(nTags));
+					addrLVL.put(ADDR_LVL, addrLevel);
+					addrLVL.put(ADDR_NAME, nTags.get(ADDR_NAME));
+					addrLVL.put(ADDR_NAMES, new JSONObject(nTags));
 					
 					addrJsonRow.add(addrLVL);
 				}
@@ -110,18 +124,26 @@ public class AddressesParser {
 
 				@Override
 				public int compare(JSONObject o1, JSONObject o2) {
-					int i1 = o1.getInt("lvl");
-					int i2 = o2.getInt("lvl");
+					int i1 = o1.getInt(ADDR_LVL);
+					int i2 = o2.getInt(ADDR_LVL);
 					return i1 - i2;
 				}
 				
 			});
 			
 			JSONObject fullAddressRow = new JSONObject();
-			fullAddressRow.put("text", joinNames(addrJsonRow));
-			fullAddressRow.put("parts", new JSONArray(addrJsonRow));
+			fullAddressRow.put(ADDR_TEXT, joinNames(addrJsonRow));
+			fullAddressRow.put(ADDR_PARTS, new JSONArray(addrJsonRow));
+			fullAddressRow.put(ADDR_SCHEME, addrRow.optString(ADDR_SCHEME));
 			
 			result.put(fullAddressRow);
+		}
+		
+		if(StringUtils.isNotBlank(properties.optString(ADDR_FULL))) {
+			JSONObject addrFull = new JSONObject();
+			addrFull.put(ADDR_TEXT, properties.optString(ADDR_FULL));
+			addrFull.put(ADDR_SCHEME, properties.optString(ADDR_FULL));
+			result.put(addrFull);
 		}
 		
 		return result;
@@ -132,7 +154,7 @@ public class AddressesParser {
 		StringBuilder sb = new StringBuilder();
 		
 		for(JSONObject lvl : addrJsonRow) {
-			sb.append(", ").append(lvl.getString("name"));
+			sb.append(", ").append(lvl.getString(ADDR_NAME));
 		}
 		
 		if(sb.length() > 2) {
@@ -144,7 +166,7 @@ public class AddressesParser {
 
 	private void joinAddrLvl(JSONObject baseJSON, JSONObject bndry) {
 		baseJSON.put("lnk", bndry.getString("id"));
-		baseJSON.put("names", AddressesUtils.filterNameTags(bndry));
+		baseJSON.put(ADDR_NAMES, AddressesUtils.filterNameTags(bndry));
 	}
 
 	private JSONObject streetAsJSON(JSONObject addrPoint, JSONObject addrRow, 
@@ -166,11 +188,11 @@ public class AddressesParser {
 		}
 		
 		JSONObject streetAddrPart = new JSONObject();
-		streetAddrPart.put("name", street);
-		streetAddrPart.put("lvl", type2level.get("street"));
+		streetAddrPart.put(ADDR_NAME, street);
+		streetAddrPart.put(ADDR_LVL, type2level.get("street"));
 		
 		if(associatedStreet != null) {
-			streetAddrPart.put("names", new JSONObject(AddressesUtils.filterNameTags(associatedStreet)));
+			streetAddrPart.put(ADDR_NAMES, new JSONObject(AddressesUtils.filterNameTags(associatedStreet)));
 			streetAddrPart.put("lnk", associatedStreet.optString("id"));
 		}
 		
@@ -186,12 +208,12 @@ public class AddressesParser {
 		JSONObject hnAddrPart = new JSONObject();
 		
 		String hn = addrRow.optString("addr:housenumber");
-		hnAddrPart.put("name", hn);
-		hnAddrPart.put("lvl", type2level.get("hn"));
+		hnAddrPart.put(ADDR_NAME, hn);
+		hnAddrPart.put(ADDR_LVL, type2level.get("hn"));
 		hnAddrPart.put("lnk", addrPoint.optString("id"));
 
 		JSONObject names = new JSONObject();
-		hnAddrPart.put("names", names);
+		hnAddrPart.put(ADDR_NAMES, names);
 		
 		if(addrRow.has("addr:housename")) {
 			names.put("addr:housename", addrRow.getString("addr:housename"));
@@ -233,7 +255,7 @@ public class AddressesParser {
 		if(properties.has("addr:housenumber2")) {
 			
 			JSONObject addr1 = (JSONObject) JSONObject.wrap(properties);;
-			addr1.put("addr-scheme", "addr:hn2-1");
+			addr1.put(ADDR_SCHEME, "addr:hn2-1");
 			result.add(addr1);
 
 			String hn2 = properties.optString("addr:housenumber2");
@@ -242,7 +264,7 @@ public class AddressesParser {
 			JSONObject addr2 = new JSONObject(properties);
 			if(StringUtils.isNotEmpty(hn2)) {
 				addr2.put("addr:housenumber", hn2);
-				addr2.put("addr-scheme", "addr:hn2-2");
+				addr2.put(ADDR_SCHEME, "addr:hn2-2");
 				if(StringUtils.isNotEmpty(street2)) {
 					addr2.put("addr:street", street2);
 				}
@@ -271,14 +293,14 @@ public class AddressesParser {
 				JSONObject addr1 = (JSONObject) JSONObject.wrap(properties);
 				addr1.put("addr:housenumber", split[0]);
 				addr1.put("addr:hn-orig", hn);
-				addr1.put("addr-scheme", "addr:street2-1");
+				addr1.put(ADDR_SCHEME, "addr:street2-1");
 				result.add(addr1);
 
 				JSONObject addr2 = (JSONObject) JSONObject.wrap(properties);
 				addr2.put("addr:housenumber", split[1]);
 				addr2.put("addr:street", s2);
 				addr2.put("addr:hn-orig", hn);
-				addr2.put("addr-scheme", "addr:street2-2");
+				addr2.put(ADDR_SCHEME, "addr:street2-2");
 				result.add(addr2);
 			}
 			else {
@@ -289,18 +311,18 @@ public class AddressesParser {
 		//TODO: search for all addrN levels and Ns
 		else if(properties.has("addr2:housenumber")) {
 			JSONObject addr1 = (JSONObject) JSONObject.wrap(properties);
-			addr1.put("addr-scheme", "addrN-1");
+			addr1.put(ADDR_SCHEME, "addrN-1");
 			result.add(addr1);
 
 			JSONObject addr2 = (JSONObject) JSONObject.wrap(properties);
 			addr2.put("addr:housenumber", properties.optString("addr2:housenumber"));
 			addr2.put("addr:street", properties.optString("addr:street2"));
-			addr2.put("addr-scheme", "addrN-2");
+			addr2.put(ADDR_SCHEME, "addrN-2");
 			result.add(addr2);
 		}
 		else {
 			JSONObject addr1 = (JSONObject) JSONObject.wrap(properties);
-			addr1.put("addr-scheme", "regular");
+			addr1.put(ADDR_SCHEME, "regular");
 			result.add(addr1);
 		}
 		
@@ -319,13 +341,13 @@ public class AddressesParser {
 				
 				Map<String, String> nTags = AddressesUtils.filterNameTags(bndry);
 				
-				if(!nTags.containsKey("name")) {
+				if(!nTags.containsKey(ADDR_NAME)) {
 					continue;
 				}
 				
-				addrLVL.put("lvl", addrLevel);
-				addrLVL.put("name", nTags.get("name"));
-				addrLVL.put("names", new JSONObject(nTags));
+				addrLVL.put(ADDR_LVL, addrLevel);
+				addrLVL.put(ADDR_NAME, nTags.get(ADDR_NAME));
+				addrLVL.put(ADDR_NAMES, new JSONObject(nTags));
 				
 				result.add(addrLVL);
 			}
@@ -336,15 +358,15 @@ public class AddressesParser {
 			
 			@Override
 			public int compare(JSONObject o1, JSONObject o2) {
-				int i1 = o1.getInt("lvl");
-				int i2 = o2.getInt("lvl");
+				int i1 = o1.getInt(ADDR_LVL);
+				int i2 = o2.getInt(ADDR_LVL);
 				return i1 - i2;
 			}
 			
 		});
 		
-		fullAddressRow.put("text", joinNames(result));
-		fullAddressRow.put("parts", new JSONArray(result));
+		fullAddressRow.put(ADDR_TEXT, joinNames(result));
+		fullAddressRow.put(ADDR_PARTS, new JSONArray(result));
 		
 		return fullAddressRow;
 	} 
