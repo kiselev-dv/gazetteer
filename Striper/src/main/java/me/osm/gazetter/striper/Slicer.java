@@ -199,9 +199,21 @@ public class Slicer implements BoundariesHandler,
 			LineString blade = factory.createLineString(new Coordinate[]{new Coordinate(snapX, 89.0), new Coordinate(snapX, -89.0)});
 			Geometry intersection = l.intersection(blade);
 			if(!intersection.isEmpty()) {
-				Point ip = intersection.getCentroid();
-				for(LineString split : GeometryUtils.split(l, ip.getCoordinate(), false)) {
-					stripe(split, result);
+				//intersection in one point
+				if(intersection.getNumGeometries() == 1) {
+					Geometry ip = intersection.getCentroid();
+					for(LineString split : GeometryUtils.split(l, ip.getCoordinate(), false)) {
+						stripe(split, result);
+					}
+				}
+				//curved line with 2 and more intersections
+				else {
+					for(int i = 0; i < intersection.getNumGeometries(); i++) {
+						Geometry ip = intersection.getGeometryN(i).getCentroid();
+						for(LineString split : GeometryUtils.split(l, ip.getCoordinate(), false)) {
+							stripe(split, result);
+						}
+					}
 				}
 			}
 		}
