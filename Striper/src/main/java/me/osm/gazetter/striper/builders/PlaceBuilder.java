@@ -229,6 +229,12 @@ public class PlaceBuilder extends BoundariesBuilder {
 		// original coords
 		JSONObject rfeature = mergeDeloneyCenter(placeFeature,
 				originalCityPolygon, FeatureTypes.PLACE_DELONEY_FTYPE);
+		
+		assert GeoJsonWriter.getId(rfeature.toString()).equals(rfeature.optString("id")) 
+			: "Failed getId for " + rfeature.toString();
+
+		assert GeoJsonWriter.getFtype(rfeature.toString()).equals(FeatureTypes.PLACE_DELONEY_FTYPE) 
+			: "Failed getFtype for " + rfeature.toString();
 
 		// original coordinates
 		writePolygonToExistFiles(originalCityPolygon, rfeature);
@@ -304,6 +310,12 @@ public class PlaceBuilder extends BoundariesBuilder {
 		JSONObject rfeature = mergeDeloneyCenter(neighbourFeature,
 				neighbourPolygon, FeatureTypes.NEIGHBOUR_DELONEY_FTYPE);
 		rfeature.put("cityID", cityFeature.getString("id"));
+		
+		assert GeoJsonWriter.getId(rfeature.toString()).equals(rfeature.optString("id")) 
+			: "Failed getId for " + rfeature.toString();
+
+		assert GeoJsonWriter.getFtype(rfeature.toString()).equals(FeatureTypes.NEIGHBOUR_DELONEY_FTYPE) 
+			: "Failed getFtype for " + rfeature.toString();
 
 		writePolygonToExistFiles(neighbourPolygon, rfeature);
 
@@ -411,6 +423,12 @@ public class PlaceBuilder extends BoundariesBuilder {
 		
 		mergeWithCenter(featureWithoutGeometry, geometry);
 		
+		assert GeoJsonWriter.getId(featureWithoutGeometry.toString()).equals(id) 
+			: "Failed getId for " + featureWithoutGeometry.toString();
+
+		assert GeoJsonWriter.getFtype(featureWithoutGeometry.toString()).equals(FeatureTypes.PLACE_BOUNDARY_FTYPE) 
+			: "Failed getFtype " + featureWithoutGeometry.toString();
+		
 		super.handler.handleBoundary(featureWithoutGeometry, geometry);
 	}
 
@@ -425,6 +443,12 @@ public class PlaceBuilder extends BoundariesBuilder {
 		JSONObject featureWithoutGeometry = GeoJsonWriter.createFeature(id, fType, line.tags, null, meta);
 		
 		mergeWithCenter(featureWithoutGeometry, multiPolygon);
+		
+		assert GeoJsonWriter.getId(featureWithoutGeometry.toString()).equals(id) 
+			: "Failed getId for " + featureWithoutGeometry.toString();
+
+		assert GeoJsonWriter.getFtype(featureWithoutGeometry.toString()).equals(FeatureTypes.PLACE_BOUNDARY_FTYPE) 
+			: "Failed getFtype for " + featureWithoutGeometry.toString();
 		
 		super.handler.handleBoundary(featureWithoutGeometry, multiPolygon);
 	}

@@ -12,7 +12,6 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import me.osm.gazetter.dao.FileWriteDao;
 import me.osm.gazetter.dao.WriteDao;
@@ -69,8 +68,6 @@ public class Slicer implements BoundariesHandler,
 	}
 	
 	public static void main(String[] args) {
-		
-		
 		String osmFilePath = args[0];
 		String osmSlicesPath = args[1];
 		
@@ -154,7 +151,8 @@ public class Slicer implements BoundariesHandler,
 			for(Polygon p : polygons) {
 				String n = getFilePrefix(p.getEnvelope().getCentroid().getX());
 				featureWithoutGeometry.put(GeoJsonWriter.GEOMETRY, GeoJsonWriter.geometryToJSON(p));
-				writeOut(featureWithoutGeometry.toString(), n);
+				String geoJSONString = featureWithoutGeometry.toString();
+				writeOut(geoJSONString, n);
 			}
 		}
 	}
@@ -246,7 +244,15 @@ public class Slicer implements BoundariesHandler,
 		String id = GeoJsonWriter.getId(FeatureTypes.ADDR_POINT_FTYPE, point, meta);
 		String n = getFilePrefix(point.getX());
 		
-		writeOut(GeoJsonWriter.featureAsGeoJSON(id, FeatureTypes.ADDR_POINT_FTYPE, attributes, point, meta), n);
+		String geoJSONString = GeoJsonWriter.featureAsGeoJSON(id, FeatureTypes.ADDR_POINT_FTYPE, attributes, point, meta);
+		
+		assert GeoJsonWriter.getId(geoJSONString).equals(id) 
+			: "Failed getId for " + geoJSONString;
+		
+		assert GeoJsonWriter.getFtype(geoJSONString).equals(FeatureTypes.ADDR_POINT_FTYPE) 
+			: "Failed getFtype for " + geoJSONString;
+		
+		writeOut(geoJSONString, n);
 	}
 
 	public static String getFilePrefix(double x) {
@@ -258,7 +264,15 @@ public class Slicer implements BoundariesHandler,
 			JSONObject meta) {
 		String fid = GeoJsonWriter.getId(FeatureTypes.PLACE_POINT_FTYPE, pnt, meta);
 		String n = getFilePrefix(pnt.getX());
-		writeOut(GeoJsonWriter.featureAsGeoJSON(fid, FeatureTypes.PLACE_POINT_FTYPE, tags, pnt, meta), n);
+		String geoJSONString = GeoJsonWriter.featureAsGeoJSON(fid, FeatureTypes.PLACE_POINT_FTYPE, tags, pnt, meta);
+		
+		assert GeoJsonWriter.getId(geoJSONString).equals(fid) 
+			: "Failed getId for " + geoJSONString;
+
+		assert GeoJsonWriter.getFtype(geoJSONString).equals(FeatureTypes.PLACE_POINT_FTYPE) 
+			: "Failed getFtype for " + geoJSONString;
+		
+		writeOut(geoJSONString, n);
 	}
 
 	@Override
@@ -276,7 +290,16 @@ public class Slicer implements BoundariesHandler,
 		JSONObject r = GeoJsonWriter.createFeature(fid, FeatureTypes.JUNCTION_FTYPE, Collections.EMPTY_MAP, pnt, meta);
 		r.put("ways", new JSONArray(highways));
 		GeoJsonWriter.addTimestamp(r);
-		writeOut(r.toString(), n);
+		
+		String geoJSONString = r.toString();
+		
+		assert GeoJsonWriter.getId(geoJSONString).equals(fid) 
+			: "Failed getId for " + geoJSONString;
+
+		assert GeoJsonWriter.getFtype(geoJSONString).equals(FeatureTypes.JUNCTION_FTYPE) 
+			: "Failed getFtype for " + geoJSONString;
+		
+		writeOut(geoJSONString, n);
 	}
 
 	@Override
@@ -293,18 +316,26 @@ public class Slicer implements BoundariesHandler,
 		int min = new Double((env.getMinX() + 180.0) * 10.0).intValue();
 		int max = new Double((env.getMaxX() + 180.0) * 10.0).intValue();
 		
-		
 		Point centroid = geometry.getCentroid();
+		
 		String fid = GeoJsonWriter.getId(FeatureTypes.HIGHWAY_FEATURE_TYPE, centroid, meta);
+		String geoJSONString = GeoJsonWriter.featureAsGeoJSON(fid, FeatureTypes.HIGHWAY_FEATURE_TYPE, way.tags, geometry, meta);
+		
+		assert GeoJsonWriter.getId(geoJSONString).equals(fid) 
+			: "Failed getId for " + geoJSONString;
+	
+		assert GeoJsonWriter.getFtype(geoJSONString).equals(FeatureTypes.HIGHWAY_FEATURE_TYPE) 
+			: "Failed getFtype for " + geoJSONString;
+		
 		if(min == max) {
 			String n = getFilePrefix(centroid.getX());
-			writeOut(GeoJsonWriter.featureAsGeoJSON(fid, FeatureTypes.HIGHWAY_FEATURE_TYPE, way.tags, geometry, meta), n);
+			writeOut(geoJSONString, n);
 		}
 		else if(max - min == 1) {
 			//it's faster to write geometry as is in such case.
 			for(int i = min; i <= max; i++) {
 				String n = String.format("%04d", i); 
-				writeOut(GeoJsonWriter.featureAsGeoJSON(fid, FeatureTypes.HIGHWAY_FEATURE_TYPE, way.tags, geometry, meta), n);
+				writeOut(geoJSONString, n);
 			}
 		}
 		else {
@@ -317,7 +348,15 @@ public class Slicer implements BoundariesHandler,
 			}
 			for(LineString stripe : segments) {
 				String n = getFilePrefix(stripe.getCentroid().getX());
-				writeOut(GeoJsonWriter.featureAsGeoJSON(fid, FeatureTypes.HIGHWAY_FEATURE_TYPE, way.tags, stripe, meta), n);
+				String featureAsGeoJSON = GeoJsonWriter.featureAsGeoJSON(fid, FeatureTypes.HIGHWAY_FEATURE_TYPE, way.tags, stripe, meta);
+				
+				assert GeoJsonWriter.getId(featureAsGeoJSON).equals(fid) 
+					: "Failed getId for " + featureAsGeoJSON;
+		
+				assert GeoJsonWriter.getFtype(featureAsGeoJSON).equals(FeatureTypes.HIGHWAY_FEATURE_TYPE) 
+					: "Failed getFtype for " + featureAsGeoJSON;
+				
+				writeOut(featureAsGeoJSON, n);
 			}
 		}
 	}

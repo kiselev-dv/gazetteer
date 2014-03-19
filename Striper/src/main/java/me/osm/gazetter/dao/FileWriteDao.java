@@ -7,6 +7,8 @@ import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.Map;
 
+import me.osm.gazetter.striper.GeoJsonWriter;
+
 public class FileWriteDao implements WriteDao {
 
 	private static final Map<String, PrintWriter> writers = new HashMap<String, PrintWriter>();
@@ -21,6 +23,7 @@ public class FileWriteDao implements WriteDao {
 	public void write(String line, String key) throws IOException {
 		PrintWriter w = getWriter(key);
 		synchronized (w) {
+			assert GeoJsonWriter.getTimestamp(line) != null;
 			w.println(line);
 		}
 	}

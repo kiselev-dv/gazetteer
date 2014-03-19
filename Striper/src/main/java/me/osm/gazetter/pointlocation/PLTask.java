@@ -154,7 +154,15 @@ public class PLTask implements Runnable {
 			
 			for(JSONObject json : addrPoints) {
 				GeoJsonWriter.addTimestamp(json);
-				printWriter.println(new JSONFeature(json).toString());
+				String geoJSONString = new JSONFeature(json).toString();
+				
+				assert GeoJsonWriter.getId(geoJSONString).equals(json.optString("id")) 
+					: "Failed getId for " + geoJSONString;
+
+				assert GeoJsonWriter.getFtype(geoJSONString).equals(FeatureTypes.ADDR_POINT_FTYPE) 
+					: "Failed getFtype for " + geoJSONString;
+				
+				printWriter.println(geoJSONString);
 			}
 			
 			for(Entry<JSONObject, Set<JSONObject>> entry : street2bndries.entrySet()) {
@@ -164,7 +172,16 @@ public class PLTask implements Runnable {
 				//TODO split in case of two or more parts with same lvl
 				street.put("boundaries", AddressesParser.boundariesAsArray(boundaries));
 				GeoJsonWriter.addTimestamp(street);
-				printWriter.println(street.toString());
+				
+				String geoJSONString = new JSONFeature(street).toString();
+				
+				assert GeoJsonWriter.getId(geoJSONString).equals(street.optString("id")) 
+					: "Failed getId for " + geoJSONString;
+
+				assert GeoJsonWriter.getFtype(geoJSONString).equals(FeatureTypes.HIGHWAY_FEATURE_TYPE) 
+					: "Failed getFtype for " + geoJSONString;
+				
+				printWriter.println(geoJSONString);
 			}
 			
 			printWriter.flush();

@@ -114,6 +114,12 @@ public class BoundariesBuilder extends ABuilder {
 		String id = GeoJsonWriter.getId(fType, originalCentroid, meta);
 		JSONObject featureWithoutGeometry = GeoJsonWriter.createFeature(id, fType, rel.tags, null, meta);
 		
+		assert GeoJsonWriter.getId(featureWithoutGeometry.toString()).equals(id) 
+			: "Failed getId for " + featureWithoutGeometry.toString();
+	
+		assert GeoJsonWriter.getFtype(featureWithoutGeometry.toString()).equals(FeatureTypes.ADMIN_BOUNDARY_FTYPE) 
+			: "Failed getFtype for " + featureWithoutGeometry.toString();
+		
 		handler.handleBoundary(featureWithoutGeometry, geometry);
 	}
 
@@ -272,6 +278,12 @@ public class BoundariesBuilder extends ABuilder {
 		JSONObject meta = getWayMeta(line);
 		String id = GeoJsonWriter.getId(fType, originalCentroid, meta);
 		JSONObject featureWithoutGeometry = GeoJsonWriter.createFeature(id, fType, line.tags, null, meta);
+		
+		assert GeoJsonWriter.getId(featureWithoutGeometry.toString()).equals(id) 
+			: "Failed getId for " + featureWithoutGeometry.toString();
+
+		assert GeoJsonWriter.getFtype(featureWithoutGeometry.toString()).equals(FeatureTypes.ADMIN_BOUNDARY_FTYPE) 
+			: "Failed getFtype for " + featureWithoutGeometry.toString();
 		
 		handler.handleBoundary(featureWithoutGeometry, multiPolygon);
 	}

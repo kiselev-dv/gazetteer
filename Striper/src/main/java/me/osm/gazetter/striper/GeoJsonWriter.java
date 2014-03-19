@@ -23,6 +23,8 @@ import com.vividsolutions.jts.geom.Polygon;
 public class GeoJsonWriter {
 	
 	private static final String GEOMETRY_TYPE = "type";
+	private static final String GEOJSON_TYPE_KEY = "type";
+	private static final String GEOJSON_TYPE_VAL = "Feature";
 
 	private static final Logger log = LoggerFactory.getLogger(GeoJsonWriter.class.getName());
 	
@@ -93,14 +95,18 @@ public class GeoJsonWriter {
 			Map<String, String> attributes, Geometry g, JSONObject meta) {
 		JSONObject feature = new JSONFeature();
 		
-		if(id != null)
+		if(id != null) {
 			feature.put("id", id);
+		}
 		
 		feature.put("ftype", type);
-		feature.put(GEOMETRY_TYPE, "Feature");
+		feature.put(GEOJSON_TYPE_KEY, GEOJSON_TYPE_VAL);
 		feature.put(GEOMETRY, geometryToJSON(g));
 		feature.put(PROPERTIES, attributes);
 		feature.put(META, meta);
+		
+		feature.put(TIMESTAMP, LocalDateTime.now().toDateTime(timeZone).toInstant().toString());
+		
 		return feature;
 	}
 	
@@ -158,6 +164,9 @@ public class GeoJsonWriter {
 				log.error("Can't parse timestamp {} for line {}", timestampString, line);
 			}
 		}
+		
+		log.error("Can't parse timestamp for line {}", line);
+		
 		return null;
 	}
 
