@@ -61,8 +61,9 @@ public class Main {
 		try {
 			Namespace namespace = parser.parseArgs(args);
 			
+
 			if(namespace.get(COMMAND).equals(Command.SLICE)) {
-				Slicer.run(namespace.getString(SLICE_INPUT), namespace.getString(DATA_DIR_VAL));
+				Slicer.run(namespace.getString(DATA_DIR_VAL));
 			}
 
 			if(namespace.get(COMMAND).equals(Command.JOIN_ADDRESSES)) {

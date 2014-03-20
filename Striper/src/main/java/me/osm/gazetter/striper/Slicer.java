@@ -68,17 +68,16 @@ public class Slicer implements BoundariesHandler,
 	}
 	
 	public static void main(String[] args) {
-		String osmFilePath = args[0];
-		String osmSlicesPath = args[1];
+		String osmSlicesPath = args[0];
 		
-		run(osmFilePath, osmSlicesPath);
+		run(osmSlicesPath);
 	}
 
-	public static void run(String osmFilePath, String osmSlicesPath) {
+	public static void run(String osmSlicesPath) {
 		long start = new Date().getTime(); 
 		instance = new Slicer(osmSlicesPath);
 		
-		new Engine().filter(osmFilePath, 
+		new Engine().filter(osmSlicesPath, 
 				new BoundariesBuilder(instance), 
 				new AddrPointsBuilder(instance), 
 				new PlaceBuilder(instance, instance),

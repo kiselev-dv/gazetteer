@@ -1,30 +1,25 @@
 package me.osm.gazetter.striper;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.zip.GZIPInputStream;
-
-import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream;
-
+import static me.osm.gazetter.utils.FileUtils.getFileIS;
 import me.osm.gazetter.striper.builders.Builder;
-import me.osm.gazetter.striper.readers.ComplexReader;
 import me.osm.gazetter.striper.readers.PointsReader;
 import me.osm.gazetter.striper.readers.RelationsReader;
 import me.osm.gazetter.striper.readers.WaysReader;
 
 public class Engine {
 	
-	public void filter(String osmFilePath, Builder... builders) {
+	public void filter(String datatDir, Builder... builders) {
+		String nodes = datatDir + "/" + "nodes.osm";
+		String ways = datatDir + "/" + "ways.osm";
+		String rels = datatDir + "/" + "rels.osm";
+
 		try {
-			
-			new RelationsReader().read(getFileIS(osmFilePath), builders);
+			new RelationsReader().read(getFileIS(rels), builders);
 			for(Builder builder : builders) {
 				builder.firstRunDoneRelations();
 			}
 			
-			new WaysReader().read(getFileIS(osmFilePath), builders);
+			new WaysReader().read(getFileIS(ways), builders);
 			for(Builder builder : builders) {
 				builder.firstRunDoneWays();
 			}
@@ -33,11 +28,9 @@ public class Engine {
 				builder.beforeLastRun();
 			}
 			
-			new ComplexReader(
-				new PointsReader(builders),
-				new WaysReader(builders),
-				new RelationsReader(builders)
-			).read(getFileIS(osmFilePath));
+			new PointsReader(builders).read(getFileIS(nodes), builders);
+			new WaysReader(builders).read(getFileIS(ways), builders);
+			new WaysReader(builders).read(getFileIS(rels), builders);
 			
 			for(Builder builder : builders) {
 				builder.afterLastRun();
@@ -46,16 +39,5 @@ public class Engine {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-	}
-
-	private InputStream getFileIS(String osmFilePath) throws IOException,
-			FileNotFoundException {
-		if(osmFilePath.endsWith("gz")) {
-			return new GZIPInputStream(new FileInputStream(osmFilePath));
-		}
-		if(osmFilePath.endsWith("bz2")) {
-			return new BZip2CompressorInputStream(new FileInputStream(osmFilePath));
-		}
-		return new FileInputStream(osmFilePath);
 	}
 }
