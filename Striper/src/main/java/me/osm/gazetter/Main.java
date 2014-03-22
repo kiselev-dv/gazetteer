@@ -1,13 +1,18 @@
 package me.osm.gazetter;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+
 import me.osm.gazetter.out.CSVOutConvertor;
 import me.osm.gazetter.out.JSONOutConvertor;
 import me.osm.gazetter.out.OutWriter;
 import me.osm.gazetter.pointlocation.PointLocation;
+import me.osm.gazetter.prepare.Split;
 import me.osm.gazetter.striper.Slicer;
 import net.sourceforge.argparse4j.ArgumentParsers;
-import net.sourceforge.argparse4j.impl.Arguments;
-import net.sourceforge.argparse4j.inf.ArgumentGroup;
 import net.sourceforge.argparse4j.inf.ArgumentParser;
 import net.sourceforge.argparse4j.inf.ArgumentParserException;
 import net.sourceforge.argparse4j.inf.Namespace;
@@ -19,9 +24,6 @@ import net.sourceforge.argparse4j.inf.Subparsers;
  * */
 public class Main {
 	
-	private static final String COMMAND_SLICE = "slice";
-	private static final String COMMAND_OUT = "out";
-	private static final String COMMAND_JOIN = "join";
 	
 	private static final String OUT_JSON_VAL = "out_json";
 	private static final String OUT_JSON_OPT = "--out-json";
@@ -32,26 +34,47 @@ public class Main {
 	private static final String OUT_CSV_VAL = "out_csv";
 	private static final String OUT_CSV_OPT = "--out-csv";
 	
-	private static final String SLICE_INPUT = "input";
-	
 	private static final String JOIN_COMMON_VAL = "common";
 	private static final String JOIN_COMMON_OPT = "--common";
 
 	private static final String DATA_DIR_VAL = "data_dir";
 	private static final String DATA_DIR_OPT = "--data-dir";
 	
+	private static final String LOG_OPT = "--log-level";
+	private static final String LOG_VAL = "log_level";
+
 	private static final String COMMAND = "command";
 
-	private enum Command {
-	    SLICE, JOIN_ADDRESSES, OUT
-	};
+	public static interface CommandDescription {
+		public String longName(); 
+		public String help(); 
+	}
 	
+	private enum Command implements CommandDescription {
+	    SPLIT {
+	    	public String longName() {return name().toLowerCase();}
+	    	public String help() {return "Prepare osm data. Split nodes, ways and relations.";}
+	    }, 
+	    SLICE {
+	    	public String longName() {return name().toLowerCase();}
+	    	public String help() {return "Parse features from osm data and write it into stripes 0.1 degree wide.";}
+	    }, 
+	    JOIN {
+	    	public String longName() {return name().toLowerCase();}
+	    	public String help() {return "Join features. Made spatial joins for address points inside polygons and so on.";}
+	    }, 
+	    OUT {
+	    	public String longName() {return name().toLowerCase();}
+	    	public String help() {return "Write data out in different formats.";}
+	    };
+
+	};
+
 	/**
-	 * Parse arguments and run tasks accordingly. 
+	 * Parse arguments and run tasks accordingly.
 	 * */
 	public static void main(String[] args) {
 		
-		System.setProperty(org.slf4j.impl.SimpleLogger.DEFAULT_LOG_LEVEL_KEY, "INFO");
 		System.setProperty(org.slf4j.impl.SimpleLogger.SHOW_DATE_TIME_KEY, "true");
 		System.setProperty(org.slf4j.impl.SimpleLogger.DATE_TIME_FORMAT_KEY, "yyyy-MM-dd HH.mm.ss.S");
 		System.setProperty(org.slf4j.impl.SimpleLogger.SHOW_SHORT_LOG_NAME_KEY, "true");
@@ -61,19 +84,34 @@ public class Main {
 		try {
 			Namespace namespace = parser.parseArgs(args);
 			
+			System.setProperty(org.slf4j.impl.SimpleLogger.DEFAULT_LOG_LEVEL_KEY, (String)namespace.get(LOG_VAL));
 
-			if(namespace.get(COMMAND).equals(Command.SLICE)) {
-				Slicer.run(namespace.getString(DATA_DIR_VAL));
+			if(namespace.get(COMMAND).equals(Command.SPLIT)) {
+				Split splitter = new Split(new File(namespace.getString(DATA_DIR_VAL)), namespace.getString("osm_file"));
+				splitter.run();
+				System.exit(0);
 			}
 
-			if(namespace.get(COMMAND).equals(Command.JOIN_ADDRESSES)) {
+			if(namespace.get(COMMAND).equals(Command.SLICE)) {
+				List<String> types = new ArrayList<String>();
+				if(namespace.get("feature_types") instanceof String) {
+					types.add((String)namespace.get("feature_types"));
+				}
+				else if (namespace.get("feature_types") instanceof Collection) {
+					types.addAll((Collection)namespace.get("feature_types"));
+				}
+				Slicer.run(namespace.getString(DATA_DIR_VAL), types);
+				System.exit(0);
+			}
+
+			if(namespace.get(COMMAND).equals(Command.JOIN)) {
 				PointLocation.run(namespace.getString(DATA_DIR_VAL), namespace.getString(JOIN_COMMON_VAL));
-				
-				doWriteOut(namespace);
+				System.exit(0);
 			}
 			
 			if(namespace.get(COMMAND).equals(Command.OUT)) {
 				doWriteOut(namespace);
+				System.exit(0);
 			}
 			
 		} catch (ArgumentParserException e) {
@@ -89,63 +127,60 @@ public class Main {
 		ArgumentParser parser = ArgumentParsers.newArgumentParser("gazetter")
                 .defaultHelp(true)
                 .description("Create alphabetical index of osm file features");
+
+        parser.addArgument(DATA_DIR_OPT).required(false).
+                help("Use folder as data storage.").setDefault("slices");
+        
+        parser.addArgument(LOG_OPT).required(false).setDefault("WARN");
+        
+        Subparsers subparsers = parser.addSubparsers();
 		
-		Subparsers subparsers = parser.addSubparsers();
-		
+        //split
+        {
+        	Command command = Command.SPLIT;
+			Subparser split = subparsers.addParser(command.longName())
+        			.setDefault(COMMAND, command)
+					.help(command.help());
+        	
+        	split.addArgument("osm_file").required(true)
+        		.help("Path to osm file. *.osm *.osm.bz *.osm.gz supported.");
+        }
+        
 		//slice
 		{
-			Subparser slice = subparsers.addParser(COMMAND_SLICE).setDefault(COMMAND, Command.SLICE)
-					.help("Slice osm data");
+			Command command = Command.SLICE;
+			Subparser slice = subparsers.addParser(command.longName())
+        			.setDefault(COMMAND, command)
+					.help(command.help());
 			
-			addDataDirOpts(slice);
-			slice.addArgument(SLICE_INPUT).help("Path to osm file");
+			slice.addArgument("feature_types").help("Parse and slice axact feature(s) type.")
+				.choices(Slicer.sliceTypes).nargs("*").setDefault("all").setConst("all");
+			
 		}
 
 		//join
 		{
-			Subparser joinAddresses = subparsers.addParser(COMMAND_JOIN).setDefault(COMMAND, Command.JOIN_ADDRESSES)
-					.help("Join addr points to boundary polygons.")
-					.description("By default results will be stored in slices.\n"
-							+ "If you need output with formatting as html/csv/json use --out-*");
-			addDataDirOpts(joinAddresses);
+			Command command = Command.JOIN;
+			Subparser join = subparsers.addParser(command.longName())
+        			.setDefault(COMMAND, command)
+					.help(command.help());
 			
-			joinAddresses.addArgument(JOIN_COMMON_OPT).help("Path to json file with features which will be added to all addr nodes.");
-			addOutOptions(joinAddresses);
+			join.addArgument(JOIN_COMMON_OPT)
+				.help("Path for *.json with array of features which will be added to boundaries "
+						+ "list for every feature.");
+			
+			join.addArgument("--addr-formatter")
+				.help("Path to *.js or *.groovy file with full addresses texts formatter.");
 		}
 
 		//out
 		{
-			Subparser writeOut = subparsers.addParser(COMMAND_OUT).setDefault(COMMAND, Command.OUT)
-					.help("Write out result in different formats.");
-			
-			addDataDirOpts(writeOut);
-			addOutOptions(writeOut);
+			Command command = Command.OUT;
+			subparsers.addParser(command.longName())
+        			.setDefault(COMMAND, command)
+					.help(command.help());
 		}
 		return parser;
-	}
-
-	/**
-	 * Add options for data store layer.
-	 * */
-	private static void addDataDirOpts(Subparser parser) {
-		parser.addArgument(DATA_DIR_OPT).help("Path to data store folder.").setDefault("slices");
-	}
-
-	/**
-	 * Add options for output control.
-	 * */
-	private static void addOutOptions(Subparser joinAddresses) {
-		
-		ArgumentGroup otpF = joinAddresses.addArgumentGroup("Output formatting");
-		
-		otpF.addArgument(OUT_CSV_OPT).dest(OUT_CSV_VAL)
-			.action(Arguments.storeConst()).setConst(Boolean.TRUE).setDefault(Boolean.FALSE).help("Print out csv");
-		
-		otpF.addArgument(OUT_HTML_OPT).dest(OUT_HTML_VAL)
-			.action(Arguments.storeConst()).setConst(Boolean.TRUE).help("Print out html");
-		
-		otpF.addArgument(OUT_JSON_OPT).dest(OUT_JSON_VAL)
-			.action(Arguments.storeConst()).setConst(Boolean.TRUE).help("Print out json");
 	}
 
 	/**

@@ -42,9 +42,10 @@ public interface Builder extends RelationsHandler, WaysHandler, PointsHandler {
 	public static final FirstLongFieldComparator FIRST_LONG_FIELD_COMPARATOR = new FirstLongFieldComparator();
 	public static final SecondLongFieldComparator SECOND_LONG_FIELD_COMPARATOR = new SecondLongFieldComparator();
 	
+	public void secondRunDoneRelations();
+	public void secondRunDoneWays();
+	public void firstRunDoneNodes();
 	public void firstRunDoneWays();
 	public void firstRunDoneRelations();
 	
-	public void beforeLastRun();
-	public void afterLastRun();
 }

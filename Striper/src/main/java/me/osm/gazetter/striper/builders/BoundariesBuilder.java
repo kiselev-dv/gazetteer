@@ -39,6 +39,10 @@ public class BoundariesBuilder extends ABuilder {
 	private static final Logger log = LoggerFactory.getLogger(BoundariesBuilder.class.getName());
 	private static final  GeometryFactory geometryFactory = new GeometryFactory();
 	
+	public static interface BoundariesHandler extends FeatureHandler {
+		public void handleBoundary(JSONObject feature, MultiPolygon multiPolygon);
+	}
+	
 	protected BoundariesHandler handler;
 	
 	public BoundariesBuilder(BoundariesHandler handler) {
@@ -312,6 +316,7 @@ public class BoundariesBuilder extends ABuilder {
 
 	@Override
 	public void firstRunDoneRelations()	{
+		handler.newThreadpoolUser(getThreadPoolUser());
 		if(!byMemberOrdered) {
 			Collections.sort(way2relation, Builder.FIRST_LONG_FIELD_COMPARATOR);
 			byMemberOrdered = true;
@@ -370,12 +375,7 @@ public class BoundariesBuilder extends ABuilder {
 	}
 
 	@Override
-	public void beforeLastRun() {
-		handler.beforeLastRun();
-	}
-
-	@Override
-	public void afterLastRun() {
+	public void secondRunDoneRelations() {
 		executorService.shutdown();
 		try {
 			executorService.awaitTermination(5, TimeUnit.SECONDS);
@@ -383,7 +383,7 @@ public class BoundariesBuilder extends ABuilder {
 			log.error("Awaiting for thread pull was terminated.", e);
 		}
 		finally {
-			handler.afterLastRun();
+			handler.freeThreadPool(getThreadPoolUser());
 		}
 	}
 	

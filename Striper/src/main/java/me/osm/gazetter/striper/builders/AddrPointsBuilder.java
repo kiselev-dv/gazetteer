@@ -31,10 +31,8 @@ public class AddrPointsBuilder extends ABuilder {
 	
 	private static final String ADDR_STREET = "addr:street";
 
-	public static interface AddrPointHandler {
+	public static interface AddrPointHandler extends FeatureHandler {
 		public void handleAddrPoint(Map<String, String> attributes, Point point, JSONObject meta);
-		void beforeLastRun();
-		void afterLastRun();
 	}
 	
 	private static final String ADDR_INTERPOLATION = "addr:interpolation";
@@ -126,6 +124,7 @@ public class AddrPointsBuilder extends ABuilder {
 
 	@Override
 	public void firstRunDoneRelations() {
+		handler.newThreadpoolUser(getThreadPoolUser());
 		Collections.sort(way2relation, Builder.FIRST_LONG_FIELD_COMPARATOR);
 		log.info("Done read relations. {} ways added to index.", way2relation.size());
 	}
@@ -366,6 +365,7 @@ public class AddrPointsBuilder extends ABuilder {
 		Collections.sort(node2way, Builder.FIRST_LONG_FIELD_COMPARATOR);
 		Collections.sort(nodeInterpolation, Builder.FIRST_LONG_FIELD_COMPARATOR);
 		log.info("Done read ways. {} nodes added to index.", node2way.size());
+		this.indexFilled = true;
 	}
 
 	private int findRelMemberIndex(final long id) {
@@ -465,8 +465,9 @@ public class AddrPointsBuilder extends ABuilder {
 	}
 
 	@Override
-	public void beforeLastRun() {
-		this.indexFilled = true;
+	public void secondRunDoneRelations() {
+		handler.freeThreadPool(getThreadPoolUser());
 	}
+
 	
 }

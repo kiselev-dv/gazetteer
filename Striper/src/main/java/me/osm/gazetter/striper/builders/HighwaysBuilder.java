@@ -4,16 +4,15 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import me.osm.gazetter.striper.readers.PointsReader.Node;
 import me.osm.gazetter.striper.readers.RelationsReader.Relation;
 import me.osm.gazetter.striper.readers.WaysReader.Way;
 
-import org.apache.commons.lang3.time.DurationFormatUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,11 +57,11 @@ public class HighwaysBuilder extends ABuilder {
 		this.junctionsHandler = junctionsHandler;
 	}
 
-	public static interface HighwaysHandler {
+	public static interface HighwaysHandler extends FeatureHandler {
 		public void handleHighway(LineString geometry, Way way);
 	}
 
-	public static interface JunctionsHandler {
+	public static interface JunctionsHandler extends FeatureHandler {
 		public void handleJunction(Coordinate coordinates, long nodeID,
 				List<Long> highways);
 	}
@@ -193,23 +192,30 @@ public class HighwaysBuilder extends ABuilder {
 	}
 
 	@Override
-	public void beforeLastRun() {
+	public void firstRunDoneWays() {
 		indexFilled = true;
-		
-		long start = (new Date()).getTime();
-		log.info("Start order {} nodes in index.", node2way.size());
 		Collections.sort(node2way, ABuilder.FIRST_LONG_FIELD_COMPARATOR);
-		log.info("Done order nodes in {}.", DurationFormatUtils.formatDurationHMS(new Date().getTime() - start));
+		
+		this.highwaysHandler.newThreadpoolUser(getThreadPoolUser());
+		this.junctionsHandler.newThreadpoolUser(getThreadPoolUser());
 	}
 
 	@Override
-	public void afterLastRun() {
-		super.afterLastRun();
+	public void secondRunDoneRelations() {
 		if (this.junctionsHandler != null) {
 			Collections.sort(node2way, ABuilder.FIRST_LONG_FIELD_COMPARATOR);
 			findJunctions();
 		}
 		executorService.shutdown();
+		
+		try {
+			executorService.awaitTermination(5, TimeUnit.SECONDS);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		
+		this.highwaysHandler.freeThreadPool(getThreadPoolUser());
+		this.junctionsHandler.freeThreadPool(getThreadPoolUser());
 	}
 
 	private void findJunctions() {

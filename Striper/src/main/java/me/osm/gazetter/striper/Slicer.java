@@ -5,10 +5,13 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -18,12 +21,15 @@ import me.osm.gazetter.dao.WriteDao;
 import me.osm.gazetter.striper.builders.AddrPointsBuilder;
 import me.osm.gazetter.striper.builders.AddrPointsBuilder.AddrPointHandler;
 import me.osm.gazetter.striper.builders.BoundariesBuilder;
-import me.osm.gazetter.striper.builders.BoundariesHandler;
+import me.osm.gazetter.striper.builders.BoundariesBuilder.BoundariesHandler;
+import me.osm.gazetter.striper.builders.Builder;
 import me.osm.gazetter.striper.builders.HighwaysBuilder;
 import me.osm.gazetter.striper.builders.HighwaysBuilder.HighwaysHandler;
 import me.osm.gazetter.striper.builders.HighwaysBuilder.JunctionsHandler;
 import me.osm.gazetter.striper.builders.PlaceBuilder;
 import me.osm.gazetter.striper.builders.PlaceBuilder.PlacePointHandler;
+import me.osm.gazetter.striper.builders.PoisBuilder;
+import me.osm.gazetter.striper.builders.PoisBuilder.PoisHandler;
 import me.osm.gazetter.striper.readers.WaysReader.Way;
 import me.osm.gazetter.utils.GeometryUtils;
 
@@ -44,10 +50,10 @@ import com.vividsolutions.jts.geom.Polygon;
 import com.vividsolutions.jts.io.WKTWriter;
 
 public class Slicer implements BoundariesHandler, 
-	AddrPointHandler, PlacePointHandler, HighwaysHandler, JunctionsHandler {
+	AddrPointHandler, PlacePointHandler, HighwaysHandler, JunctionsHandler, PoisHandler {
 	
 	private static final Logger log = LoggerFactory.getLogger(Slicer.class.getName());
-	private static volatile int threadPoolUsers = 0;
+	private static final Set<String> threadPoolUsers = new HashSet<String>();
 
 	private static final GeometryFactory factory = new GeometryFactory();
 	private static final ExecutorService executorService = Executors.newFixedThreadPool(4);
@@ -59,6 +65,10 @@ public class Slicer implements BoundariesHandler,
 
 	private static Slicer instance;
 	
+	public static final List<String> sliceTypes = Arrays.asList(
+			"all", "boundaries", "places", "highways", "addresses", "pois"
+	);
+	
 	public static double snap(double x) {
 		return Math.round((x - x0)/ dx) * dx + x0;
 	}
@@ -67,24 +77,43 @@ public class Slicer implements BoundariesHandler,
 		writeDAO = new FileWriteDao(new File(dirPath));
 	}
 	
-	public static void main(String[] args) {
-		String osmSlicesPath = args[0];
-		
-		run(osmSlicesPath);
-	}
-
-	public static void run(String osmSlicesPath) {
+	public static void run(String osmSlicesPath, List<String> types) {
 		long start = new Date().getTime(); 
+		
+		log.info("Slice {}", types);
+		
 		instance = new Slicer(osmSlicesPath);
 		
-		new Engine().filter(osmSlicesPath, 
-				new BoundariesBuilder(instance), 
-				new AddrPointsBuilder(instance), 
-				new PlaceBuilder(instance, instance),
-				new HighwaysBuilder(instance, instance));
+		List<Builder> builders = new ArrayList<>();
+		
+		Set<String> typesSet = new HashSet<String>(types);
+		
+		if(typesSet.contains("all") || typesSet.contains("boundaries")) {
+			builders.add(new BoundariesBuilder(instance));
+		}
+
+		if(typesSet.contains("all") || typesSet.contains("places")) {
+			builders.add(new PlaceBuilder(instance, instance));
+		}
+
+		if(typesSet.contains("all") || typesSet.contains("highways")) {
+			builders.add(new HighwaysBuilder(instance, instance));
+		}
+
+		if(typesSet.contains("all") || typesSet.contains("addresses")) {
+			builders.add(new AddrPointsBuilder(instance));
+		}
+		
+		if(typesSet.contains("all") || typesSet.contains("pois")) {
+			builders.add(new PoisBuilder(instance));
+		}
+		
+		
+		Builder[] buildersArray = builders.toArray(new Builder[builders.size()]);
+		new Engine().filter(osmSlicesPath, buildersArray);
 		
 		writeDAO.close();
-		
+		instance = null;
 		log.info("Slice done in {}", DurationFormatUtils.formatDurationHMS(new Date().getTime() - start));
 	}
 
@@ -231,23 +260,6 @@ public class Slicer implements BoundariesHandler,
 	}
 
 
-	@Override
-	public synchronized void beforeLastRun() {
-		threadPoolUsers++;
-	}
-
-	@Override
-	public synchronized void afterLastRun() {
-		if(--threadPoolUsers == 0) {
-			executorService.shutdown();
-			try {
-				executorService.awaitTermination(10, TimeUnit.SECONDS);
-			} catch (InterruptedException e) {
-				log.error("Termination awaiting was interrupted", e);
-			}
-		}
-		
-	}
 
 	@Override
 	public void handleAddrPoint(Map<String, String> attributes, Point point,
@@ -370,5 +382,40 @@ public class Slicer implements BoundariesHandler,
 				writeOut(featureAsGeoJSON, n);
 			}
 		}
+	}
+
+	@Override
+	public void handlePoi(Map<String, String> attributes, Point point,
+			JSONObject meta) {
+		
+		String id = GeoJsonWriter.getId(FeatureTypes.POI_FTYPE, point, meta);
+		String n = getFilePrefix(point.getX());
+		
+		String geoJSONString = GeoJsonWriter.featureAsGeoJSON(id, FeatureTypes.POI_FTYPE, attributes, point, meta);
+		
+		assert GeoJsonWriter.getId(geoJSONString).equals(id) 
+			: "Failed getId for " + geoJSONString;
+		
+		assert GeoJsonWriter.getFtype(geoJSONString).equals(FeatureTypes.POI_FTYPE) 
+			: "Failed getFtype for " + geoJSONString;
+		
+		writeOut(geoJSONString, n);
+	}
+
+	@Override
+	public synchronized void freeThreadPool(String user) {
+		threadPoolUsers.remove(user);
+		if(threadPoolUsers.size() == 0) {
+			executorService.shutdown();
+			try {
+				executorService.awaitTermination(10, TimeUnit.SECONDS);
+			} catch (InterruptedException e) {
+				log.error("Termination awaiting was interrupted", e);
+			}
+		}
+	}
+
+	public synchronized void newThreadpoolUser(String user) {
+		threadPoolUsers.add(user);
 	}
 }

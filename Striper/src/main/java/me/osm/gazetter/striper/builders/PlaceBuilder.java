@@ -44,13 +44,15 @@ public class PlaceBuilder extends BoundariesBuilder {
 	private static final Logger log = LoggerFactory
 			.getLogger(PlaceBuilder.class.getName());
 
-	public static interface PlacePointHandler {
+	public static interface PlacePointHandler extends FeatureHandler {
 		public void handlePlacePoint(Map<String, String> tags, Point pnt,
 				JSONObject meta);
+		
+		public void writeOut(String line, String n);
 	}
 
 	private static GeometryFactory fatory = new GeometryFactory();
-	private Slicer slicer;
+	private PlacePointHandler handler;
 
 	private Map<Coordinate, JSONObject> cityes = new HashMap<>();
 	private Map<Coordinate, JSONObject> neighbours = new HashMap<>();
@@ -87,9 +89,9 @@ public class PlaceBuilder extends BoundariesBuilder {
 		return x - DEGREE_OFFSET;
 	}
 
-	public PlaceBuilder(Slicer slicer, BoundariesHandler handler) {
+	public PlaceBuilder(PlacePointHandler slicer, BoundariesHandler handler) {
 		super(handler);
-		this.slicer = slicer;
+		this.handler = slicer;
 	}
 	
 	protected boolean filterByTags(Map<String, String> tags) {
@@ -109,7 +111,7 @@ public class PlaceBuilder extends BoundariesBuilder {
 			meta.put("type", "node");
 			meta.put("id", node.id);
 
-			slicer.handlePlacePoint(node.tags, pnt, meta);
+			handler.handlePlacePoint(node.tags, pnt, meta);
 
 			originalBBOX.extend(node.lon, node.lat);
 			translatedBBOX.extend(moveTo(node.lon), node.lat);
@@ -139,11 +141,12 @@ public class PlaceBuilder extends BoundariesBuilder {
 	}
 
 	@Override
-	public void afterLastRun() {
+	public void secondRunDoneRelations() {
 		buildVoronoyDiagrams();
 		
 		//shutdown executor services
-		super.afterLastRun();
+		super.secondRunDoneRelations();
+		this.handler.freeThreadPool(getThreadPoolUser());
 	}
 
 	//single threaded
@@ -366,7 +369,7 @@ public class PlaceBuilder extends BoundariesBuilder {
 		for (int i = from; i <= to; i++) {
 			String filePrefix = String.format("%04d", i);
 			if (files.contains(filePrefix)) {
-				slicer.writeOut(rstring, filePrefix);
+				handler.writeOut(rstring, filePrefix);
 			}
 		}
 	}
@@ -451,6 +454,12 @@ public class PlaceBuilder extends BoundariesBuilder {
 			: "Failed getFtype for " + featureWithoutGeometry.toString();
 		
 		super.handler.handleBoundary(featureWithoutGeometry, multiPolygon);
+	}
+	
+	@Override
+	public void firstRunDoneRelations() {
+		super.firstRunDoneRelations();
+		this.handler.newThreadpoolUser(getThreadPoolUser());
 	}
 
 	@SuppressWarnings("unchecked")

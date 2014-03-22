@@ -15,25 +15,19 @@ import org.apache.commons.lang3.time.DurationFormatUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class Prepare implements LineHandler {
+public class Split implements LineHandler {
 	
 	private String input;
 	
-	private static final Logger log = LoggerFactory.getLogger(Prepare.class);
+	private static final Logger log = LoggerFactory.getLogger(Split.class);
 	
 	private static final String HEADER = "<?xml version='1.0' encoding='UTF-8'?>";
 
-	public static void main(String[] args) {
-		long start = new Date().getTime();
-		new Prepare(new File(args[0]), args[1]).run();
-		log.info("Slice done in {}", DurationFormatUtils.formatDurationHMS(new Date().getTime() - start));
-	}
-	
 	private PrintWriter nodePW;
 	private PrintWriter wayPW;
 	private PrintWriter relPW;
 	
-	public Prepare (File destFolder, String input) {
+	public Split (File destFolder, String input) {
 		this.input = input;
 		destFolder.mkdirs();
 		try {
@@ -56,7 +50,7 @@ public class Prepare implements LineHandler {
 	}
 	
 	public void run() {
-
+		long start = new Date().getTime();
 		try {
 			InputStream fileIS = FileUtils.getFileIS(input);
 			FileUtils.handleLines(fileIS, this);
@@ -66,6 +60,7 @@ public class Prepare implements LineHandler {
 			e.printStackTrace();
 		}
 		done();
+		log.info("Split done in {}", DurationFormatUtils.formatDurationHMS(new Date().getTime() - start));
 	}
 
 	private void done() {

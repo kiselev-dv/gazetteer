@@ -48,6 +48,20 @@ public abstract class ABuilder implements Builder {
 		return null;
 	}
 	
+	public String getThreadPoolUser() {
+		return this.getClass().getName();
+	}
+	
+	@Override
+	public void secondRunDoneWays() {
+		//override me if you need
+	}
+	
+	@Override
+	public void firstRunDoneNodes() {
+		//override me if you need
+	}
+	
 	@Override
 	public void firstRunDoneWays() {
 		//override me if you need
@@ -58,14 +72,5 @@ public abstract class ABuilder implements Builder {
 		//override me if you need
 	}
 
-	@Override
-	public void beforeLastRun() {
-		//override me if you need
-	}
-
-	@Override
-	public void afterLastRun() {
-		//override me if you need
-	}
 
 }
