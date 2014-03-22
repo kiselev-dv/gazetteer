@@ -18,7 +18,22 @@ compile with apache maven
 usage
 -----
 
-    java -jar gazetter.jar slice [--slices-dir SLICES_DIR=slices] input-file.osm
-    java -jar gazetter.jar join [--slices-dir SLICES_DIR=slices] 
-    java -jar gazetter.jar out [--slices-dir SLICES_DIR=slices] {--out-json | --out-csv }
+usage: gazetter [-h] [--data-dir DATA_DIR] [--log-level LOG_LEVEL]
+                {split,slice,join,out} ...
+
+Create alphabetical index of osm file features
+
+positional arguments:
+  {split,slice,join,out}
+    split                Prepare osm data. Split nodes, ways and relations.
+    slice                Parse features from  osm  data  and  write it into
+                         stripes 0.1 degree wide.
+    join                 Join features.  Made  spatial  joins  for  address
+                         points inside polygons and so on.
+    out                  Write data out in different formats.
+
+optional arguments:
+  -h, --help             show this help message and exit
+  --data-dir DATA_DIR    Use folder as data storage. (default: slices)
+  --log-level LOG_LEVEL  (default: WARN)
   
