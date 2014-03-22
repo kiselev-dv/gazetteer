@@ -9,3 +9,7 @@ RemoteSystemsTempFiles/
 Striper/.classpath
 Striper/.project
 Striper/.settings/*
+
+.idea/*
+*.eml
+*.iml
