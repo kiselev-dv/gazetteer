@@ -1,14 +1,14 @@
-Striper/bin
-Striper/target
+*/bin/*
+*/target/*
 .metadata/*
 RemoteSystemsTempFiles/
 
 *.json
 *.jar
 
-Striper/.classpath
-Striper/.project
-Striper/.settings/*
+.classpath
+.project
+*/.settings/*
 
 .idea/*
 *.eml

@@ -1,4 +1,4 @@
-package me.osm.gazetter.pointlocation;
+package me.osm.gazetter.join;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -18,19 +18,15 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class PointLocation {
+public class Joiner {
 	
 	private static final ExecutorService executorService = Executors.newFixedThreadPool(4);
 	
 	private static final AddrJointHandler addrPointFormatter = (AddrJointHandler) new AddrPointFormatter();
 	
-	private static final Logger log = LoggerFactory.getLogger(PointLocation.class.getName());
+	private static final Logger log = LoggerFactory.getLogger(Joiner.class.getName());
 	
 	public static AtomicInteger counter = new AtomicInteger(); 
-	
-	public static void main(String[] args) {
-		run(args[0], args.length > 1 ? args[1] : null);
-	}
 	
 	public static class StripeFilenameFilter implements FilenameFilter {
 		
@@ -52,7 +48,7 @@ public class PointLocation {
 		
 		File folder = new File(stripesFolder);
 		for(File stripeF : folder.listFiles(STRIPE_FILE_FN_FILTER)) {
-			executorService.execute(new PLTask(addrPointFormatter, stripeF, common));
+			executorService.execute(new JoinSliceTask(addrPointFormatter, stripeF, common));
 		}
 		
 		for(File stripeF : folder.listFiles(STRIPE_FILE_FN_FILTER)) {

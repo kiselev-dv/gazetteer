@@ -1,4 +1,4 @@
-package me.osm.gazetter.pointlocation;
+package me.osm.gazetter.join;
 
 import java.util.List;
 

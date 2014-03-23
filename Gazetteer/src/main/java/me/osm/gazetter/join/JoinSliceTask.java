@@ -1,4 +1,4 @@
-package me.osm.gazetter.pointlocation;
+package me.osm.gazetter.join;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -34,7 +34,7 @@ import com.vividsolutions.jts.geom.Polygon;
 import com.vividsolutions.jts.index.quadtree.Quadtree;
 import com.vividsolutions.jts.operation.buffer.BufferOp;
 
-public class PLTask implements Runnable {
+public class JoinSliceTask implements Runnable {
 	
 	private static final double BUFFER_DISTANCE = 1.0 / 111195.0 * 250;
 	
@@ -54,7 +54,7 @@ public class PLTask implements Runnable {
 	
 	private static final GeometryFactory factory = new GeometryFactory();
 		
-	public PLTask(AddrJointHandler handler, File src, List<JSONObject> common) {
+	public JoinSliceTask(AddrJointHandler handler, File src, List<JSONObject> common) {
 		this.src = src;
 		this.handler = handler;
 		this.common = common;

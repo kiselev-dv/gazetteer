@@ -6,11 +6,11 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
+import me.osm.gazetter.join.Joiner;
 import me.osm.gazetter.out.CSVOutConvertor;
 import me.osm.gazetter.out.JSONOutConvertor;
 import me.osm.gazetter.out.OutWriter;
-import me.osm.gazetter.pointlocation.PointLocation;
-import me.osm.gazetter.prepare.Split;
+import me.osm.gazetter.split.Split;
 import me.osm.gazetter.striper.Slicer;
 import net.sourceforge.argparse4j.ArgumentParsers;
 import net.sourceforge.argparse4j.inf.ArgumentParser;
@@ -105,7 +105,7 @@ public class Main {
 			}
 
 			if(namespace.get(COMMAND).equals(Command.JOIN)) {
-				PointLocation.run(namespace.getString(DATA_DIR_VAL), namespace.getString(JOIN_COMMON_VAL));
+				Joiner.run(namespace.getString(DATA_DIR_VAL), namespace.getString(JOIN_COMMON_VAL));
 				System.exit(0);
 			}
 			

@@ -1,4 +1,4 @@
-package me.osm.gazetter.prepare;
+package me.osm.gazetter.split;
 
 import java.io.File;
 import java.io.FileNotFoundException;
