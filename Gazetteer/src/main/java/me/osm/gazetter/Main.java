@@ -100,7 +100,7 @@ public class Main {
 				else if (namespace.get("feature_types") instanceof Collection) {
 					types.addAll((Collection)namespace.get("feature_types"));
 				}
-				Slicer.run(namespace.getString(DATA_DIR_VAL), types);
+				Slicer.run(namespace.getString(DATA_DIR_VAL), namespace.getString("poi_catalog"), types);
 				System.exit(0);
 			}
 
@@ -152,6 +152,8 @@ public class Main {
 			Subparser slice = subparsers.addParser(command.longName())
         			.setDefault(COMMAND, command)
 					.help(command.help());
+			
+			slice.addArgument("--poi-catalog").help("Path to osm-doc catalog.").setDefault("jar");
 			
 			slice.addArgument("feature_types").help("Parse and slice axact feature(s) type.")
 				.choices(Slicer.sliceTypes).nargs("*").setDefault("all").setConst("all");

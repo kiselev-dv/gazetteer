@@ -10,4 +10,6 @@ public class FeatureTypes {
 	public static final String HIGHWAY_FEATURE_TYPE = "hghway";
 	public static final String JUNCTION_FTYPE = "jncton";
 	public static final String POI_FTYPE = "poipnt";
+	public static final String ADDR_NODE_2_BUILDING = "adnbdg";
+	public static final String POI_2_BUILDING = "poibdg";
 }

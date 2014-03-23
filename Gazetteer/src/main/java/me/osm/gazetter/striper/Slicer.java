@@ -77,7 +77,7 @@ public class Slicer implements BoundariesHandler,
 		writeDAO = new FileWriteDao(new File(dirPath));
 	}
 	
-	public static void run(String osmSlicesPath, List<String> types) {
+	public static void run(String osmSlicesPath, String poiCatalogPath, List<String> types) {
 		long start = new Date().getTime(); 
 		
 		log.info("Slice {}", types);
@@ -105,7 +105,7 @@ public class Slicer implements BoundariesHandler,
 		}
 		
 		if(typesSet.contains("all") || typesSet.contains("pois")) {
-			builders.add(new PoisBuilder(instance));
+			builders.add(new PoisBuilder(instance, poiCatalogPath));
 		}
 		
 		
@@ -385,13 +385,16 @@ public class Slicer implements BoundariesHandler,
 	}
 
 	@Override
-	public void handlePoi(Map<String, String> attributes, Point point,
+	public void handlePoi(Set<String>types, Map<String, String> attributes, Point point,
 			JSONObject meta) {
 		
 		String id = GeoJsonWriter.getId(FeatureTypes.POI_FTYPE, point, meta);
 		String n = getFilePrefix(point.getX());
 		
-		String geoJSONString = GeoJsonWriter.featureAsGeoJSON(id, FeatureTypes.POI_FTYPE, attributes, point, meta);
+		JSONObject feature = GeoJsonWriter.createFeature(id, FeatureTypes.POI_FTYPE, attributes, point, meta);
+		feature.put("poiTypes", new JSONArray(types));
+		
+		String geoJSONString = feature.toString();
 		
 		assert GeoJsonWriter.getId(geoJSONString).equals(id) 
 			: "Failed getId for " + geoJSONString;
@@ -417,5 +420,47 @@ public class Slicer implements BoundariesHandler,
 
 	public synchronized void newThreadpoolUser(String user) {
 		threadPoolUsers.add(user);
+	}
+
+	@Override
+	public void handleAddrPoint2Building(String n, long nodeId, long wayId,
+			Map<String, String> wayTags) {
+		
+		writePnt2Building(FeatureTypes.ADDR_NODE_2_BUILDING, n, nodeId, wayId, wayTags);
+	}
+
+
+	@Override
+	public void handlePoi2Building(String n, long nodeId, long lineId,
+			Map<String, String> linetags) {
+		writePnt2Building(FeatureTypes.POI_2_BUILDING, n, nodeId, lineId, linetags);
+	}
+
+	private void writePnt2Building(String ftype, String n, long nodeId, long wayId,
+			Map<String, String> wayTags) {
+		String id = ftype + "-" + wayId + "-" + nodeId;
+		
+		JSONFeature result = new JSONFeature();
+		result.put("id", id);
+		result.put("ftype", ftype);
+		GeoJsonWriter.addTimestamp(result);
+		
+		JSONObject meta = new JSONObject();
+		meta.put("id", wayId);
+		meta.put("type", "way");
+		
+		result.put(GeoJsonWriter.META, meta);
+		result.put("nodeId", nodeId);
+		result.put(GeoJsonWriter.PROPERTIES, new JSONObject(wayTags));
+		
+		String geoJSONString = result.toString();
+		
+		assert GeoJsonWriter.getId(geoJSONString).equals(id) 
+			: "Failed getId for " + geoJSONString;
+		
+		assert GeoJsonWriter.getFtype(geoJSONString).equals(ftype) 
+			: "Failed getFtype for " + geoJSONString;
+		
+		writeOut(geoJSONString, n);
 	}
 }
