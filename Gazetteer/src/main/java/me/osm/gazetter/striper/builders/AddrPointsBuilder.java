@@ -196,16 +196,30 @@ public class AddrPointsBuilder extends ABuilder {
 	
 	@Override
 	public void handle(final Way line) {
-		if(!indexFilled) {
+		if (!indexFilled) {
 			indexWay(line);
-		}
-		else {
+		} else {
 			orderByWay();
-			if(line.isClosed() && hasAddr(line.tags)) {
+			if (line.isClosed() && hasAddr(line.tags)) {
 				buildAddrPointForWay(line);
-			}
+			} 
 			else if (isInterpolation(line.tags)) {
 				buildAddrPoints4Interpolation(line);
+			} 
+			
+			if (line.isClosed() && line.tags.containsKey("building")) {
+				for(int i = 0; i < line.nodes.size() - 1; i++) {
+					long nid = line.nodes.get(i);
+					int nodeIndex = binarySearchWithMask(writedAddrNodes, nid);
+					if (nodeIndex >= 0) {
+						long addrNodeIdWithN = writedAddrNodes.get(nodeIndex);
+						long n = addrNodeIdWithN & MASK_16_BITS;
+						long addrNodeId = addrNodeIdWithN >> 16;
+						this.handler.handleAddrPoint2Building(
+								String.format("%04d", n), addrNodeId, line.id,
+								line.tags);
+					}
+				}
 			}
 		}
 	}
@@ -426,20 +440,6 @@ public class AddrPointsBuilder extends ABuilder {
 			
 			handler.handleAddrPoint(line.tags, centroid, meta);
 		}
-		
-		//Our addr node is a part of building contour
-		if(line.tags.containsKey("building")) {
-			for(Long nid : line.nodes) {
-				
-				int nodeIndex = binarySearchWithMask(writedAddrNodes, nid);
-				if(nodeIndex >= 0) {
-					long addrNodeIdWithN = writedAddrNodes.get(nodeIndex);
-					long n = addrNodeIdWithN & MASK_16_BITS;
-					long addrNodeId = addrNodeIdWithN >> 16;
-					this.handler.handleAddrPoint2Building(String.format("%04d", n), addrNodeId, line.id, line.tags);
-				}
-			}
-		}
 	}
 
 	private void orderByWay() {
@@ -605,27 +605,6 @@ public class AddrPointsBuilder extends ABuilder {
 	@Override
 	public void secondRunDoneRelations() {
 		handler.freeThreadPool(getThreadPoolUser());
-	}
-	
-	private static int binarySearchWithMask(TLongList list, long key) {
-		int imin = 0;
-		int imax = list.size();
-		key = key >> 16;
-		while (imax >= imin) {
-			int imid = imin + imax / 2;
-			long guess = list.get(imid) >> 16;
-			if (guess == key) {
-				return imid;
-			}
-			else if (guess < key) {
-				imin = imid + 1;
-			}
-			else {
-				imax = imid - 1;
-			}
-		}
-
-		return -1;
 	}
 	
 }

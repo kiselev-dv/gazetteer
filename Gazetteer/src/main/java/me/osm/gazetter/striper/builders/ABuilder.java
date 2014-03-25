@@ -1,5 +1,7 @@
 package me.osm.gazetter.striper.builders;
 
+import gnu.trove.list.TLongList;
+
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
@@ -7,7 +9,27 @@ import java.util.List;
 
 public abstract class ABuilder implements Builder {
 	
-	public static List<ByteBuffer> findAll(List<ByteBuffer> collection, int index,
+	@Override
+	public void secondRunDoneWays() {
+		//override me if you need
+	}
+	
+	@Override
+	public void firstRunDoneNodes() {
+		//override me if you need
+	}
+	
+	@Override
+	public void firstRunDoneWays() {
+		//override me if you need
+	}
+
+	@Override
+	public void firstRunDoneRelations() {
+		//override me if you need
+	}
+	
+	public static final List<ByteBuffer> findAll(List<ByteBuffer> collection, int index,
 			long id, int idFieldOffset) {
 		
 		List<ByteBuffer> result = new ArrayList<ByteBuffer>();
@@ -40,6 +62,26 @@ public abstract class ABuilder implements Builder {
 		
 		return result;
 	}
+	
+	public static final int binarySearchWithMask(TLongList list, long key) {
+		int imin = 0;
+		int imax = list.size() - 1;
+		while (imax >= imin) {
+			int imid = imin + (imax - imin) / 2;
+			long guess = list.get(imid) >> 16;
+			if (guess == key) {
+				return imid;
+			}
+			else if (guess < key) {
+				imin = imid + 1;
+			}
+			else {
+				imax = imid - 1;
+			}
+		}
+
+		return -1;
+	}
 
 	private static ByteBuffer getSafe(List<ByteBuffer> collection, int i) {
 		if(i >= 0 && i < collection.size()) {
@@ -52,25 +94,4 @@ public abstract class ABuilder implements Builder {
 		return this.getClass().getName();
 	}
 	
-	@Override
-	public void secondRunDoneWays() {
-		//override me if you need
-	}
-	
-	@Override
-	public void firstRunDoneNodes() {
-		//override me if you need
-	}
-	
-	@Override
-	public void firstRunDoneWays() {
-		//override me if you need
-	}
-
-	@Override
-	public void firstRunDoneRelations() {
-		//override me if you need
-	}
-
-
 }

@@ -20,8 +20,6 @@ import org.slf4j.LoggerFactory;
 
 public class Joiner {
 	
-	private static final ExecutorService executorService = Executors.newFixedThreadPool(4);
-	
 	private static final AddrJointHandler addrPointFormatter = (AddrJointHandler) new AddrPointFormatter();
 	
 	private static final Logger log = LoggerFactory.getLogger(Joiner.class.getName());
@@ -46,11 +44,23 @@ public class Joiner {
 		
 		List<JSONObject> common = getCommonPart(coomonPartFile);
 		
+		ExecutorService executorService = Executors.newFixedThreadPool(4);
+		
 		File folder = new File(stripesFolder);
 		for(File stripeF : folder.listFiles(STRIPE_FILE_FN_FILTER)) {
 			executorService.execute(new JoinSliceTask(addrPointFormatter, stripeF, common));
 		}
 		
+		executorService.shutdown();
+		try {
+			executorService.awaitTermination(1, TimeUnit.HOURS);
+		} catch (InterruptedException e1) {
+			e1.printStackTrace();
+		}
+		
+		log.info("Join done.");
+		
+		executorService = Executors.newFixedThreadPool(4);
 		for(File stripeF : folder.listFiles(STRIPE_FILE_FN_FILTER)) {
 			executorService.execute( new SortAndUpdateTask(stripeF));
 		}
@@ -63,7 +73,7 @@ public class Joiner {
 			e.printStackTrace();
 		}
 		
-		log.info("{} lines was updated.", SortAndUpdateTask.countUpdatedLines());
+		log.info("Update slices done. {} lines was updated.", SortAndUpdateTask.countUpdatedLines());
 		log.info("Join done in {}", DurationFormatUtils.formatDurationHMS(new Date().getTime() - start));
 	}
 

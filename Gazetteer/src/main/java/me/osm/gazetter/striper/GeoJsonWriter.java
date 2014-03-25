@@ -9,6 +9,7 @@ import me.osm.gazetter.utils.HilbertCurveHasher;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.LocalDateTime;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONString;
 import org.slf4j.Logger;
@@ -16,7 +17,9 @@ import org.slf4j.LoggerFactory;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineString;
+import com.vividsolutions.jts.geom.LinearRing;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
 
@@ -38,6 +41,8 @@ public class GeoJsonWriter {
 	public static final String GEOMETRY = "geometry";
 	public static final String ORIGINAL_BBOX = "origBBOX";
 	public static final String TIMESTAMP = "timestamp";
+	
+	private static final GeometryFactory factory = new GeometryFactory();
 	
 	private static final DateTimeZone timeZone = DateTimeZone.getDefault();
 	
@@ -180,6 +185,51 @@ public class GeoJsonWriter {
 		int begin = line.indexOf(FTYPE_PATTERN) + FTYPE_PATTERN.length();
 		int end = line.indexOf("\"", begin);
 		return line.substring(begin, end);
+	}
+	
+	public static Polygon getPolygonGeometry(JSONObject polygon) {
+		JSONArray coords = polygon.getJSONObject("geometry").getJSONArray("coordinates");
+		
+		return getPolygonGeometry(coords);
+	}
+
+	public static Polygon getPolygonGeometry(JSONArray coords) {
+		LinearRing shell = null;
+		LinearRing[] holes = new LinearRing[coords.length() - 1];
+		for(int lineIndex = 0;lineIndex < coords.length(); lineIndex++) {
+			JSONArray line = coords.getJSONArray(lineIndex);
+			LinearRing lg = getLinearRingGeometry(line);
+			if(lineIndex == 0) {
+				shell = lg;
+			}
+			else {
+				holes[lineIndex - 1] = lg;
+			}
+		}
+		return factory.createPolygon(shell, holes);
+	}
+
+	public static LinearRing getLinearRingGeometry(JSONArray line) {
+		Coordinate[] coords = new Coordinate[line.length()];
+		
+		for(int i = 0; i < line.length(); i++) {
+			JSONArray p = line.getJSONArray(i);
+			coords[i] = new Coordinate(p.getDouble(0), p.getDouble(1));
+		}
+		
+		return factory.createLinearRing(coords);
+	}
+
+	public static LineString getLineStringGeometry(JSONObject strtJSON) {
+		JSONArray coordsJSON = strtJSON.getJSONObject("geometry").getJSONArray("coordinates");
+		Coordinate[] coords = new Coordinate[coordsJSON.length()];
+		
+		for(int i = 0; i < coordsJSON.length(); i++) {
+			JSONArray p = coordsJSON.getJSONArray(i);
+			coords[i] = new Coordinate(p.getDouble(0), p.getDouble(1));
+		}
+		
+		return factory.createLineString(coords);
 	}
 	
 }

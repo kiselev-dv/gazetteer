@@ -1,6 +1,7 @@
 package me.osm.gazetter.striper;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
@@ -9,6 +10,10 @@ import java.util.List;
 import org.json.JSONObject;
 
 public final class JSONFeature extends JSONObject {
+	
+	public JSONFeature(String line) {
+		super(line);
+	}
 	
 	@Override
 	@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -43,7 +48,7 @@ public final class JSONFeature extends JSONObject {
 		return result;
 	}
 
-	public static List<JSONObject> asRefers(List<JSONObject> features) {
+	public static List<JSONObject> asRefers(Collection<JSONObject> features) {
 		List<JSONObject> result = new ArrayList<>();
 		if(features != null) {
 			for(JSONObject obj : features) {
