@@ -121,4 +121,15 @@
 		<developerConnection>scm:git:git@github.com:kiselev-dv/gazetteer.git</developerConnection>
 		<tag>HEAD</tag>
 	</scm>
+	
+	<repositories>
+	    <repository>
+	        <id>osm-doc-mvn-repo</id>
+	        <url>https://raw.github.com/kiselev-dv/osm-doc/mvn-repo/</url>
+	        <snapshots>
+	            <enabled>true</enabled>
+	            <updatePolicy>always</updatePolicy>
+	        </snapshots>
+	    </repository>
+	</repositories>
 </project>
