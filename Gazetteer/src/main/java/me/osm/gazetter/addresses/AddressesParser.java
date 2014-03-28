@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
@@ -254,7 +255,7 @@ public class AddressesParser {
 		// addr:...2
 		if(properties.has("addr:housenumber2")) {
 			
-			JSONObject addr1 = (JSONObject) JSONObject.wrap(properties);;
+			JSONObject addr1 = copy(properties);
 			addr1.put(ADDR_SCHEME, "addr:hn2-1");
 			result.add(addr1);
 
@@ -290,13 +291,13 @@ public class AddressesParser {
 					return Collections.singletonList(properties); 
 				}
 				
-				JSONObject addr1 = (JSONObject) JSONObject.wrap(properties);
+				JSONObject addr1 = copy(properties);
 				addr1.put("addr:housenumber", split[0]);
 				addr1.put("addr:hn-orig", hn);
 				addr1.put(ADDR_SCHEME, "addr:street2-1");
 				result.add(addr1);
 
-				JSONObject addr2 = (JSONObject) JSONObject.wrap(properties);
+				JSONObject addr2 = copy(properties);
 				addr2.put("addr:housenumber", split[1]);
 				addr2.put("addr:street", s2);
 				addr2.put("addr:hn-orig", hn);
@@ -304,24 +305,24 @@ public class AddressesParser {
 				result.add(addr2);
 			}
 			else {
-				return Collections.singletonList(properties); 
+				result.add(properties);
 			}
 		}
 		//AddrN
 		//TODO: search for all addrN levels and Ns
 		else if(properties.has("addr2:housenumber")) {
-			JSONObject addr1 = (JSONObject) JSONObject.wrap(properties);
+			JSONObject addr1 = copy(properties);
 			addr1.put(ADDR_SCHEME, "addrN-1");
 			result.add(addr1);
 
-			JSONObject addr2 = (JSONObject) JSONObject.wrap(properties);
+			JSONObject addr2 = copy(properties);
 			addr2.put("addr:housenumber", properties.optString("addr2:housenumber"));
 			addr2.put("addr:street", properties.optString("addr:street2"));
 			addr2.put(ADDR_SCHEME, "addrN-2");
 			result.add(addr2);
 		}
 		else {
-			JSONObject addr1 = (JSONObject) JSONObject.wrap(properties);
+			JSONObject addr1 = copy(properties);
 			addr1.put(ADDR_SCHEME, "regular");
 			result.add(addr1);
 		}
@@ -329,6 +330,11 @@ public class AddressesParser {
 		return result;
 	}
 	
+	private static JSONObject copy(JSONObject properties) {
+		Set<String> keys = properties.keySet();
+		return new JSONObject(properties, keys.toArray(new String[keys.size()]));
+	}
+
 	public static JSONObject boundariesAsArray(List<JSONObject> input) {
 		List<JSONObject> result = new ArrayList<>();
 		

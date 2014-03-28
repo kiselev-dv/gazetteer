@@ -51,7 +51,7 @@ public class PoiAddrJoinBuilder {
 		// In some regions poi address will have address 
 		// with all shared entrances house numbers range like
 		// hn4-hn9, SomeStreet
-		// Say hello to Kaliningrad (Kenigberg).
+		// Say hello to Kaliningrad (Kenigsberg).
 		public Set<JSONObject> nearestShareBuildingWay;
 		
 		public JSONObject asJSON() {

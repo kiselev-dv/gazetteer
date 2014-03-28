@@ -2,13 +2,11 @@ package me.osm.gazetter;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
 import me.osm.gazetter.join.Joiner;
-import me.osm.gazetter.out.CSVOutConvertor;
-import me.osm.gazetter.out.JSONOutConvertor;
+import me.osm.gazetter.out.OSMRUOutConverter;
 import me.osm.gazetter.out.OutWriter;
 import me.osm.gazetter.split.Split;
 import me.osm.gazetter.striper.Slicer;
@@ -24,15 +22,6 @@ import net.sourceforge.argparse4j.inf.Subparsers;
  * */
 public class Main {
 	
-	
-	private static final String OUT_JSON_VAL = "out_json";
-	private static final String OUT_JSON_OPT = "--out-json";
-	
-	private static final String OUT_HTML_VAL = "out_html";
-	private static final String OUT_HTML_OPT = "--out-html";
-	
-	private static final String OUT_CSV_VAL = "out_csv";
-	private static final String OUT_CSV_OPT = "--out-csv";
 	
 	private static final String JOIN_COMMON_VAL = "common";
 	private static final String JOIN_COMMON_OPT = "--common";
@@ -63,9 +52,9 @@ public class Main {
 	    	public String longName() {return name().toLowerCase();}
 	    	public String help() {return "Join features. Made spatial joins for address points inside polygons and so on.";}
 	    }, 
-	    OUT {
-	    	public String longName() {return name().toLowerCase();}
-	    	public String help() {return "Write data out in different formats.";}
+	    OUT_OSMRU {
+	    	public String longName() {return name().toLowerCase().replace('_', '-');}
+	    	public String help() {return "Write data out for openstreetmap.ru";}
 	    };
 
 	};
@@ -109,8 +98,8 @@ public class Main {
 				System.exit(0);
 			}
 			
-			if(namespace.get(COMMAND).equals(Command.OUT)) {
-				doWriteOut(namespace);
+			if(namespace.get(COMMAND).equals(Command.OUT_OSMRU)) {
+				new OutWriter(namespace.getString(DATA_DIR_VAL), new OSMRUOutConverter()).write();
 				System.exit(0);
 			}
 			
@@ -177,31 +166,13 @@ public class Main {
 
 		//out
 		{
-			Command command = Command.OUT;
+			Command command = Command.OUT_OSMRU;
 			subparsers.addParser(command.longName())
         			.setDefault(COMMAND, command)
 					.help(command.help());
 		}
+		
 		return parser;
 	}
 
-	/**
-	 * Parser arguments and
-	 * write out results in different formats.
-	 * */
-	private static void doWriteOut(Namespace namespace) {
-		
-		//TODO: Add choice stdout or file
-		
-		if(namespace.get(OUT_CSV_VAL) != null && (Boolean)namespace.get(OUT_CSV_VAL)) {
-			new OutWriter(namespace.getString(DATA_DIR_VAL), new CSVOutConvertor()).write();
-		}
-		else if(namespace.get(OUT_HTML_VAL) != null && (Boolean)namespace.get(OUT_HTML_VAL)) {
-			//TODO: Not supported yet
-		}
-		else if(namespace.get(OUT_JSON_VAL) != null && (Boolean)namespace.get(OUT_JSON_VAL)) {
-			new OutWriter(namespace.getString(DATA_DIR_VAL), new JSONOutConvertor()).write();
-		}
-		
-	}
 }

@@ -248,6 +248,22 @@ public class JoinSliceTask implements Runnable {
 		joinBndg2Poi();
 		joinBndg2Addr();
 		
+		//use clear because we will populate list with a same number of lines
+		addrPoints.clear();
+		
+		for(Entry<JSONObject, List<JSONObject>> entry : addr2bndries.entrySet()) {
+			List<JSONObject> boundaries = entry.getValue();
+			boundaries.addAll(common);
+			
+			addrPoints.add(handler.handle(
+					entry.getKey(), 
+					boundaries, 
+					addr2streets.get(entry.getKey()),
+					addr2PlaceVoronoy.get(entry.getKey()), 
+					addr2NeighbourVoronoy.get(entry.getKey()))
+			);
+		}
+		
 		joinPoi2Addresses();
 	}
 
@@ -325,21 +341,6 @@ public class JoinSliceTask implements Runnable {
 	}
 
 	private void write() {
-		//use clear because we will populate list with a same number of lines
-		addrPoints.clear();
-		
-		for(Entry<JSONObject, List<JSONObject>> entry : addr2bndries.entrySet()) {
-			List<JSONObject> boundaries = entry.getValue();
-			boundaries.addAll(common);
-			
-			addrPoints.add(handler.handle(
-					entry.getKey(), 
-					boundaries, 
-					addr2streets.get(entry.getKey()),
-					addr2PlaceVoronoy.get(entry.getKey()), 
-					addr2NeighbourVoronoy.get(entry.getKey()))
-			);
-		}
 
 		for(Entry<JSONObject, List<JSONObject>> entry : poi2bndries.entrySet()) {
 			List<JSONObject> boundaries = entry.getValue();
