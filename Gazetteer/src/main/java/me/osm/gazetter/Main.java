@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import me.osm.gazetter.addresses.AddrLevelsSorting;
 import me.osm.gazetter.join.Joiner;
 import me.osm.gazetter.out.OSMRUOutConverter;
 import me.osm.gazetter.out.OutWriter;
@@ -94,7 +95,10 @@ public class Main {
 			}
 
 			if(namespace.get(COMMAND).equals(Command.JOIN)) {
+				Options.initialize(AddrLevelsSorting.valueOf(namespace.getString("addr_order")));
+				
 				Joiner.run(namespace.getString(DATA_DIR_VAL), namespace.getString(JOIN_COMMON_VAL));
+				
 				System.exit(0);
 			}
 			
@@ -160,8 +164,12 @@ public class Main {
 				.help("Path for *.json with array of features which will be added to boundaries "
 						+ "list for every feature.");
 			
+			join.addArgument("--addr-order").choices("HN_STREET_CITY", "STREET_HN_CITY").setDefault("HN_STREET_CITY")
+				.help("How to sort addr levels in full addr text");
+
 			join.addArgument("--addr-formatter")
 				.help("Path to *.js or *.groovy file with full addresses texts formatter.");
+			
 		}
 
 		//out

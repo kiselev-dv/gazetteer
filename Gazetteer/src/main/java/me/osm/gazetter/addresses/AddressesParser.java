@@ -2,12 +2,12 @@ package me.osm.gazetter.addresses;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import me.osm.gazetter.Options;
 
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
@@ -17,11 +17,24 @@ import org.slf4j.LoggerFactory;
 
 public class AddressesParser {
 	
+	private static final AddrLevelsComparator ADDR_LVL_COMPARATOR;
+	static {
+		AddrLevelsSorting sorting = Options.get().getSorting();
+		if(AddrLevelsSorting.HN_STREET_CITY == sorting) {
+			ADDR_LVL_COMPARATOR = new HNStreetCityComparator();
+		}
+		else {
+			ADDR_LVL_COMPARATOR = new StreetHNCityComparator();
+		}
+	}
+
 	private static final String ADDR_NAMES = "names";
 
 	private static final String ADDR_NAME = "name";
 
-	private static final String ADDR_LVL = "lvl";
+	static final String ADDR_LVL = "lvl";
+
+	private static final String ADDR_LVL_SIZE = "lvl-size";
 
 	private static final String ADDR_PARTS = "parts";
 
@@ -32,31 +45,8 @@ public class AddressesParser {
 	private static final String ADDR_FULL = "addr:full";
 
 	private static final Logger log = LoggerFactory.getLogger(AddressesParser.class.getName());
-	
-	private static final Map<String, Integer> type2level = new HashMap<>();
-	static {
-		type2level.put("hn", 10);
-		type2level.put("street", 20);
-		type2level.put("place:quarter", 30);
-		type2level.put("place:neighbourhood", 40);
-		type2level.put("place:suburb", 50);
-		type2level.put("place:allotments", 60);
-		type2level.put("place:locality", 70);
-		type2level.put("place:isolated_dwelling", 70);
-		type2level.put("place:village", 70);
-		type2level.put("place:hamlet", 70);
-		type2level.put("place:town", 70);
-		type2level.put("place:city", 70);
 
-		type2level.put("boundary:8", 80);
-		type2level.put("boundary:6", 90);
-		type2level.put("boundary:5", 100);
-		type2level.put("boundary:4", 110);
-		type2level.put("boundary:3", 120);
-		type2level.put("boundary:2", 130);
-	}
 	
-
 	public JSONArray parse(JSONObject addrPoint, List<JSONObject> boundaries, List<JSONObject> nearbyStreets) {
 		
 		JSONArray result = new JSONArray();
@@ -67,6 +57,8 @@ public class AddressesParser {
 		for(JSONObject addrRow : addresses) {
 			List<JSONObject> addrJsonRow = new ArrayList<>();
 			
+			addrJsonRow.add(letterAsJSON(addrPoint, addrRow));
+
 			addrJsonRow.add(hnAsJSON(addrPoint, addrRow));
 			
 			JSONObject streetAsJSON = streetAsJSON(addrPoint, addrRow, null, nearbyStreets);
@@ -78,7 +70,8 @@ public class AddressesParser {
 			if(addrRow.has("addr:quarter")) {
 				quarterJSON = new JSONObject();
 				quarterJSON.put(ADDR_NAME, addrRow.getString("addr:quarter"));
-				quarterJSON.put(ADDR_LVL, type2level.get("place:quarter"));
+				quarterJSON.put(ADDR_LVL, "place:quarter");
+				quarterJSON.put(ADDR_LVL_SIZE, ADDR_LVL_COMPARATOR.getLVLSize("place:quarter"));
 				addrJsonRow.add(quarterJSON);
 			}
 
@@ -86,20 +79,21 @@ public class AddressesParser {
 			if(addrRow.has("addr:city")) {
 				cityJSON = new JSONObject();
 				cityJSON.put(ADDR_NAME, addrRow.getString("addr:city"));
-				cityJSON.put(ADDR_LVL, type2level.get("place:city"));
+				cityJSON.put(ADDR_LVL, "place:city");
+				cityJSON.put(ADDR_LVL_SIZE, ADDR_LVL_COMPARATOR.getLVLSize("place:city"));
 				addrJsonRow.add(cityJSON);
 			}
 			
 			for(JSONObject bndry : boundaries) {
-				int addrLevel = getAddrLevel(bndry); 
-				if(addrLevel >= 0) {
+				String addrLevel = getAddrLevel(bndry); 
+				if(addrLevel != null) {
 					
-					if(quarterJSON != null && addrLevel == type2level.get("place:quarter")) {
+					if(quarterJSON != null && addrLevel.equals("place:quarter")) {
 						joinAddrLvl(quarterJSON, bndry);
 						continue;
 					}
 
-					if(cityJSON != null && addrLevel == type2level.get("place:city")) {
+					if(cityJSON != null && addrLevel.equals("place:city")) {
 						joinAddrLvl(cityJSON, bndry);
 						continue;
 					}
@@ -114,6 +108,7 @@ public class AddressesParser {
 					}
 					
 					addrLVL.put(ADDR_LVL, addrLevel);
+					addrLVL.put(ADDR_LVL_SIZE, ADDR_LVL_COMPARATOR.getLVLSize(addrLevel));
 					addrLVL.put(ADDR_NAME, nTags.get(ADDR_NAME));
 					addrLVL.put(ADDR_NAMES, new JSONObject(nTags));
 					
@@ -121,16 +116,7 @@ public class AddressesParser {
 				}
 			}
 			
-			Collections.sort(addrJsonRow, new Comparator<JSONObject>() {
-
-				@Override
-				public int compare(JSONObject o1, JSONObject o2) {
-					int i1 = o1.getInt(ADDR_LVL);
-					int i2 = o2.getInt(ADDR_LVL);
-					return i1 - i2;
-				}
-				
-			});
+			Collections.sort(addrJsonRow, ADDR_LVL_COMPARATOR);
 			
 			JSONObject fullAddressRow = new JSONObject();
 			fullAddressRow.put(ADDR_TEXT, joinNames(addrJsonRow));
@@ -190,7 +176,8 @@ public class AddressesParser {
 		
 		JSONObject streetAddrPart = new JSONObject();
 		streetAddrPart.put(ADDR_NAME, street);
-		streetAddrPart.put(ADDR_LVL, type2level.get("street"));
+		streetAddrPart.put(ADDR_LVL, "street");
+		streetAddrPart.put(ADDR_LVL_SIZE, ADDR_LVL_COMPARATOR.getLVLSize("street"));
 		
 		if(associatedStreet != null) {
 			streetAddrPart.put(ADDR_NAMES, new JSONObject(AddressesUtils.filterNameTags(associatedStreet)));
@@ -204,13 +191,26 @@ public class AddressesParser {
 	private boolean containValue(String street, Map<String, String> filterNameTags) {
 		return new HashSet(filterNameTags.values()).contains(street); 
 	}
+	
+	private JSONObject letterAsJSON(JSONObject addrPoint, JSONObject addrRow) {
+		JSONObject letterAddrPart = new JSONObject();
+		
+		String letter = addrRow.optString("addr:letter");
+		letterAddrPart.put(ADDR_NAME, letter);
+		letterAddrPart.put(ADDR_LVL, "letter");
+		letterAddrPart.put(ADDR_LVL_SIZE, ADDR_LVL_COMPARATOR.getLVLSize("street"));
+		letterAddrPart.put("lnk", addrPoint.optString("id"));
+
+		return letterAddrPart;
+	}
 
 	private JSONObject hnAsJSON(JSONObject addrPoint, JSONObject addrRow) {
 		JSONObject hnAddrPart = new JSONObject();
 		
 		String hn = addrRow.optString("addr:housenumber");
 		hnAddrPart.put(ADDR_NAME, hn);
-		hnAddrPart.put(ADDR_LVL, type2level.get("hn"));
+		hnAddrPart.put(ADDR_LVL, "hn");
+		hnAddrPart.put(ADDR_LVL_SIZE, ADDR_LVL_COMPARATOR.getLVLSize("hn"));
 		hnAddrPart.put("lnk", addrPoint.optString("id"));
 
 		JSONObject names = new JSONObject();
@@ -227,7 +227,7 @@ public class AddressesParser {
 		return hnAddrPart;
 	}
 
-	private static int getAddrLevel(JSONObject obj) {
+	private static String getAddrLevel(JSONObject obj) {
 		
 		JSONObject properties = obj.optJSONObject("properties");
 		
@@ -236,16 +236,16 @@ public class AddressesParser {
 		}
 		
 		String pk = "place:" + properties.optString("place");
-		if(type2level.containsKey(pk)) {
-			return type2level.get(pk);
+		if(ADDR_LVL_COMPARATOR.supports(pk)) {
+			return pk;
 		}
 
 		String bk = "boundary:" + properties.optString("admin_level").trim();
-		if(type2level.containsKey(bk)) {
-			return type2level.get(bk);
+		if(ADDR_LVL_COMPARATOR.supports(bk)) {
+			return bk;
 		}
 		
-		return -1;
+		return null;
 	}
 
 	private static List<JSONObject> parseSchemes(JSONObject properties) {
@@ -339,8 +339,8 @@ public class AddressesParser {
 		List<JSONObject> result = new ArrayList<>();
 		
 		for(JSONObject bndry : input) {
-			int addrLevel = getAddrLevel(bndry); 
-			if(addrLevel >= 0) {
+			String addrLevel = getAddrLevel(bndry); 
+			if(addrLevel != null) {
 				
 				JSONObject addrLVL = new JSONObject();
 				addrLVL.put("lnk", bndry.getString("id"));
@@ -352,6 +352,7 @@ public class AddressesParser {
 				}
 				
 				addrLVL.put(ADDR_LVL, addrLevel);
+				addrLVL.put(ADDR_LVL_SIZE, ADDR_LVL_COMPARATOR.getLVLSize(addrLevel));
 				addrLVL.put(ADDR_NAME, nTags.get(ADDR_NAME));
 				addrLVL.put(ADDR_NAMES, new JSONObject(nTags));
 				
@@ -360,16 +361,7 @@ public class AddressesParser {
 		}
 
 		JSONObject fullAddressRow = new JSONObject();
-		Collections.sort(result, new Comparator<JSONObject>() {
-			
-			@Override
-			public int compare(JSONObject o1, JSONObject o2) {
-				int i1 = o1.getInt(ADDR_LVL);
-				int i2 = o2.getInt(ADDR_LVL);
-				return i1 - i2;
-			}
-			
-		});
+		Collections.sort(result, ADDR_LVL_COMPARATOR);
 		
 		fullAddressRow.put(ADDR_TEXT, joinNames(result));
 		fullAddressRow.put(ADDR_PARTS, new JSONArray(result));
