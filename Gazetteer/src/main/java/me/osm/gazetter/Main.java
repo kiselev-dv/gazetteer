@@ -7,7 +7,7 @@ import java.util.List;
 
 import me.osm.gazetter.addresses.AddrLevelsSorting;
 import me.osm.gazetter.join.Joiner;
-import me.osm.gazetter.out.OSMRUOutConverter;
+import me.osm.gazetter.out.CSVOutConvertor;
 import me.osm.gazetter.out.OutWriter;
 import me.osm.gazetter.split.Split;
 import me.osm.gazetter.striper.Slicer;
@@ -53,9 +53,9 @@ public class Main {
 	    	public String longName() {return name().toLowerCase();}
 	    	public String help() {return "Join features. Made spatial joins for address points inside polygons and so on.";}
 	    }, 
-	    OUT_OSMRU {
+	    OUT_CSV {
 	    	public String longName() {return name().toLowerCase().replace('_', '-');}
-	    	public String help() {return "Write data out for openstreetmap.ru";}
+	    	public String help() {return "Write data out in csv format.";}
 	    };
 
 	};
@@ -102,8 +102,8 @@ public class Main {
 				System.exit(0);
 			}
 			
-			if(namespace.get(COMMAND).equals(Command.OUT_OSMRU)) {
-				new OutWriter(namespace.getString(DATA_DIR_VAL), new OSMRUOutConverter()).write();
+			if(namespace.get(COMMAND).equals(Command.OUT_CSV)) {
+				new OutWriter(namespace.getString(DATA_DIR_VAL), new CSVOutConvertor()).write();
 				System.exit(0);
 			}
 			
@@ -164,7 +164,7 @@ public class Main {
 				.help("Path for *.json with array of features which will be added to boundaries "
 						+ "list for every feature.");
 			
-			join.addArgument("--addr-order").choices("HN_STREET_CITY", "STREET_HN_CITY").setDefault("HN_STREET_CITY")
+			join.addArgument("--addr-order").choices("HN_STREET_CITY", "STREET_HN_CITY", "CITY_STREET_HN").setDefault("HN_STREET_CITY")
 				.help("How to sort addr levels in full addr text");
 
 			join.addArgument("--addr-formatter")
@@ -174,7 +174,7 @@ public class Main {
 
 		//out
 		{
-			Command command = Command.OUT_OSMRU;
+			Command command = Command.OUT_CSV;
 			subparsers.addParser(command.longName())
         			.setDefault(COMMAND, command)
 					.help(command.help());

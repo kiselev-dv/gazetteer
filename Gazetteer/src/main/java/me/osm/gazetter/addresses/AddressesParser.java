@@ -23,6 +23,9 @@ public class AddressesParser {
 		if(AddrLevelsSorting.HN_STREET_CITY == sorting) {
 			ADDR_LVL_COMPARATOR = new HNStreetCityComparator();
 		}
+		else if (AddrLevelsSorting.CITY_STREET_HN == sorting) {
+			ADDR_LVL_COMPARATOR = new CityStreetHNComparator();
+		}
 		else {
 			ADDR_LVL_COMPARATOR = new StreetHNCityComparator();
 		}
@@ -57,7 +60,10 @@ public class AddressesParser {
 		for(JSONObject addrRow : addresses) {
 			List<JSONObject> addrJsonRow = new ArrayList<>();
 			
-			addrJsonRow.add(letterAsJSON(addrPoint, addrRow));
+			JSONObject letterAsJSON = letterAsJSON(addrPoint, addrRow);
+			if(letterAsJSON != null) {
+				addrJsonRow.add(letterAsJSON);
+			}
 
 			addrJsonRow.add(hnAsJSON(addrPoint, addrRow));
 			
@@ -193,9 +199,15 @@ public class AddressesParser {
 	}
 	
 	private JSONObject letterAsJSON(JSONObject addrPoint, JSONObject addrRow) {
-		JSONObject letterAddrPart = new JSONObject();
 		
 		String letter = addrRow.optString("addr:letter");
+		
+		if(StringUtils.isEmpty(letter)) {
+			return null;
+		}
+		
+		JSONObject letterAddrPart = new JSONObject();
+		
 		letterAddrPart.put(ADDR_NAME, letter);
 		letterAddrPart.put(ADDR_LVL, "letter");
 		letterAddrPart.put(ADDR_LVL_SIZE, ADDR_LVL_COMPARATOR.getLVLSize("street"));

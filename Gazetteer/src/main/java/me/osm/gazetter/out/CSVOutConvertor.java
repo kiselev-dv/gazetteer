@@ -2,6 +2,8 @@ package me.osm.gazetter.out;
 
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.util.HashMap;
+import java.util.Map;
 
 import me.osm.gazetter.striper.FeatureTypes;
 
@@ -19,6 +21,7 @@ public class CSVOutConvertor implements OutConverter {
 		"osm-id",
 		"lon",
 		"lat",
+		"letter",
 		"housenumber",
 		"street",
 		"place:quarter",
@@ -77,16 +80,18 @@ public class CSVOutConvertor implements OutConverter {
 		result[3] = String.valueOf(lat);
 
 		JSONArray parts = addrObj.getJSONArray("parts");
-		for(int i = 0;i < parts.length(); i++) {
+		for(int i = 0; i < parts.length(); i++) {
 			
 			JSONObject addrLVL = parts.getJSONObject(i);
 			
 			String name = addrLVL.getString("name");
-			int lvl = addrLVL.getInt("lvl");
+			String lvl = addrLVL.getString("lvl");
+
+			Integer csvIndex = indexes.get(lvl);
+			if(csvIndex != null && csvIndex > 0) {
+				result[csvIndex] = name;
+			}
 			
-			int csvIndex = lvl / 10 - 1 + 4;
-			
-			result[csvIndex] = name;
 		}
 
 		return result;
@@ -100,5 +105,32 @@ public class CSVOutConvertor implements OutConverter {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	private static final Map<String, Integer> indexes = new HashMap<>();
+	
+	static {
+		int i = 4;
+		indexes.put("letter", i++);
+		indexes.put("hn", i++);
+		indexes.put("street", i++);
+		indexes.put("place:quarter", i++);
+		indexes.put("place:neighbourhood", i++);
+		indexes.put("place:suburb", i++);
+		indexes.put("place:allotments", i++);
+		indexes.put("place:locality", i);
+		indexes.put("place:isolated_dwelling", i);
+		indexes.put("place:village", i);
+		indexes.put("place:hamlet", i);
+		indexes.put("place:town", i);
+		indexes.put("place:city", i);
+
+		i++;
+		indexes.put("boundary:8", i++);
+		indexes.put("boundary:6", i++);
+		indexes.put("boundary:5", i++);
+		indexes.put("boundary:4", i++);
+		indexes.put("boundary:3", i++);
+		indexes.put("boundary:2", i++);
 	}
 }

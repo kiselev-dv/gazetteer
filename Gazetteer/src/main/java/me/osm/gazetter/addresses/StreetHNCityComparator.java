@@ -15,35 +15,32 @@ public class StreetHNCityComparator implements AddrLevelsComparator {
 	}
 
 	private static final Map<String, Integer> order = new HashMap<>();
-	private static final Map<String, Integer> type2size = new HashMap<>();
+	private static final Map<String, Integer> type2size = Constants.defaultType2size;
 	
 	static {
-		order.put("street", 10);
-		order.put("hn", 20);
-		order.put("letter", 22);
+		int i = 1;
+		order.put("street", i++);
+		order.put("hn", i++);
+		order.put("letter", i++);
 		
-		order.put("place:quarter", 30);
-		order.put("place:neighbourhood", 40);
-		order.put("place:suburb", 50);
-		order.put("place:allotments", 60);
-		order.put("place:locality", 70);
-		order.put("place:isolated_dwelling", 70);
-		order.put("place:village", 70);
-		order.put("place:hamlet", 70);
-		order.put("place:town", 70);
-		order.put("place:city", 70);
+		order.put("place:quarter", i++);
+		order.put("place:neighbourhood", i++);
+		order.put("place:suburb", i++);
+		order.put("place:allotments", i++);
+		order.put("place:locality", i);
+		order.put("place:isolated_dwelling", i);
+		order.put("place:village", i);
+		order.put("place:hamlet", i);
+		order.put("place:town", i);
+		order.put("place:city", i);
+		i++;
 
-		order.put("boundary:8", 80);
-		order.put("boundary:6", 90);
-		order.put("boundary:5", 100);
-		order.put("boundary:4", 110);
-		order.put("boundary:3", 120);
-		order.put("boundary:2", 130);
-		
-		type2size.putAll(order);
-		order.put("letter", 8);
-		order.put("hn", 10);
-		order.put("street", 20);
+		order.put("boundary:8", i++);
+		order.put("boundary:6", i++);
+		order.put("boundary:5", i++);
+		order.put("boundary:4", i++);
+		order.put("boundary:3", i++);
+		order.put("boundary:2", i++);
 	}
 	
 	@Override
