@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>Gazetteer</groupId>
 	<artifactId>Gazetteer</artifactId>
-	<version>0.5-SNAPSHOT</version>
+	<version>0.6-SNAPSHOT</version>
 
 	<properties>
 		<maven.compiler.source>1.7</maven.compiler.source>
@@ -118,7 +118,6 @@
 
 	<scm>
 		<developerConnection>scm:git:git@github.com:kiselev-dv/gazetteer.git</developerConnection>
-		<tag>Gazetteer-0.0.4</tag>
 	</scm>
 	
 	<repositories>
