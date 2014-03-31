@@ -17,8 +17,8 @@ import me.osm.gazetter.striper.readers.RelationsReader.Relation;
 import me.osm.gazetter.striper.readers.RelationsReader.Relation.RelationMember;
 import me.osm.gazetter.striper.readers.RelationsReader.Relation.RelationMember.ReferenceType;
 import me.osm.gazetter.striper.readers.WaysReader.Way;
-import me.osm.osmdoc.processing.OSMDocFactory;
-import me.osm.osmdoc.processing.TagsDecisionTree;
+import me.osm.osmdoc.read.OSMDocFactory;
+import me.osm.osmdoc.read.TagsDecisionTree;
 
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONObject;
