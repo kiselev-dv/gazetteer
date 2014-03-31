@@ -24,6 +24,15 @@ import net.sourceforge.argparse4j.inf.Subparsers;
 public class Main {
 	
 	
+	private static final String EXCCLUDE_POI_BRANCH_OPT = "--excclude-poi-branch";
+	private static final String EXCCLUDE_POI_BRANCH_VAL = "excclude_poi_branch";
+	
+	private static final String ADDR_FORMATTER_OPT = "--addr-formatter";
+	private static final String ADDR_FORMATTER_VAL = "addr_formatter";
+
+	private static final String ADDR_ORDER_OPT = "--addr-order";
+	private static final String ADDR_ORDER_VAL = "addr_order";
+	
 	private static final String JOIN_COMMON_VAL = "common";
 	private static final String JOIN_COMMON_OPT = "--common";
 
@@ -32,6 +41,11 @@ public class Main {
 	
 	private static final String LOG_OPT = "--log-level";
 	private static final String LOG_VAL = "log_level";
+
+	private static final String POI_CATALOG_VAL = "poi_catalog";
+	private static final String POI_CATALOG_OPT = "--poi-catalog";
+
+	private static final String FEATURE_TYPES_VAL = "feature_types";
 
 	private static final String COMMAND = "command";
 
@@ -63,6 +77,7 @@ public class Main {
 	/**
 	 * Parse arguments and run tasks accordingly.
 	 * */
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public static void main(String[] args) {
 		
 		System.setProperty(org.slf4j.impl.SimpleLogger.SHOW_DATE_TIME_KEY, "true");
@@ -84,18 +99,27 @@ public class Main {
 
 			if(namespace.get(COMMAND).equals(Command.SLICE)) {
 				List<String> types = new ArrayList<String>();
-				if(namespace.get("feature_types") instanceof String) {
-					types.add((String)namespace.get("feature_types"));
+				if(namespace.get(FEATURE_TYPES_VAL) instanceof String) {
+					types.add((String)namespace.get(FEATURE_TYPES_VAL));
 				}
-				else if (namespace.get("feature_types") instanceof Collection) {
-					types.addAll((Collection)namespace.get("feature_types"));
+				else if (namespace.get(FEATURE_TYPES_VAL) instanceof Collection) {
+					types.addAll((Collection<String>)namespace.get(FEATURE_TYPES_VAL));
 				}
-				Slicer.run(namespace.getString(DATA_DIR_VAL), namespace.getString("poi_catalog"), types);
+				Slicer.run(
+						namespace.getString(DATA_DIR_VAL), 
+						namespace.getString(POI_CATALOG_VAL), 
+						types,
+						(List)namespace.getList(EXCCLUDE_POI_BRANCH_VAL)
+				);
+				
 				System.exit(0);
 			}
 
 			if(namespace.get(COMMAND).equals(Command.JOIN)) {
-				Options.initialize(AddrLevelsSorting.valueOf(namespace.getString("addr_order")));
+				Options.initialize(
+						AddrLevelsSorting.valueOf(namespace.getString(ADDR_ORDER_VAL)),
+						namespace.getString(ADDR_FORMATTER_VAL)
+				);
 				
 				Joiner.run(namespace.getString(DATA_DIR_VAL), namespace.getString(JOIN_COMMON_VAL));
 				
@@ -146,9 +170,15 @@ public class Main {
         			.setDefault(COMMAND, command)
 					.help(command.help());
 			
-			slice.addArgument("--poi-catalog").help("Path to osm-doc catalog.").setDefault("jar");
+			slice.addArgument(POI_CATALOG_OPT).setDefault("jar")
+				.help("Path to osm-doc catalog xml file. By default internal osm-doc.xml will be used.");
 			
-			slice.addArgument("feature_types").help("Parse and slice axact feature(s) type.")
+			slice.addArgument(EXCCLUDE_POI_BRANCH_OPT).nargs("*")
+				.help("Exclude branch of osm-doc features hierarchy. "
+					+ "Eg: osm-ru:transport where osm-ru is a name of the hierarchy, "
+					+ "and transport is a name of the branch");
+			
+			slice.addArgument(FEATURE_TYPES_VAL).help("Parse and slice axact feature(s) type.")
 				.choices(Slicer.sliceTypes).nargs("*").setDefault("all").setConst("all");
 			
 		}
@@ -164,11 +194,11 @@ public class Main {
 				.help("Path for *.json with array of features which will be added to boundaries "
 						+ "list for every feature.");
 			
-			join.addArgument("--addr-order").choices("HN_STREET_CITY", "STREET_HN_CITY", "CITY_STREET_HN").setDefault("HN_STREET_CITY")
+			join.addArgument(ADDR_ORDER_OPT).choices("HN_STREET_CITY", "STREET_HN_CITY", "CITY_STREET_HN").setDefault("HN_STREET_CITY")
 				.help("How to sort addr levels in full addr text");
 
-			join.addArgument("--addr-formatter")
-				.help("Path to *.js or *.groovy file with full addresses texts formatter.");
+			join.addArgument(ADDR_FORMATTER_OPT)
+				.help("Path to *.groovy file with full addresses texts formatter.");
 			
 		}
 

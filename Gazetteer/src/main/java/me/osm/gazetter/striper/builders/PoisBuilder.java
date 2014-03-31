@@ -17,7 +17,7 @@ import me.osm.gazetter.striper.readers.RelationsReader.Relation;
 import me.osm.gazetter.striper.readers.RelationsReader.Relation.RelationMember;
 import me.osm.gazetter.striper.readers.RelationsReader.Relation.RelationMember.ReferenceType;
 import me.osm.gazetter.striper.readers.WaysReader.Way;
-import me.osm.osmdoc.read.OSMDocFactory;
+import me.osm.osmdoc.read.OSMDocFacade;
 import me.osm.osmdoc.read.TagsDecisionTree;
 
 import org.apache.commons.lang3.StringUtils;
@@ -46,9 +46,9 @@ public class PoisBuilder extends ABuilder {
 
 	private PoisHandler handler;
 	
-	public PoisBuilder(PoisHandler handler, String catalogFolder) {
+	public PoisBuilder(PoisHandler handler, String catalogFolder, List<String> exclude) {
 		this.handler = handler;
-		this.tagsFilter = new OSMDocFactory(catalogFolder).getPoiClassificator();
+		this.tagsFilter = new OSMDocFacade(catalogFolder, exclude).getPoiClassificator();
 	}
 	
 	private static final Logger log = LoggerFactory.getLogger(PoisBuilder.class.getName());

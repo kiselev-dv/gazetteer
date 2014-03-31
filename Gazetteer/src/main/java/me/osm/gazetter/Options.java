@@ -18,7 +18,7 @@ public class Options {
 		
 	}
 
-	public static void initialize(AddrLevelsSorting sorting) {
+	public static void initialize(AddrLevelsSorting sorting, String groovyFormatter) {
 		if(instance != null) {
 			throw new SecondaryOptionsInitializationException();
 		}
