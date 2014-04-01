@@ -22,6 +22,7 @@ import me.osm.gazetter.striper.JSONFeature;
 import me.osm.gazetter.utils.FileUtils;
 import me.osm.gazetter.utils.FileUtils.LineHandler;
 
+import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -53,6 +54,7 @@ public class JoinSliceTask implements Runnable {
 	private final List<JSONObject> neighboursVoronoi = new ArrayList<>();
 	private final List<JSONObject> streets = new ArrayList<>();
 	private final List<JSONObject> junctions = new ArrayList<>();
+	private final List<JSONObject> associatedStreets = new ArrayList<>();
 	
 	private final List<JSONObject> poi2bdng = new ArrayList<>();
 	private final List<JSONObject> addr2bdng = new ArrayList<>();
@@ -100,6 +102,7 @@ public class JoinSliceTask implements Runnable {
 	private Map<Long, JSONObject> addrPnt2Builng;
 
 	private Map<JSONObject, List<JSONObject>> poi2bndries;
+	private Map<String, JSONObject> addrPnt2AsStreet; 
 
 	@Override
 	public void run() {
@@ -167,6 +170,8 @@ public class JoinSliceTask implements Runnable {
 		
 		poiPnt2Builng = new HashMap<>(poi2bdng.size());
 		addrPnt2Builng = new HashMap<>(addr2bdng.size());
+
+		addrPnt2AsStreet = new HashMap<>(associatedStreets.size() * 10);
 	}
 
 	private void readFeatures() {
@@ -219,6 +224,10 @@ public class JoinSliceTask implements Runnable {
 				case FeatureTypes.PLACE_POINT_FTYPE:
 					places.add(new JSONFeature(line));
 					break;
+
+				case FeatureTypes.ASSOCIATED_STREET:
+					associatedStreets.add(new JSONFeature(line));
+					break;
 				}
 			}
 			
@@ -249,6 +258,8 @@ public class JoinSliceTask implements Runnable {
 		
 		joinBndg2Poi();
 		joinBndg2Addr();
+
+		fillAddr2AsStreet();
 		
 		//use clear because we will populate list with a same number of lines
 		addrPoints.clear();
@@ -257,17 +268,29 @@ public class JoinSliceTask implements Runnable {
 			List<JSONObject> boundaries = entry.getValue();
 			boundaries.addAll(common);
 			
+			String assStreetAddrKey = StringUtils.split(entry.getKey().getString("id"), '-')[2];
+			
 			addrPoints.add(handler.handle(
 					entry.getKey(), 
 					boundaries, 
 					addr2streets.get(entry.getKey()),
 					addr2PlaceVoronoy.get(entry.getKey()), 
 					addr2NeighbourVoronoy.get(entry.getKey()), 
-					null)
-			);
+					addrPnt2AsStreet.get(assStreetAddrKey)));
 		}
 		
 		joinPoi2Addresses();
+	}
+
+	private void fillAddr2AsStreet() {
+		for(JSONObject association : associatedStreets) {
+			JSONArray barray = association.getJSONArray("buildings");
+			
+			for(int i = 0; i < barray.length(); i++) {
+				String key = barray.getString(i);
+				addrPnt2AsStreet.put(key, association);
+			}
+		}
 	}
 
 	private void joinStreets2Addresses() {
