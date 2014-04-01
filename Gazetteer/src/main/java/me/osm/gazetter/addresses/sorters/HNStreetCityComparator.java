@@ -1,4 +1,4 @@
-package me.osm.gazetter.addresses.impl;
+package me.osm.gazetter.addresses.sorters;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -10,7 +10,7 @@ import me.osm.gazetter.addresses.Constants;
 import org.apache.commons.lang3.ObjectUtils;
 import org.json.JSONObject;
 
-class HNStreetCityComparator implements AddrLevelsComparator {
+public class HNStreetCityComparator implements AddrLevelsComparator {
 	
 	@Override
 	public int compare(JSONObject o1, JSONObject o2) {

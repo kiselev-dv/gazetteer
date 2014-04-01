@@ -1,4 +1,4 @@
-package me.osm.gazetter.addresses.impl;
+package me.osm.gazetter.addresses.sorters;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -10,7 +10,7 @@ import me.osm.gazetter.addresses.Constants;
 import org.apache.commons.lang3.ObjectUtils;
 import org.json.JSONObject;
 
-public class StreetHNCityComparator implements AddrLevelsComparator {
+public class CityStreetHNComparator implements AddrLevelsComparator {
 
 	@Override
 	public int compare(JSONObject o1, JSONObject o2) {
@@ -24,14 +24,13 @@ public class StreetHNCityComparator implements AddrLevelsComparator {
 	
 	static {
 		int i = 1;
-		order.put("street", i++);
-		order.put("hn", i++);
-		order.put("letter", i++);
-		
-		order.put("place:quarter", i++);
-		order.put("place:neighbourhood", i++);
-		order.put("place:suburb", i++);
-		order.put("place:allotments", i++);
+		order.put("boundary:2", i++);
+		order.put("boundary:3", i++);
+		order.put("boundary:4", i++);
+		order.put("boundary:5", i++);
+		order.put("boundary:6", i++);
+		order.put("boundary:8", i++);
+
 		order.put("place:locality", i);
 		order.put("place:isolated_dwelling", i);
 		order.put("place:village", i);
@@ -40,12 +39,14 @@ public class StreetHNCityComparator implements AddrLevelsComparator {
 		order.put("place:city", i);
 		i++;
 
-		order.put("boundary:8", i++);
-		order.put("boundary:6", i++);
-		order.put("boundary:5", i++);
-		order.put("boundary:4", i++);
-		order.put("boundary:3", i++);
-		order.put("boundary:2", i++);
+		order.put("place:allotments", i++);
+		order.put("place:suburb", i++);
+		order.put("place:neighbourhood", i++);
+		order.put("place:quarter", i++);
+		
+		order.put("street", i++);
+		order.put("hn", i++);
+		order.put("letter", i++);
 
 		order.put("postcode", i++);
 	}

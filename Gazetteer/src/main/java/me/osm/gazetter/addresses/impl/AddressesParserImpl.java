@@ -1,5 +1,10 @@
 package me.osm.gazetter.addresses.impl;
 
+import static me.osm.gazetter.addresses.AddressesLevelsMatcher.ADDR_LVL;
+import static me.osm.gazetter.addresses.AddressesLevelsMatcher.ADDR_LVL_SIZE;
+import static me.osm.gazetter.addresses.AddressesLevelsMatcher.ADDR_NAME;
+import static me.osm.gazetter.addresses.AddressesLevelsMatcher.ADDR_NAMES;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -16,13 +21,14 @@ import me.osm.gazetter.addresses.AddressesLevelsMatcher;
 import me.osm.gazetter.addresses.AddressesParser;
 import me.osm.gazetter.addresses.AddressesSchemesParser;
 import me.osm.gazetter.addresses.AddressesUtils;
+import me.osm.gazetter.addresses.sorters.CityStreetHNComparator;
+import me.osm.gazetter.addresses.sorters.HNStreetCityComparator;
+import me.osm.gazetter.addresses.sorters.StreetHNCityComparator;
 import me.osm.gazetter.matchers.NamesMatcherImpl;
 
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
-
-import static me.osm.gazetter.addresses.AddressesLevelsMatcher.*;
 
 public class AddressesParserImpl implements AddressesParser {
 	
