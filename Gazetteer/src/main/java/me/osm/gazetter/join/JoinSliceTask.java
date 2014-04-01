@@ -14,6 +14,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import me.osm.gazetter.addresses.AddressesParser;
+import me.osm.gazetter.addresses.impl.AddressesParserImpl;
 import me.osm.gazetter.join.PoiAddrJoinBuilder.BestFitAddresses;
 import me.osm.gazetter.striper.FeatureTypes;
 import me.osm.gazetter.striper.GeoJsonWriter;
@@ -63,6 +64,7 @@ public class JoinSliceTask implements Runnable {
 	private List<JSONObject> common;
 	
 	private final PoiAddrJoinBuilder poiAddrJoinBuilder = new PoiAddrJoinBuilder();
+	private static final AddressesParser addressesParser = new AddressesParserImpl();
 	
 	private static final GeometryFactory factory = new GeometryFactory();
 		
@@ -260,7 +262,8 @@ public class JoinSliceTask implements Runnable {
 					boundaries, 
 					addr2streets.get(entry.getKey()),
 					addr2PlaceVoronoy.get(entry.getKey()), 
-					addr2NeighbourVoronoy.get(entry.getKey()))
+					addr2NeighbourVoronoy.get(entry.getKey()), 
+					null)
 			);
 		}
 		
@@ -346,7 +349,7 @@ public class JoinSliceTask implements Runnable {
 			List<JSONObject> boundaries = entry.getValue();
 			boundaries.addAll(common);
 			
-			entry.getKey().put("boundaries", AddressesParser.boundariesAsArray(boundaries));
+			entry.getKey().put("boundaries", addressesParser.boundariesAsArray(boundaries));
 		}
 		
 		PrintWriter printWriter = null;
@@ -371,7 +374,7 @@ public class JoinSliceTask implements Runnable {
 				boundaries.addAll(common);
 				JSONObject street = entry.getKey();
 				//TODO split in case of two or more parts with same lvl
-				street.put("boundaries", AddressesParser.boundariesAsArray(boundaries));
+				street.put("boundaries", addressesParser.boundariesAsArray(boundaries));
 				GeoJsonWriter.addTimestamp(street);
 				
 				String geoJSONString = new JSONFeature(street).toString();
@@ -395,7 +398,7 @@ public class JoinSliceTask implements Runnable {
 				boundaries.addAll(common);
 				JSONObject place = entry.getKey();
 
-				place.put("boundaries", AddressesParser.boundariesAsArray(boundaries));
+				place.put("boundaries", addressesParser.boundariesAsArray(boundaries));
 				GeoJsonWriter.addTimestamp(place);
 				
 				String geoJSONString = new JSONFeature(place).toString();

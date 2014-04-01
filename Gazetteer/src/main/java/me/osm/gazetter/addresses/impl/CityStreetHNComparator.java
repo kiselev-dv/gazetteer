@@ -1,17 +1,22 @@
-package me.osm.gazetter.addresses;
+package me.osm.gazetter.addresses.impl;
 
 import java.util.HashMap;
 import java.util.Map;
 
+import me.osm.gazetter.addresses.AddrLevelsComparator;
+import me.osm.gazetter.addresses.AddressesLevelsMatcher;
+import me.osm.gazetter.addresses.Constants;
+
+import org.apache.commons.lang3.ObjectUtils;
 import org.json.JSONObject;
 
 public class CityStreetHNComparator implements AddrLevelsComparator {
 
 	@Override
 	public int compare(JSONObject o1, JSONObject o2) {
-		int i1 = order.get(o1.getString(AddressesParser.ADDR_LVL));
-		int i2 = order.get(o2.getString(AddressesParser.ADDR_LVL));
-		return i1 - i2;
+		Integer i1 = order.get(o1.getString(AddressesLevelsMatcher.ADDR_LVL));
+		Integer i2 = order.get(o2.getString(AddressesLevelsMatcher.ADDR_LVL));
+		return ObjectUtils.compare(i2, i1);
 	}
 
 	private static final Map<String, Integer> order = new HashMap<>();
@@ -43,6 +48,7 @@ public class CityStreetHNComparator implements AddrLevelsComparator {
 		order.put("hn", i++);
 		order.put("letter", i++);
 
+		order.put("postcode", i++);
 	}
 	
 	@Override

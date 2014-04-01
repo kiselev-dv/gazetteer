@@ -2,6 +2,7 @@ package me.osm.gazetter.join;
 
 import java.util.List;
 
+import me.osm.gazetter.Options;
 import me.osm.gazetter.addresses.AddressesParser;
 import me.osm.gazetter.striper.JSONFeature;
 
@@ -9,17 +10,24 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 public class AddrPointFormatter implements AddrJointHandler {
+	
+	private AddressesParser parser; 
 
-	private static final AddressesParser parser = new AddressesParser(); 
+	public AddrPointFormatter() {
+		parser = Options.get().getAddressesParser();
+	}
 
 	@Override
 	public JSONObject handle(JSONObject addrPoint, List<JSONObject> boundaries, 
 			List<JSONObject> nearbyStreets,
 			JSONObject nearestPlace, 
-			JSONObject nearesNeighbour) {
+			JSONObject nearestNeighbour,
+			JSONObject associatedStreet) {
 		
 		List<JSONObject> streetsRefers = JSONFeature.asRefers(nearbyStreets);
-		JSONArray addresses = parser.parse(addrPoint, boundaries, streetsRefers);
+		JSONArray addresses = parser.parse(
+				addrPoint, boundaries, streetsRefers, 
+				nearestPlace, nearestNeighbour, associatedStreet);
 		
 		addrPoint.put("addresses", addresses);
 		
@@ -27,8 +35,8 @@ public class AddrPointFormatter implements AddrJointHandler {
 			addrPoint.put("nearestCity", JSONFeature.asRefer(nearestPlace));
 		}
 		
-		if(nearesNeighbour != null) {
-			addrPoint.put("nearestNeighbour", JSONFeature.asRefer(nearesNeighbour));
+		if(nearestNeighbour != null) {
+			addrPoint.put("nearestNeighbour", JSONFeature.asRefer(nearestNeighbour));
 		}
 		
 		if(nearbyStreets != null) {

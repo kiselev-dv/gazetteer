@@ -6,10 +6,16 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import org.json.JSONObject;
 
 public final class JSONFeature extends JSONObject {
+	
+	public static JSONObject copy(JSONObject properties) {
+		Set<String> keys = properties.keySet();
+		return new JSONObject(properties, keys.toArray(new String[keys.size()]));
+	}
 	
 	public JSONFeature(String line) {
 		super(line);

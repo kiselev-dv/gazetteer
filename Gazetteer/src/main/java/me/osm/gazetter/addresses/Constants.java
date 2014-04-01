@@ -14,6 +14,9 @@ public class Constants {
 		defaultType2size.put("place:quarter", 30);
 		defaultType2size.put("place:neighbourhood", 40);
 		defaultType2size.put("place:suburb", 50);
+		
+		defaultType2size.put("postcode", 55);
+		
 		defaultType2size.put("place:allotments", 60);
 		defaultType2size.put("place:locality", 70);
 		defaultType2size.put("place:isolated_dwelling", 70);

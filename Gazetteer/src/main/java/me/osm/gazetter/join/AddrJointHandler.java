@@ -10,6 +10,7 @@ public interface AddrJointHandler {
 			List<JSONObject> polygons, 
 			List<JSONObject> nearbyStreets,
 			JSONObject nearestPlace, 
-			JSONObject nearesNeighbour
+			JSONObject nearesNeighbour,
+			JSONObject associatedStreet
 	);
 }

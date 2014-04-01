@@ -11,7 +11,8 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import me.osm.gazetter.addresses.AddressesUtils;
-import me.osm.gazetter.matchers.Matcher;
+import me.osm.gazetter.matchers.NamesMatcher;
+import me.osm.gazetter.matchers.NamesMatcherImpl;
 import me.osm.gazetter.striper.FeatureTypes;
 import me.osm.gazetter.striper.GeoJsonWriter;
 import me.osm.gazetter.striper.JSONFeature;
@@ -41,6 +42,8 @@ import com.vividsolutions.jts.triangulate.quadedge.QuadEdgeSubdivision;
 
 public class PlaceBuilder extends BoundariesBuilder {
 
+	private NamesMatcher namesMatcher = new NamesMatcherImpl();
+	
 	private static final Logger log = LoggerFactory
 			.getLogger(PlaceBuilder.class.getName());
 
@@ -482,7 +485,7 @@ public class PlaceBuilder extends BoundariesBuilder {
 						if(polygon.contains(fatory.createPoint(c))) {
 
 							String placeName = pp.getJSONObject(GeoJsonWriter.PROPERTIES).optString("name");
-							if(Matcher.isPlaceNameMatch(placeName, pbNamesSet)) {
+							if(namesMatcher.isPlaceNameMatch(placeName, pbNamesSet)) {
 								handlePlaceMatch(featureWithoutGeometry, pp);
 								return;
 							}
