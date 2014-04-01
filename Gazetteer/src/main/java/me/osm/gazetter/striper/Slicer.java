@@ -468,13 +468,13 @@ public class Slicer implements BoundariesHandler,
 	}
 
 	@Override
-	public void handleAssociatedStreet(int minN, int maxN, long wayId,
+	public void handleAssociatedStreet(int minN, int maxN, List<Long> wayIds,
 			List<RelationMember> buildings, long relationId,
 			Map<String, String> relAttributes) {
 		
-		String id = FeatureTypes.ASSOCIATED_STREET + "-" + relationId + "-" + wayId;
+		String id = FeatureTypes.ASSOCIATED_STREET + "-" + relationId;
 		
-		if(minN < maxN) {
+		if(minN <= maxN) {
 			for(int i = minN; i <= maxN; i++) {
 				String n = String.format("%04d", i);
 				
@@ -496,7 +496,7 @@ public class Slicer implements BoundariesHandler,
 				}
 				
 				feature.put("buildings", buildingsArray);
-				feature.put("associatedWay", wayId);
+				feature.put("associatedWays", new JSONArray(wayIds));
 				
 				GeoJsonWriter.addTimestamp(feature);
 				

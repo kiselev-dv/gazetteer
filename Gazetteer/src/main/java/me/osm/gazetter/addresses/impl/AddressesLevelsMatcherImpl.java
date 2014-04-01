@@ -1,5 +1,8 @@
 package me.osm.gazetter.addresses.impl;
 
+import gnu.trove.set.TLongSet;
+import gnu.trove.set.hash.TLongHashSet;
+
 import java.util.List;
 import java.util.Map;
 
@@ -7,11 +10,17 @@ import me.osm.gazetter.addresses.AddrLevelsComparator;
 import me.osm.gazetter.addresses.AddressesLevelsMatcher;
 import me.osm.gazetter.addresses.AddressesUtils;
 import me.osm.gazetter.matchers.NamesMatcher;
+import me.osm.gazetter.striper.GeoJsonWriter;
 
 import org.apache.commons.lang3.StringUtils;
+import org.json.JSONArray;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class AddressesLevelsMatcherImpl implements AddressesLevelsMatcher {
+	
+	private static final Logger log = LoggerFactory.getLogger(AddressesLevelsMatcherImpl.class);
 	
 	public AddressesLevelsMatcherImpl(AddrLevelsComparator lelvelsComparator, 
 			NamesMatcher namesMatcher) {
@@ -71,16 +80,51 @@ public class AddressesLevelsMatcherImpl implements AddressesLevelsMatcher {
 	public JSONObject streetAsJSON(JSONObject addrPoint, JSONObject addrRow,
 			JSONObject associatedStreet, List<JSONObject> nearbyStreets) {
 			
+		if(associatedStreet != null) {
+			TLongSet waysSet = new TLongHashSet();
+			JSONArray jsonArray = associatedStreet.getJSONArray("associatedWays");
+			for(int i = 0; i < jsonArray.length(); i++) {
+				waysSet.add(jsonArray.getLong(i));
+			}
+			
+			for(JSONObject ls : nearbyStreets) {
+				long wayId = Long.parseLong(StringUtils.split(ls.getString("id"), '-')[2].substring(1));  
+				if(waysSet.contains(wayId)) {
+					
+					JSONObject streetAddrPart = new JSONObject();
+					
+					Map<String, String> nameTags = AddressesUtils.filterNameTags(ls);
+					nameTags.putAll(AddressesUtils.filterNameTags(associatedStreet));
+					
+					if(nameTags.get("name") != null) {
+						streetAddrPart.put(ADDR_NAME, nameTags.get("name"));
+						streetAddrPart.put(ADDR_LVL, "street");
+						streetAddrPart.put(ADDR_NAMES, new JSONObject(nameTags));
+						streetAddrPart.put("lnk", ls.optString("id"));
+						streetAddrPart.put(ADDR_LVL_SIZE, lelvelsComparator.getLVLSize("street"));
+						
+						return streetAddrPart;
+					}
+					else {
+						log.warn("Can't find name for associated street.\nStreet:\n{}\nRelation\n{}", 
+								ls.toString(), associatedStreet.toString());
+					}
+				}
+			}
+		}
+		
 		if(!addrRow.has("addr:street")) {
 			return null;
 		}
 		
+		JSONObject matchedStreet = null;
+		
 		String street = addrRow.getString("addr:street");
 
-		if(associatedStreet == null && nearbyStreets != null) {
+		if(nearbyStreets != null) {
 			for(JSONObject ls : nearbyStreets) {
 				if(namesMatcher.isStreetNameMatch(street, AddressesUtils.filterNameTags(ls))) {
-					associatedStreet = ls;
+					matchedStreet = ls;
 					break;
 				}
 			}
@@ -91,9 +135,9 @@ public class AddressesLevelsMatcherImpl implements AddressesLevelsMatcher {
 		streetAddrPart.put(ADDR_LVL, "street");
 		streetAddrPart.put(ADDR_LVL_SIZE, lelvelsComparator.getLVLSize("street"));
 		
-		if(associatedStreet != null) {
-			streetAddrPart.put(ADDR_NAMES, new JSONObject(AddressesUtils.filterNameTags(associatedStreet)));
-			streetAddrPart.put("lnk", associatedStreet.optString("id"));
+		if(matchedStreet != null) {
+			streetAddrPart.put(ADDR_NAMES, new JSONObject(AddressesUtils.filterNameTags(matchedStreet)));
+			streetAddrPart.put("lnk", matchedStreet.optString("id"));
 		}
 		
 		return streetAddrPart;

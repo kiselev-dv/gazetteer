@@ -12,7 +12,7 @@ public interface HighwaysHandler extends FeatureHandler {
 	
 	public void handleHighway(LineString geometry, Way way);
 	
-	public void handleAssociatedStreet(int minN, int maxN, long wayId, List<RelationMember> buildings, long relationId, 
+	public void handleAssociatedStreet(int minN, int maxN, List<Long> wayId, List<RelationMember> buildings, long relationId, 
 			Map<String, String> relAttributes);
 	
 }

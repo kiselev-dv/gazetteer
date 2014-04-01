@@ -83,27 +83,29 @@ public class HighwaysBuilder extends ABuilder implements HighwaysHandler {
 			}
 			else {
 				for(RelationMember m : rel.members) {
-					w2n.put(m.ref, -1);
+					if(m.type == ReferenceType.WAY && ("street".equals(m.role) || !("house".equals(m.role)))) {
+						w2n.put(m.ref, -1);
+					}
 				}
 			}
 		}
 	}
 
 	private void buildAssociatedStreet(Relation rel) {
-		List<RelationMember> waysIds = new ArrayList<>();
+		List<Long> waysIds = new ArrayList<>();
 		List<RelationMember> buildingsIds = new ArrayList<>();
 		for(RelationMember m : rel.members) {
-			if("street".equals(m.role) && m.type == ReferenceType.WAY) {
-				buildingsIds.add(m);
+			if(m.type == ReferenceType.WAY && ("street".equals(m.role) || !("house".equals(m.role)))) {
+				waysIds.add(m.ref);
 			}
 			else {
-				waysIds.add(m);
+				buildingsIds.add(m);
 			}
 		}
 
 		if(!buildingsIds.isEmpty()) {
-			for(RelationMember wm : waysIds) {
-				int fromto = w2n.get(wm.ref);
+			for(Long wid : waysIds) {
+				int fromto = w2n.get(wid);
 				if(fromto >= 0) {
 					int max = fromto & 0x0000FFFF;
 					int min = fromto >> 16;
@@ -111,8 +113,11 @@ public class HighwaysBuilder extends ABuilder implements HighwaysHandler {
 					//drop suspiciously long relations
 					if(Math.abs(max - min) < 10 ) {
 						this.highwaysHandler.handleAssociatedStreet(
-							min, max, wm.ref, buildingsIds, rel.id, rel.tags);
+							min, max, waysIds, buildingsIds, rel.id, rel.tags);
 					}
+				}
+				else {
+					log.warn("No streets found for associated street relation, id {}", rel.id);
 				}
 			}
 		}
@@ -127,7 +132,7 @@ public class HighwaysBuilder extends ABuilder implements HighwaysHandler {
 					this.doneReadNodes = true;
 				}
 				orderByWay();
-				executorService.execute(new BuildWayGeometryTask(line, highwaysHandler));
+				executorService.execute(new BuildWayGeometryTask(line, this));
 			} else {
 				short i = 0;
 				for (Long id : line.nodes) {
@@ -294,7 +299,7 @@ public class HighwaysBuilder extends ABuilder implements HighwaysHandler {
 	@Override
 	public void handleHighway(LineString geometry, Way way) {
 		
-		if(w2n.containsKey(way.id) && w2n.get(way.id) == -1) {
+		if(w2n.containsKey(way.id)) {
 			Envelope env = geometry.getEnvelopeInternal();
 			short n = new Double((env.getMinX() + 180.0) * 10.0).shortValue();
 			
@@ -302,14 +307,14 @@ public class HighwaysBuilder extends ABuilder implements HighwaysHandler {
 			n = new Double((env.getMaxX() + 180.0) * 10.0).shortValue();
 			
 			fromto |= n;
-			w2n.adjustValue(way.id, fromto + 1);
+			w2n.put(way.id, fromto);
 		}
 		
 		highwaysHandler.handleHighway(geometry, way);
 	}
 
 	@Override
-	public void handleAssociatedStreet(int minN, int maxN, long wayId,
+	public void handleAssociatedStreet(int minN, int maxN, List<Long> wayId,
 			List<RelationMember> buildings, long relationId,
 			Map<String, String> relAttributes) {
 		//do nothing
