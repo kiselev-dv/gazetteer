@@ -16,7 +16,7 @@ public class CityStreetHNComparator implements AddrLevelsComparator {
 	public int compare(JSONObject o1, JSONObject o2) {
 		Integer i1 = order.get(o1.getString(AddressesLevelsMatcher.ADDR_LVL));
 		Integer i2 = order.get(o2.getString(AddressesLevelsMatcher.ADDR_LVL));
-		return ObjectUtils.compare(i2, i1);
+		return ObjectUtils.compare(i1, i2);
 	}
 
 	private static final Map<String, Integer> order = new HashMap<>();
