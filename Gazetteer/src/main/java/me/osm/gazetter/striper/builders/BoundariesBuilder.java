@@ -15,6 +15,7 @@ import java.util.concurrent.TimeUnit;
 
 import me.osm.gazetter.striper.FeatureTypes;
 import me.osm.gazetter.striper.GeoJsonWriter;
+import me.osm.gazetter.striper.builders.handlers.BoundariesHandler;
 import me.osm.gazetter.striper.readers.PointsReader.Node;
 import me.osm.gazetter.striper.readers.RelationsReader.Relation;
 import me.osm.gazetter.striper.readers.RelationsReader.Relation.RelationMember;
@@ -38,10 +39,6 @@ public class BoundariesBuilder extends ABuilder {
 	
 	private static final Logger log = LoggerFactory.getLogger(BoundariesBuilder.class.getName());
 	private static final  GeometryFactory geometryFactory = new GeometryFactory();
-	
-	public static interface BoundariesHandler extends FeatureHandler {
-		public void handleBoundary(JSONObject feature, MultiPolygon multiPolygon);
-	}
 	
 	protected BoundariesHandler handler;
 	

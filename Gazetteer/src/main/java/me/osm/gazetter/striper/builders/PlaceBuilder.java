@@ -17,6 +17,8 @@ import me.osm.gazetter.striper.FeatureTypes;
 import me.osm.gazetter.striper.GeoJsonWriter;
 import me.osm.gazetter.striper.JSONFeature;
 import me.osm.gazetter.striper.Slicer;
+import me.osm.gazetter.striper.builders.handlers.BoundariesHandler;
+import me.osm.gazetter.striper.builders.handlers.PlacePointHandler;
 import me.osm.gazetter.striper.readers.PointsReader.Node;
 import me.osm.gazetter.striper.readers.RelationsReader.Relation;
 import me.osm.gazetter.striper.readers.WaysReader.Way;
@@ -46,13 +48,6 @@ public class PlaceBuilder extends BoundariesBuilder {
 	
 	private static final Logger log = LoggerFactory
 			.getLogger(PlaceBuilder.class.getName());
-
-	public static interface PlacePointHandler extends FeatureHandler {
-		public void handlePlacePoint(Map<String, String> tags, Point pnt,
-				JSONObject meta);
-		
-		public void writeOut(String line, String n);
-	}
 
 	private static GeometryFactory fatory = new GeometryFactory();
 	private PlacePointHandler handler;

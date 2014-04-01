@@ -1,4 +1,4 @@
-package me.osm.gazetter.striper.builders;
+package me.osm.gazetter.striper.builders.handlers;
 
 public interface FeatureHandler {
 	public void freeThreadPool(String user);

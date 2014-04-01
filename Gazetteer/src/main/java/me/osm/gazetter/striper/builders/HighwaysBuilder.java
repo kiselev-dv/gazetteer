@@ -1,26 +1,35 @@
 package me.osm.gazetter.striper.builders;
 
+import gnu.trove.map.TLongIntMap;
+import gnu.trove.map.hash.TLongIntHashMap;
+
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import me.osm.gazetter.striper.builders.handlers.HighwaysHandler;
+import me.osm.gazetter.striper.builders.handlers.JunctionsHandler;
 import me.osm.gazetter.striper.readers.PointsReader.Node;
 import me.osm.gazetter.striper.readers.RelationsReader.Relation;
+import me.osm.gazetter.striper.readers.RelationsReader.Relation.RelationMember;
+import me.osm.gazetter.striper.readers.RelationsReader.Relation.RelationMember.ReferenceType;
 import me.osm.gazetter.striper.readers.WaysReader.Way;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineString;
 
-public class HighwaysBuilder extends ABuilder {
+public class HighwaysBuilder extends ABuilder implements HighwaysHandler {
 
 	private static final Logger log = LoggerFactory
 			.getLogger(HighwaysBuilder.class.getName());
@@ -47,6 +56,7 @@ public class HighwaysBuilder extends ABuilder {
 	private static final String HIGHWAY_TAG = "highway";
 	private JunctionsHandler junctionsHandler;
 	private HighwaysHandler highwaysHandler;
+	private TLongIntMap w2n = new TLongIntHashMap();
 
 	private static final int LON_OFFSET = 8 + 8;
 	private static final int LAT_OFFSET = 8 + 8 + 8;
@@ -55,15 +65,6 @@ public class HighwaysBuilder extends ABuilder {
 			JunctionsHandler junctionsHandler) {
 		this.highwaysHandler = highwaysHandler;
 		this.junctionsHandler = junctionsHandler;
-	}
-
-	public static interface HighwaysHandler extends FeatureHandler {
-		public void handleHighway(LineString geometry, Way way);
-	}
-
-	public static interface JunctionsHandler extends FeatureHandler {
-		public void handleJunction(Coordinate coordinates, long nodeID,
-				List<Long> highways);
 	}
 
 	private static final List<ByteBuffer> node2way = new ArrayList<>();
@@ -76,7 +77,45 @@ public class HighwaysBuilder extends ABuilder {
 
 	@Override
 	public void handle(Relation rel) {
-		// TODO: support routes and associated street relation
+		if("associatedStreet".equals(rel.tags.get("type"))) {
+			if(indexFilled) {
+				buildAssociatedStreet(rel);
+			}
+			else {
+				for(RelationMember m : rel.members) {
+					w2n.put(m.ref, -1);
+				}
+			}
+		}
+	}
+
+	private void buildAssociatedStreet(Relation rel) {
+		List<RelationMember> waysIds = new ArrayList<>();
+		List<RelationMember> buildingsIds = new ArrayList<>();
+		for(RelationMember m : rel.members) {
+			if("street".equals(m.role) && m.type == ReferenceType.WAY) {
+				buildingsIds.add(m);
+			}
+			else {
+				waysIds.add(m);
+			}
+		}
+
+		if(!buildingsIds.isEmpty()) {
+			for(RelationMember wm : waysIds) {
+				int fromto = w2n.get(wm.ref);
+				if(fromto >= 0) {
+					int max = fromto & 0x0000FFFF;
+					int min = fromto >> 16;
+					
+					//drop suspiciously long relations
+					if(Math.abs(max - min) < 10 ) {
+						this.highwaysHandler.handleAssociatedStreet(
+							min, max, wm.ref, buildingsIds, rel.id, rel.tags);
+					}
+				}
+			}
+		}
 	}
 
 	@Override
@@ -240,6 +279,40 @@ public class HighwaysBuilder extends ABuilder {
 			lat = bb.getDouble(LAT_OFFSET);
 		}
 
+	}
+
+	@Override
+	public void freeThreadPool(String user) {
+		//do nothing
+	}
+
+	@Override
+	public void newThreadpoolUser(String user) {
+		//do nothing
+	}
+
+	@Override
+	public void handleHighway(LineString geometry, Way way) {
+		
+		if(w2n.containsKey(way.id) && w2n.get(way.id) == -1) {
+			Envelope env = geometry.getEnvelopeInternal();
+			short n = new Double((env.getMinX() + 180.0) * 10.0).shortValue();
+			
+			int fromto = n << 16;
+			n = new Double((env.getMaxX() + 180.0) * 10.0).shortValue();
+			
+			fromto |= n;
+			w2n.adjustValue(way.id, fromto + 1);
+		}
+		
+		highwaysHandler.handleHighway(geometry, way);
+	}
+
+	@Override
+	public void handleAssociatedStreet(int minN, int maxN, long wayId,
+			List<RelationMember> buildings, long relationId,
+			Map<String, String> relAttributes) {
+		//do nothing
 	}
 
 }

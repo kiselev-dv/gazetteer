@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 import me.osm.gazetter.striper.GeoJsonWriter;
+import me.osm.gazetter.striper.builders.handlers.AddrPointHandler;
 import me.osm.gazetter.striper.readers.PointsReader.Node;
 import me.osm.gazetter.striper.readers.RelationsReader.Relation;
 import me.osm.gazetter.striper.readers.RelationsReader.Relation.RelationMember;
@@ -38,11 +39,6 @@ public class AddrPointsBuilder extends ABuilder {
 	
 	private static final String ADDR_STREET = "addr:street";
 
-	public static interface AddrPointHandler extends FeatureHandler {
-		public void handleAddrPoint(Map<String, String> attributes, Point point, JSONObject meta);
-		public void handleAddrPoint2Building(String n, long nodeId, long wayId, Map<String, String> wayTags);
-	}
-	
 	private static final String ADDR_INTERPOLATION = "addr:interpolation";
 	private static final String ADDR_HOUSENUMBER = "addr:housenumber";
 

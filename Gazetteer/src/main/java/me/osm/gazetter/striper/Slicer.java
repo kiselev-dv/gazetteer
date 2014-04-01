@@ -6,6 +6,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
@@ -19,17 +20,19 @@ import java.util.concurrent.TimeUnit;
 import me.osm.gazetter.dao.FileWriteDao;
 import me.osm.gazetter.dao.WriteDao;
 import me.osm.gazetter.striper.builders.AddrPointsBuilder;
-import me.osm.gazetter.striper.builders.AddrPointsBuilder.AddrPointHandler;
 import me.osm.gazetter.striper.builders.BoundariesBuilder;
-import me.osm.gazetter.striper.builders.BoundariesBuilder.BoundariesHandler;
 import me.osm.gazetter.striper.builders.Builder;
 import me.osm.gazetter.striper.builders.HighwaysBuilder;
-import me.osm.gazetter.striper.builders.HighwaysBuilder.HighwaysHandler;
-import me.osm.gazetter.striper.builders.HighwaysBuilder.JunctionsHandler;
 import me.osm.gazetter.striper.builders.PlaceBuilder;
-import me.osm.gazetter.striper.builders.PlaceBuilder.PlacePointHandler;
 import me.osm.gazetter.striper.builders.PoisBuilder;
-import me.osm.gazetter.striper.builders.PoisBuilder.PoisHandler;
+import me.osm.gazetter.striper.builders.handlers.AddrPointHandler;
+import me.osm.gazetter.striper.builders.handlers.BoundariesHandler;
+import me.osm.gazetter.striper.builders.handlers.HighwaysHandler;
+import me.osm.gazetter.striper.builders.handlers.JunctionsHandler;
+import me.osm.gazetter.striper.builders.handlers.PlacePointHandler;
+import me.osm.gazetter.striper.builders.handlers.PoisHandler;
+import me.osm.gazetter.striper.readers.RelationsReader.Relation.RelationMember;
+import me.osm.gazetter.striper.readers.RelationsReader.Relation.RelationMember.ReferenceType;
 import me.osm.gazetter.striper.readers.WaysReader.Way;
 import me.osm.gazetter.utils.GeometryUtils;
 
@@ -191,7 +194,7 @@ public class Slicer implements BoundariesHandler,
 		try {
 			writeDAO.write(line, fileName);
 		} catch (IOException e) {
-			log.error("Couldn't write out {}", fileName, e);
+			throw new RuntimeException("Couldn't write out " + fileName, e);
 		}
 	}
 
@@ -462,5 +465,56 @@ public class Slicer implements BoundariesHandler,
 			: "Failed getFtype for " + geoJSONString;
 		
 		writeOut(geoJSONString, n);
+	}
+
+	@Override
+	public void handleAssociatedStreet(int minN, int maxN, long wayId,
+			List<RelationMember> buildings, long relationId,
+			Map<String, String> relAttributes) {
+		
+		String id = FeatureTypes.ASSOCIATED_STREET + "-" + relationId + "-" + wayId;
+		
+		if(minN < maxN) {
+			for(int i = minN; i <= maxN; i++) {
+				String n = String.format("%04d", i);
+				
+				JSONObject feature = new JSONFeature();
+
+				JSONObject meta = new JSONObject();
+				meta.put("id", relationId);
+				meta.put("type", "relation");
+				
+				feature.put("id", id);
+				feature.put("ftype", FeatureTypes.ASSOCIATED_STREET);
+				feature.put("type", "Feature");
+				feature.put(GeoJsonWriter.PROPERTIES, relAttributes);
+				feature.put(GeoJsonWriter.META, meta);
+				
+				JSONArray buildingsArray = new JSONArray();
+				for(RelationMember rm : buildings) {
+					buildingsArray.put(firstCharOfType(rm.type) + rm.ref);
+				}
+				
+				feature.put("buildings", buildingsArray);
+				feature.put("associatedWay", wayId);
+				
+				GeoJsonWriter.addTimestamp(feature);
+				
+				writeOut(feature.toString(), n);
+			}
+		}
+		
+	}
+
+	private String firstCharOfType(ReferenceType type) {
+		switch (type) {
+		case NODE:
+			return "n";
+		case WAY:
+			return "w";
+		case RELATION:
+			return "r";
+		}
+		return null;
 	}
 }

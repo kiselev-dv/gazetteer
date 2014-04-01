@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.Set;
 
 import me.osm.gazetter.striper.GeoJsonWriter;
+import me.osm.gazetter.striper.builders.handlers.PoisHandler;
 import me.osm.gazetter.striper.readers.PointsReader.Node;
 import me.osm.gazetter.striper.readers.RelationsReader.Relation;
 import me.osm.gazetter.striper.readers.RelationsReader.Relation.RelationMember;
@@ -37,11 +38,6 @@ public class PoisBuilder extends ABuilder {
 	
 	private TagsDecisionTree tagsFilter;
 
-	public static interface PoisHandler extends FeatureHandler {
-		public void handlePoi(Set<String> types, Map<String, String> attributes, Point point, JSONObject meta);
-		public void handlePoi2Building(String n, long nodeId, long lineId, Map<String, String> linetags);
-	}
-	
 	private static final GeometryFactory factory = new GeometryFactory();
 
 	private PoisHandler handler;
