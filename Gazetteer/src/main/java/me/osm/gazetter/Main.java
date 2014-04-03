@@ -7,8 +7,7 @@ import java.util.List;
 
 import me.osm.gazetter.addresses.AddrLevelsSorting;
 import me.osm.gazetter.join.Joiner;
-import me.osm.gazetter.out.CSVOutConvertor;
-import me.osm.gazetter.out.OutWriter;
+import me.osm.gazetter.out.CSVOutWriter;
 import me.osm.gazetter.split.Split;
 import me.osm.gazetter.striper.Slicer;
 import net.sourceforge.argparse4j.ArgumentParsers;
@@ -17,6 +16,8 @@ import net.sourceforge.argparse4j.inf.ArgumentParserException;
 import net.sourceforge.argparse4j.inf.Namespace;
 import net.sourceforge.argparse4j.inf.Subparser;
 import net.sourceforge.argparse4j.inf.Subparsers;
+
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Entry point for executable jar.
@@ -121,13 +122,17 @@ public class Main {
 						namespace.getString(ADDR_FORMATTER_VAL)
 				);
 				
-				Joiner.run(namespace.getString(DATA_DIR_VAL), namespace.getString(JOIN_COMMON_VAL));
+				new Joiner().run(namespace.getString(DATA_DIR_VAL), namespace.getString(JOIN_COMMON_VAL));
 				
 				System.exit(0);
 			}
 			
 			if(namespace.get(COMMAND).equals(Command.OUT_CSV)) {
-				new OutWriter(namespace.getString(DATA_DIR_VAL), new CSVOutConvertor()).write();
+				new CSVOutWriter(
+						namespace.getString(DATA_DIR_VAL), 
+						StringUtils.join(namespace.getList("columns"), ' '), 
+						(List)namespace.getList("types"),
+						namespace.getString("out_file")).write();
 				System.exit(0);
 			}
 			
@@ -205,9 +210,13 @@ public class Main {
 		//out
 		{
 			Command command = Command.OUT_CSV;
-			subparsers.addParser(command.longName())
+			Subparser outCSV = subparsers.addParser(command.longName())
         			.setDefault(COMMAND, command)
 					.help(command.help());
+			
+			outCSV.addArgument("--columns").nargs("+");
+			outCSV.addArgument("--types").nargs("+").choices(CSVOutWriter.ARG_TO_TYPE.keySet());
+			outCSV.addArgument("--out-file").setDefault("-");
 		}
 		
 		return parser;

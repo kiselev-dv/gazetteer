@@ -1,8 +1,10 @@
-package me.osm.gazetter.matchers;
+package me.osm.gazetter.addresses.impl;
 
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+
+import me.osm.gazetter.addresses.NamesMatcher;
 
 public class NamesMatcherImpl implements NamesMatcher {
 

@@ -20,7 +20,7 @@ import org.slf4j.LoggerFactory;
 
 public class Joiner {
 	
-	private static final AddrJointHandler addrPointFormatter = (AddrJointHandler) new AddrPointFormatter();
+	private AddrJointHandler addrPointFormatter = (AddrJointHandler) new AddrPointFormatter();
 	
 	private static final Logger log = LoggerFactory.getLogger(Joiner.class.getName());
 	
@@ -38,7 +38,7 @@ public class Joiner {
 	public static final StripeFilenameFilter STRIPE_FILE_FN_FILTER = new StripeFilenameFilter();
 	
 
-	public static void run(String stripesFolder, String coomonPartFile) {
+	public void run(String stripesFolder, String coomonPartFile) {
 
 		long start = (new Date()).getTime();
 		

@@ -8,7 +8,10 @@ import org.apache.commons.lang3.StringUtils;
 
 import me.osm.gazetter.addresses.AddrLevelsSorting;
 import me.osm.gazetter.addresses.AddressesParser;
+import me.osm.gazetter.addresses.NamesMatcher;
 import me.osm.gazetter.addresses.impl.AddressesParserImpl;
+import me.osm.gazetter.addresses.impl.NamesMatcherImpl;
+import me.osm.gazetter.join.PoiAddrJoinBuilder;
 
 public class Options {
 	
@@ -20,11 +23,21 @@ public class Options {
 	}
 	
 	private static volatile Options instance;
-	private AddrLevelsSorting sorting;
-	private AddressesParser addressesParser;
+	private final AddrLevelsSorting sorting;
+	private final AddressesParser addressesParser;
+	private final NamesMatcher namesMatcher;
+	
 
 	private Options() {
-		
+		sorting = AddrLevelsSorting.HN_STREET_CITY;
+		addressesParser = new AddressesParserImpl();
+		namesMatcher = new NamesMatcherImpl();
+	}
+
+	private Options(AddrLevelsSorting sorting, AddressesParser addressesParser, NamesMatcher namesMatcher) {
+		this.sorting = sorting;
+		this.addressesParser = addressesParser;
+		this.namesMatcher = namesMatcher;
 	}
 
 	public static void initialize(AddrLevelsSorting sorting, String groovyFormatter) {
@@ -32,9 +45,13 @@ public class Options {
 			throw new SecondaryOptionsInitializationException();
 		}
 		
-		instance = new Options();
-		instance.sorting = sorting;
+		AddressesParser adrParser = getAddrParser(groovyFormatter);
 		
+		instance = new Options(sorting, adrParser, new NamesMatcherImpl());
+	}
+
+	private static AddressesParser getAddrParser(String groovyFormatter) {
+		AddressesParser adrParser = null;
 		try {
 			if(!StringUtils.isEmpty(groovyFormatter)) {
 				GroovyClassLoader gcl = new GroovyClassLoader(Options.class.getClassLoader());
@@ -42,19 +59,23 @@ public class Options {
 				Object aScript = clazz.newInstance();
 				
 				if(aScript instanceof AddressesParser) {
-					instance.addressesParser = (AddressesParser) aScript;
+					adrParser = (AddressesParser) aScript;
 				}
 			}
 			else {
-				 instance.addressesParser = new AddressesParserImpl();
+				adrParser = new AddressesParserImpl();
 			}
 		}
 		catch (Exception e) {
 			throw new RuntimeException(e);
 		}
+		return adrParser;
 	}
 	
 	public static Options get() {
+		if(instance == null) {
+			instance = new Options();
+		}
 		return instance;
 	}
 
@@ -64,6 +85,10 @@ public class Options {
 
 	public AddressesParser getAddressesParser() {
 		return addressesParser;
+	}
+
+	public NamesMatcher getNamesMatcher() {
+		return namesMatcher;
 	}
 	
 }

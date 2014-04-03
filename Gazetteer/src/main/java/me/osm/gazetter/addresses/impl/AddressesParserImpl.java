@@ -24,7 +24,6 @@ import me.osm.gazetter.addresses.AddressesUtils;
 import me.osm.gazetter.addresses.sorters.CityStreetHNComparator;
 import me.osm.gazetter.addresses.sorters.HNStreetCityComparator;
 import me.osm.gazetter.addresses.sorters.StreetHNCityComparator;
-import me.osm.gazetter.matchers.NamesMatcherImpl;
 
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;

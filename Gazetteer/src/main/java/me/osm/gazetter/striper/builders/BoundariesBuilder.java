@@ -13,6 +13,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import javax.management.RuntimeErrorException;
+
 import me.osm.gazetter.striper.FeatureTypes;
 import me.osm.gazetter.striper.GeoJsonWriter;
 import me.osm.gazetter.striper.builders.handlers.BoundariesHandler;
@@ -378,6 +380,7 @@ public class BoundariesBuilder extends ABuilder {
 			executorService.awaitTermination(5, TimeUnit.SECONDS);
 		} catch (InterruptedException e) {
 			log.error("Awaiting for thread pull was terminated.", e);
+			throw new RuntimeException(e);
 		}
 		finally {
 			handler.freeThreadPool(getThreadPoolUser());

@@ -9,7 +9,7 @@ import java.util.Map;
 import me.osm.gazetter.addresses.AddrLevelsComparator;
 import me.osm.gazetter.addresses.AddressesLevelsMatcher;
 import me.osm.gazetter.addresses.AddressesUtils;
-import me.osm.gazetter.matchers.NamesMatcher;
+import me.osm.gazetter.addresses.NamesMatcher;
 import me.osm.gazetter.striper.GeoJsonWriter;
 
 import org.apache.commons.lang3.StringUtils;

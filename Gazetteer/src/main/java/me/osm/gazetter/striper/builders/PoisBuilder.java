@@ -154,7 +154,7 @@ public class PoisBuilder extends ABuilder {
 				centroid = mp.getCentroid();
 				
 				Polygon polygon = (Polygon) mp.getGeometryN(0);
-				meta.put("fullGeometry", GeoJsonWriter.geometryToJSON(polygon));
+				meta.put(GeoJsonWriter.FULL_GEOMETRY, GeoJsonWriter.geometryToJSON(polygon));
 			}
 			else {
 				centroid = lines.get(0).getCentroid();
@@ -274,22 +274,22 @@ public class PoisBuilder extends ABuilder {
 				}
 				
 				if(coords.size() != line.nodes.size()) {
-					log.error("Failed to build geometry for way {}. Some points wasn't found.", line.id);
+					log.warn("Failed to build geometry for way {}. Some points wasn't found.", line.id);
 					centroid = factory.createPoint(coords.get(0));
 				}
 				else if(coords.size() < 2) {
-					log.error("Failed to build geometry for way {}. Only one point founded.", line.id);
+					log.warn("Failed to build geometry for way {}. Only one point founded.", line.id);
 					centroid = factory.createPoint(coords.get(0));
 				}
 				else if(line.nodes.get(0).equals(line.nodes.get(line.nodes.size() - 1))) {
 					LinearRing geom = factory.createLinearRing(coords.toArray(new Coordinate[coords.size()]));
 					centroid = geom.getCentroid();
-					meta.put("fullGeometry", GeoJsonWriter.geometryToJSON(factory.createPolygon(geom)));
+					meta.put(GeoJsonWriter.FULL_GEOMETRY, GeoJsonWriter.geometryToJSON(factory.createPolygon(geom)));
 				}
 				else {
 					LineString geom = factory.createLineString(coords.toArray(new Coordinate[coords.size()]));
 					centroid = geom.getCentroid();
-					meta.put("fullGeometry", GeoJsonWriter.geometryToJSON(geom));
+					meta.put(GeoJsonWriter.FULL_GEOMETRY, GeoJsonWriter.geometryToJSON(geom));
 				}
 				
 			}

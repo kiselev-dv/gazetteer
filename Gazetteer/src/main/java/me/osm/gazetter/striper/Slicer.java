@@ -161,6 +161,13 @@ public class Slicer implements BoundariesHandler,
 			
 			meta.put(GeoJsonWriter.ORIGINAL_BBOX, bbox);
 			
+			if(isPlaceBoundary(featureWithoutGeometry)) {
+				if(!multiPolygon.isEmpty()) {
+					meta.put(GeoJsonWriter.FULL_GEOMETRY, 
+							GeoJsonWriter.geometryToJSON(multiPolygon.getGeometryN(0)));
+				}
+			}
+			
 			List<Polygon> polygons = new ArrayList<>();
 			
 			for(int i = 0; i < multiPolygon.getNumGeometries(); i++) {
@@ -186,6 +193,11 @@ public class Slicer implements BoundariesHandler,
 				writeOut(geoJSONString, n);
 			}
 		}
+	}
+
+	private boolean isPlaceBoundary(JSONObject featureWithoutGeometry) {
+		return featureWithoutGeometry
+				.getJSONObject(GeoJsonWriter.PROPERTIES).has("place");
 	}
 
 	public void writeOut(String line, String n) {
@@ -345,6 +357,7 @@ public class Slicer implements BoundariesHandler,
 		Point centroid = geometry.getCentroid();
 		
 		String fid = GeoJsonWriter.getId(FeatureTypes.HIGHWAY_FEATURE_TYPE, centroid, meta);
+		meta.put(GeoJsonWriter.FULL_GEOMETRY, GeoJsonWriter.geometryToJSON(geometry));
 		String geoJSONString = GeoJsonWriter.featureAsGeoJSON(fid, FeatureTypes.HIGHWAY_FEATURE_TYPE, way.tags, geometry, meta);
 		
 		assert GeoJsonWriter.getId(geoJSONString).equals(fid) 

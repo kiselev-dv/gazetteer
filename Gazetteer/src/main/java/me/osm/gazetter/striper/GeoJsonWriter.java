@@ -36,6 +36,7 @@ public class GeoJsonWriter {
 	private static final String FTYPE_PATTERN = "\"ftype\":\"";
 	
 	public static final String META = "metainfo";
+	public static final String FULL_GEOMETRY = "fullGeometry";
 	public static final String PROPERTIES = "properties";
 	public static final String COORDINATES = "coordinates";
 	public static final String GEOMETRY = "geometry";
@@ -220,8 +221,7 @@ public class GeoJsonWriter {
 		return factory.createLinearRing(coords);
 	}
 
-	public static LineString getLineStringGeometry(JSONObject strtJSON) {
-		JSONArray coordsJSON = strtJSON.getJSONObject("geometry").getJSONArray("coordinates");
+	public static LineString getLineStringGeometry(JSONArray coordsJSON) {
 		Coordinate[] coords = new Coordinate[coordsJSON.length()];
 		
 		for(int i = 0; i < coordsJSON.length(); i++) {

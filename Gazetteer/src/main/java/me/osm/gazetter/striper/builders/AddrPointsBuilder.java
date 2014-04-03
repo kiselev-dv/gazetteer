@@ -152,7 +152,7 @@ public class AddrPointsBuilder extends ABuilder {
 				centroid = mp.getCentroid();
 				
 				Polygon polygon = (Polygon) mp.getGeometryN(0);
-				meta.put("fullGeometry", GeoJsonWriter.geometryToJSON(polygon));
+				meta.put(GeoJsonWriter.FULL_GEOMETRY, GeoJsonWriter.geometryToJSON(polygon));
 			}
 			else {
 				centroid = lines.get(0).getCentroid();
@@ -413,11 +413,11 @@ public class AddrPointsBuilder extends ABuilder {
 				}
 				
 				if(coords.size() != line.nodes.size()) {
-					log.error("Failed to build geometry for way {}. Some points wasn't found.", line.id);
+					log.warn("Failed to build geometry for way {}. Some points wasn't found.", line.id);
 					centroid = factory.createPoint(coords.get(0));
 				}
 				else if(coords.size() < 2) {
-					log.error("Failed to build geometry for way {}. Only one point founded.", line.id);
+					log.warn("Failed to build geometry for way {}. Only one point founded.", line.id);
 					centroid = factory.createPoint(coords.get(0));
 				}
 				else {

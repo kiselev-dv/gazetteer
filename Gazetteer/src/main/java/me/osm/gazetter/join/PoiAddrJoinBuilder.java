@@ -220,7 +220,7 @@ public class PoiAddrJoinBuilder {
 	
 	private Polygon getOriginalGeometry(JSONObject obj) {
 		JSONObject meta = obj.getJSONObject(GeoJsonWriter.META);
-		JSONObject fullGeometry = meta.optJSONObject("fullGeometry");
+		JSONObject fullGeometry = meta.optJSONObject(GeoJsonWriter.FULL_GEOMETRY);
 		
 		if(fullGeometry != null && "Polygon".equals(fullGeometry.optString("type"))) {
 			Polygon polygon = GeoJsonWriter.getPolygonGeometry(fullGeometry.getJSONArray("coordinates"));
