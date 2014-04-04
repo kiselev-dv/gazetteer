@@ -6,7 +6,6 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
@@ -231,33 +230,31 @@ public class Slicer implements BoundariesHandler,
 
 	}
 
-	private static void stripe(LineString l, List<LineString> result) {
+	public static void stripe(LineString l, List<LineString> result) {
 		Envelope bbox = l.getEnvelopeInternal();
 		
 		double snapX = round(snap(bbox.getMinX() + bbox.getWidth() / 2.0), 4);
 		
 		double minX = bbox.getMinX();
 		double maxX = bbox.getMaxX();
-		if(snapX > minX && snapX < maxX) {
-			LineString blade = factory.createLineString(new Coordinate[]{new Coordinate(snapX, 89.0), new Coordinate(snapX, -89.0)});
+		if(snapX > minX + 0.01 && snapX < maxX - 0.01) {
+			
+			LineString blade = factory.createLineString(new Coordinate[]{new Coordinate(snapX, bbox.getMinY()), new Coordinate(snapX, bbox.getMaxY())});
 			Geometry intersection = l.intersection(blade);
+			
 			if(!intersection.isEmpty()) {
-				//intersection in one point
-				if(intersection.getNumGeometries() == 1) {
-					Geometry ip = intersection.getCentroid();
-					for(LineString split : GeometryUtils.split(l, ip.getCoordinate(), false)) {
-						stripe(split, result);
+				LineString[] pair = null;
+				for(int i = 0; i < intersection.getNumGeometries(); i++) {
+					Geometry ip = intersection.getGeometryN(i).getCentroid();
+					if(pair != null) {
+						pair = GeometryUtils.split(pair[1], ip.getCoordinate(), false);
 					}
-				}
-				//curved line with 2 and more intersections
-				else {
-					for(int i = 0; i < intersection.getNumGeometries(); i++) {
-						Geometry ip = intersection.getGeometryN(i).getCentroid();
-						for(LineString split : GeometryUtils.split(l, ip.getCoordinate(), false)) {
-							stripe(split, result);
-						}
+					else {
+						pair = GeometryUtils.split(l, ip.getCoordinate(), false);
 					}
+					stripe(pair[0], result);
 				}
+				stripe(pair[1], result);
 			}
 		}
 		else {

@@ -281,7 +281,7 @@ public class PoisBuilder extends ABuilder {
 					log.warn("Failed to build geometry for way {}. Only one point founded.", line.id);
 					centroid = factory.createPoint(coords.get(0));
 				}
-				else if(line.nodes.get(0).equals(line.nodes.get(line.nodes.size() - 1))) {
+				else if(isClosed(line) && coords.size() >= 4) {
 					LinearRing geom = factory.createLinearRing(coords.toArray(new Coordinate[coords.size()]));
 					centroid = geom.getCentroid();
 					meta.put(GeoJsonWriter.FULL_GEOMETRY, GeoJsonWriter.geometryToJSON(factory.createPolygon(geom)));
@@ -303,6 +303,10 @@ public class PoisBuilder extends ABuilder {
 			handler.handlePoi(tagsFilter.getType(line.tags), line.tags, centroid, meta);
 		}
 		
+	}
+
+	private boolean isClosed(final Way line) {
+		return line.nodes.get(0).equals(line.nodes.get(line.nodes.size() - 1));
 	}
 
 	private void orderByWay() {

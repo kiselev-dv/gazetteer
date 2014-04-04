@@ -10,6 +10,7 @@ import me.osm.gazetter.join.Joiner;
 import me.osm.gazetter.out.CSVOutWriter;
 import me.osm.gazetter.split.Split;
 import me.osm.gazetter.striper.Slicer;
+import me.osm.gazetter.utils.FileUtils;
 import net.sourceforge.argparse4j.ArgumentParsers;
 import net.sourceforge.argparse4j.inf.ArgumentParser;
 import net.sourceforge.argparse4j.inf.ArgumentParserException;
@@ -18,12 +19,16 @@ import net.sourceforge.argparse4j.inf.Subparser;
 import net.sourceforge.argparse4j.inf.Subparsers;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Entry point for executable jar.
  * */
 public class Main {
 	
+	private static final Logger log = LoggerFactory.getLogger(Main.class);
 	
 	private static final String EXCCLUDE_POI_BRANCH_OPT = "--excclude-poi-branch";
 	private static final String EXCCLUDE_POI_BRANCH_VAL = "excclude_poi_branch";
@@ -85,6 +90,7 @@ public class Main {
 		System.setProperty(org.slf4j.impl.SimpleLogger.DATE_TIME_FORMAT_KEY, "yyyy-MM-dd HH.mm.ss.S");
 		System.setProperty(org.slf4j.impl.SimpleLogger.SHOW_SHORT_LOG_NAME_KEY, "true");
 		
+		
 		ArgumentParser parser = getArgumentsParser();
 		
 		try {
@@ -95,7 +101,6 @@ public class Main {
 			if(namespace.get(COMMAND).equals(Command.SPLIT)) {
 				Split splitter = new Split(new File(namespace.getString(DATA_DIR_VAL)), namespace.getString("osm_file"));
 				splitter.run();
-				System.exit(0);
 			}
 
 			if(namespace.get(COMMAND).equals(Command.SLICE)) {
@@ -113,7 +118,6 @@ public class Main {
 						(List)namespace.getList(EXCCLUDE_POI_BRANCH_VAL)
 				);
 				
-				System.exit(0);
 			}
 
 			if(namespace.get(COMMAND).equals(Command.JOIN)) {
@@ -124,7 +128,6 @@ public class Main {
 				
 				new Joiner().run(namespace.getString(DATA_DIR_VAL), namespace.getString(JOIN_COMMON_VAL));
 				
-				System.exit(0);
 			}
 			
 			if(namespace.get(COMMAND).equals(Command.OUT_CSV)) {
@@ -133,12 +136,16 @@ public class Main {
 						StringUtils.join(namespace.getList("columns"), ' '), 
 						(List)namespace.getList("types"),
 						namespace.getString("out_file")).write();
-				System.exit(0);
 			}
 			
-		} catch (ArgumentParserException e) {
+		} 
+		catch (ArgumentParserException e) {
 			parser.handleError(e);
 		}
+		catch (Exception e) {
+			log.error("Fatal error: " + ExceptionUtils.getRootCause(e).getMessage(), e);
+			System.exit(1);
+		} 
 		
 	}
 
