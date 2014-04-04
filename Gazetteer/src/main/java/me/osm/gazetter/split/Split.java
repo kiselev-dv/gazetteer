@@ -45,7 +45,8 @@ public class Split implements LineHandler {
 			relPW.println("<osm>");
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			throw new RuntimeException("Failed to initialize splitter. "
+					+ "DestFolder: " + destFolder + " Input: " + input, e);
 		}
 	}
 	
@@ -55,9 +56,9 @@ public class Split implements LineHandler {
 			InputStream fileIS = FileUtils.getFileIS(input);
 			FileUtils.handleLines(fileIS, this);
 		} catch (FileNotFoundException e) {
-			e.printStackTrace();
+			throw new RuntimeException("Input file not found: " + input, e);
 		} catch (IOException e) {
-			e.printStackTrace();
+			throw new RuntimeException("Read error for file: " + input, e);
 		}
 		done();
 		log.info("Split done in {}", DurationFormatUtils.formatDurationHMS(new Date().getTime() - start));

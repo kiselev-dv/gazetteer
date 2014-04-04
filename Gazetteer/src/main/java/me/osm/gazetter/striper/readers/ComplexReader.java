@@ -27,9 +27,8 @@ public class ComplexReader extends DefaultHandler {
 		try {
 			SAXParser saxParser = SAXParserFactory.newInstance().newSAXParser();
 			saxParser.parse(is, this);
-			
 		} catch (Exception e) {
-			e.printStackTrace();
+			throw new RuntimeException("Parsing failed for: " + is, e);
 		}
 	}
 	

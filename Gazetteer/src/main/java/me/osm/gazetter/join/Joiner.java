@@ -54,8 +54,8 @@ public class Joiner {
 		executorService.shutdown();
 		try {
 			executorService.awaitTermination(1, TimeUnit.HOURS);
-		} catch (InterruptedException e1) {
-			e1.printStackTrace();
+		} catch (InterruptedException e) {
+			throw new RuntimeException("Executor service shutdown failed.", e);
 		}
 		
 		log.info("Join done.");
@@ -70,7 +70,7 @@ public class Joiner {
 		try {
 			executorService.awaitTermination(1, TimeUnit.HOURS);
 		} catch (InterruptedException e) {
-			e.printStackTrace();
+			throw new RuntimeException("Execution service shutdown awaiting interrupted.", e);
 		}
 		
 		log.info("Update slices done. {} lines was updated.", SortAndUpdateTask.countUpdatedLines());
@@ -94,7 +94,7 @@ public class Joiner {
 					}
 					
 				} catch (Exception e) {
-					e.printStackTrace();
+					throw new RuntimeException("Failed to read coomon part.", e);
 				}
 			}
 		}

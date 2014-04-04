@@ -87,8 +87,7 @@ public class CSVOutWriter implements LineHandler {
 			}
 		}
 		catch (Exception e) {
-			e.printStackTrace();
-			System.exit(1);
+			throw new RuntimeException(e);
 		}
 	}
 
@@ -171,8 +170,7 @@ public class CSVOutWriter implements LineHandler {
 			out.close();		
 		}
 		catch (Exception e) {
-			e.printStackTrace();
-			System.exit(1);
+			throw new RuntimeException(e);
 		}
 	}
 

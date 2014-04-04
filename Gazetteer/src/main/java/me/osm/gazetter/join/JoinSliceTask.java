@@ -29,6 +29,8 @@ import me.osm.gazetter.utils.FileUtils.LineHandler;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
@@ -41,6 +43,8 @@ import com.vividsolutions.jts.index.quadtree.Quadtree;
 import com.vividsolutions.jts.operation.buffer.BufferOp;
 
 public class JoinSliceTask implements Runnable {
+	
+	private static final Logger log = LoggerFactory.getLogger(JoinSliceTask.class);
 	
 	private static final double STREET_BUFFER_DISTANCE = 1.0 / 111195.0 * 250;
 	private static final double POI_BUFFER_DISTANCE = 1.0 / 111195.0 * 100;
@@ -157,7 +161,8 @@ public class JoinSliceTask implements Runnable {
 			write();
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			log.error("Join failed. File: {}.", this.src);
+			throw new RuntimeException("Failed to join " + this.src, e);
 		}
 		
 	}
@@ -447,7 +452,7 @@ public class JoinSliceTask implements Runnable {
 			printWriter.flush();
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			throw new RuntimeException("Failed to write joined stripe. File: " + this.src, e);
 		}
 		finally {
 			if(printWriter != null) {

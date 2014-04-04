@@ -255,7 +255,7 @@ public class HighwaysBuilder extends ABuilder implements HighwaysHandler {
 		try {
 			executorService.awaitTermination(5, TimeUnit.SECONDS);
 		} catch (InterruptedException e) {
-			e.printStackTrace();
+			throw new RuntimeException("Executor service awaiting shutdown interrupted.");
 		}
 		
 		this.highwaysHandler.freeThreadPool(getThreadPoolUser());

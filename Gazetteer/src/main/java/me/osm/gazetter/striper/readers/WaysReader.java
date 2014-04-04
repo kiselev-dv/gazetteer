@@ -52,7 +52,7 @@ public class WaysReader extends DefaultHandler {
 			saxParser.parse(is, this);
 			
 		} catch (Exception e) {
-			e.printStackTrace();
+			throw new RuntimeException("Parsing failed for: " + is, e);
 		}
 	}
 	

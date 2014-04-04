@@ -72,8 +72,7 @@ public class SortAndUpdateTask implements Runnable {
 
 			FileUtils.writeLines(stripeF, lines);
 		} catch (IOException e) {
-			e.printStackTrace();
-			System.exit(1);
+			throw new RuntimeException("Failed to update " + this.stripeF, e);
 		}
 
 	}

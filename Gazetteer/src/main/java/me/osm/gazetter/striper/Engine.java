@@ -50,7 +50,7 @@ public class Engine {
 			}
 			
 		} catch (Exception e) {
-			e.printStackTrace();
+			throw new RuntimeException("Parsing failed. Data dir: " + datatDir, e);
 		}
 	}
 }
