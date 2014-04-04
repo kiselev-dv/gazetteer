@@ -27,6 +27,8 @@ public class AddrRowValueExctractorImpl implements AddrRowValueExtractor {
 	private static final String BOUNDARY_8 = "boundary:8";
 	private static final String PLACE_CITY_ID = "place:city.id";
 	private static final String PLACE_CITY = "place:city";
+	private static final String PLACE_TOWN_ID = "place:town.id";
+	private static final String PLACE_TOWN = "place:town";
 	private static final String PLACE_HAMLET_ID = "place:hamlet.id";
 	private static final String PLACE_HAMLET = "place:hamlet";
 	private static final String PLACE_VILLAGE_ID = "place:village.id";
@@ -88,7 +90,8 @@ public class AddrRowValueExctractorImpl implements AddrRowValueExtractor {
 			PLACE_SUBURB_ID, PLACE_ALLOTMENTS, PLACE_ALLOTMENTS_ID, 
 			PLACE_LOCALITY, PLACE_LOCALITY_ID, PLACE_ISOLATED_DWELLING, 
 			PLACE_ISOLATED_DWELLING_ID, PLACE_VILLAGE, PLACE_VILLAGE_ID,
-			PLACE_HAMLET, PLACE_HAMLET_ID, PLACE_CITY, PLACE_CITY_ID, 
+			PLACE_HAMLET, PLACE_HAMLET_ID, PLACE_CITY, PLACE_CITY_ID,
+			PLACE_TOWN, PLACE_TOWN_ID,
 			BOUNDARY_8, BOUNDARY_8_ID, BOUNDARY_6, BOUNDARY_6_ID, 
 			BOUNDARY_5, BOUNDARY_5_ID, BOUNDARY_4, BOUNDARY_4_ID,
 			BOUNDARY_3, BOUNDARY_3_ID, BOUNDARY_2, BOUNDARY_2_ID,

@@ -25,10 +25,10 @@ import me.osm.gazetter.utils.FileUtils.LineHandler;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.supercsv.io.CsvListWriter;
+import org.supercsv.prefs.CsvPreference;
 
 import com.google.code.externalsorting.ExternalSort;
-
-import au.com.bytecode.opencsv.CSVWriter;
 
 public class CSVOutWriter implements LineHandler {
 	
@@ -51,26 +51,32 @@ public class CSVOutWriter implements LineHandler {
 	private List<List<String>> columns;
 	private Set<String> types;
 	
-	private Map<String, CSVWriter> writers = new HashMap<>();
+	private Map<String, CsvListWriter> writers = new HashMap<>();
 	
 	private PrintWriter out;
 	
 	private FeatureValueExtractor featureEXT = new FeatureValueExctractorImpl();
 	private AddrRowValueExtractor addrRowEXT = new AddrRowValueExctractorImpl();
 	private Set<String> addrRowKeys = new HashSet<String>(addrRowEXT.getSupportedKeys());
+	private Set<String> allSupportedKeys = new HashSet<String>(featureEXT.getSupportedKeys());
 	
 	public CSVOutWriter(String dataDir, String columns, List<String> types, String out) {
+		
+		allSupportedKeys.addAll(addrRowKeys);
 		
 		this.dataDir = dataDir;
 		this.columns = parseColumns(columns);
 		this.types = new HashSet<>();
 		
+		checkColumnsKeys();
 		
 		try {
 			for(String type : types) {
 				String ftype = ARG_TO_TYPE.get(type);
 				this.types.add(ftype);
-				writers.put(ftype, new CSVWriter(new PrintWriter(getFile4Ftype(ftype))));
+				writers.put(ftype, new CsvListWriter(
+						new PrintWriter(getFile4Ftype(ftype)), 
+						CsvPreference.STANDARD_PREFERENCE));
 			}
 
 			if("-".equals(out)) {
@@ -82,6 +88,27 @@ public class CSVOutWriter implements LineHandler {
 		}
 		catch (Exception e) {
 			e.printStackTrace();
+			System.exit(1);
+		}
+	}
+
+	private void checkColumnsKeys() {
+		boolean keyNotFound = false;
+		for(List<String> c : this.columns) {
+			for(String s : c) {
+				if(!this.allSupportedKeys.contains(s)) {
+					System.out.println("Unsupported column key " + s);
+					keyNotFound = true;
+				}
+			}
+		}
+		if(keyNotFound) {
+			List<String> keys = new ArrayList<>(allSupportedKeys);
+			Collections.sort(keys);
+			System.out.println("Supported keys are:");
+			for(String k : keys) {
+				System.out.println("\t" + k);
+			}
 			System.exit(1);
 		}
 	}
@@ -133,7 +160,7 @@ public class CSVOutWriter implements LineHandler {
 				FileUtils.handleLines(stripeF, this);
 			}
 			
-			for(CSVWriter w : writers.values()) {
+			for(CsvListWriter w : writers.values()) {
 				w.flush();
 				w.close();
 			}
@@ -183,20 +210,18 @@ public class CSVOutWriter implements LineHandler {
 		
 		if(types.contains(ftype)) {
 
-			int ci = 0;
 			JSONObject jsonObject = new JSONObject(line);
 
 			if(FeatureTypes.ADDR_POINT_FTYPE.equals(ftype)) {
 				JSONArray addresses = jsonObject.optJSONArray("addresses");
 				if(addresses != null) {
 					for(int ri = 0; ri < addresses.length(); ri++ ) {
-						ci = 0;
-						String[] row = new String[columns.size()];
+						List<Object> row = new ArrayList<>();
 						JSONObject addrRow = addresses.getJSONObject(ri);
 						Map<String, JSONObject> mapLevels = mapLevels(addrRow);
 						
 						for (List<String> column : columns) {
-							row[ci++] = getColumn(jsonObject, mapLevels, addrRow, column);
+							row.add(getColumn(jsonObject, mapLevels, addrRow, column));
 						}
 						writeNext(row, ftype);
 					}
@@ -206,19 +231,19 @@ public class CSVOutWriter implements LineHandler {
 				JSONObject boundaries = jsonObject.optJSONObject("boundaries");
 				if(boundaries != null) {
 					Map<String, JSONObject> mapLevels = mapLevels(boundaries);
-					String[] row = new String[columns.size()];
+					List<Object> row = new ArrayList<>();
 					
 					for (List<String> column : columns) {
-						row[ci++] = getColumn(jsonObject, mapLevels, boundaries, column);
+						row.add(getColumn(jsonObject, mapLevels, boundaries, column));
 					}
 					writeNext(row, ftype);
 				}
 			}
 			else {
-				String[] row = new String[columns.size()];
+				List<Object> row = new ArrayList<>();
 				
 				for (List<String> column : columns) {
-					row[ci++] = getColumn(jsonObject, null, null, column);
+					row.add(getColumn(jsonObject, null, null, column));
 				}
 				writeNext(row, ftype);
 			}
@@ -229,8 +254,12 @@ public class CSVOutWriter implements LineHandler {
 
 	
 	
-	private void writeNext(String[] row, String ftype) {
-		writers.get(ftype).writeNext(row);
+	private void writeNext(List<Object> row, String ftype) {
+		try {
+			writers.get(ftype).write(row);
+		} catch (IOException e) {
+			throw new RuntimeException("Can't write row: " + row, e);
+		}
 	}
 
 	private Map<String, JSONObject> mapLevels(JSONObject addrRow) {
@@ -250,10 +279,10 @@ public class CSVOutWriter implements LineHandler {
 		}
 	}
 
-	private String getColumn(JSONObject jsonObject, Map<String, JSONObject> addrRowLevels, JSONObject addrRow, List<String> column) {
+	private Object getColumn(JSONObject jsonObject, Map<String, JSONObject> addrRowLevels, JSONObject addrRow, List<String> column) {
 		for(String key : column) {
 
-			String value = null;
+			Object value = null;
 			if(addrRowKeys.contains(key)) {
 				value = addrRowEXT.getValue(key, jsonObject, addrRowLevels, addrRow);
 			}

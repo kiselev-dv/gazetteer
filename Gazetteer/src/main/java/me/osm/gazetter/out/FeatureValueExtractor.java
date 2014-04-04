@@ -1,7 +1,10 @@
 package me.osm.gazetter.out;
 
+import java.util.Collection;
+
 import org.json.JSONObject;
 
 public interface FeatureValueExtractor {
-	public String getValue(String key, JSONObject jsonObject);
+	public Object getValue(String key, JSONObject jsonObject);
+	public Collection<String> getSupportedKeys();
 }

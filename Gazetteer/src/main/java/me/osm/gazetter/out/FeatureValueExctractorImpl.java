@@ -1,5 +1,8 @@
 package me.osm.gazetter.out;
 
+import java.util.Arrays;
+import java.util.Collection;
+
 import me.osm.gazetter.striper.FeatureTypes;
 import me.osm.gazetter.striper.GeoJsonWriter;
 import me.osm.gazetter.utils.LocatePoint;
@@ -13,51 +16,64 @@ import com.vividsolutions.jts.geom.Polygon;
 
 public class FeatureValueExctractorImpl implements FeatureValueExtractor {
 
+	private static final String NEAREST_NEIGHBOURHOOD_ID = "nearest:neighbourhood:id";
+	private static final String NEAREST_NEIGHBOURHOOD = "nearest:neighbourhood";
+	private static final String NEAREST_CITY_ID = "nearest:city:id";
+	private static final String NEAREST_CITY = "nearest:city";
+	private static final String FULL_GEOMETRY = "full-geometry";
+	private static final String CENTROID = "centroid";
+	private static final String LAT = "lat";
+	private static final String LON = "lon";
+	private static final String OSM_TYPE = "osm-type";
+	private static final String OSM_ID = "osm-id";
+	private static final String ID = "id";
+	private static final String TYPE = "type";
+
 	@Override
-	public String getValue(String key, JSONObject jsonObject) {
+	public Object getValue(String key, JSONObject jsonObject) {
 		try {
 			String ftype = jsonObject.getString("ftype");
 			
 			switch (key) {
-			case "id":
-				return jsonObject.getString("id");
+			case ID:
+				return jsonObject.getString(ID);
 
-			case "type":
+			case TYPE:
 				return ftype;
 				
-			case "osm-id":
-				return String.valueOf(jsonObject.getJSONObject(GeoJsonWriter.META).getLong("id"));
+			case OSM_ID:
+				return jsonObject.getJSONObject(GeoJsonWriter.META).getLong(ID);
 				
-			case "osm-type":
+			case OSM_TYPE:
 				return jsonObject.getJSONObject(GeoJsonWriter.META).getString("type");
 				
-			case "lon":
+			case LON:
 				if(FeatureTypes.HIGHWAY_FEATURE_TYPE.equals(ftype)) {
 					LineString ls = GeoJsonWriter.getLineStringGeometry(
 							jsonObject.getJSONObject(GeoJsonWriter.GEOMETRY)
 								.getJSONArray(GeoJsonWriter.COORDINATES));
 					Coordinate c = new LocatePoint(ls, 0.5).getPoint();
-					return String.valueOf(c.x);
+					return c.x;
 				}
 				else {
-					return String.valueOf(jsonObject.getJSONObject(GeoJsonWriter.GEOMETRY)
-							.getJSONArray(GeoJsonWriter.COORDINATES).get(0));
+					return jsonObject.getJSONObject(GeoJsonWriter.GEOMETRY)
+							.getJSONArray(GeoJsonWriter.COORDINATES).getDouble(0);
 				}
 
-			case "lat":
+			case LAT:
 				if(FeatureTypes.HIGHWAY_FEATURE_TYPE.equals(ftype)) {
 					LineString ls = GeoJsonWriter.getLineStringGeometry(
 							jsonObject.getJSONObject(GeoJsonWriter.GEOMETRY)
 								.getJSONArray(GeoJsonWriter.COORDINATES));
 					Coordinate c = new LocatePoint(ls, 0.5).getPoint();
-					return String.valueOf(c.y);
+					return c.y;
 				}
 				else {
-					return String.valueOf(jsonObject.getJSONObject(GeoJsonWriter.GEOMETRY)
-							.getJSONArray(GeoJsonWriter.COORDINATES).get(1));
+					return jsonObject.getJSONObject(GeoJsonWriter.GEOMETRY)
+							.getJSONArray(GeoJsonWriter.COORDINATES).getDouble(1);
 				}
 			
-			case "centroid":
+			case CENTROID:
 				if(FeatureTypes.HIGHWAY_FEATURE_TYPE.equals(ftype)) {
 					LineString ls = GeoJsonWriter.getLineStringGeometry(
 							jsonObject.getJSONObject(GeoJsonWriter.GEOMETRY)
@@ -72,7 +88,7 @@ public class FeatureValueExctractorImpl implements FeatureValueExtractor {
 					return "POINT (" + coords.getDouble(0) + " " + coords.getDouble(1) + ")";
 				}
 
-			case "full-geometry":
+			case FULL_GEOMETRY:
 				
 				JSONObject fullGeometry = null;
 				
@@ -98,17 +114,17 @@ public class FeatureValueExctractorImpl implements FeatureValueExtractor {
 				
 				break;
 				
-			case "nearest:city":
+			case NEAREST_CITY:
 				jsonObject.getJSONObject("nearestCity").getJSONObject(GeoJsonWriter.PROPERTIES).optString("name");
 				
-			case "nearest:city:id":
-				jsonObject.getJSONObject("nearestCity").getJSONObject(GeoJsonWriter.PROPERTIES).optString("id");
+			case NEAREST_CITY_ID:
+				jsonObject.getJSONObject("nearestCity").getJSONObject(GeoJsonWriter.PROPERTIES).optString(ID);
 				
-			case "nearest:neighbourhood":
+			case NEAREST_NEIGHBOURHOOD:
 				jsonObject.getJSONObject("nearestNeighbour").getJSONObject(GeoJsonWriter.PROPERTIES).optString("name");
 			
-			case "nearest:neighbourhood:id":	
-				jsonObject.getJSONObject("nearestNeighbour").getJSONObject(GeoJsonWriter.PROPERTIES).optString("id");
+			case NEAREST_NEIGHBOURHOOD_ID:	
+				jsonObject.getJSONObject("nearestNeighbour").getJSONObject(GeoJsonWriter.PROPERTIES).optString(ID);
 				
 			}
 		}
@@ -118,4 +134,13 @@ public class FeatureValueExctractorImpl implements FeatureValueExtractor {
 		
 		return null;
 	}
+
+	@Override
+	public Collection<String> getSupportedKeys() {
+		return Arrays.asList(ID, TYPE, OSM_ID, OSM_TYPE, LON, LAT,
+				CENTROID, FULL_GEOMETRY, NEAREST_CITY, NEAREST_CITY_ID,
+				NEAREST_NEIGHBOURHOOD, NEAREST_NEIGHBOURHOOD_ID);
+	}
+	
+	
 }
