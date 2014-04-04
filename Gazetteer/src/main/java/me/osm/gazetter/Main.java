@@ -111,8 +111,7 @@ public class Main {
 				else if (namespace.get(FEATURE_TYPES_VAL) instanceof Collection) {
 					types.addAll((Collection<String>)namespace.get(FEATURE_TYPES_VAL));
 				}
-				Slicer.run(
-						namespace.getString(DATA_DIR_VAL), 
+				new Slicer(namespace.getString(DATA_DIR_VAL)).run(
 						namespace.getString(POI_CATALOG_VAL), 
 						types,
 						(List)namespace.getList(EXCCLUDE_POI_BRANCH_VAL)

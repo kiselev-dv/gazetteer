@@ -63,9 +63,9 @@ public class Slicer implements BoundariesHandler,
 	private static double dx = 0.1;
 	private static double x0 = 0;
 	
-	private static WriteDao writeDAO;
+	private WriteDao writeDAO;
+	private String osmSlicesPath;
 
-	private static Slicer instance;
 	
 	public static final List<String> sliceTypes = Arrays.asList(
 			"all", "boundaries", "places", "highways", "addresses", "pois"
@@ -76,38 +76,37 @@ public class Slicer implements BoundariesHandler,
 	}
 	
 	public Slicer(String dirPath) {
+		this.osmSlicesPath = dirPath;
 		writeDAO = new FileWriteDao(new File(dirPath));
 	}
 	
-	public static void run(String osmSlicesPath, String poiCatalogPath, List<String> types, List<String> exclude) {
+	public void run(String poiCatalogPath, List<String> types, List<String> exclude) {
 		long start = new Date().getTime(); 
 		
 		log.info("Slice {}", types);
-		
-		instance = new Slicer(osmSlicesPath);
 		
 		List<Builder> builders = new ArrayList<>();
 		
 		Set<String> typesSet = new HashSet<String>(types);
 		
 		if(typesSet.contains("all") || typesSet.contains("boundaries")) {
-			builders.add(new BoundariesBuilder(instance));
+			builders.add(new BoundariesBuilder(this));
 		}
 
 		if(typesSet.contains("all") || typesSet.contains("places")) {
-			builders.add(new PlaceBuilder(instance, instance));
+			builders.add(new PlaceBuilder(this, this));
 		}
 
 		if(typesSet.contains("all") || typesSet.contains("highways")) {
-			builders.add(new HighwaysBuilder(instance, instance));
+			builders.add(new HighwaysBuilder(this, this));
 		}
 
 		if(typesSet.contains("all") || typesSet.contains("addresses")) {
-			builders.add(new AddrPointsBuilder(instance));
+			builders.add(new AddrPointsBuilder(this));
 		}
 		
 		if(typesSet.contains("all") || typesSet.contains("pois")) {
-			builders.add(new PoisBuilder(instance, poiCatalogPath, exclude));
+			builders.add(new PoisBuilder(this, poiCatalogPath, exclude));
 		}
 		
 		
@@ -115,7 +114,6 @@ public class Slicer implements BoundariesHandler,
 		new Engine().filter(osmSlicesPath, buildersArray);
 		
 		writeDAO.close();
-		instance = null;
 		log.info("Slice done in {}", DurationFormatUtils.formatDurationHMS(new Date().getTime() - start));
 	}
 
