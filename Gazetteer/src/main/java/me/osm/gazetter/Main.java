@@ -10,7 +10,6 @@ import me.osm.gazetter.join.Joiner;
 import me.osm.gazetter.out.CSVOutWriter;
 import me.osm.gazetter.split.Split;
 import me.osm.gazetter.striper.Slicer;
-import me.osm.gazetter.utils.FileUtils;
 import net.sourceforge.argparse4j.ArgumentParsers;
 import net.sourceforge.argparse4j.inf.ArgumentParser;
 import net.sourceforge.argparse4j.inf.ArgumentParserException;

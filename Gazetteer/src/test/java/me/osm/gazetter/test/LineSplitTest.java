@@ -1,8 +1,8 @@
 package me.osm.gazetter.test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import me.osm.gazetter.striper.GeoJsonWriter;
 import me.osm.gazetter.striper.Slicer;
@@ -11,43 +11,64 @@ import org.json.JSONObject;
 import org.junit.Test;
 
 import com.vividsolutions.jts.geom.LineString;
+import com.vividsolutions.jts.io.ParseException;
+import com.vividsolutions.jts.io.WKTReader;
 
 public class LineSplitTest {
 	
 	@Test
-	public void test() {
+	public void test1() {
 		JSONObject obj = new JSONObject(Line1);
 		
 		LineString lineString = GeoJsonWriter.getLineStringGeometry(
 				obj.getJSONObject("metainfo").getJSONObject("fullGeometry")
 					.getJSONArray(GeoJsonWriter.COORDINATES));
 		
-		//System.out.println(lineString);
-		//System.out.println();
+		System.out.println(lineString);
+		System.out.println();
 		
-		ArrayList<LineString> result = new ArrayList<LineString>();
-		Slicer.stripe(lineString, result);
+		List<LineString> result = Slicer.stripe(lineString);
 		
 		
-//		for(LineString ls : result) {
-//			System.out.println(ls);
-//		}
-		
-		assertEquals(5, result.size());
-		int i = 0;
-		int lastI = -1;
 		for(LineString ls : result) {
-			i = Integer.valueOf(Slicer.getFilePrefix(ls.getCentroid().getX()));
-			assertFalse(i == 0);
-			
-			if(lastI >= 0)
-				assertTrue(Math.abs(lastI - i) == 1);
-			
-			lastI = i;
+			System.out.println(ls);
 		}
 		
+		assertEquals(6, result.size());
+
+		for(LineString ls : result) {
+			System.out.println(Slicer.getFilePrefix(ls.getCentroid().getX()));
+		}
+		
+		System.out.println();
 	}
 
+	@Test
+	public void test2() throws ParseException {
+		
+		LineString lineString = (LineString) new WKTReader().read(Line2);
+		
+		System.out.println(lineString);
+		System.out.println();
+		
+		List<LineString> result = Slicer.stripe(lineString);
+		
+		
+		for(LineString ls : result) {
+			System.out.println(ls);
+		}
+		
+		for(LineString ls : result) {
+			System.out.println(Slicer.getFilePrefix(ls.getCentroid().getX()));
+		}
+		
+		System.out.println();
+	}
+	
+	
+
+	private static final String Line2="LINESTRING (38.5506327 53.96861, 38.5529292 53.9686214, 38.5535365 53.9685946, 38.5548529 53.9686151, 38.5582486 53.968535, 38.5702285 53.968341, 38.5716775 53.9683103, 38.5725063 53.968207, 38.5762254 53.9670381, 38.5773404 53.9668735, 38.6126518 53.9672075, 38.6146187 53.9671514, 38.6171249 53.966885, 38.6184744 53.966721, 38.6197061 53.9666671, 38.6210813 53.9667179, 38.6219543 53.9668606, 38.6226661 53.9670932, 38.6233384 53.9674306, 38.6237734 53.9679423, 38.6238584 53.9684562, 38.6238323 53.9700544, 38.6239909 53.9705941, 38.6244605 53.9710408, 38.6261115 53.9716001, 38.6297645 53.9725596, 38.6307905 53.9727452, 38.6641873 53.9743211, 38.6654245 53.9744204, 38.6682677 53.9752079, 38.6895786 53.9817656, 38.6917166 53.9832246, 38.6925792 53.9835161, 38.6942529 53.9811931, 38.6956799 53.9799439, 38.6976467 53.9793428, 38.7080167 53.9758128, 38.7154467 53.9737931, 38.7169541 53.9734606, 38.7316987 53.9702025, 38.736797 53.9683117, 38.7406659 53.9681981, 38.744951 53.9674092, 38.7474508 53.9670848, 38.7531135 53.9669763, 38.7672957 53.9669402, 38.7721451 53.9665463, 38.7744746 53.9662315, 38.7771396 53.9650576, 38.7786709 53.9648035, 38.7812453 53.9644067, 38.7838207 53.9640966, 38.785709 53.9631877, 38.7938358 53.9541751, 38.7951504 53.9526835, 38.7967841 53.9519162, 38.799947 53.9515361, 38.8035583 53.9492581, 38.8061079 53.9466031, 38.8068713 53.9458329, 38.807582 53.9452326, 38.8104655 53.9429879, 38.8124233 53.9414638, 38.8129474 53.9410588, 38.8133145 53.9406972, 38.8127019 53.9404229, 38.805375 53.9373156, 38.7982398 53.9343389, 38.7965734 53.9335955, 38.7951255 53.9328595, 38.7932388 53.931857, 38.7924626 53.9314311, 38.7921375 53.9312232, 38.7918587 53.9309799, 38.791555 53.9305828, 38.7913466 53.9302417, 38.7910305 53.9296458, 38.7894714 53.9266481, 38.7892895 53.9262975, 38.7892196 53.9261402, 38.7891846 53.9259799, 38.7892012 53.9258237, 38.7896142 53.9246035, 38.7898015 53.9240315, 38.7900135 53.9234143, 38.7901815 53.9229245)";
+	
 	private static final String Line1="{\n"+
 			" \"id\": \"hghway-3399067535-w4406162\",\n"+
 			" \"ftype\": \"hghway\",\n"+

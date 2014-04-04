@@ -35,6 +35,7 @@ import me.osm.gazetter.striper.readers.RelationsReader.Relation.RelationMember.R
 import me.osm.gazetter.striper.readers.WaysReader.Way;
 import me.osm.gazetter.utils.GeometryUtils;
 
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.lang3.time.DurationFormatUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -228,37 +229,73 @@ public class Slicer implements BoundariesHandler,
 
 	}
 
-	public static void stripe(LineString l, List<LineString> result) {
-		Envelope bbox = l.getEnvelopeInternal();
+	public static List<LineString> stripe(LineString l) {
+		List<LineString> result = new ArrayList<>();
 		
-		double snapX = round(snap(bbox.getMinX() + bbox.getWidth() / 2.0), 4);
+		Envelope bbox = l.getEnvelopeInternal();
 		
 		double minX = bbox.getMinX();
 		double maxX = bbox.getMaxX();
-		if(snapX > minX + 0.01 && snapX < maxX - 0.01) {
+		
+		List<Double> bladesX = new ArrayList<>();
+		for(double x = minX;x <= maxX;x += 0.1) {
+			double snapX = round(snap(x), 4);
 			
-			LineString blade = factory.createLineString(new Coordinate[]{new Coordinate(snapX, bbox.getMinY()), new Coordinate(snapX, bbox.getMaxY())});
-			Geometry intersection = l.intersection(blade);
-			
-			if(!intersection.isEmpty()) {
-				LineString[] pair = null;
-				for(int i = 0; i < intersection.getNumGeometries(); i++) {
-					Geometry ip = intersection.getGeometryN(i).getCentroid();
-					if(pair != null) {
-						pair = GeometryUtils.split(pair[1], ip.getCoordinate(), false);
-					}
-					else {
-						pair = GeometryUtils.split(l, ip.getCoordinate(), false);
-					}
-					stripe(pair[0], result);
-				}
-				stripe(pair[1], result);
+			if(snapX > minX && snapX < maxX) {
+				bladesX.add(snapX);
 			}
 		}
-		else {
-			result.add(l);
+		
+		//simple case
+		if(bladesX.size() == 1) {
+			double x = bladesX.get(0);
+			Geometry intersection = l.intersection(factory.createLineString(new Coordinate[]{new Coordinate(x, bbox.getMinY()), new Coordinate(x, bbox.getMaxY())}));
+			if(intersection.getNumGeometries() == 1) {
+				LineString[] pair = GeometryUtils.split(l, intersection.getGeometryN(0).getCentroid().getCoordinate(), false);
+				result.add(pair[0]);
+				result.add(pair[1]);
+				
+				return result;
+			}
 		}
 		
+		List<Polygon> polygons = new ArrayList<>();
+		double x1 = minX; 
+		double x2 = maxX;
+		for(double x : bladesX) {
+			x2 = x; 
+			polygons.add(
+				factory.createPolygon(new Coordinate[]{
+					new Coordinate(x1, bbox.getMinY() - 0.001),	
+					new Coordinate(x2, bbox.getMinY() - 0.001),	
+					new Coordinate(x2, bbox.getMaxY() + 0.001),	
+					new Coordinate(x1, bbox.getMaxY() + 0.001),	
+					new Coordinate(x1, bbox.getMinY() - 0.001)	
+			}));
+			x1 = x2;
+		}
+		x2 = maxX;
+		polygons.add(
+			factory.createPolygon(new Coordinate[]{
+					new Coordinate(x1, bbox.getMinY() - 0.001),	
+					new Coordinate(x2, bbox.getMinY() - 0.001),	
+					new Coordinate(x2, bbox.getMaxY() + 0.001),	
+					new Coordinate(x1, bbox.getMaxY() + 0.001),	
+					new Coordinate(x1, bbox.getMinY() - 0.001)	
+		}));
+		
+		
+		for(Polygon p : polygons) {
+			Geometry intersection = l.intersection(p);
+			for(int i = 0; i < intersection.getNumGeometries(); i++) {
+				Geometry geometryN = intersection.getGeometryN(i);
+				if(geometryN instanceof LineString) {
+					result.add((LineString) geometryN);
+				}
+			}
+		}
+		
+		return result;
 	}
 	
 	public static double round(double value, int places) {
@@ -373,24 +410,24 @@ public class Slicer implements BoundariesHandler,
 			}
 		}
 		else {
-			List<LineString> segments = new ArrayList<>();
 			try {
-				stripe(geometry, segments);
-			}
-			catch (Throwable t) {
-				log.error("Failed to stripe {}. {}", geometry, t.toString());
-			}
-			for(LineString stripe : segments) {
-				String n = getFilePrefix(stripe.getCentroid().getX());
-				String featureAsGeoJSON = GeoJsonWriter.featureAsGeoJSON(fid, FeatureTypes.HIGHWAY_FEATURE_TYPE, way.tags, stripe, meta);
-				
-				assert GeoJsonWriter.getId(featureAsGeoJSON).equals(fid) 
+				List<LineString> segments = stripe(geometry);
+
+				for(LineString stripe : segments) {
+					String n = getFilePrefix(stripe.getCentroid().getX());
+					String featureAsGeoJSON = GeoJsonWriter.featureAsGeoJSON(fid, FeatureTypes.HIGHWAY_FEATURE_TYPE, way.tags, stripe, meta);
+					
+					assert GeoJsonWriter.getId(featureAsGeoJSON).equals(fid) 
 					: "Failed getId for " + featureAsGeoJSON;
-		
-				assert GeoJsonWriter.getFtype(featureAsGeoJSON).equals(FeatureTypes.HIGHWAY_FEATURE_TYPE) 
+					
+					assert GeoJsonWriter.getFtype(featureAsGeoJSON).equals(FeatureTypes.HIGHWAY_FEATURE_TYPE) 
 					: "Failed getFtype for " + featureAsGeoJSON;
-				
-				writeOut(featureAsGeoJSON, n);
+					
+					writeOut(featureAsGeoJSON, n);
+				}
+			}
+			catch (Throwable e) {
+				log.warn("Failed to stripe {}. Because of: ", geometry, ExceptionUtils.getRootCause(e));
 			}
 		}
 	}
