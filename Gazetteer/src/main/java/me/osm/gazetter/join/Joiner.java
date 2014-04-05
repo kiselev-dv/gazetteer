@@ -24,7 +24,7 @@ public class Joiner {
 	
 	private static final Logger log = LoggerFactory.getLogger(Joiner.class.getName());
 	
-	public static AtomicInteger counter = new AtomicInteger(); 
+	private AtomicInteger stripesCounter;
 	
 	public static class StripeFilenameFilter implements FilenameFilter {
 		
@@ -47,8 +47,10 @@ public class Joiner {
 		ExecutorService executorService = Executors.newFixedThreadPool(4);
 		
 		File folder = new File(stripesFolder);
-		for(File stripeF : folder.listFiles(STRIPE_FILE_FN_FILTER)) {
-			executorService.execute(new JoinSliceTask(addrPointFormatter, stripeF, common));
+		File[] stripesFiles = folder.listFiles(STRIPE_FILE_FN_FILTER);
+		stripesCounter = new AtomicInteger(stripesFiles.length); 
+		for(File stripeF : stripesFiles) {
+			executorService.execute(new JoinSliceTask(addrPointFormatter, stripeF, common, this));
 		}
 		
 		executorService.shutdown();
@@ -84,6 +86,11 @@ public class Joiner {
 		}
 		
 		return common;
+	}
+
+
+	public AtomicInteger getStripesCounter() {
+		return stripesCounter;
 	}
 
 }

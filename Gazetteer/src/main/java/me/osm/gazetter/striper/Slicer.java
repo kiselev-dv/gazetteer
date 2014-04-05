@@ -55,7 +55,7 @@ import com.vividsolutions.jts.io.WKTWriter;
 public class Slicer implements BoundariesHandler, 
 	AddrPointHandler, PlacePointHandler, HighwaysHandler, JunctionsHandler, PoisHandler {
 	
-	private static final Logger log = LoggerFactory.getLogger(Slicer.class.getName());
+	private final Logger log;
 	private static final Set<String> threadPoolUsers = new HashSet<String>();
 
 	private static final GeometryFactory factory = new GeometryFactory();
@@ -79,6 +79,7 @@ public class Slicer implements BoundariesHandler,
 	public Slicer(String dirPath) {
 		this.osmSlicesPath = dirPath;
 		writeDAO = new FileWriteDao(new File(dirPath));
+		this.log = LoggerFactory.getLogger(Slicer.class.getName());
 	}
 	
 	public void run(String poiCatalogPath, List<String> types, List<String> exclude) {

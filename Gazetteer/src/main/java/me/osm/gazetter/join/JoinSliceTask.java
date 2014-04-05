@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import me.osm.gazetter.Options;
 import me.osm.gazetter.addresses.AddressesParser;
@@ -77,10 +78,16 @@ public class JoinSliceTask implements Runnable {
 	
 	private static final GeometryFactory factory = new GeometryFactory();
 		
-	public JoinSliceTask(AddrJointHandler handler, File src, List<JSONObject> common) {
+	private AtomicInteger stripesCounter;
+	
+	public JoinSliceTask(AddrJointHandler handler, File src, List<JSONObject> common, Joiner joiner) {
 		this.src = src;
 		this.handler = handler;
 		this.common = common;
+		
+		if(log.isTraceEnabled()) {
+			this.stripesCounter = joiner.getStripesCounter();
+		}
 	}
 	
 	private static final ByIdComparator BY_ID_COMPARATOR = new ByIdComparator();
@@ -159,8 +166,10 @@ public class JoinSliceTask implements Runnable {
 			join();
 			
 			write();
-			
-			log.trace("Done: ", this.src);
+
+			if(log.isTraceEnabled()) {
+				log.trace("Done. {} left", this.stripesCounter.decrementAndGet());
+			}
 		}
 		catch (Exception e) {
 			log.error("Join failed. File: {}.", this.src);

@@ -28,8 +28,6 @@ import org.slf4j.LoggerFactory;
  * */
 public class Main {
 	
-	private static final Logger log = LoggerFactory.getLogger(Main.class);
-	
 	private static final String EXCCLUDE_POI_BRANCH_OPT = "--excclude-poi-branch";
 	private static final String EXCCLUDE_POI_BRANCH_VAL = "excclude_poi_branch";
 	
@@ -54,6 +52,8 @@ public class Main {
 	private static final String FEATURE_TYPES_VAL = "feature_types";
 
 	private static final String COMMAND = "command";
+	
+	private static Logger log;
 
 	public static interface CommandDescription {
 		public String longName(); 
@@ -94,13 +94,14 @@ public class Main {
 		System.setProperty(org.slf4j.impl.SimpleLogger.DATE_TIME_FORMAT_KEY, "yyyy-MM-dd HH.mm.ss.S");
 		System.setProperty(org.slf4j.impl.SimpleLogger.SHOW_SHORT_LOG_NAME_KEY, "true");
 		
-		
 		ArgumentParser parser = getArgumentsParser();
 		
 		try {
 			Namespace namespace = parser.parseArgs(args);
 			
 			System.setProperty(org.slf4j.impl.SimpleLogger.DEFAULT_LOG_LEVEL_KEY, (String)namespace.get(LOG_VAL));
+
+			log = LoggerFactory.getLogger(Main.class);
 
 			if(namespace.get(COMMAND).equals(Command.SPLIT)) {
 				Split splitter = new Split(new File(namespace.getString(DATA_DIR_VAL)), namespace.getString("osm_file"));
