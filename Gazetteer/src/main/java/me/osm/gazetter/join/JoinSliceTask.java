@@ -17,8 +17,6 @@ import me.osm.gazetter.Options;
 import me.osm.gazetter.addresses.AddressesParser;
 import me.osm.gazetter.addresses.AddressesUtils;
 import me.osm.gazetter.addresses.NamesMatcher;
-import me.osm.gazetter.addresses.impl.AddressesParserImpl;
-import me.osm.gazetter.addresses.impl.NamesMatcherImpl;
 import me.osm.gazetter.join.PoiAddrJoinBuilder.BestFitAddresses;
 import me.osm.gazetter.striper.FeatureTypes;
 import me.osm.gazetter.striper.GeoJsonWriter;
@@ -115,6 +113,8 @@ public class JoinSliceTask implements Runnable {
 
 	@Override
 	public void run() {
+		
+		Thread.currentThread().setName("join-" + this.src.getName());
 		
 		try {
 			

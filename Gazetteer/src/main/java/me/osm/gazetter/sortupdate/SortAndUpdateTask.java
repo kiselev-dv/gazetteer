@@ -1,4 +1,4 @@
-package me.osm.gazetter.join;
+package me.osm.gazetter.sortupdate;
 
 import java.io.File;
 import java.io.IOException;

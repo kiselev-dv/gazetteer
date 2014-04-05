@@ -8,6 +8,7 @@ import java.util.List;
 import me.osm.gazetter.addresses.AddrLevelsSorting;
 import me.osm.gazetter.join.Joiner;
 import me.osm.gazetter.out.CSVOutWriter;
+import me.osm.gazetter.sortupdate.SortUpdate;
 import me.osm.gazetter.split.Split;
 import me.osm.gazetter.striper.Slicer;
 import net.sourceforge.argparse4j.ArgumentParsers;
@@ -72,6 +73,10 @@ public class Main {
 	    	public String longName() {return name().toLowerCase();}
 	    	public String help() {return "Join features. Made spatial joins for address points inside polygons and so on.";}
 	    }, 
+	    UPDATE {
+	    	public String longName() {return name().toLowerCase();}
+	    	public String help() {return "Sort and update features. Remove outdated dublicates.";}
+	    }, 
 	    OUT_CSV {
 	    	public String longName() {return name().toLowerCase().replace('_', '-');}
 	    	public String help() {return "Write data out in csv format.";}
@@ -125,6 +130,16 @@ public class Main {
 				);
 				
 				new Joiner().run(namespace.getString(DATA_DIR_VAL), namespace.getString(JOIN_COMMON_VAL));
+				
+			}
+
+			if(namespace.get(COMMAND).equals(Command.UPDATE)) {
+				Options.initialize(
+						AddrLevelsSorting.valueOf(namespace.getString(ADDR_ORDER_VAL)),
+						namespace.getString(ADDR_FORMATTER_VAL)
+						);
+				
+				new SortUpdate(namespace.getString(DATA_DIR_VAL)).run();
 				
 			}
 			
@@ -210,6 +225,14 @@ public class Main {
 			join.addArgument(ADDR_FORMATTER_OPT)
 				.help("Path to *.groovy file with full addresses texts formatter.");
 			
+		}
+
+		//update
+		{
+			Command command = Command.UPDATE;
+			subparsers.addParser(command.longName())
+					.setDefault(COMMAND, command)
+					.help(command.help());
 		}
 
 		//out

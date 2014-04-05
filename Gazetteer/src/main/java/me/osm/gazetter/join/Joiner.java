@@ -58,22 +58,6 @@ public class Joiner {
 			throw new RuntimeException("Executor service shutdown failed.", e);
 		}
 		
-		log.info("Join done.");
-		
-		executorService = Executors.newFixedThreadPool(4);
-		for(File stripeF : folder.listFiles(STRIPE_FILE_FN_FILTER)) {
-			executorService.execute( new SortAndUpdateTask(stripeF));
-		}
-		
-		executorService.shutdown();
-		
-		try {
-			executorService.awaitTermination(1, TimeUnit.HOURS);
-		} catch (InterruptedException e) {
-			throw new RuntimeException("Execution service shutdown awaiting interrupted.", e);
-		}
-		
-		log.info("Update slices done. {} lines was updated.", SortAndUpdateTask.countUpdatedLines());
 		log.info("Join done in {}", DurationFormatUtils.formatDurationHMS(new Date().getTime() - start));
 	}
 
