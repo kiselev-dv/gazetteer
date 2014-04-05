@@ -159,6 +159,8 @@ public class JoinSliceTask implements Runnable {
 			join();
 			
 			write();
+			
+			log.trace("Done: ", this.src);
 		}
 		catch (Exception e) {
 			log.error("Join failed. File: {}.", this.src);
