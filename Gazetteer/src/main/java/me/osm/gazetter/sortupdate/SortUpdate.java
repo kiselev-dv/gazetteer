@@ -20,7 +20,7 @@ public class SortUpdate {
 	}
 	
 	public void run() {
-		ExecutorService executorService = Executors.newFixedThreadPool(4);
+		ExecutorService executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 		
 		for(File stripeF : new File(dataDir).listFiles(Joiner.STRIPE_FILE_FN_FILTER)) {
 			executorService.execute( new SortAndUpdateTask(stripeF));

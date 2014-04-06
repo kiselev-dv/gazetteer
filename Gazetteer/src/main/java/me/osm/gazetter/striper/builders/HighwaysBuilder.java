@@ -34,7 +34,7 @@ public class HighwaysBuilder extends ABuilder implements HighwaysHandler {
 	private static final Logger log = LoggerFactory
 			.getLogger(HighwaysBuilder.class.getName());
 
-	private static volatile ExecutorService executorService = Executors.newFixedThreadPool(4);
+	private static volatile ExecutorService executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 	
 	private static final class BuildWayGeometryTask implements Runnable {
 

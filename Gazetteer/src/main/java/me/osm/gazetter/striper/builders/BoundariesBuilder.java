@@ -64,7 +64,7 @@ public class BoundariesBuilder extends ABuilder {
 	
 	private boolean indexFilled = false;
 	
-	private final ExecutorService executorService = Executors.newFixedThreadPool(4);
+	private final ExecutorService executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 	
 	private static final class Task implements Runnable {
 

@@ -59,7 +59,7 @@ public class Slicer implements BoundariesHandler,
 	private static final Set<String> threadPoolUsers = new HashSet<String>();
 
 	private static final GeometryFactory factory = new GeometryFactory();
-	private static final ExecutorService executorService = Executors.newFixedThreadPool(4);
+	private static final ExecutorService executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 	
 	private static double dx = 0.1;
 	private static double x0 = 0;

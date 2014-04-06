@@ -44,7 +44,7 @@ public class Joiner {
 		
 		List<JSONObject> common = getCommonPart(coomonPartFile);
 		
-		ExecutorService executorService = Executors.newFixedThreadPool(4);
+		ExecutorService executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 		
 		File folder = new File(stripesFolder);
 		File[] stripesFiles = folder.listFiles(STRIPE_FILE_FN_FILTER);
