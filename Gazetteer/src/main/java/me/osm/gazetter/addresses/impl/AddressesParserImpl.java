@@ -154,6 +154,7 @@ public class AddressesParserImpl implements AddressesParser {
 					
 					addrJsonRow.add(addrLVL);
 				}
+				
 			}
 			
 			Collections.sort(addrJsonRow, addrLevelComparator);
@@ -165,15 +166,12 @@ public class AddressesParserImpl implements AddressesParser {
 			fullAddressRow.put(ADDR_PARTS, new JSONArray(addrJsonRow));
 			fullAddressRow.put(AddressesSchemesParser.ADDR_SCHEME, 
 					addrRow.optString(AddressesSchemesParser.ADDR_SCHEME));
+
+			if(StringUtils.isNotBlank(properties.optString(ADDR_FULL))) {
+				fullAddressRow.put(ADDR_FULL, properties.optString(ADDR_FULL));
+			}
 			
 			result.put(fullAddressRow);
-		}
-		
-		if(StringUtils.isNotBlank(properties.optString(ADDR_FULL))) {
-			JSONObject addrFull = new JSONObject();
-			addrFull.put(ADDR_TEXT, properties.optString(ADDR_FULL));
-			addrFull.put(AddressesSchemesParser.ADDR_SCHEME, properties.optString(ADDR_FULL));
-			result.put(addrFull);
 		}
 		
 		return result;
