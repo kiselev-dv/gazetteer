@@ -377,7 +377,9 @@ public class BoundariesBuilder extends ABuilder {
 	public void secondRunDoneRelations() {
 		executorService.shutdown();
 		try {
-			executorService.awaitTermination(5, TimeUnit.SECONDS);
+			while(!executorService.awaitTermination(1, TimeUnit.MINUTES)) {
+				//wait untill done
+			}
 		} catch (InterruptedException e) {
 			log.error("Awaiting for thread pull was terminated.", e);
 			throw new RuntimeException(e);

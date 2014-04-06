@@ -29,7 +29,9 @@ public class SortUpdate {
 		executorService.shutdown();
 		
 		try {
-			executorService.awaitTermination(1, TimeUnit.HOURS);
+			while(!executorService.awaitTermination(1, TimeUnit.MINUTES)) {
+				//wait for end
+			}
 		} catch (InterruptedException e) {
 			throw new RuntimeException("Execution service shutdown awaiting interrupted.", e);
 		}

@@ -55,7 +55,10 @@ public class Joiner {
 		
 		executorService.shutdown();
 		try {
-			executorService.awaitTermination(1, TimeUnit.HOURS);
+			while(!executorService.awaitTermination(1, TimeUnit.MINUTES)) {
+				//still waiting
+			}
+			
 		} catch (InterruptedException e) {
 			throw new RuntimeException("Executor service shutdown failed.", e);
 		}

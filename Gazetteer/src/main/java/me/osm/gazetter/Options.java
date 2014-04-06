@@ -1,17 +1,23 @@
 package me.osm.gazetter;
 
-import java.io.File;
-
 import groovy.lang.GroovyClassLoader;
 
-import org.apache.commons.lang3.StringUtils;
+import java.io.File;
 
+import me.osm.gazetter.addresses.AddrLevelsComparator;
 import me.osm.gazetter.addresses.AddrLevelsSorting;
 import me.osm.gazetter.addresses.AddressesParser;
 import me.osm.gazetter.addresses.NamesMatcher;
+import me.osm.gazetter.addresses.impl.AddrTextFormatterImpl;
+import me.osm.gazetter.addresses.impl.AddressesLevelsMatcherImpl;
 import me.osm.gazetter.addresses.impl.AddressesParserImpl;
+import me.osm.gazetter.addresses.impl.AddressesSchemesParserImpl;
 import me.osm.gazetter.addresses.impl.NamesMatcherImpl;
-import me.osm.gazetter.join.PoiAddrJoinBuilder;
+import me.osm.gazetter.addresses.sorters.CityStreetHNComparator;
+import me.osm.gazetter.addresses.sorters.HNStreetCityComparator;
+import me.osm.gazetter.addresses.sorters.StreetHNCityComparator;
+
+import org.apache.commons.lang3.StringUtils;
 
 public class Options {
 	
@@ -45,13 +51,15 @@ public class Options {
 			throw new SecondaryOptionsInitializationException();
 		}
 		
-		AddressesParser adrParser = getAddrParser(groovyFormatter);
+		AddressesParser adrParser = getAddrParser(groovyFormatter, sorting);
 		
 		instance = new Options(sorting, adrParser, new NamesMatcherImpl());
 	}
 
-	private static AddressesParser getAddrParser(String groovyFormatter) {
+	private static AddressesParser getAddrParser(String groovyFormatter, AddrLevelsSorting sorting) {
+		
 		AddressesParser adrParser = null;
+		
 		try {
 			if(!StringUtils.isEmpty(groovyFormatter)) {
 				GroovyClassLoader gcl = new GroovyClassLoader(Options.class.getClassLoader());
@@ -63,7 +71,22 @@ public class Options {
 				}
 			}
 			else {
-				adrParser = new AddressesParserImpl();
+				AddrLevelsComparator addrLevelComparator;
+				if(AddrLevelsSorting.HN_STREET_CITY == sorting) {
+					addrLevelComparator = new HNStreetCityComparator();
+				}
+				else if (AddrLevelsSorting.CITY_STREET_HN == sorting) {
+					addrLevelComparator = new CityStreetHNComparator();
+				}
+				else {
+					addrLevelComparator = new StreetHNCityComparator();
+				}
+				
+				adrParser = new AddressesParserImpl(
+						new AddressesSchemesParserImpl(), 
+						new AddressesLevelsMatcherImpl(addrLevelComparator, new NamesMatcherImpl()), 
+						new AddrTextFormatterImpl(),
+						sorting);
 			}
 		}
 		catch (Exception e) {
@@ -74,7 +97,11 @@ public class Options {
 	
 	public static Options get() {
 		if(instance == null) {
-			instance = new Options();
+			synchronized(instance) {
+				if(instance == null) {
+					instance = new Options();
+				}
+			}
 		}
 		return instance;
 	}

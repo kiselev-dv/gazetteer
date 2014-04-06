@@ -37,31 +37,32 @@ public class AddressesParserImpl implements AddressesParser {
 	private AddrTextFormatter textFormatter;
 
 	public AddressesParserImpl(AddressesSchemesParser schemesParser, 
-			AddressesLevelsMatcher levelsMatcher, AddrTextFormatter textFormatter) {
+			AddressesLevelsMatcher levelsMatcher, AddrTextFormatter textFormatter,
+			AddrLevelsSorting sorting) {
+		
 		this.schemesParser = schemesParser; 
 		this.levelsMatcher = levelsMatcher; 
-		this.textFormatter = textFormatter; 
+		this.textFormatter = textFormatter;
+		
+		if(AddrLevelsSorting.HN_STREET_CITY == sorting) {
+			addrLevelComparator = new HNStreetCityComparator();
+		}
+		else if (AddrLevelsSorting.CITY_STREET_HN == sorting) {
+			addrLevelComparator = new CityStreetHNComparator();
+		}
+		else {
+			addrLevelComparator = new StreetHNCityComparator();
+		}
 	}
 	
 	public AddressesParserImpl() {
+		addrLevelComparator = new HNStreetCityComparator();
 		schemesParser = new AddressesSchemesParserImpl();
-		levelsMatcher = new AddressesLevelsMatcherImpl(ADDR_LVL_COMPARATOR, new NamesMatcherImpl());
+		levelsMatcher = new AddressesLevelsMatcherImpl(addrLevelComparator, new NamesMatcherImpl());
 		textFormatter = new AddrTextFormatterImpl();
 	}
 	
-	private static final AddrLevelsComparator ADDR_LVL_COMPARATOR;
-	static {
-		AddrLevelsSorting sorting = Options.get().getSorting();
-		if(AddrLevelsSorting.HN_STREET_CITY == sorting) {
-			ADDR_LVL_COMPARATOR = new HNStreetCityComparator();
-		}
-		else if (AddrLevelsSorting.CITY_STREET_HN == sorting) {
-			ADDR_LVL_COMPARATOR = new CityStreetHNComparator();
-		}
-		else {
-			ADDR_LVL_COMPARATOR = new StreetHNCityComparator();
-		}
-	}
+	private AddrLevelsComparator addrLevelComparator;
 
 	private static final String ADDR_PARTS = "parts";
 
@@ -148,7 +149,7 @@ public class AddressesParserImpl implements AddressesParser {
 					
 					
 					addrLVL.put(ADDR_LVL, addrLevel);
-					addrLVL.put(ADDR_LVL_SIZE, ADDR_LVL_COMPARATOR.getLVLSize(addrLevel));
+					addrLVL.put(ADDR_LVL_SIZE, addrLevelComparator.getLVLSize(addrLevel));
 					addrLVL.put(ADDR_NAME, nTags.get(ADDR_NAME));
 					addrLVL.put(ADDR_NAMES, new JSONObject(nTags));
 					
@@ -156,7 +157,7 @@ public class AddressesParserImpl implements AddressesParser {
 				}
 			}
 			
-			Collections.sort(addrJsonRow, ADDR_LVL_COMPARATOR);
+			Collections.sort(addrJsonRow, addrLevelComparator);
 			
 			JSONObject fullAddressRow = new JSONObject();
 			
@@ -179,7 +180,7 @@ public class AddressesParserImpl implements AddressesParser {
 		return result;
 	}
 
-	private static String getAddrLevel(JSONObject obj) {
+	private String getAddrLevel(JSONObject obj) {
 		
 		JSONObject properties = obj.optJSONObject("properties");
 		
@@ -188,12 +189,12 @@ public class AddressesParserImpl implements AddressesParser {
 		}
 		
 		String pk = "place:" + properties.optString("place");
-		if(ADDR_LVL_COMPARATOR.supports(pk)) {
+		if(addrLevelComparator.supports(pk)) {
 			return pk;
 		}
 
 		String bk = "boundary:" + properties.optString("admin_level").trim();
-		if(ADDR_LVL_COMPARATOR.supports(bk)) {
+		if(addrLevelComparator.supports(bk)) {
 			return bk;
 		}
 		
@@ -218,7 +219,7 @@ public class AddressesParserImpl implements AddressesParser {
 				}
 				
 				addrLVL.put(ADDR_LVL, addrLevel);
-				addrLVL.put(ADDR_LVL_SIZE, ADDR_LVL_COMPARATOR.getLVLSize(addrLevel));
+				addrLVL.put(ADDR_LVL_SIZE, addrLevelComparator.getLVLSize(addrLevel));
 				addrLVL.put(ADDR_NAME, nTags.get(ADDR_NAME));
 				addrLVL.put(ADDR_NAMES, new JSONObject(nTags));
 				
@@ -227,7 +228,7 @@ public class AddressesParserImpl implements AddressesParser {
 		}
 
 		JSONObject fullAddressRow = new JSONObject();
-		Collections.sort(result, ADDR_LVL_COMPARATOR);
+		Collections.sort(result, addrLevelComparator);
 		
 		fullAddressRow.put(ADDR_TEXT,  textFormatter.joinBoundariesNames(result));
 		fullAddressRow.put(ADDR_PARTS, new JSONArray(result));

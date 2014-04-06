@@ -2,7 +2,9 @@ package me.osm.gazetter;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 
 import me.osm.gazetter.addresses.AddrLevelsSorting;
@@ -73,7 +75,7 @@ public class Main {
 	    	public String longName() {return name().toLowerCase();}
 	    	public String help() {return "Join features. Made spatial joins for address points inside polygons and so on.";}
 	    }, 
-	    UPDATE {
+	    SYNCHRONIZE {
 	    	public String longName() {return name().toLowerCase();}
 	    	public String help() {return "Sort and update features. Remove outdated dublicates.";}
 	    }, 
@@ -90,18 +92,14 @@ public class Main {
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public static void main(String[] args) {
 		
-		System.setProperty(org.slf4j.impl.SimpleLogger.SHOW_DATE_TIME_KEY, "true");
-		System.setProperty(org.slf4j.impl.SimpleLogger.DATE_TIME_FORMAT_KEY, "yyyy-MM-dd HH.mm.ss.S");
-		System.setProperty(org.slf4j.impl.SimpleLogger.SHOW_SHORT_LOG_NAME_KEY, "true");
+		initLog(args);
+		log = LoggerFactory.getLogger(Main.class);
 		
 		ArgumentParser parser = getArgumentsParser();
 		
 		try {
 			Namespace namespace = parser.parseArgs(args);
 			
-			System.setProperty(org.slf4j.impl.SimpleLogger.DEFAULT_LOG_LEVEL_KEY, (String)namespace.get(LOG_VAL));
-
-			log = LoggerFactory.getLogger(Main.class);
 
 			if(namespace.get(COMMAND).equals(Command.SPLIT)) {
 				Split splitter = new Split(new File(namespace.getString(DATA_DIR_VAL)), namespace.getString("osm_file"));
@@ -131,17 +129,11 @@ public class Main {
 				);
 				
 				new Joiner().run(namespace.getString(DATA_DIR_VAL), namespace.getString(JOIN_COMMON_VAL));
-				
+				new SortUpdate(namespace.getString(DATA_DIR_VAL)).run();
 			}
 
-			if(namespace.get(COMMAND).equals(Command.UPDATE)) {
-				Options.initialize(
-						AddrLevelsSorting.valueOf(namespace.getString(ADDR_ORDER_VAL)),
-						namespace.getString(ADDR_FORMATTER_VAL)
-						);
-				
+			if(namespace.get(COMMAND).equals(Command.SYNCHRONIZE)) {
 				new SortUpdate(namespace.getString(DATA_DIR_VAL)).run();
-				
 			}
 			
 			if(namespace.get(COMMAND).equals(Command.OUT_CSV)) {
@@ -161,6 +153,19 @@ public class Main {
 			System.exit(1);
 		} 
 		
+	}
+
+	private static void initLog(String[] args) {
+		System.setProperty(org.slf4j.impl.SimpleLogger.SHOW_DATE_TIME_KEY, "true");
+		System.setProperty(org.slf4j.impl.SimpleLogger.DATE_TIME_FORMAT_KEY, "yyyy-MM-dd HH.mm.ss.S");
+		System.setProperty(org.slf4j.impl.SimpleLogger.SHOW_SHORT_LOG_NAME_KEY, "true");
+
+		Iterator<String> iterator = Arrays.asList(args).iterator();
+		while(iterator.hasNext()) {
+			if(iterator.next().equals(LOG_OPT) && iterator.hasNext()) {
+				System.setProperty(org.slf4j.impl.SimpleLogger.DEFAULT_LOG_LEVEL_KEY, iterator.next());
+			}
+		}
 	}
 
 	/**
@@ -230,7 +235,7 @@ public class Main {
 
 		//update
 		{
-			Command command = Command.UPDATE;
+			Command command = Command.SYNCHRONIZE;
 			subparsers.addParser(command.longName())
 					.setDefault(COMMAND, command)
 					.help(command.help());
