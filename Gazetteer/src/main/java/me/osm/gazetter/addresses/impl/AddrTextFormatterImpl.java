@@ -4,9 +4,9 @@ import static me.osm.gazetter.addresses.AddressesLevelsMatcher.ADDR_NAME;
 
 import java.util.List;
 
-import org.json.JSONObject;
-
 import me.osm.gazetter.addresses.AddrTextFormatter;
+
+import org.json.JSONObject;
 
 public class AddrTextFormatterImpl implements AddrTextFormatter {
 

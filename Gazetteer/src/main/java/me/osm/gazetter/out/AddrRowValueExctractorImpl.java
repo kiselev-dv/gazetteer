@@ -4,12 +4,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
 
-import me.osm.gazetter.striper.GeoJsonWriter;
-
-import org.json.JSONArray;
 import org.json.JSONObject;
-
-import com.vividsolutions.jts.geom.Polygon;
 
 public class AddrRowValueExctractorImpl implements AddrRowValueExtractor {
 

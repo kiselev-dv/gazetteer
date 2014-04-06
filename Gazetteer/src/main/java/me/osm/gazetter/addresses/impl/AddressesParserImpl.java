@@ -13,7 +13,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import me.osm.gazetter.Options;
 import me.osm.gazetter.addresses.AddrLevelsComparator;
 import me.osm.gazetter.addresses.AddrLevelsSorting;
 import me.osm.gazetter.addresses.AddrTextFormatter;
