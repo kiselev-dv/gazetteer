@@ -13,6 +13,8 @@ import org.json.JSONObject;
 public final class JSONFeature extends JSONObject {
 	
 	public static JSONObject copy(JSONObject properties) {
+		
+		@SuppressWarnings("unchecked")
 		Set<String> keys = properties.keySet();
 		return new JSONObject(properties, keys.toArray(new String[keys.size()]));
 	}

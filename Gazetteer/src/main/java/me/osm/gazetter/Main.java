@@ -4,6 +4,8 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 
@@ -46,7 +48,6 @@ public class Main {
 	private static final String DATA_DIR_OPT = "--data-dir";
 	
 	private static final String LOG_OPT = "--log-level";
-	private static final String LOG_VAL = "log_level";
 
 	private static final String POI_CATALOG_VAL = "poi_catalog";
 	private static final String POI_CATALOG_OPT = "--poi-catalog";
@@ -117,7 +118,8 @@ public class Main {
 				new Slicer(namespace.getString(DATA_DIR_VAL)).run(
 						namespace.getString(POI_CATALOG_VAL), 
 						types,
-						(List)namespace.getList(EXCCLUDE_POI_BRANCH_VAL)
+						list(namespace.getList(EXCCLUDE_POI_BRANCH_VAL)),
+						list(namespace.getList("drop"))
 				);
 				
 			}
@@ -125,10 +127,12 @@ public class Main {
 			if(namespace.get(COMMAND).equals(Command.JOIN)) {
 				Options.initialize(
 						AddrLevelsSorting.valueOf(namespace.getString(ADDR_ORDER_VAL)),
-						namespace.getString(ADDR_FORMATTER_VAL)
+						namespace.getString(ADDR_FORMATTER_VAL),
+						new HashSet(list(namespace.getList("skip_in_text")))
 				);
 				
-				new Joiner().run(namespace.getString(DATA_DIR_VAL), namespace.getString(JOIN_COMMON_VAL));
+				new Joiner(new HashSet(list(namespace.getList("check_boundaries"))))
+					.run(namespace.getString(DATA_DIR_VAL), namespace.getString(JOIN_COMMON_VAL));
 				new SortUpdate(namespace.getString(DATA_DIR_VAL)).run();
 			}
 
@@ -139,8 +143,8 @@ public class Main {
 			if(namespace.get(COMMAND).equals(Command.OUT_CSV)) {
 				new CSVOutWriter(
 						namespace.getString(DATA_DIR_VAL), 
-						StringUtils.join(namespace.getList("columns"), ' '), 
-						(List)namespace.getList("types"),
+						StringUtils.join(list(namespace.getList("columns")), ' '), 
+						list(namespace.getList("types")),
 						namespace.getString("out_file")).write();
 			}
 			
@@ -153,6 +157,14 @@ public class Main {
 			System.exit(1);
 		} 
 		
+	}
+
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	private static List<String> list( List list) {
+		if(list == null) {
+			return Collections.emptyList();
+		}
+		return list;
 	}
 
 	private static void initLog(String[] args) {
@@ -211,6 +223,9 @@ public class Main {
 			
 			slice.addArgument(FEATURE_TYPES_VAL).help("Parse and slice axact feature(s) type.")
 				.choices(Slicer.sliceTypes).nargs("*").setDefault("all").setConst("all");
+
+			slice.addArgument("--drop").nargs("*")
+				.help("List of objects osm ids which will be dropped ex r60189.");
 			
 		}
 
@@ -230,6 +245,12 @@ public class Main {
 
 			join.addArgument(ADDR_FORMATTER_OPT)
 				.help("Path to *.groovy file with full addresses texts formatter.");
+
+			join.addArgument("--check-boundaries").nargs("*")
+				.help("Filter only addresses inside any of boundary given as osm id. eg. r12345 w123456 ");
+
+			join.addArgument("--skip-in-text").nargs("*")
+				.help("Skip in addr full text.");
 			
 		}
 

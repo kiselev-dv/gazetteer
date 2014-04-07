@@ -7,8 +7,10 @@ import static me.osm.gazetter.addresses.AddressesLevelsMatcher.ADDR_NAMES;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -34,10 +36,13 @@ public class AddressesParserImpl implements AddressesParser {
 	private AddressesSchemesParser schemesParser;
 	private AddressesLevelsMatcher levelsMatcher;
 	private AddrTextFormatter textFormatter;
+	private AddrLevelsComparator addrLevelComparator;
+	
+	private Set<String> skipInFullText;
 
 	public AddressesParserImpl(AddressesSchemesParser schemesParser, 
 			AddressesLevelsMatcher levelsMatcher, AddrTextFormatter textFormatter,
-			AddrLevelsSorting sorting) {
+			AddrLevelsSorting sorting, Set<String> skipInFullText) {
 		
 		this.schemesParser = schemesParser; 
 		this.levelsMatcher = levelsMatcher; 
@@ -52,6 +57,9 @@ public class AddressesParserImpl implements AddressesParser {
 		else {
 			addrLevelComparator = new StreetHNCityComparator();
 		}
+		
+		this.skipInFullText = skipInFullText;
+		
 	}
 	
 	public AddressesParserImpl() {
@@ -59,13 +67,14 @@ public class AddressesParserImpl implements AddressesParser {
 		schemesParser = new AddressesSchemesParserImpl();
 		levelsMatcher = new AddressesLevelsMatcherImpl(addrLevelComparator, new NamesMatcherImpl());
 		textFormatter = new AddrTextFormatterImpl();
+		skipInFullText = new HashSet<>();
 	}
 	
-	private AddrLevelsComparator addrLevelComparator;
 
 	private static final String ADDR_PARTS = "parts";
 
 	private static final String ADDR_TEXT = "text";
+	private static final String ADDR_TEXT_LONG = "longText";
 
 	private static final String ADDR_FULL = "addr:full";
 
@@ -157,11 +166,14 @@ public class AddressesParserImpl implements AddressesParser {
 				
 			}
 			
+			List<JSONObject> filtered = filterForFullText(addrJsonRow, addrLevelComparator);
+			
 			Collections.sort(addrJsonRow, addrLevelComparator);
 			
 			JSONObject fullAddressRow = new JSONObject();
 			
-			fullAddressRow.put(ADDR_TEXT, textFormatter.joinNames(addrJsonRow, properties));
+			fullAddressRow.put(ADDR_TEXT, textFormatter.joinNames(filtered, properties));
+			fullAddressRow.put(ADDR_TEXT_LONG, textFormatter.joinNames(addrJsonRow, properties));
 			
 			fullAddressRow.put(ADDR_PARTS, new JSONArray(addrJsonRow));
 			fullAddressRow.put(AddressesSchemesParser.ADDR_SCHEME, 
@@ -177,7 +189,72 @@ public class AddressesParserImpl implements AddressesParser {
 		return result;
 	}
 
-	private String getAddrLevel(JSONObject obj) {
+	protected List<JSONObject> filterForFullText(List<JSONObject> addrJsonRow,
+			AddrLevelsComparator addrLevelComparator) {
+		
+		List<JSONObject> list = new ArrayList<>(addrJsonRow);
+		Collections.sort(list, new Comparator<JSONObject>() {
+
+			@Override
+			public int compare(JSONObject o1, JSONObject o2) {
+				int s1 = o1.optInt(AddressesLevelsMatcher.ADDR_LVL_SIZE);
+				int s2 = o2.optInt(AddressesLevelsMatcher.ADDR_LVL_SIZE);
+				return Integer.compare(s1, s2);
+			}
+			
+		});
+		
+		
+		
+		JSONObject prevAddrLvl = null;
+		Iterator<JSONObject> iterator = list.iterator();
+		while(iterator.hasNext()) {
+			JSONObject lvl = iterator.next();
+			if(lvl.getInt(AddressesLevelsMatcher.ADDR_LVL_SIZE) > 55) {
+				boolean skip = skipInFullText.contains(lvl.optString(AddressesLevelsMatcher.ADDR_LVL));
+				if(skip || addrLlvlsMatch(prevAddrLvl, lvl)) {
+					iterator.remove();
+				}
+				else {
+					prevAddrLvl = lvl;
+				}
+			}
+		}
+		
+		Collections.sort(list, addrLevelComparator);
+		
+		return list;
+	}
+
+	@SuppressWarnings("unchecked")
+	protected boolean addrLlvlsMatch(JSONObject prevAddrLvl, JSONObject lvl) {
+		if(prevAddrLvl == null || lvl == null) {
+			return false;
+		}
+		String name = prevAddrLvl.optString("name", null);
+		String name2 = lvl.optString("name", null);
+		if(name != null && name2 != null) {
+			if(StringUtils.containsIgnoreCase(name2, name)) {
+				return true;
+			}
+			
+			JSONObject optNames = lvl.optJSONObject("names");
+			if(optNames != null) {
+
+				for(String key : (Set<String>) optNames.keySet()) {
+					String optName = optNames.getString(key);
+					
+					if(StringUtils.containsIgnoreCase(optName, name)) {
+						return true;
+					}
+				}
+			}
+		}
+		return false;
+	}
+
+	@Override
+	public String getAddrLevel(JSONObject obj) {
 		
 		JSONObject properties = obj.optJSONObject("properties");
 		

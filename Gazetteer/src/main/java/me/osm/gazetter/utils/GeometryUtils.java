@@ -97,26 +97,6 @@ public class GeometryUtils {
 	 * given point.
 	 */
 	private static class LengthToPoint {
-		public static double lengthAlongSegment(LineSegment seg, Coordinate pt) {
-			double projFactor = seg.projectionFactor(pt);
-			double len = 0.0;
-			if (projFactor <= 0.0)
-				len = 0.0;
-			else if (projFactor <= 1.0)
-				len = projFactor * seg.getLength();
-			else
-				len = seg.getLength();
-			return len;
-		}
-
-		/**
-		 * Computes the length along a LineString to the point on the line
-		 * nearest a given point.
-		 */
-		public static double length(LineString line, Coordinate inputPt) {
-			LengthToPoint lp = new LengthToPoint(line, inputPt);
-			return lp.getLength();
-		}
 
 		private double minDistanceToPoint;
 		private double locationLength;
@@ -177,11 +157,6 @@ public class GeometryUtils {
 	 * end of line backwards).
 	 */
 	private static class LengthSubstring {
-		public static LineString getSubstring(LineString line,
-				double startLength, double endLength) {
-			LengthSubstring ls = new LengthSubstring(line);
-			return ls.getSubstring(startLength, endLength);
-		}
 
 		private LineString line;
 
@@ -223,7 +198,7 @@ public class GeometryUtils {
 			CoordinateList newCoordinates = new CoordinateList();
 			double segmentStartDistance = 0.0;
 			double segmentEndDistance = 0.0;
-			boolean started = false;
+
 			int i = 0;
 			LineSegment segment = new LineSegment();
 			while (i < coordinates.length - 1

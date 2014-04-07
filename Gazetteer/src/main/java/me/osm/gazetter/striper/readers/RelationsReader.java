@@ -3,6 +3,7 @@ package me.osm.gazetter.striper.readers;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -20,6 +21,7 @@ public class RelationsReader extends DefaultHandler {
 
 	private static final String TAG_NAME = "relation";
 	private RelationsHandler[] handlers;
+	private HashSet<String> drop;
 	
 	public static class Relation {
 		public long id;
@@ -44,13 +46,9 @@ public class RelationsReader extends DefaultHandler {
 
 	}
 	
-	public RelationsReader(){
-		
+	public RelationsReader(HashSet<String> drop){
+		this.drop = drop;
 	};
-	
-	public RelationsReader(RelationsHandler... handlers) {
-		this.handlers = handlers;
-	}
 	
 	private Relation relation = null;
 	
@@ -96,11 +94,17 @@ public class RelationsReader extends DefaultHandler {
 	public void endElement(String uri, String localName, String qName)
 			throws SAXException {
 		if(qName.equals(TAG_NAME)) {
-			for(RelationsHandler handler : handlers) {
-				handler.handle(this.relation);
+			if(!drop(this.relation)) {
+				for(RelationsHandler handler : handlers) {
+						handler.handle(this.relation);
+				}
 			}
 			this.relation = null;
 		}
+	}
+
+	private final boolean drop(Relation rel) {
+		return !this.drop.isEmpty() && this.drop.contains("r" + rel.id);
 	}
 	
 }

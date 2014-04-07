@@ -81,10 +81,13 @@ public class Slicer implements BoundariesHandler,
 		writeDAO = new FileWriteDao(new File(dirPath));
 	}
 	
-	public void run(String poiCatalogPath, List<String> types, List<String> exclude) {
+	public void run(String poiCatalogPath, List<String> types, List<String> exclude, List<String> dropList) {
+		
 		long start = new Date().getTime(); 
 		
 		log.info("Slice {}", types);
+		
+		HashSet<String> drop = new HashSet<String>(dropList);
 		
 		List<Builder> builders = new ArrayList<>();
 		
@@ -112,7 +115,7 @@ public class Slicer implements BoundariesHandler,
 		
 		
 		Builder[] buildersArray = builders.toArray(new Builder[builders.size()]);
-		new Engine().filter(osmSlicesPath, buildersArray);
+		new Engine().filter(drop, osmSlicesPath, buildersArray);
 		
 		writeDAO.close();
 		log.info("Slice done in {}", DurationFormatUtils.formatDurationHMS(new Date().getTime() - start));

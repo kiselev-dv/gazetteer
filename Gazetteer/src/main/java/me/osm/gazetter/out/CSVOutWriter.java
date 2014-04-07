@@ -225,7 +225,22 @@ public class CSVOutWriter implements LineHandler {
 					}
 				}
 			}
-			else if(FeatureTypes.PLACE_POINT_FTYPE.equals(ftype) || FeatureTypes.HIGHWAY_FEATURE_TYPE.equals(ftype)) {
+			else if(FeatureTypes.HIGHWAY_FEATURE_TYPE.equals(ftype)) {
+				JSONArray boundaries = jsonObject.optJSONArray("boundaries");
+				if(boundaries != null) {
+					for(int i = 0; i < boundaries.length(); i++) {
+						JSONObject bs = boundaries.getJSONObject(i);
+						Map<String, JSONObject> mapLevels = mapLevels(bs);
+						List<Object> row = new ArrayList<>();
+						
+						for (List<String> column : columns) {
+							row.add(getColumn(jsonObject, mapLevels, bs, column));
+						}
+						writeNext(row, ftype);
+					}
+				}
+			}
+			else if(FeatureTypes.PLACE_POINT_FTYPE.equals(ftype)) {
 				JSONObject boundaries = jsonObject.optJSONObject("boundaries");
 				if(boundaries != null) {
 					Map<String, JSONObject> mapLevels = mapLevels(boundaries);

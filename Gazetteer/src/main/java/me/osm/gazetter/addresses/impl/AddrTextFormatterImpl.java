@@ -6,10 +6,11 @@ import java.util.List;
 
 import me.osm.gazetter.addresses.AddrTextFormatter;
 
+import org.apache.commons.lang3.StringUtils;
 import org.json.JSONObject;
 
 public class AddrTextFormatterImpl implements AddrTextFormatter {
-
+	
 	@Override
 	public String joinNames(List<JSONObject> addrJsonRow, JSONObject properties) {
 		return simpleJoin(addrJsonRow);
@@ -21,10 +22,12 @@ public class AddrTextFormatterImpl implements AddrTextFormatter {
 	}
 
 	private String simpleJoin(List<JSONObject> addrJsonRow) {
-		StringBuilder sb = new StringBuilder();
 		
+		StringBuilder sb = new StringBuilder();
 		for(JSONObject lvl : addrJsonRow) {
-			sb.append(", ").append(lvl.getString(ADDR_NAME));
+			if(StringUtils.isNotBlank(lvl.getString(ADDR_NAME))) {
+				sb.append(", ").append(lvl.getString(ADDR_NAME));
+			}
 		}
 		
 		if(sb.length() > 2) {

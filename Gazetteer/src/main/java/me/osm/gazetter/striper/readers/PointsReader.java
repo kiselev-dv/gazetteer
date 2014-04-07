@@ -2,6 +2,7 @@ package me.osm.gazetter.striper.readers;
 
 import java.io.InputStream;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 
 import javax.xml.parsers.SAXParser;
@@ -14,6 +15,7 @@ import org.xml.sax.helpers.DefaultHandler;
 public class PointsReader extends DefaultHandler {
 
 	private PointsHandler[] handlers;
+	private HashSet<String> drop;
 	
 	public static class Node {
 		public long id;
@@ -28,12 +30,8 @@ public class PointsReader extends DefaultHandler {
 		
 	}
 	
-	public PointsReader(){
-		
-	}
-	
-	public PointsReader(PointsHandler... handlers) {
-		this.handlers = handlers;
+	public PointsReader(HashSet<String> drop) {
+		this.drop = drop;
 	}
 	
 	private Node node = null;
@@ -70,11 +68,17 @@ public class PointsReader extends DefaultHandler {
 	public void endElement(String uri, String localName, String qName)
 			throws SAXException {
 		if(qName.equals("node")) {
-			for(PointsHandler handler : handlers) {
-				handler.handle(this.node);
+			if(!drop(this.node)) {
+				for(PointsHandler handler : handlers) {
+					handler.handle(this.node);
+				}
 			}
 			this.node = null;
 		}
+	}
+	
+	private final boolean drop(Node n) {
+		return !this.drop.isEmpty() && this.drop.contains("n" + n.id);
 	}
 	
 }

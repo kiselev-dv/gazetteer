@@ -1,6 +1,6 @@
 package me.osm.gazetter.test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 import me.osm.gazetter.striper.builders.BBOX;
 import me.osm.gazetter.striper.builders.PlaceBuilder;
 

@@ -16,4 +16,6 @@ public interface AddressesParser {
 
 	public abstract JSONObject boundariesAsArray(List<JSONObject> input);
 
+	public abstract String getAddrLevel(JSONObject obj);
+
 }

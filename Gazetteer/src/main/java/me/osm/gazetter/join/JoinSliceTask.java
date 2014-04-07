@@ -15,9 +15,14 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import me.osm.gazetter.Options;
+import me.osm.gazetter.addresses.AddrLevelsComparator;
+import me.osm.gazetter.addresses.AddrLevelsSorting;
 import me.osm.gazetter.addresses.AddressesParser;
 import me.osm.gazetter.addresses.AddressesUtils;
 import me.osm.gazetter.addresses.NamesMatcher;
+import me.osm.gazetter.addresses.sorters.CityStreetHNComparator;
+import me.osm.gazetter.addresses.sorters.HNStreetCityComparator;
+import me.osm.gazetter.addresses.sorters.StreetHNCityComparator;
 import me.osm.gazetter.join.PoiAddrJoinBuilder.BestFitAddresses;
 import me.osm.gazetter.striper.FeatureTypes;
 import me.osm.gazetter.striper.GeoJsonWriter;
@@ -37,6 +42,7 @@ import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.MultiPolygon;
+import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
 import com.vividsolutions.jts.index.quadtree.Quadtree;
 import com.vividsolutions.jts.operation.buffer.BufferOp;
@@ -75,18 +81,35 @@ public class JoinSliceTask implements Runnable {
 	private final PoiAddrJoinBuilder poiAddrJoinBuilder = new PoiAddrJoinBuilder();
 	private final AddressesParser addressesParser = Options.get().getAddressesParser();
 	private final NamesMatcher namesMatcher = Options.get().getNamesMatcher();
+	private final AddrLevelsComparator addrLevelComparator;
+	
 	
 	private static final GeometryFactory factory = new GeometryFactory();
 		
 	private AtomicInteger stripesCounter;
+
+	private Set<String> necesaryBoundaries;
+
 	
-	public JoinSliceTask(AddrJointHandler handler, File src, List<JSONObject> common, Joiner joiner) {
+	public JoinSliceTask(AddrJointHandler handler, File src, List<JSONObject> common, Set<String> filter, Joiner joiner) {
 		this.src = src;
 		this.handler = handler;
 		this.common = common;
+		this.necesaryBoundaries = filter;
 		
 		if(log.isTraceEnabled()) {
 			this.stripesCounter = joiner.getStripesCounter();
+		}
+		
+		AddrLevelsSorting sorting = Options.get().getSorting();
+		if(AddrLevelsSorting.HN_STREET_CITY == sorting) {
+			addrLevelComparator = new HNStreetCityComparator();
+		}
+		else if (AddrLevelsSorting.CITY_STREET_HN == sorting) {
+			addrLevelComparator = new CityStreetHNComparator();
+		}
+		else {
+			addrLevelComparator = new StreetHNCityComparator();
 		}
 	}
 	
@@ -105,7 +128,7 @@ public class JoinSliceTask implements Runnable {
 	private Map<JSONObject, List<JSONObject>> addr2bndries; 
 	private Map<JSONObject, List<JSONObject>> place2bndries; 
 
-	private Map<JSONObject, Set<JSONObject>> street2bndries; 
+	private Map<JSONObject, List<List<JSONObject>>> street2bndries; 
 	
 	private Map<JSONObject, JSONObject> addr2PlaceVoronoy; 
 	private Map<JSONObject, JSONObject> addr2NeighbourVoronoy ; 
@@ -181,7 +204,7 @@ public class JoinSliceTask implements Runnable {
 	private void initializeMaps() {
 		addr2streets = new HashMap<JSONObject, List<JSONObject>>(addrPoints.size()); 
 		addr2bndries = new HashMap<JSONObject, List<JSONObject>>(addrPoints.size()); 
-		street2bndries = new HashMap<JSONObject, Set<JSONObject>>(streets.size()); 
+		street2bndries = new HashMap<JSONObject, List<List<JSONObject>>> (streets.size()); 
 		place2bndries = new HashMap<JSONObject, List<JSONObject>>(places.size()); 
 		poi2bndries = new HashMap<JSONObject, List<JSONObject>>(pois.size()); 
 		addr2PlaceVoronoy = new HashMap<>(addrPoints.size()); 
@@ -257,13 +280,26 @@ public class JoinSliceTask implements Runnable {
 	
 	private void join() {
 		
+		Collections.sort(boundaries, new Comparator<JSONObject>() {
+
+			@Override
+			public int compare(JSONObject b1, JSONObject b2) {
+				int lvl1 = getBlevel(b1);
+
+				int lvl2 = getBlevel(b2);
+				
+				return Integer.compare(lvl1, lvl2);
+			}
+			
+		});
+		
 		for(JSONObject boundary : boundaries) {
 			Polygon polygon = GeoJsonWriter.getPolygonGeometry(boundary);
 			
 			many2ManyJoin(boundary, polygon, addr2bndries, addrPointsIndex);
 			many2ManyJoin(boundary, polygon, place2bndries, placesPointsIndex);
 			many2ManyJoin(boundary, polygon, poi2bndries, poisIndex);
-			many2ManyHashJoin(boundary, polygon, street2bndries, streetsPointsIndex);
+			highwaysJoin(boundary, polygon, street2bndries, streetsPointsIndex);
 			
 		}
 		
@@ -284,20 +320,33 @@ public class JoinSliceTask implements Runnable {
 		
 		for(Entry<JSONObject, List<JSONObject>> entry : addr2bndries.entrySet()) {
 			List<JSONObject> boundaries = entry.getValue();
-			boundaries.addAll(common);
+			if(necesaryBoundaries.isEmpty() || checkNecesaryBoundaries(boundaries)) {
+				boundaries.addAll(common);
+				
+				String assStreetAddrKey = StringUtils.split(entry.getKey().getString("id"), '-')[2];
+				
+				addrPoints.add(handler.handle(
+						entry.getKey(), 
+						boundaries, 
+						addr2streets.get(entry.getKey()),
+						addr2PlaceVoronoy.get(entry.getKey()), 
+						addr2NeighbourVoronoy.get(entry.getKey()), 
+						addrPnt2AsStreet.get(assStreetAddrKey)));
+			}
 			
-			String assStreetAddrKey = StringUtils.split(entry.getKey().getString("id"), '-')[2];
-			
-			addrPoints.add(handler.handle(
-					entry.getKey(), 
-					boundaries, 
-					addr2streets.get(entry.getKey()),
-					addr2PlaceVoronoy.get(entry.getKey()), 
-					addr2NeighbourVoronoy.get(entry.getKey()), 
-					addrPnt2AsStreet.get(assStreetAddrKey)));
 		}
 		
 		joinPoi2Addresses();
+	}
+
+	private boolean checkNecesaryBoundaries(List<JSONObject> joinedBoundaries) {
+		for(JSONObject b : joinedBoundaries) {
+			String osmId = StringUtils.split(b.getString("id"), '-')[2];
+			if(necesaryBoundaries.contains(osmId)) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	private void fillAddr2AsStreet() {
@@ -316,6 +365,7 @@ public class JoinSliceTask implements Runnable {
 			LineString ls = GeoJsonWriter.getLineStringGeometry(
 					strtJSON.getJSONObject("geometry").getJSONArray("coordinates"));
 			
+			@SuppressWarnings("deprecation")
 			Geometry buffer = ls.buffer(STREET_BUFFER_DISTANCE, 2, BufferOp.CAP_ROUND);
 			if(buffer instanceof Polygon) {
 				many2ManyJoin(strtJSON, (Polygon) buffer, addr2streets, addrPointsIndex);
@@ -339,6 +389,8 @@ public class JoinSliceTask implements Runnable {
 			
 			Coordinate p1 = new Coordinate(lon - POI_BUFFER_DISTANCE, lat - POI_BUFFER_DISTANCE);
 			Coordinate p2 = new Coordinate(lon + POI_BUFFER_DISTANCE / 4, lat + POI_BUFFER_DISTANCE);
+			
+			@SuppressWarnings("unchecked")
 			List<JSONObject> addrPnts = addrPointsIndex.query(new Envelope(p1, p2));
 			
 			if(addrPnts != null && !addrPnts.isEmpty()) {
@@ -389,9 +441,11 @@ public class JoinSliceTask implements Runnable {
 
 		for(Entry<JSONObject, List<JSONObject>> entry : poi2bndries.entrySet()) {
 			List<JSONObject> boundaries = entry.getValue();
-			boundaries.addAll(common);
-			
-			entry.getKey().put("boundaries", addressesParser.boundariesAsArray(boundaries));
+			if(necesaryBoundaries.isEmpty() || checkNecesaryBoundaries(boundaries)) {
+				boundaries.addAll(common);
+				
+				entry.getKey().put("boundaries", addressesParser.boundariesAsArray(boundaries));
+			}
 		}
 		
 		PrintWriter printWriter = null;
@@ -411,23 +465,33 @@ public class JoinSliceTask implements Runnable {
 				printWriter.println(geoJSONString);
 			}
 			
-			for(Entry<JSONObject, Set<JSONObject>> entry : street2bndries.entrySet()) {
-				List<JSONObject> boundaries = new ArrayList<>(entry.getValue());
-				boundaries.addAll(common);
-				JSONObject street = entry.getKey();
-				//TODO split in case of two or more parts with same lvl
-				street.put("boundaries", addressesParser.boundariesAsArray(boundaries));
-				GeoJsonWriter.addTimestamp(street);
+			for(Entry<JSONObject, List<List<JSONObject>>> entry : street2bndries.entrySet()) {
 				
-				String geoJSONString = new JSONFeature(street).toString();
+				List<List<JSONObject>> boundaries = new ArrayList<>(entry.getValue());
 				
-				assert GeoJsonWriter.getId(geoJSONString).equals(street.optString("id")) 
+				JSONArray bndriesJSON = new JSONArray();
+				for(List<JSONObject> b : boundaries) {
+					if(necesaryBoundaries.isEmpty() || checkNecesaryBoundaries(b)) {
+						b.addAll(common);
+						bndriesJSON.put(addressesParser.boundariesAsArray(b));
+					}
+				}
+				
+				if(bndriesJSON.length() > 0) {
+					JSONObject street = entry.getKey();
+					street.put("boundaries", bndriesJSON);
+					GeoJsonWriter.addTimestamp(street);
+					
+					String geoJSONString = new JSONFeature(street).toString();
+					assert GeoJsonWriter.getId(geoJSONString).equals(street.optString("id")) 
 					: "Failed getId for " + geoJSONString;
-
-				assert GeoJsonWriter.getFtype(geoJSONString).equals(FeatureTypes.HIGHWAY_FEATURE_TYPE) 
+					
+					assert GeoJsonWriter.getFtype(geoJSONString).equals(FeatureTypes.HIGHWAY_FEATURE_TYPE) 
 					: "Failed getFtype for " + geoJSONString;
-				
-				printWriter.println(geoJSONString);
+					
+					printWriter.println(geoJSONString);
+				}
+					
 			}
 			
 			for(JSONObject jun : junctions) {
@@ -437,22 +501,24 @@ public class JoinSliceTask implements Runnable {
 			
 			for(Entry<JSONObject, List<JSONObject>> entry : place2bndries.entrySet()) {
 				List<JSONObject> boundaries = new ArrayList<>(entry.getValue());
-				boundaries.addAll(common);
-				JSONObject place = entry.getKey();
-				
-				String name = place.getJSONObject(GeoJsonWriter.PROPERTIES).optString("name");
-				for(JSONObject b : boundaries) {
-					if(namesMatcher.isPlaceNameMatch(name, AddressesUtils.filterNameTags(b))) {
-						place.put("matchedBoundary", b);
-						break;
+				if(necesaryBoundaries.isEmpty() || checkNecesaryBoundaries(boundaries)) {
+					boundaries.addAll(common);
+					JSONObject place = entry.getKey();
+					
+					String name = place.getJSONObject(GeoJsonWriter.PROPERTIES).optString("name");
+					for(JSONObject b : boundaries) {
+						if(namesMatcher.isPlaceNameMatch(name, AddressesUtils.filterNameTags(b))) {
+							place.put("matchedBoundary", b);
+							break;
+						}
 					}
+	
+					place.put("boundaries", addressesParser.boundariesAsArray(boundaries));
+					GeoJsonWriter.addTimestamp(place);
+					
+					String geoJSONString = new JSONFeature(place).toString();
+					printWriter.println(geoJSONString);
 				}
-
-				place.put("boundaries", addressesParser.boundariesAsArray(boundaries));
-				GeoJsonWriter.addTimestamp(place);
-				
-				String geoJSONString = new JSONFeature(place).toString();
-				printWriter.println(geoJSONString);
 			}
 			
 			for(JSONObject poi : pois) {
@@ -519,21 +585,87 @@ public class JoinSliceTask implements Runnable {
 		}
 	}
 
-	private void many2ManyHashJoin(JSONObject object, Polygon polyg, Map<JSONObject, Set<JSONObject>> result, Quadtree index) {
+	private void highwaysJoin(JSONObject newBoundary, Polygon polyg, Map<JSONObject, List<List<JSONObject>>> result, Quadtree index) {
 		Envelope polygonEnvelop = polyg.getEnvelopeInternal();
 		for (Object entry : index.query(polygonEnvelop)) {
 			
 			Coordinate pnt = (Coordinate) ((Object[])entry)[0];
-			JSONObject obj = (JSONObject) ((Object[])entry)[1];
+			JSONObject highway = (JSONObject) ((Object[])entry)[1];
+			
+			int bLevel = getBlevel(newBoundary);
 			
 			if(polyg.intersects(factory.createPoint(pnt))) {
-				if(result.get(obj) == null) {
-					result.put(obj, new HashSet<JSONObject>());
+				if(result.get(highway) == null) {
+					result.put(highway, new ArrayList<List<JSONObject>>());
 				}
 				
-				result.get(obj).add(object);
+				List<List<JSONObject>> listList = result.get(highway);
+				
+				//start new boundaries row
+				if(listList.size() == 0) {
+					ArrayList<JSONObject> boundariesRow = new ArrayList<JSONObject>();
+					listList.add(boundariesRow);
+				}
+				
+				//1 row (as usual)
+				else if(listList.size() == 1) {
+					List<JSONObject> row = listList.get(0);
+					JSONObject last = row.get(row.size() - 1);
+					int oldBLevel = getBlevel(last);
+					
+					//we have two or more boundaries with same level
+					//so we need to split addr row
+					if(oldBLevel > 0 && oldBLevel == bLevel) {
+						List<JSONObject> newRow = new ArrayList<>(row);
+						newRow.remove(newRow.size() - 1);
+						newRow.add(newBoundary);
+						listList.add(newRow);
+					}
+					else {
+						row.add(newBoundary);
+					}
+				}
+				
+				//already splitted up
+				else {
+					//find our
+					for (List<JSONObject> row : listList) {
+						JSONObject last = row.get(row.size() - 1);
+						int oldBLevel = getBlevel(last);
+						
+						//add to new row
+						if(oldBLevel > 0 && oldBLevel == bLevel) {
+							List<JSONObject> newRow = new ArrayList<>(row);
+							newRow.remove(newRow.size() - 1);
+							newRow.add(newBoundary);
+							listList.add(newRow);
+							break;
+						}
+						
+						//add to exists row (with coordinates check)
+						else {
+							JSONArray coords = last.getJSONObject(GeoJsonWriter.GEOMETRY)
+									.getJSONArray(GeoJsonWriter.COORDINATES);
+							
+							Point centroid = GeoJsonWriter.getPolygonGeometry(coords).getCentroid();
+							
+							if(polyg.contains(centroid)) {
+								row.add(newBoundary);
+							}
+						}
+					}
+				}
 			}
 		}
+	}
+
+	private int getBlevel(JSONObject newBoundary) {
+		int bLevel = 0;
+		String addrLevel = addressesParser.getAddrLevel(newBoundary);
+		if(addrLevel != null) {
+			bLevel = addrLevelComparator.getLVLSize(addrLevel);
+		}
+		return bLevel;
 	}
 
 	@SuppressWarnings("unchecked")

@@ -6,6 +6,7 @@ import java.io.FilenameFilter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -25,6 +26,12 @@ public class Joiner {
 	private static final Logger log = LoggerFactory.getLogger(Joiner.class.getName());
 	
 	private AtomicInteger stripesCounter;
+	
+	private Set<String> filter;
+	
+	public Joiner(Set<String> filter) {
+		this.filter = filter;
+	}
 	
 	public static class StripeFilenameFilter implements FilenameFilter {
 		
@@ -50,7 +57,7 @@ public class Joiner {
 		File[] stripesFiles = folder.listFiles(STRIPE_FILE_FN_FILTER);
 		stripesCounter = new AtomicInteger(stripesFiles.length); 
 		for(File stripeF : stripesFiles) {
-			executorService.execute(new JoinSliceTask(addrPointFormatter, stripeF, common, this));
+			executorService.execute(new JoinSliceTask(addrPointFormatter, stripeF, common, filter, this));
 		}
 		
 		executorService.shutdown();

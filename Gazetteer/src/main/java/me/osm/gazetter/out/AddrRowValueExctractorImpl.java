@@ -45,7 +45,8 @@ public class AddrRowValueExctractorImpl implements AddrRowValueExtractor {
 	private static final String HOUSENUMBER = "hn";
 	private static final String LETTER = "letter";
 	private static final String POSTCODE = "postcode";
-	private static final String ADDR_FULL_TEXT = "addr-full-text";
+	private static final String ADDR_TEXT = "addr-text";
+	private static final String ADDR_LONG_TEXT = "addr-long-text";
 
 	@Override
 	public String getValue(String key, JSONObject jsonObject, Map<String, JSONObject> levels, JSONObject addrRow) {
@@ -56,8 +57,12 @@ public class AddrRowValueExctractorImpl implements AddrRowValueExtractor {
 		
 		try {
 			
-			if(ADDR_FULL_TEXT.equals(key)) {
+			if(ADDR_TEXT.equals(key)) {
 				return addrRow.optString("text");
+			}
+
+			if(ADDR_LONG_TEXT.equals(key)) {
+				return addrRow.optString("longText");
 			}
 			
 			if(key.endsWith(".id")) {
@@ -90,7 +95,7 @@ public class AddrRowValueExctractorImpl implements AddrRowValueExtractor {
 			BOUNDARY_8, BOUNDARY_8_ID, BOUNDARY_6, BOUNDARY_6_ID, 
 			BOUNDARY_5, BOUNDARY_5_ID, BOUNDARY_4, BOUNDARY_4_ID,
 			BOUNDARY_3, BOUNDARY_3_ID, BOUNDARY_2, BOUNDARY_2_ID,
-			ADDR_FULL_TEXT);
+			ADDR_TEXT, ADDR_LONG_TEXT);
 	}
 
 }

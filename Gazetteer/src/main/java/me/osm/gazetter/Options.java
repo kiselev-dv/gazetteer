@@ -3,6 +3,7 @@ package me.osm.gazetter;
 import groovy.lang.GroovyClassLoader;
 
 import java.io.File;
+import java.util.Set;
 
 import me.osm.gazetter.addresses.AddrLevelsComparator;
 import me.osm.gazetter.addresses.AddrLevelsSorting;
@@ -46,28 +47,34 @@ public class Options {
 		this.namesMatcher = namesMatcher;
 	}
 
-	public static void initialize(AddrLevelsSorting sorting, String groovyFormatter) {
+	public static void initialize(AddrLevelsSorting sorting, String groovyFormatter, Set<String> skippInFullText) {
 		if(instance != null) {
 			throw new SecondaryOptionsInitializationException();
 		}
 		
-		AddressesParser adrParser = getAddrParser(groovyFormatter, sorting);
+		AddressesParser adrParser = getAddrParser(groovyFormatter, sorting, skippInFullText);
 		
 		instance = new Options(sorting, adrParser, new NamesMatcherImpl());
 	}
 
-	private static AddressesParser getAddrParser(String groovyFormatter, AddrLevelsSorting sorting) {
+	private static AddressesParser getAddrParser(String groovyFormatter, AddrLevelsSorting sorting, Set<String> skippInFullText) {
 		
 		AddressesParser adrParser = null;
 		
 		try {
 			if(!StringUtils.isEmpty(groovyFormatter)) {
 				GroovyClassLoader gcl = new GroovyClassLoader(Options.class.getClassLoader());
-				Class clazz = gcl.parseClass(new File(groovyFormatter));
-				Object aScript = clazz.newInstance();
-				
-				if(aScript instanceof AddressesParser) {
-					adrParser = (AddressesParser) aScript;
+				try
+				{
+					Class<?> clazz = gcl.parseClass(new File(groovyFormatter));
+					Object aScript = clazz.newInstance();
+					
+					if(aScript instanceof AddressesParser) {
+						adrParser = (AddressesParser) aScript;
+					}
+				}
+				finally {
+					gcl.close();
 				}
 			}
 			else {
@@ -86,7 +93,8 @@ public class Options {
 						new AddressesSchemesParserImpl(), 
 						new AddressesLevelsMatcherImpl(addrLevelComparator, new NamesMatcherImpl()), 
 						new AddrTextFormatterImpl(),
-						sorting);
+						sorting,
+						skippInFullText);
 			}
 		}
 		catch (Exception e) {
