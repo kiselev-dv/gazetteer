@@ -81,7 +81,8 @@ public class Slicer implements BoundariesHandler,
 		writeDAO = new FileWriteDao(new File(dirPath));
 	}
 	
-	public void run(String poiCatalogPath, List<String> types, List<String> exclude, List<String> dropList) {
+	public void run(String poiCatalogPath, List<String> types, List<String> exclude, 
+			List<String> named, List<String> dropList) {
 		
 		long start = new Date().getTime(); 
 		
@@ -110,7 +111,7 @@ public class Slicer implements BoundariesHandler,
 		}
 		
 		if(typesSet.contains("all") || typesSet.contains("pois")) {
-			builders.add(new PoisBuilder(this, poiCatalogPath, exclude));
+			builders.add(new PoisBuilder(this, poiCatalogPath, exclude, named));
 		}
 		
 		
