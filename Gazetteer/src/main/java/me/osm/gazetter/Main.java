@@ -32,6 +32,9 @@ import org.slf4j.LoggerFactory;
  * */
 public class Main {
 	
+	private static final String NAMED_POI_BRANCH_OPT = "--excclude-poi-branch";
+	private static final String NAMED_POI_BRANCH_VAL = "excclude_poi_branch";
+
 	private static final String EXCCLUDE_POI_BRANCH_OPT = "--excclude-poi-branch";
 	private static final String EXCCLUDE_POI_BRANCH_VAL = "excclude_poi_branch";
 	
@@ -119,6 +122,7 @@ public class Main {
 						namespace.getString(POI_CATALOG_VAL), 
 						types,
 						list(namespace.getList(EXCCLUDE_POI_BRANCH_VAL)),
+						list(namespace.getList(NAMED_POI_BRANCH_VAL)),
 						list(namespace.getList("drop"))
 				);
 				
@@ -220,6 +224,9 @@ public class Main {
 				.help("Exclude branch of osm-doc features hierarchy. "
 					+ "Eg: osm-ru:transport where osm-ru is a name of the hierarchy, "
 					+ "and transport is a name of the branch");
+
+			slice.addArgument(NAMED_POI_BRANCH_OPT).nargs("*")
+				.help("Kepp POIS from this banch only if they have name tag");
 			
 			slice.addArgument(FEATURE_TYPES_VAL).help("Parse and slice axact feature(s) type.")
 				.choices(Slicer.sliceTypes).nargs("*").setDefault("all").setConst("all");

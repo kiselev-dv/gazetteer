@@ -7,6 +7,7 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -18,6 +19,7 @@ import me.osm.gazetter.striper.readers.RelationsReader.Relation;
 import me.osm.gazetter.striper.readers.RelationsReader.Relation.RelationMember;
 import me.osm.gazetter.striper.readers.RelationsReader.Relation.RelationMember.ReferenceType;
 import me.osm.gazetter.striper.readers.WaysReader.Way;
+import me.osm.osmdoc.model.Feature;
 import me.osm.osmdoc.read.OSMDocFacade;
 import me.osm.osmdoc.read.TagsDecisionTree;
 
@@ -41,10 +43,19 @@ public class PoisBuilder extends ABuilder {
 	private static final GeometryFactory factory = new GeometryFactory();
 
 	private PoisHandler handler;
+
+	private Set<String> named;
 	
-	public PoisBuilder(PoisHandler handler, String catalogFolder, List<String> exclude) {
+	public PoisBuilder(PoisHandler handler, String catalogFolder, List<String> exclude, List<String> named) {
 		this.handler = handler;
-		this.tagsFilter = new OSMDocFacade(catalogFolder, exclude).getPoiClassificator();
+		OSMDocFacade osmDocFacade = new OSMDocFacade(catalogFolder, exclude);
+		this.tagsFilter = osmDocFacade.getPoiClassificator();
+		
+		this.named = new HashSet<>();
+		for(Feature f : osmDocFacade.getBranches(named)) {
+			this.named.add(f.getName());
+		}
+		
 	}
 	
 	private static final Logger log = LoggerFactory.getLogger(PoisBuilder.class.getName());
@@ -79,7 +90,12 @@ public class PoisBuilder extends ABuilder {
 	}
 
 	private boolean filterByTags(Map<String, String> tags) {
-		return !tagsFilter.getType(tags).isEmpty();
+		Set<String> type = tagsFilter.getType(tags);
+		boolean typeFound = !type.isEmpty();
+		if(typeFound && named.containsAll(type)) {
+			return tags.containsKey("name");
+		}
+		return typeFound;
 	}
 
 	private void buildAddrPoint4Relation(final Relation rel) {
