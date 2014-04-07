@@ -1,3 +1,5 @@
+package me.osm.gazetter.addresses.impl;
+
 import java.util.List;
 import java.util.Set;
 
@@ -9,13 +11,9 @@ import me.osm.gazetter.addresses.AddressesParserFactory;
 import me.osm.gazetter.addresses.AddressesSchemesParser;
 import me.osm.gazetter.addresses.NamesMatcher;
 
-import me.osm.gazetter.addresses.impl.AddressesParserImpl;
-import me.osm.gazetter.addresses.impl.AddressesLevelsMatcherImpl;
+public class AddressesParserFactoryImpl implements AddressesParserFactory {
 
-import org.json.*;
-
-class RuAddressesParserFactory implements AddressesParserFactory {
-
+	@Override
 	public AddressesParser newAddressesParser(
 			AddressesSchemesParser addressesSchemesParser,
 			AddrLevelsComparator addrLevelComparator,
@@ -26,12 +24,11 @@ class RuAddressesParserFactory implements AddressesParserFactory {
 		
 		return new AddressesParserImpl(
 				addressesSchemesParser, 
-				new AddressesLevelsMatcherImpl(addrLevelComparator, 
-					namesMatcherImpl, 
-					["place:hamlet", "place:village", "place:town", "place:city"]),
+				new AddressesLevelsMatcherImpl(addrLevelComparator, namesMatcherImpl, cityBoundaryes),
 				addrTextFormatter, 
 				sorting,
 				skippInFullText);
 	}
-} 
 
+
+}

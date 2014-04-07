@@ -24,6 +24,8 @@ public class StreetHNCityComparator implements AddrLevelsComparator {
 	
 	static {
 		int i = 1;
+		order.put("postcode", i++);
+
 		order.put("street", i++);
 		order.put("hn", i++);
 		order.put("letter", i++);
@@ -47,7 +49,6 @@ public class StreetHNCityComparator implements AddrLevelsComparator {
 		order.put("boundary:3", i++);
 		order.put("boundary:2", i++);
 
-		order.put("postcode", i++);
 	}
 	
 	@Override

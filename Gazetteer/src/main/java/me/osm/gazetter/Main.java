@@ -35,8 +35,8 @@ public class Main {
 	private static final String EXCCLUDE_POI_BRANCH_OPT = "--excclude-poi-branch";
 	private static final String EXCCLUDE_POI_BRANCH_VAL = "excclude_poi_branch";
 	
-	private static final String ADDR_FORMATTER_OPT = "--addr-formatter";
-	private static final String ADDR_FORMATTER_VAL = "addr_formatter";
+	private static final String ADDR_FORMATTER_OPT = "--addr-parser";
+	private static final String ADDR_FORMATTER_VAL = "addr_parser";
 
 	private static final String ADDR_ORDER_OPT = "--addr-order";
 	private static final String ADDR_ORDER_VAL = "addr_order";

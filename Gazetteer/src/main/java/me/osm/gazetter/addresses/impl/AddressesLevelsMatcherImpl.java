@@ -22,15 +22,19 @@ public class AddressesLevelsMatcherImpl implements AddressesLevelsMatcher {
 	private static final Logger log = LoggerFactory.getLogger(AddressesLevelsMatcherImpl.class);
 	
 	public AddressesLevelsMatcherImpl(AddrLevelsComparator lelvelsComparator, 
-			NamesMatcher namesMatcher) {
+			NamesMatcher namesMatcher, List<String> placeBoundaries) {
 		
 		this.lelvelsComparator = lelvelsComparator;
 		this.namesMatcher = namesMatcher;
-	
+		
+		FORSE_ADDR_CITY_MATCH = false;
+		this.placeBoundaries = placeBoundaries;
 	}
 	
 	private AddrLevelsComparator lelvelsComparator;
 	private NamesMatcher namesMatcher;
+	private boolean FORSE_ADDR_CITY_MATCH;
+	private List<String> placeBoundaries;
 	
 	@Override
 	public JSONObject letterAsJSON(JSONObject addrPoint, JSONObject addrRow) {
@@ -176,41 +180,121 @@ public class AddressesLevelsMatcherImpl implements AddressesLevelsMatcher {
 		
 	}
 	
+	private static class Cortage {
+		public String name;
+		public JSONObject obj;
+	}
+	
 	@Override
 	public JSONObject cityAsJSON(JSONObject addrPoint, JSONObject addrRow,
-			Map<String, JSONObject> level2Boundary, JSONObject nearestPlace) {
+			Map<String, JSONObject> level2Boundary, JSONObject nearestPlace, 
+			String nearestPlaceLvl) {
+		
+		String tagCityName = null;
+		String name = null;
+		String lvl = null;
 		
 		if(addrRow.has("addr:city")) {
-			JSONObject cityJSON = new JSONObject();
-			String name = addrRow.getString("addr:city");
-			cityJSON.put(ADDR_NAME, name);
+			tagCityName = addrRow.getString("addr:city");
+			name = tagCityName; 
+			lvl = "place:city";
+		}
+			
+		JSONObject obj = null;
+		
+		//Search for boundary
+		for(String addrKey : placeBoundaries)
+		{
+			JSONObject hamlet = level2Boundary.get(addrKey);
+			Cortage cortage = checkPlace(tagCityName, hamlet);
+			if(cortage != null) {
+				obj = cortage.obj;
+				lvl = addrKey;
+				name = cortage.name;
+				break;
+			}
+		}
+		
+		//Didn't found in boundaries - check nearest
+		//but only if we have addr:city tag
+		if(obj == null && tagCityName != null && nearestPlace != null) {
+			
+			Map<String, String> nearestPlaceTags = AddressesUtils.filterNameTags(nearestPlace);
+			
+			if(lelvelsComparator.supports(nearestPlaceLvl) && 
+					namesMatcher.isPlaceNameMatch(tagCityName, nearestPlaceTags)) {
+				
+				obj = nearestPlace;
+				lvl = nearestPlaceLvl;
+				name = nearestPlaceTags.get("name");
+				if(name == null) {
+					name  = tagCityName;
+				}
+			}
+		}
+		
+		if(obj == null && tagCityName == null) {
+			return null;
+		}
+		
+		//at least we have addr:city tag
+		JSONObject cityJSON = new JSONObject();
+		if(tagCityName != null) {
+			cityJSON.put(ADDR_NAME, tagCityName);
 			cityJSON.put(ADDR_LVL, "place:city");
 			cityJSON.put(ADDR_LVL_SIZE, lelvelsComparator.getLVLSize("place:city"));
+		}
+
+		//override min values by obj 
+		if(obj != null) {
+			cityJSON.put(ADDR_NAME, name);
+			cityJSON.put(ADDR_LVL, lvl);
+			cityJSON.put("lnk", obj.getString("id"));
+			cityJSON.put(ADDR_NAMES, AddressesUtils.filterNameTags(obj));
+			cityJSON.put(ADDR_LVL_SIZE, lelvelsComparator.getLVLSize(lvl));
+		}
+		
+		if(cityJSON.optString("name", null) == null) {
+			return null;
+		}
+		
+		return cityJSON;
+	}
+
+	private Cortage checkPlace(String tagCityName, JSONObject place) {
+		
+		if(place != null) {
+			Map<String, String> hamletNameTags = AddressesUtils.filterNameTags(place);
 			
-			JSONObject obj = null;
-			
-			if(obj == null) {
-				obj = level2Boundary.get("place:hamlet");
-			}
-			
-			if(obj == null || !namesMatcher.isPlaceNameMatch(name, AddressesUtils.filterNameTags(obj))) {
-				obj = level2Boundary.get("place:village");
+			if(tagCityName != null && FORSE_ADDR_CITY_MATCH) {
+				if(namesMatcher.isPlaceNameMatch(tagCityName, hamletNameTags)) {
+					Cortage r = new Cortage();
+					
+					r.obj = place;
+					r.name = hamletNameTags.get("name");
+					
+					if(r.name == null) {
+						r.name = tagCityName;
+					}
+					
+					return r;
+				}
+				
+				// with FORSE_ADDR_CITY_MATCH we should keep looking 
+				// until matches place will be founded
+				
+				return null;
 			}
 
-			if(obj == null || !namesMatcher.isPlaceNameMatch(name, AddressesUtils.filterNameTags(obj))) {
-				obj = level2Boundary.get("place:town");
-			}
-
-			if(obj == null || !namesMatcher.isPlaceNameMatch(name, AddressesUtils.filterNameTags(obj))) {
-				obj = level2Boundary.get("place:city");
-			}
-
-			if(obj != null) {
-				cityJSON.put("lnk", obj.getString("id"));
-				cityJSON.put(ADDR_NAMES, AddressesUtils.filterNameTags(obj));
+			Cortage r = new Cortage();
+			r.obj = place;
+			r.name = hamletNameTags.get("name");
+			
+			if(r.name == null) {
+				r.name = tagCityName;
 			}
 			
-			return cityJSON;
+			return r;
 		}
 		
 		return null;

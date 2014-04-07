@@ -604,6 +604,7 @@ public class JoinSliceTask implements Runnable {
 				//start new boundaries row
 				if(listList.size() == 0) {
 					ArrayList<JSONObject> boundariesRow = new ArrayList<JSONObject>();
+					boundariesRow.add(newBoundary);
 					listList.add(boundariesRow);
 				}
 				

@@ -6,6 +6,7 @@ import static me.osm.gazetter.addresses.AddressesLevelsMatcher.ADDR_NAME;
 import static me.osm.gazetter.addresses.AddressesLevelsMatcher.ADDR_NAMES;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -39,6 +40,7 @@ public class AddressesParserImpl implements AddressesParser {
 	private AddrLevelsComparator addrLevelComparator;
 	
 	private Set<String> skipInFullText;
+	private List<String> cityBoundaries;
 
 	public AddressesParserImpl(AddressesSchemesParser schemesParser, 
 			AddressesLevelsMatcher levelsMatcher, AddrTextFormatter textFormatter,
@@ -59,13 +61,22 @@ public class AddressesParserImpl implements AddressesParser {
 		}
 		
 		this.skipInFullText = skipInFullText;
-		
+
+		this.cityBoundaries = 
+				Arrays.asList("place:hamlet", "place:village", "place:town", "place:city", "boundary:8");
 	}
 	
 	public AddressesParserImpl() {
+		
+		this.cityBoundaries = 
+				Arrays.asList("place:hamlet", "place:village", "place:town", "place:city", "boundary:8");
+		
 		addrLevelComparator = new HNStreetCityComparator();
 		schemesParser = new AddressesSchemesParserImpl();
-		levelsMatcher = new AddressesLevelsMatcherImpl(addrLevelComparator, new NamesMatcherImpl());
+		levelsMatcher = new AddressesLevelsMatcherImpl(
+				addrLevelComparator, 
+				new NamesMatcherImpl(),
+				this.cityBoundaries);
 		textFormatter = new AddrTextFormatterImpl();
 		skipInFullText = new HashSet<>();
 	}
@@ -127,7 +138,9 @@ public class AddressesParserImpl implements AddressesParser {
 				}
 			}
 
-			JSONObject cityJSON = levelsMatcher.cityAsJSON(addrPoint, addrRow, level2Boundary, nearestPlace);
+			JSONObject cityJSON = levelsMatcher.cityAsJSON(addrPoint, addrRow, level2Boundary, 
+					nearestPlace, getAddrLevel(nearestPlace));
+			
 			if(cityJSON != null) {
 				addrJsonRow.add(cityJSON);
 				String bndryLNK = cityJSON.optString("lnk");
@@ -204,8 +217,6 @@ public class AddressesParserImpl implements AddressesParser {
 			
 		});
 		
-		
-		
 		JSONObject prevAddrLvl = null;
 		Iterator<JSONObject> iterator = list.iterator();
 		while(iterator.hasNext()) {
@@ -256,20 +267,23 @@ public class AddressesParserImpl implements AddressesParser {
 	@Override
 	public String getAddrLevel(JSONObject obj) {
 		
-		JSONObject properties = obj.optJSONObject("properties");
-		
-		if(properties == null) {
-			properties = obj;
-		}
-		
-		String pk = "place:" + properties.optString("place");
-		if(addrLevelComparator.supports(pk)) {
-			return pk;
-		}
-
-		String bk = "boundary:" + properties.optString("admin_level").trim();
-		if(addrLevelComparator.supports(bk)) {
-			return bk;
+		if(obj != null) {
+			
+			JSONObject properties = obj.optJSONObject("properties");
+			
+			if(properties == null) {
+				properties = obj;
+			}
+			
+			String pk = "place:" + properties.optString("place");
+			if(addrLevelComparator.supports(pk)) {
+				return pk;
+			}
+			
+			String bk = "boundary:" + properties.optString("admin_level").trim();
+			if(addrLevelComparator.supports(bk)) {
+				return bk;
+			}
 		}
 		
 		return null;

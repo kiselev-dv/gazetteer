@@ -26,7 +26,7 @@ public interface AddressesLevelsMatcher {
 	public JSONObject letterAsJSON(JSONObject addrPoint, JSONObject addrRow);
 
 	public JSONObject cityAsJSON(JSONObject addrPoint, JSONObject addrRow,
-			Map<String, JSONObject> level2Boundary, JSONObject nearestPlace);
+			Map<String, JSONObject> level2Boundary, JSONObject nearestPlace, String string);
 
 	public JSONObject postCodeAsJSON(JSONObject addrPoint, JSONObject addrRow);
 

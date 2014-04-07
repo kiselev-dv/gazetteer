@@ -3,14 +3,17 @@ package me.osm.gazetter;
 import groovy.lang.GroovyClassLoader;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.Set;
 
 import me.osm.gazetter.addresses.AddrLevelsComparator;
 import me.osm.gazetter.addresses.AddrLevelsSorting;
 import me.osm.gazetter.addresses.AddressesParser;
+import me.osm.gazetter.addresses.AddressesParserFactory;
 import me.osm.gazetter.addresses.NamesMatcher;
 import me.osm.gazetter.addresses.impl.AddrTextFormatterImpl;
 import me.osm.gazetter.addresses.impl.AddressesLevelsMatcherImpl;
+import me.osm.gazetter.addresses.impl.AddressesParserFactoryImpl;
 import me.osm.gazetter.addresses.impl.AddressesParserImpl;
 import me.osm.gazetter.addresses.impl.AddressesSchemesParserImpl;
 import me.osm.gazetter.addresses.impl.NamesMatcherImpl;
@@ -62,6 +65,18 @@ public class Options {
 		AddressesParser adrParser = null;
 		
 		try {
+			
+			AddrLevelsComparator addrLevelComparator;
+			if(AddrLevelsSorting.HN_STREET_CITY == sorting) {
+				addrLevelComparator = new HNStreetCityComparator();
+			}
+			else if (AddrLevelsSorting.CITY_STREET_HN == sorting) {
+				addrLevelComparator = new CityStreetHNComparator();
+			}
+			else {
+				addrLevelComparator = new StreetHNCityComparator();
+			}
+
 			if(!StringUtils.isEmpty(groovyFormatter)) {
 				GroovyClassLoader gcl = new GroovyClassLoader(Options.class.getClassLoader());
 				try
@@ -69,7 +84,20 @@ public class Options {
 					Class<?> clazz = gcl.parseClass(new File(groovyFormatter));
 					Object aScript = clazz.newInstance();
 					
-					if(aScript instanceof AddressesParser) {
+					if(aScript instanceof AddressesParserFactory) {
+						
+						AddressesParserFactory factory = (AddressesParserFactory) aScript;
+						
+						adrParser = factory.newAddressesParser(
+								new AddressesSchemesParserImpl(),
+								addrLevelComparator, 
+								new NamesMatcherImpl(),
+								Arrays.asList("place:hamlet", "place:village", "place:town", "place:city", "boundary:8"), 
+								new AddrTextFormatterImpl(), 
+								sorting, 
+								skippInFullText);
+					}
+					else if(aScript instanceof AddressesParser) {
 						adrParser = (AddressesParser) aScript;
 					}
 				}
@@ -78,22 +106,16 @@ public class Options {
 				}
 			}
 			else {
-				AddrLevelsComparator addrLevelComparator;
-				if(AddrLevelsSorting.HN_STREET_CITY == sorting) {
-					addrLevelComparator = new HNStreetCityComparator();
-				}
-				else if (AddrLevelsSorting.CITY_STREET_HN == sorting) {
-					addrLevelComparator = new CityStreetHNComparator();
-				}
-				else {
-					addrLevelComparator = new StreetHNCityComparator();
-				}
+			
+				AddressesParserFactory defFactory = new AddressesParserFactoryImpl();
 				
-				adrParser = new AddressesParserImpl(
-						new AddressesSchemesParserImpl(), 
-						new AddressesLevelsMatcherImpl(addrLevelComparator, new NamesMatcherImpl()), 
-						new AddrTextFormatterImpl(),
-						sorting,
+				adrParser = defFactory.newAddressesParser(
+						new AddressesSchemesParserImpl(),
+						addrLevelComparator, 
+						new NamesMatcherImpl(),
+						Arrays.asList("place:hamlet", "place:village", "place:town", "place:city", "boundary:8"), 
+						new AddrTextFormatterImpl(), 
+						sorting, 
 						skippInFullText);
 			}
 		}
