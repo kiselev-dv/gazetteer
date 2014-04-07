@@ -300,11 +300,14 @@ public class AddressesParserImpl implements AddressesParser {
 				result.add(addrLVL);
 			}
 		}
+		
+		List<JSONObject> forFullText = filterForFullText(result, addrLevelComparator);
 
 		JSONObject fullAddressRow = new JSONObject();
 		Collections.sort(result, addrLevelComparator);
 		
-		fullAddressRow.put(ADDR_TEXT,  textFormatter.joinBoundariesNames(result));
+		fullAddressRow.put(ADDR_TEXT,  textFormatter.joinBoundariesNames(forFullText));
+		fullAddressRow.put(ADDR_TEXT_LONG,  textFormatter.joinBoundariesNames(result));
 		fullAddressRow.put(ADDR_PARTS, new JSONArray(result));
 		
 		return fullAddressRow;
