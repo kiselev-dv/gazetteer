@@ -1,12 +1,17 @@
 package me.osm.gazetter.out;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import me.osm.gazetter.striper.FeatureTypes;
 import me.osm.gazetter.striper.GeoJsonWriter;
 import me.osm.gazetter.utils.LocatePoint;
 
+import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -28,7 +33,12 @@ public class FeatureValueExctractorImpl implements FeatureValueExtractor {
 	private static final String OSM_ID = "osm-id";
 	private static final String ID = "id";
 	private static final String TYPE = "type";
-
+	private static final String TAGS_JSON = "tags.json";
+	private static final String TAGS_HSTORE = "tags.hstore";
+	private static final String DESCRIPTION = "description";
+	private static final String WIKIPEDIA = "wikipedia";
+	private static final String NAME = "name";
+	
 	@Override
 	public Object getValue(String key, JSONObject jsonObject) {
 		try {
@@ -115,31 +125,75 @@ public class FeatureValueExctractorImpl implements FeatureValueExtractor {
 				break;
 				
 			case NEAREST_CITY:
-				jsonObject.getJSONObject("nearestCity").getJSONObject(GeoJsonWriter.PROPERTIES).optString("name");
+				return jsonObject.getJSONObject("nearestCity").getJSONObject(GeoJsonWriter.PROPERTIES).optString("name");
 				
 			case NEAREST_CITY_ID:
-				jsonObject.getJSONObject("nearestCity").getJSONObject(GeoJsonWriter.PROPERTIES).optString(ID);
+				return jsonObject.getJSONObject("nearestCity").getJSONObject(GeoJsonWriter.PROPERTIES).optString(ID);
 				
 			case NEAREST_NEIGHBOURHOOD:
-				jsonObject.getJSONObject("nearestNeighbour").getJSONObject(GeoJsonWriter.PROPERTIES).optString("name");
+				return jsonObject.getJSONObject("nearestNeighbour").getJSONObject(GeoJsonWriter.PROPERTIES).optString("name");
 			
 			case NEAREST_NEIGHBOURHOOD_ID:	
-				jsonObject.getJSONObject("nearestNeighbour").getJSONObject(GeoJsonWriter.PROPERTIES).optString(ID);
+				return jsonObject.getJSONObject("nearestNeighbour").getJSONObject(GeoJsonWriter.PROPERTIES).optString(ID);
 				
+			case TAGS_JSON:
+				return jsonObject.getJSONObject(GeoJsonWriter.PROPERTIES).toString();
+
+			case TAGS_HSTORE:
+				return asHStore(jsonObject.getJSONObject(GeoJsonWriter.PROPERTIES));
+				
+			case DESCRIPTION:
+				return jsonObject.getJSONObject(GeoJsonWriter.PROPERTIES).optString("description");
+
+			case WIKIPEDIA:
+				return jsonObject.getJSONObject(GeoJsonWriter.PROPERTIES).optString("wikipedia");
+
 			}
 		}
 		catch (Exception e) {
 			return null;
 		}
 		
+		if(key.equals(NAME)) {
+			return jsonObject.getJSONObject(GeoJsonWriter.PROPERTIES).optString("name");
+		}
+		else if(key.contains(NAME)) {
+			return jsonObject.getJSONObject(GeoJsonWriter.PROPERTIES).optString(key);
+		}
+		
 		return null;
+	}
+
+	@SuppressWarnings("unchecked")
+	public static String asHStore(JSONObject jsonObject) {
+		
+		List<String> pairs = new ArrayList<>();
+		
+		for(String key : (Collection<String>)jsonObject.keySet()) {
+			String val = jsonObject.get(key).toString();
+			pairs.add("\"" + key + "\"=>\"" + val + "\"");
+		}
+		
+		return StringUtils.join(pairs, ",");
+	}
+
+	public static String asHStore(Map<String, String> tags) {
+		
+		List<String> pairs = new ArrayList<>();
+		
+		for(Entry<String, String> tag : tags.entrySet()) {
+			pairs.add("\"" + tag.getKey() + "\"=>\"" + tag.getValue() + "\"");
+		}
+		
+		return StringUtils.join(pairs, ",");
 	}
 
 	@Override
 	public Collection<String> getSupportedKeys() {
 		return Arrays.asList(ID, TYPE, OSM_ID, OSM_TYPE, LON, LAT,
 				CENTROID, FULL_GEOMETRY, NEAREST_CITY, NEAREST_CITY_ID,
-				NEAREST_NEIGHBOURHOOD, NEAREST_NEIGHBOURHOOD_ID);
+				NEAREST_NEIGHBOURHOOD, NEAREST_NEIGHBOURHOOD_ID,
+				DESCRIPTION, WIKIPEDIA, TAGS_JSON, TAGS_HSTORE);
 	}
 	
 	

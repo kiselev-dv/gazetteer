@@ -32,8 +32,8 @@ import org.slf4j.LoggerFactory;
  * */
 public class Main {
 	
-	private static final String NAMED_POI_BRANCH_OPT = "--excclude-poi-branch";
-	private static final String NAMED_POI_BRANCH_VAL = "excclude_poi_branch";
+	private static final String NAMED_POI_BRANCH_OPT = "--named-poi-branch";
+	private static final String NAMED_POI_BRANCH_VAL = "named_poi_branch";
 
 	private static final String EXCCLUDE_POI_BRANCH_OPT = "--excclude-poi-branch";
 	private static final String EXCCLUDE_POI_BRANCH_VAL = "excclude_poi_branch";
@@ -149,7 +149,8 @@ public class Main {
 						namespace.getString(DATA_DIR_VAL), 
 						StringUtils.join(list(namespace.getList("columns")), ' '), 
 						list(namespace.getList("types")),
-						namespace.getString("out_file")).write();
+						namespace.getString("out_file"),
+						namespace.getString(POI_CATALOG_VAL)).write();
 			}
 			
 		} 
@@ -279,6 +280,8 @@ public class Main {
 			outCSV.addArgument("--columns").nargs("+");
 			outCSV.addArgument("--types").nargs("+").choices(CSVOutWriter.ARG_TO_TYPE.keySet());
 			outCSV.addArgument("--out-file").setDefault("-");
+			outCSV.addArgument(POI_CATALOG_OPT).setDefault("jar")
+				.help("Path to osm-doc catalog xml file. By default internal osm-doc.xml will be used.");
 		}
 		
 		return parser;

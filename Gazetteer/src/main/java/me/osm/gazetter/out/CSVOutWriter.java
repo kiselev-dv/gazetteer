@@ -17,10 +17,12 @@ import java.util.Set;
 import java.util.StringTokenizer;
 
 import me.osm.gazetter.join.Joiner;
+import me.osm.gazetter.join.PoiAddrJoinBuilder;
 import me.osm.gazetter.striper.FeatureTypes;
 import me.osm.gazetter.striper.GeoJsonWriter;
 import me.osm.gazetter.utils.FileUtils;
 import me.osm.gazetter.utils.FileUtils.LineHandler;
+import me.osm.osmdoc.read.OSMDocFacade;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -56,11 +58,15 @@ public class CSVOutWriter implements LineHandler {
 	private PrintWriter out;
 	
 	private FeatureValueExtractor featureEXT = new FeatureValueExctractorImpl();
+	private FeatureValueExtractor poiEXT;
 	private AddrRowValueExtractor addrRowEXT = new AddrRowValueExctractorImpl();
+	
 	private Set<String> addrRowKeys = new HashSet<String>(addrRowEXT.getSupportedKeys());
 	private Set<String> allSupportedKeys = new HashSet<String>(featureEXT.getSupportedKeys());
+
+	private OSMDocFacade osmDocFacade;
 	
-	public CSVOutWriter(String dataDir, String columns, List<String> types, String out) {
+	public CSVOutWriter(String dataDir, String columns, List<String> types, String out, String poiCatalog) {
 		
 		allSupportedKeys.addAll(addrRowKeys);
 		
@@ -68,15 +74,16 @@ public class CSVOutWriter implements LineHandler {
 		this.columns = parseColumns(columns);
 		this.types = new HashSet<>();
 		
-		checkColumnsKeys();
+		//checkColumnsKeys();
 		
 		try {
 			for(String type : types) {
+				
 				String ftype = ARG_TO_TYPE.get(type);
 				this.types.add(ftype);
 				writers.put(ftype, new CsvListWriter(
 						new PrintWriter(getFile4Ftype(ftype)), 
-						CsvPreference.STANDARD_PREFERENCE));
+						new CsvPreference.Builder('$', '\t', "\n").build()));
 			}
 
 			if("-".equals(out)) {
@@ -89,6 +96,9 @@ public class CSVOutWriter implements LineHandler {
 		catch (Exception e) {
 			throw new RuntimeException(e);
 		}
+		
+		osmDocFacade = new OSMDocFacade(poiCatalog, null);
+		poiEXT = new PoiValueExctractorImpl(osmDocFacade);
 	}
 
 	private void checkColumnsKeys() {
@@ -219,7 +229,7 @@ public class CSVOutWriter implements LineHandler {
 						Map<String, JSONObject> mapLevels = mapLevels(addrRow);
 						
 						for (List<String> column : columns) {
-							row.add(getColumn(jsonObject, mapLevels, addrRow, column));
+							row.add(getColumn(ftype, jsonObject, mapLevels, addrRow, column));
 						}
 						writeNext(row, ftype);
 					}
@@ -234,7 +244,7 @@ public class CSVOutWriter implements LineHandler {
 						List<Object> row = new ArrayList<>();
 						
 						for (List<String> column : columns) {
-							row.add(getColumn(jsonObject, mapLevels, bs, column));
+							row.add(getColumn(ftype, jsonObject, mapLevels, bs, column));
 						}
 						writeNext(row, ftype);
 					}
@@ -247,16 +257,30 @@ public class CSVOutWriter implements LineHandler {
 					List<Object> row = new ArrayList<>();
 					
 					for (List<String> column : columns) {
-						row.add(getColumn(jsonObject, mapLevels, boundaries, column));
+						row.add(getColumn(ftype, jsonObject, mapLevels, boundaries, column));
 					}
 					writeNext(row, ftype);
+				}
+			}
+			else if(FeatureTypes.POI_FTYPE.equals(ftype)) {
+				List<JSONObject> addresses = getPoiAddresses(jsonObject);
+				if(addresses != null) {
+					for(JSONObject addrRow : addresses) {
+						List<Object> row = new ArrayList<>();
+						Map<String, JSONObject> mapLevels = mapLevels(addrRow);
+						
+						for (List<String> column : columns) {
+							row.add(getColumn(ftype, jsonObject, mapLevels, addrRow, column));
+						}
+						writeNext(row, ftype);
+					}
 				}
 			}
 			else {
 				List<Object> row = new ArrayList<>();
 				
 				for (List<String> column : columns) {
-					row.add(getColumn(jsonObject, null, null, column));
+					row.add(getColumn(ftype, jsonObject, null, null, column));
 				}
 				writeNext(row, ftype);
 			}
@@ -264,9 +288,86 @@ public class CSVOutWriter implements LineHandler {
 		}
 		
 	}
+	
+	private List<JSONObject> getPoiAddresses(JSONObject poi) {
+		
+		List<JSONObject> result = new ArrayList<>();
+		JSONObject joinedAddresses = poi.optJSONObject("joinedAddresses");
+		if(joinedAddresses != null) {
+			
+			//"sameSource"
+			if(getAddressesFromObj(result, joinedAddresses, "sameSource")) {
+				return result;
+			}
+			
+			//"contains"
+			if(getAddressesFromCollection(result, joinedAddresses, "contains")) {
+				return result;
+			}
 
-	
-	
+			//"shareBuildingWay"
+			if(getAddressesFromCollection(result, joinedAddresses, "shareBuildingWay")) {
+				return result;
+			}
+
+			//"nearestShareBuildingWay"
+			if(getAddressesFromCollection(result, joinedAddresses, "nearestShareBuildingWay")) {
+				return result;
+			}
+
+			//"nearest"
+			if(getAddressesFromObj(result, joinedAddresses, "nearest")) {
+				return result;
+			}
+			
+		}
+		
+		return result;
+	}
+
+	private boolean getAddressesFromObj(List<JSONObject> result,
+			JSONObject joinedAddresses, String key) {
+		
+		boolean founded = false;
+		
+		JSONObject ss = joinedAddresses.optJSONObject(key);
+		if(ss != null) {
+			JSONArray addresses = ss.optJSONArray("addresses");
+			if(addresses != null) {
+				for(int i = 0; i < addresses.length(); i++) {
+					result.add(addresses.getJSONObject(i));
+				}
+				founded = true;
+			}
+		}
+		
+		return founded;
+	}
+
+	private boolean getAddressesFromCollection(List<JSONObject> result,
+			JSONObject joinedAddresses, String key) {
+		
+		boolean founded = false;
+		
+		JSONArray contains = joinedAddresses.optJSONArray("contains");
+		if(contains != null && contains.length() > 0) {
+			
+			for(int ci = 0; ci < contains.length(); ci++) {
+				JSONObject co = contains.getJSONObject(ci);
+				JSONArray addresses = co.optJSONArray("addresses");
+				if(addresses != null) {
+					for(int i = 0; i < addresses.length(); i++) {
+						result.add(addresses.getJSONObject(i));
+						founded = true;
+					}
+				}
+			}
+			
+		}
+		
+		return founded;
+	}
+
 	private void writeNext(List<Object> row, String ftype) {
 		try {
 			writers.get(ftype).write(row);
@@ -292,7 +393,7 @@ public class CSVOutWriter implements LineHandler {
 		}
 	}
 
-	private Object getColumn(JSONObject jsonObject, Map<String, JSONObject> addrRowLevels, JSONObject addrRow, List<String> column) {
+	private Object getColumn(String ftype, JSONObject jsonObject, Map<String, JSONObject> addrRowLevels, JSONObject addrRow, List<String> column) {
 		for(String key : column) {
 
 			Object value = null;
@@ -300,7 +401,12 @@ public class CSVOutWriter implements LineHandler {
 				value = addrRowEXT.getValue(key, jsonObject, addrRowLevels, addrRow);
 			}
 			else {
-				value = featureEXT.getValue(key, jsonObject);
+				if(FeatureTypes.POI_FTYPE.equals(ftype)) {
+					value = poiEXT.getValue(key, jsonObject);
+				}
+				else {
+					value = featureEXT.getValue(key, jsonObject);
+				}
 			}
 			
 			if(value != null) {
