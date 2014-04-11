@@ -12,21 +12,43 @@ import org.json.JSONObject;
 public class AddrTextFormatterImpl implements AddrTextFormatter {
 	
 	@Override
-	public String joinNames(List<JSONObject> addrJsonRow, JSONObject properties) {
-		return simpleJoin(addrJsonRow);
+	public String joinNames(List<JSONObject> addrJsonRow, JSONObject properties, String lang) {
+		return simpleJoin(addrJsonRow, lang);
 	}
 
 	@Override
-	public String joinBoundariesNames(List<JSONObject> addrJsonRow) {
-		return simpleJoin(addrJsonRow);
+	public String joinBoundariesNames(List<JSONObject> addrJsonRow, String lang) {
+		return simpleJoin(addrJsonRow, lang);
 	}
 
-	private String simpleJoin(List<JSONObject> addrJsonRow) {
+	private String simpleJoin(List<JSONObject> addrJsonRow, String lang) {
 		
 		StringBuilder sb = new StringBuilder();
 		for(JSONObject lvl : addrJsonRow) {
-			if(StringUtils.isNotBlank(lvl.getString(ADDR_NAME))) {
-				sb.append(", ").append(lvl.getString(ADDR_NAME));
+			
+			String string = null;
+			
+			if(lang == null) {
+				string = lvl.getString(ADDR_NAME);
+			}
+			else {
+				JSONObject names = lvl.optJSONObject("names");
+				if(names != null) {
+					String translated = names.optString("name:" + lang);
+					if(StringUtils.isNoneBlank(translated)) {
+						string = translated;
+					}
+					else {
+						string = lvl.getString(ADDR_NAME);
+					}
+				}
+				else {
+					string = lvl.getString(ADDR_NAME);
+				}
+			}
+			
+			if(StringUtils.isNotBlank(string)) {
+				sb.append(", ").append(string);
 			}
 		}
 		

@@ -65,8 +65,9 @@ public class CSVOutWriter implements LineHandler {
 	private Set<String> allSupportedKeys = new HashSet<String>(featureEXT.getSupportedKeys());
 
 	private OSMDocFacade osmDocFacade;
-	
-	public CSVOutWriter(String dataDir, String columns, List<String> types, String out, String poiCatalog) {
+
+	public CSVOutWriter(String dataDir, String columns, List<String> types, String out, 
+			String poiCatalog) {
 		
 		allSupportedKeys.addAll(addrRowKeys);
 		
@@ -99,6 +100,7 @@ public class CSVOutWriter implements LineHandler {
 		
 		osmDocFacade = new OSMDocFacade(poiCatalog, null);
 		poiEXT = new PoiValueExctractorImpl(osmDocFacade);
+		
 	}
 
 	private void checkColumnsKeys() {

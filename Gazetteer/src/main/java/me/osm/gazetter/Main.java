@@ -132,7 +132,8 @@ public class Main {
 				Options.initialize(
 						AddrLevelsSorting.valueOf(namespace.getString(ADDR_ORDER_VAL)),
 						namespace.getString(ADDR_FORMATTER_VAL),
-						new HashSet(list(namespace.getList("skip_in_text")))
+						new HashSet(list(namespace.getList("skip_in_text"))),
+						namespace.getBoolean("find_langs")
 				);
 				
 				new Joiner(new HashSet(list(namespace.getList("check_boundaries"))))
@@ -260,6 +261,16 @@ public class Main {
 			join.addArgument("--skip-in-text").nargs("*")
 				.help("Skip in addr full text.");
 			
+			join.addArgument("--find-langs").setDefault(Boolean.FALSE)
+				.nargs("?").setConst(Boolean.FALSE)
+				.help("Search for translated address rows. \n"
+						+ "Eg. if street and all upper addr levels \n"
+						+ "have name name:uk name:ru name:en \n"
+						+ "generate 4 address rows.\n"
+						+ "If one of [name:uk name:ru name:en] is equals \n"
+						+ "to name still generate additional row. \n"
+						+ "(You can filter it later with simple distinct check).");
+			
 		}
 
 		//update
@@ -280,8 +291,10 @@ public class Main {
 			outCSV.addArgument("--columns").nargs("+");
 			outCSV.addArgument("--types").nargs("+").choices(CSVOutWriter.ARG_TO_TYPE.keySet());
 			outCSV.addArgument("--out-file").setDefault("-");
+			
 			outCSV.addArgument(POI_CATALOG_OPT).setDefault("jar")
 				.help("Path to osm-doc catalog xml file. By default internal osm-doc.xml will be used.");
+			
 		}
 		
 		return parser;

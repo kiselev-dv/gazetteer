@@ -5,17 +5,20 @@ import java.util.Map;
 
 public class Constants {
 	public static final Map<String, Integer> defaultType2size = new HashMap<>();
+	public static final int HN_LVL_SIZE = 10;
+	public static final int STREET_LVL_SIZE = 20;
+	public static final int POSTCODE_LVL_SIZE = 55;
 	
 	static {
 		defaultType2size.put("letter", 8);
-		defaultType2size.put("street", 10);
-		defaultType2size.put("hn", 20);
+		defaultType2size.put("hn", HN_LVL_SIZE);
+		defaultType2size.put("street", STREET_LVL_SIZE);
 		
 		defaultType2size.put("place:quarter", 30);
 		defaultType2size.put("place:neighbourhood", 40);
 		defaultType2size.put("place:suburb", 50);
 		
-		defaultType2size.put("postcode", 55);
+		defaultType2size.put("postcode", POSTCODE_LVL_SIZE);
 		
 		defaultType2size.put("place:allotments", 60);
 		defaultType2size.put("place:locality", 70);

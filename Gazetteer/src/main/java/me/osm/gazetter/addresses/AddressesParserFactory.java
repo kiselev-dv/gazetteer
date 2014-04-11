@@ -10,6 +10,7 @@ public interface AddressesParserFactory {
 			AddrLevelsComparator addrLevelComparator,
 			NamesMatcher namesMatcherImpl, List<String> cityBoundaryes,
 			AddrTextFormatter addrTextFormatter,
-			AddrLevelsSorting sorting, Set<String> skippInFullText);
+			AddrLevelsSorting sorting, Set<String> skippInFullText,
+			boolean findLangsLevel);
 	
 }

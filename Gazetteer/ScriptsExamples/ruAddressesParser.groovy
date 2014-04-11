@@ -21,7 +21,8 @@ class RuAddressesParserFactory implements AddressesParserFactory {
 			AddrLevelsComparator addrLevelComparator,
 			NamesMatcher namesMatcherImpl, List<String> cityBoundaryes,
 			AddrTextFormatter addrTextFormatter, AddrLevelsSorting sorting,
-			Set<String> skippInFullText) {
+			Set<String> skippInFullText,
+			boolean findLangsLevel) {
 		
 		
 		return new AddressesParserImpl(
@@ -31,7 +32,8 @@ class RuAddressesParserFactory implements AddressesParserFactory {
 					["place:hamlet", "place:village", "place:town", "place:city"]),
 				addrTextFormatter, 
 				sorting,
-				skippInFullText);
+				skippInFullText,
+				findLangsLevel);
 	}
 } 
 

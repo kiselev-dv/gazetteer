@@ -19,7 +19,8 @@ public class AddressesParserFactoryImpl implements AddressesParserFactory {
 			AddrLevelsComparator addrLevelComparator,
 			NamesMatcher namesMatcherImpl, List<String> cityBoundaryes,
 			AddrTextFormatter addrTextFormatter, AddrLevelsSorting sorting,
-			Set<String> skippInFullText) {
+			Set<String> skippInFullText,
+			boolean findLangsLevel) {
 		
 		
 		return new AddressesParserImpl(
@@ -27,7 +28,8 @@ public class AddressesParserFactoryImpl implements AddressesParserFactory {
 				new AddressesLevelsMatcherImpl(addrLevelComparator, namesMatcherImpl, cityBoundaryes),
 				addrTextFormatter, 
 				sorting,
-				skippInFullText);
+				skippInFullText,
+				findLangsLevel);
 	}
 
 
