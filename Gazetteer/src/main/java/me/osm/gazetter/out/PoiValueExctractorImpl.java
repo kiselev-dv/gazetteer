@@ -84,6 +84,15 @@ public class PoiValueExctractorImpl extends FeatureValueExctractorImpl {
 					String valueName = valueString;
 					if(td.getTagValueType() == TagValueType.ENUM && lang != null) {
 						
+						//drop tag if there is no translated value parsed. 
+						valueName = "";
+
+						//write out untranslated value 
+						//valueName = valueString;
+
+						//write out constant 
+						//valueName = "translation-missed";
+						
 						for(Val valuePattern : td.getVal()) {
 							if(valuePattern.getValue().equals(valueString)) {
 								valueName = osmDocFacade.getTranslatedTitle(fClass, valuePattern, lang);
