@@ -182,10 +182,14 @@ public class FeatureValueExctractorImpl implements FeatureValueExtractor {
 		List<String> pairs = new ArrayList<>();
 		
 		for(Entry<String, String> tag : tags.entrySet()) {
-			pairs.add("\"" + tag.getKey() + "\"=>\"" + tag.getValue() + "\"");
+			pairs.add("\"" + escape4Hstore(tag.getKey()) + "\"=>\"" + escape4Hstore(tag.getValue()) + "\"");
 		}
 		
 		return StringUtils.join(pairs, ",");
+	}
+
+	private static String escape4Hstore(String string) {
+		return StringUtils.replace(string, "$", "&#36;");
 	}
 
 	@Override
