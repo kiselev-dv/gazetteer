@@ -30,6 +30,7 @@ public class FeatureValueExctractorImpl implements FeatureValueExtractor {
 	private static final String LAT = "lat";
 	private static final String LON = "lon";
 	private static final String OSM_TYPE = "osm-type";
+	private static final String OSM_TYPE_ID = "osm-type-id";
 	private static final String OSM_ID = "osm-id";
 	private static final String ID = "id";
 	private static final String TYPE = "type";
@@ -56,6 +57,11 @@ public class FeatureValueExctractorImpl implements FeatureValueExtractor {
 				
 			case OSM_TYPE:
 				return jsonObject.getJSONObject(GeoJsonWriter.META).getString("type");
+
+			case OSM_TYPE_ID:
+				String type = String.valueOf(jsonObject.getJSONObject(GeoJsonWriter.META).getString("type").charAt(0));
+				String id = String.valueOf(jsonObject.getJSONObject(GeoJsonWriter.META).getLong(ID));
+				return  type + id;
 				
 			case LON:
 				if(FeatureTypes.HIGHWAY_FEATURE_TYPE.equals(ftype)) {
@@ -197,7 +203,7 @@ public class FeatureValueExctractorImpl implements FeatureValueExtractor {
 		return Arrays.asList(ID, TYPE, OSM_ID, OSM_TYPE, LON, LAT,
 				CENTROID, FULL_GEOMETRY, NEAREST_CITY, NEAREST_CITY_ID,
 				NEAREST_NEIGHBOURHOOD, NEAREST_NEIGHBOURHOOD_ID,
-				DESCRIPTION, WIKIPEDIA, TAGS_JSON, TAGS_HSTORE);
+				DESCRIPTION, WIKIPEDIA, TAGS_JSON, TAGS_HSTORE, OSM_TYPE_ID);
 	}
 	
 	
