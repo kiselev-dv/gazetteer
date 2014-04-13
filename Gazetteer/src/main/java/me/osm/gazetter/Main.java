@@ -146,6 +146,8 @@ public class Main {
 			}
 			
 			if(namespace.get(COMMAND).equals(Command.OUT_CSV)) {
+
+				Options.get().setCsvOutLineHandler(namespace.getString("line_handler"));
 				new CSVOutWriter(
 						namespace.getString(DATA_DIR_VAL), 
 						StringUtils.join(list(namespace.getList("columns")), ' '), 
@@ -294,6 +296,8 @@ public class Main {
 			
 			outCSV.addArgument(POI_CATALOG_OPT).setDefault("jar")
 				.help("Path to osm-doc catalog xml file. By default internal osm-doc.xml will be used.");
+			
+			outCSV.addArgument("--line-handler").help("Path to custom groovy line handler.");
 			
 		}
 		

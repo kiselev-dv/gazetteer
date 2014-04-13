@@ -19,6 +19,7 @@ import me.osm.gazetter.addresses.impl.NamesMatcherImpl;
 import me.osm.gazetter.addresses.sorters.CityStreetHNComparator;
 import me.osm.gazetter.addresses.sorters.HNStreetCityComparator;
 import me.osm.gazetter.addresses.sorters.StreetHNCityComparator;
+import me.osm.gazetter.out.CSVOutLineHandler;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -36,6 +37,7 @@ public class Options {
 	private final AddressesParser addressesParser;
 	private final NamesMatcher namesMatcher;
 	private boolean findLangsLevel;
+	private CSVOutLineHandler csvOutLineHandler = null;
 	
 
 	private Options() {
@@ -64,6 +66,33 @@ public class Options {
 		AddressesParser adrParser = getAddrParser(groovyFormatter, sorting, skippInFullText, findLangs);
 		
 		instance = new Options(sorting, adrParser, new NamesMatcherImpl(), findLangs);
+	}
+
+	private static CSVOutLineHandler getCSVHandler(String csvOutLineHandlerFile) {
+		
+		try {
+			
+			if(StringUtils.isNotEmpty(csvOutLineHandlerFile)) {
+				GroovyClassLoader gcl = new GroovyClassLoader(Options.class.getClassLoader());
+				try
+				{
+					Class<?> clazz = gcl.parseClass(new File(csvOutLineHandlerFile));
+					Object aScript = clazz.newInstance();
+					
+					if(aScript instanceof CSVOutLineHandler) {
+						return (CSVOutLineHandler) aScript;
+					}
+				}
+				finally {
+					gcl.close();
+				}
+			}
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+		
+		return null;
 	}
 
 	private static AddressesParser getAddrParser(String groovyFormatter, AddrLevelsSorting sorting, 
@@ -136,7 +165,7 @@ public class Options {
 	
 	public static Options get() {
 		if(instance == null) {
-			synchronized(instance) {
+			synchronized (Options.class) {
 				if(instance == null) {
 					instance = new Options();
 				}
@@ -159,6 +188,14 @@ public class Options {
 
 	public boolean isFindLangs() {
 		return findLangsLevel;
+	}
+
+	public CSVOutLineHandler getCsvOutLineHandler() {
+		return csvOutLineHandler;
+	}
+
+	public void setCsvOutLineHandler(String csvOutLineHandler) {
+		this.csvOutLineHandler = getCSVHandler(csvOutLineHandler);
 	}
 	
 }

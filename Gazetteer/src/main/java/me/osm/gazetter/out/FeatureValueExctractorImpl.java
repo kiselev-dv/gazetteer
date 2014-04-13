@@ -21,9 +21,9 @@ import com.vividsolutions.jts.geom.Polygon;
 
 public class FeatureValueExctractorImpl implements FeatureValueExtractor {
 
-	private static final String NEAREST_NEIGHBOURHOOD_ID = "nearest:neighbourhood:id";
+	private static final String NEAREST_NEIGHBOURHOOD_ID = "nearest:neighbourhood.id";
 	private static final String NEAREST_NEIGHBOURHOOD = "nearest:neighbourhood";
-	private static final String NEAREST_CITY_ID = "nearest:city:id";
+	private static final String NEAREST_CITY_ID = "nearest:city.id";
 	private static final String NEAREST_CITY = "nearest:city";
 	private static final String FULL_GEOMETRY = "full-geometry";
 	private static final String CENTROID = "centroid";
@@ -39,6 +39,7 @@ public class FeatureValueExctractorImpl implements FeatureValueExtractor {
 	private static final String DESCRIPTION = "description";
 	private static final String WIKIPEDIA = "wikipedia";
 	private static final String NAME = "name";
+	private static final String VERBOSE_TYPE = "type-verbose";
 	
 	@Override
 	public Object getValue(String key, JSONObject jsonObject) {
@@ -154,6 +155,26 @@ public class FeatureValueExctractorImpl implements FeatureValueExtractor {
 			case WIKIPEDIA:
 				return jsonObject.getJSONObject(GeoJsonWriter.PROPERTIES).optString("wikipedia");
 
+			case VERBOSE_TYPE:
+				if(FeatureTypes.HIGHWAY_FEATURE_TYPE.equals(ftype) 
+						|| FeatureTypes.POI_FTYPE.equals(ftype)
+						|| FeatureTypes.ADDR_POINT_FTYPE.equals(ftype)) {
+					return ftype;
+				}
+				else if (FeatureTypes.PLACE_POINT_FTYPE.equals(ftype)) {
+					String place = jsonObject.getJSONObject(GeoJsonWriter.PROPERTIES).optString("place");
+					if(StringUtils.isNoneBlank(place)) {
+						return "place:" + place;
+					}
+
+					String boundary = jsonObject.getJSONObject(GeoJsonWriter.PROPERTIES).optString("admin_level");
+					if(StringUtils.isNoneBlank(boundary)) {
+						return "boundary:" + boundary;
+					}
+					
+				}
+				return null;
+
 			}
 		}
 		catch (Exception e) {
@@ -161,10 +182,10 @@ public class FeatureValueExctractorImpl implements FeatureValueExtractor {
 		}
 		
 		if(key.equals(NAME)) {
-			return jsonObject.getJSONObject(GeoJsonWriter.PROPERTIES).optString("name");
+			return jsonObject.getJSONObject(GeoJsonWriter.PROPERTIES).optString("name", null);
 		}
 		else if(key.contains(NAME)) {
-			return jsonObject.getJSONObject(GeoJsonWriter.PROPERTIES).optString(key);
+			return jsonObject.getJSONObject(GeoJsonWriter.PROPERTIES).optString(key, null);
 		}
 		
 		return null;
@@ -203,7 +224,8 @@ public class FeatureValueExctractorImpl implements FeatureValueExtractor {
 		return Arrays.asList(ID, TYPE, OSM_ID, OSM_TYPE, LON, LAT,
 				CENTROID, FULL_GEOMETRY, NEAREST_CITY, NEAREST_CITY_ID,
 				NEAREST_NEIGHBOURHOOD, NEAREST_NEIGHBOURHOOD_ID,
-				DESCRIPTION, WIKIPEDIA, TAGS_JSON, TAGS_HSTORE, OSM_TYPE_ID);
+				DESCRIPTION, WIKIPEDIA, TAGS_JSON, TAGS_HSTORE, OSM_TYPE_ID, 
+				VERBOSE_TYPE);
 	}
 	
 	

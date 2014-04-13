@@ -37,16 +37,16 @@ import org.json.JSONObject;
 public class AddressesParserImpl implements AddressesParser {
 	
 	//DI meaning dependencies
-	private AddressesSchemesParser schemesParser;
-	private AddressesLevelsMatcher levelsMatcher;
-	private AddrTextFormatter textFormatter;
-	private AddrLevelsComparator addrLevelComparator;
+	protected AddressesSchemesParser schemesParser;
+	protected AddressesLevelsMatcher levelsMatcher;
+	protected AddrTextFormatter textFormatter;
+	protected AddrLevelsComparator addrLevelComparator;
 	
-	private Set<String> skipInFullText;
-	private List<String> cityBoundaries;
-	private boolean findLangs;
+	protected Set<String> skipInFullText;
+	protected List<String> cityBoundaries;
+	protected boolean findLangs;
 
-	private static final Set<String> langCodes = new HashSet<>(Arrays.asList(Locale.getISOLanguages()));
+	protected static final Set<String> langCodes = new HashSet<>(Arrays.asList(Locale.getISOLanguages()));
 	
 	public AddressesParserImpl(AddressesSchemesParser schemesParser, 
 			AddressesLevelsMatcher levelsMatcher, AddrTextFormatter textFormatter,
@@ -91,12 +91,12 @@ public class AddressesParserImpl implements AddressesParser {
 	}
 	
 
-	private static final String ADDR_PARTS = "parts";
+	protected static final String ADDR_PARTS = "parts";
 
-	private static final String ADDR_TEXT = "text";
-	private static final String ADDR_TEXT_LONG = "longText";
+	protected static final String ADDR_TEXT = "text";
+	protected static final String ADDR_TEXT_LONG = "longText";
 
-	private static final String ADDR_FULL = "addr:full";
+	protected static final String ADDR_FULL = "addr:full";
 
 	
 	@Override
@@ -188,37 +188,43 @@ public class AddressesParserImpl implements AddressesParser {
 				
 			}
 			
-			List<JSONObject> filtered = filterForFullText(addrJsonRow);
-			Set<String> langs = getLangs(filtered);
-			
-			Collections.sort(filtered, addrLevelComparator);
-			Collections.sort(addrJsonRow, addrLevelComparator);
-			
-			JSONObject fullAddressRow = new JSONObject();
-			
-			fullAddressRow.put(ADDR_TEXT, textFormatter.joinNames(filtered, properties, null));
-			fullAddressRow.put(ADDR_TEXT_LONG, textFormatter.joinNames(addrJsonRow, properties, null));
-
-			fullAddressRow.put("langs", langs);
-			for(String lang : langs) {
-				fullAddressRow.put(ADDR_TEXT + ":" + lang, textFormatter.joinNames(filtered, properties, lang));
-			}
-			
-			fullAddressRow.put(ADDR_PARTS, new JSONArray(addrJsonRow));
-			fullAddressRow.put(AddressesSchemesParser.ADDR_SCHEME, 
-					addrRow.optString(AddressesSchemesParser.ADDR_SCHEME));
-
-			if(StringUtils.isNotBlank(properties.optString(ADDR_FULL))) {
-				fullAddressRow.put(ADDR_FULL, properties.optString(ADDR_FULL));
-			}
-			
-			result.put(fullAddressRow);
+			result.put(createAddressRow(properties, addrRow, addrJsonRow));
 		}
 		
 		return result;
 	}
 
-	private Set<String> getLangs(List<JSONObject> filtered) {
+	protected JSONObject createAddressRow(JSONObject properties,
+			JSONObject addrRow, List<JSONObject> addrJsonRow) {
+		
+		List<JSONObject> filtered = filterForFullText(addrJsonRow);
+		Set<String> langs = getLangs(filtered);
+		
+		Collections.sort(filtered, addrLevelComparator);
+		Collections.sort(addrJsonRow, addrLevelComparator);
+		
+		JSONObject fullAddressRow = new JSONObject();
+		
+		fullAddressRow.put(ADDR_TEXT, textFormatter.joinNames(filtered, properties, null));
+		fullAddressRow.put(ADDR_TEXT_LONG, textFormatter.joinNames(addrJsonRow, properties, null));
+
+		fullAddressRow.put("langs", langs);
+		for(String lang : langs) {
+			fullAddressRow.put(ADDR_TEXT + ":" + lang, textFormatter.joinNames(filtered, properties, lang));
+		}
+		
+		fullAddressRow.put(ADDR_PARTS, new JSONArray(addrJsonRow));
+		fullAddressRow.put(AddressesSchemesParser.ADDR_SCHEME, 
+				addrRow.optString(AddressesSchemesParser.ADDR_SCHEME));
+
+		if(StringUtils.isNotBlank(properties.optString(ADDR_FULL))) {
+			fullAddressRow.put(ADDR_FULL, properties.optString(ADDR_FULL));
+		}
+		
+		return fullAddressRow;
+	}
+
+	protected Set<String> getLangs(List<JSONObject> filtered) {
 		if(!this.findLangs) {
 			return Collections.emptySet();
 		}
@@ -261,7 +267,7 @@ public class AddressesParserImpl implements AddressesParser {
 		return result;
 	}
 
-	private Set<String> getLangsFromTags(Set<String> keySet) {
+	protected Set<String> getLangsFromTags(Set<String> keySet) {
 		Set<String> result = new HashSet<>();
 		for(String key : keySet) {
 			String[] split = StringUtils.split(key, ':');
@@ -361,7 +367,7 @@ public class AddressesParserImpl implements AddressesParser {
 	}
 
 	@Override
-	public JSONObject boundariesAsArray(List<JSONObject> input) {
+	public JSONObject boundariesAsArray(JSONObject subj, List<JSONObject> input) {
 		List<JSONObject> result = new ArrayList<>();
 		
 		for(JSONObject bndry : input) {
@@ -386,6 +392,32 @@ public class AddressesParserImpl implements AddressesParser {
 			}
 		}
 		
+		{
+			String addrLevel = getAddrLevel(subj); 
+			
+			if(addrLevel != null) {
+				JSONObject addrLVL = new JSONObject();
+				addrLVL.put("lnk", subj.getString("id"));
+				
+				Map<String, String> nTags = AddressesUtils.filterNameTags(subj);
+				
+				if(nTags.containsKey(ADDR_NAME)) {
+					addrLVL.put(ADDR_LVL, addrLevel);
+					addrLVL.put(ADDR_LVL_SIZE, addrLevelComparator.getLVLSize(addrLevel));
+					addrLVL.put(ADDR_NAME, nTags.get(ADDR_NAME));
+					addrLVL.put(ADDR_NAMES, new JSONObject(nTags));
+					
+					result.add(addrLVL);
+				}
+			}
+		}
+		
+		JSONObject fullAddressRow = createBoundaryAddrRow(result);
+		
+		return fullAddressRow;
+	}
+
+	protected JSONObject createBoundaryAddrRow(List<JSONObject> result) {
 		List<JSONObject> filtered = filterForFullText(result);
 
 		JSONObject fullAddressRow = new JSONObject();
@@ -403,7 +435,6 @@ public class AddressesParserImpl implements AddressesParser {
 		for(String lang : langs) {
 			fullAddressRow.put(ADDR_TEXT + ":" + lang, textFormatter.joinBoundariesNames(filtered, lang));
 		}
-		
 		return fullAddressRow;
 	} 
 	

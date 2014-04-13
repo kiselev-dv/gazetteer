@@ -16,6 +16,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
 
+import me.osm.gazetter.Options;
 import me.osm.gazetter.join.Joiner;
 import me.osm.gazetter.join.PoiAddrJoinBuilder;
 import me.osm.gazetter.striper.FeatureTypes;
@@ -24,6 +25,7 @@ import me.osm.gazetter.utils.FileUtils;
 import me.osm.gazetter.utils.FileUtils.LineHandler;
 import me.osm.osmdoc.read.OSMDocFacade;
 
+import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -65,6 +67,8 @@ public class CSVOutWriter implements LineHandler {
 	private Set<String> allSupportedKeys = new HashSet<String>(featureEXT.getSupportedKeys());
 
 	private OSMDocFacade osmDocFacade;
+	
+	private CSVOutLineHandler outLineHandler = null;
 
 	public CSVOutWriter(String dataDir, String columns, List<String> types, String out, 
 			String poiCatalog) {
@@ -101,6 +105,7 @@ public class CSVOutWriter implements LineHandler {
 		osmDocFacade = new OSMDocFacade(poiCatalog, null);
 		poiEXT = new PoiValueExctractorImpl(osmDocFacade);
 		
+		outLineHandler = Options.get().getCsvOutLineHandler();
 	}
 
 	private void checkColumnsKeys() {
@@ -233,6 +238,11 @@ public class CSVOutWriter implements LineHandler {
 						for (List<String> column : columns) {
 							row.add(getColumn(ftype, jsonObject, mapLevels, addrRow, column));
 						}
+						
+						if(outLineHandler != null) {
+							outLineHandler.handle(row, ftype, jsonObject, mapLevels, addrRow);
+						}
+						
 						writeNext(row, ftype);
 					}
 				}
@@ -248,6 +258,11 @@ public class CSVOutWriter implements LineHandler {
 						for (List<String> column : columns) {
 							row.add(getColumn(ftype, jsonObject, mapLevels, bs, column));
 						}
+						
+						if(outLineHandler != null) {
+							outLineHandler.handle(row, ftype, jsonObject, mapLevels, bs);
+						}
+						
 						writeNext(row, ftype);
 					}
 				}
@@ -261,6 +276,11 @@ public class CSVOutWriter implements LineHandler {
 					for (List<String> column : columns) {
 						row.add(getColumn(ftype, jsonObject, mapLevels, boundaries, column));
 					}
+					
+					if(outLineHandler != null) {
+						outLineHandler.handle(row, ftype, jsonObject, mapLevels, boundaries);
+					}
+					
 					writeNext(row, ftype);
 				}
 			}
@@ -274,6 +294,11 @@ public class CSVOutWriter implements LineHandler {
 						for (List<String> column : columns) {
 							row.add(getColumn(ftype, jsonObject, mapLevels, addrRow, column));
 						}
+						
+						if(outLineHandler != null) {
+							outLineHandler.handle(row, ftype, jsonObject, mapLevels, addrRow);
+						}
+						
 						writeNext(row, ftype);
 					}
 				}
@@ -284,6 +309,11 @@ public class CSVOutWriter implements LineHandler {
 				for (List<String> column : columns) {
 					row.add(getColumn(ftype, jsonObject, null, null, column));
 				}
+				
+				if(outLineHandler != null) {
+					outLineHandler.handle(row, ftype, jsonObject, null, null);
+				}
+				
 				writeNext(row, ftype);
 			}
 			
@@ -395,7 +425,8 @@ public class CSVOutWriter implements LineHandler {
 		}
 	}
 
-	private Object getColumn(String ftype, JSONObject jsonObject, Map<String, JSONObject> addrRowLevels, JSONObject addrRow, List<String> column) {
+	private Object getColumn(String ftype, JSONObject jsonObject, 
+			Map<String, JSONObject> addrRowLevels, JSONObject addrRow, List<String> column) {
 		for(String key : column) {
 
 			Object value = null;
@@ -409,6 +440,10 @@ public class CSVOutWriter implements LineHandler {
 				else {
 					value = featureEXT.getValue(key, jsonObject);
 				}
+			}
+			
+			if(value instanceof String) {
+				value = StringUtils.stripToNull((String) value);
 			}
 			
 			if(value != null) {

@@ -444,7 +444,7 @@ public class JoinSliceTask implements Runnable {
 			if(necesaryBoundaries.isEmpty() || checkNecesaryBoundaries(boundaries)) {
 				boundaries.addAll(common);
 				
-				entry.getKey().put("boundaries", addressesParser.boundariesAsArray(boundaries));
+				entry.getKey().put("boundaries", addressesParser.boundariesAsArray(entry.getKey(), boundaries));
 			}
 		}
 		
@@ -473,7 +473,7 @@ public class JoinSliceTask implements Runnable {
 				for(List<JSONObject> b : boundaries) {
 					if(necesaryBoundaries.isEmpty() || checkNecesaryBoundaries(b)) {
 						b.addAll(common);
-						bndriesJSON.put(addressesParser.boundariesAsArray(b));
+						bndriesJSON.put(addressesParser.boundariesAsArray(entry.getKey(), b));
 					}
 				}
 				
@@ -513,7 +513,7 @@ public class JoinSliceTask implements Runnable {
 						}
 					}
 	
-					place.put("boundaries", addressesParser.boundariesAsArray(boundaries));
+					place.put("boundaries", addressesParser.boundariesAsArray(entry.getKey(), boundaries));
 					GeoJsonWriter.addTimestamp(place);
 					
 					String geoJSONString = new JSONFeature(place).toString();
