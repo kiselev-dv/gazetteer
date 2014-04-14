@@ -31,10 +31,10 @@ public class AddressesLevelsMatcherImpl implements AddressesLevelsMatcher {
 		this.placeBoundaries = placeBoundaries;
 	}
 	
-	private AddrLevelsComparator lelvelsComparator;
-	private NamesMatcher namesMatcher;
-	private boolean FORSE_ADDR_CITY_MATCH;
-	private List<String> placeBoundaries;
+	protected AddrLevelsComparator lelvelsComparator;
+	protected NamesMatcher namesMatcher;
+	protected boolean FORSE_ADDR_CITY_MATCH;
+	protected List<String> placeBoundaries;
 	
 	@Override
 	public JSONObject hnAsJSON(JSONObject addrPoint, JSONObject addrRow) {

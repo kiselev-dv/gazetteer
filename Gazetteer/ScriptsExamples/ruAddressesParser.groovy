@@ -1,22 +1,24 @@
+import org.json.JSONObject;
+
 import java.util.List;
 import java.util.Set;
 
 import me.osm.gazetter.addresses.AddrLevelsComparator;
+
 import me.osm.gazetter.addresses.AddrLevelsSorting;
 import me.osm.gazetter.addresses.AddrTextFormatter;
 import me.osm.gazetter.addresses.AddressesParser;
 import me.osm.gazetter.addresses.AddressesParserFactory;
 import me.osm.gazetter.addresses.AddressesSchemesParser;
 import me.osm.gazetter.addresses.NamesMatcher;
-
 import me.osm.gazetter.addresses.impl.AddressesParserImpl;
 import me.osm.gazetter.addresses.impl.AddressesLevelsMatcherImpl;
 import me.osm.gazetter.addresses.AddressesLevelsMatcher;
 import me.osm.gazetter.addresses.AddrLevelsComparator;
 import me.osm.gazetter.addresses.sorters.HNStreetCityComparator;
+import me.osm.gazetter.addresses.impl.AddressesLevelsMatcherImpl;
 
 import org.apache.commons.lang3.StringUtils;
-
 import org.json.*;
 
 class RuAddressesParserFactory implements AddressesParserFactory {
@@ -32,7 +34,7 @@ class RuAddressesParserFactory implements AddressesParserFactory {
 		
 		return new OSMRUAddressesParserImpl(
 				addressesSchemesParser, 
-				new AddressesLevelsMatcherImpl(addrLevelComparator, 
+				new OSMRUAddressesLevelsMatcher(addrLevelComparator, 
 					namesMatcherImpl, 
 					["place:hamlet", "place:village", "place:town", "place:city"]),
 				addrTextFormatter, 
@@ -110,5 +112,47 @@ class OSMRUAddressesParserImpl extends AddressesParserImpl {
 		return fullAddressRow;
 	} 
 	
+}
+
+class OSMRUAddressesLevelsMatcher extends AddressesLevelsMatcherImpl {
+	
+	public OSMRUAddressesLevelsMatcher(AddrLevelsComparator lelvelsComparator,
+		NamesMatcher namesMatcher, List<String> placeBoundaries) {
+		
+		super(lelvelsComparator, namesMatcher, placeBoundaries);
+		
+	}
+		
+	public JSONObject hnAsJSON(JSONObject addrPoint, JSONObject addrRow) {
+		JSONObject hnAddrPart = new JSONObject();
+		
+		String hn = addrRow.optString("addr:housenumber");
+		
+		hn = formatHN(hn, addrRow.optString("addr:letter", null));
+		
+		hnAddrPart.put(ADDR_NAME, hn);
+		hnAddrPart.put(ADDR_LVL, "hn");
+		hnAddrPart.put(ADDR_LVL_SIZE, lelvelsComparator.getLVLSize("hn"));
+		hnAddrPart.put("lnk", addrPoint.optString("id"));
+
+		JSONObject names = new JSONObject();
+		hnAddrPart.put(ADDR_NAMES, names);
+		
+		if(addrRow.has("addr:housename")) {
+			names.put("addr:housename", addrRow.getString("addr:housename"));
+		}
+
+		if(addrRow.has("addr:hn-orig")) {
+			names.put("addr:hn-orig", addrRow.getString("addr:hn-orig"));
+		}
+		
+		return hnAddrPart;
+	}
+	
+	private formatHN(String hn, String letter) {
+		hn = StringUtils.replace(hn, " к", " корпус");
+		hn = StringUtils.replace(hn, " c", " строение");
+		return "дом " + hn + (StringUtils.isNotBlank(letter) ? (" литер " + letter) : "");
+	}
 }
 
