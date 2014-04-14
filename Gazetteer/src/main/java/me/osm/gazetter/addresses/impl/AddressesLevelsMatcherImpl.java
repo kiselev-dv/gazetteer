@@ -37,25 +37,6 @@ public class AddressesLevelsMatcherImpl implements AddressesLevelsMatcher {
 	private List<String> placeBoundaries;
 	
 	@Override
-	public JSONObject letterAsJSON(JSONObject addrPoint, JSONObject addrRow) {
-		
-		String letter = addrRow.optString("addr:letter");
-		
-		if(StringUtils.isEmpty(letter)) {
-			return null;
-		}
-		
-		JSONObject letterAddrPart = new JSONObject();
-		
-		letterAddrPart.put(ADDR_NAME, letter);
-		letterAddrPart.put(ADDR_LVL, "letter");
-		letterAddrPart.put(ADDR_LVL_SIZE, lelvelsComparator.getLVLSize("street"));
-		letterAddrPart.put("lnk", addrPoint.optString("id"));
-
-		return letterAddrPart;
-	}
-	
-	@Override
 	public JSONObject hnAsJSON(JSONObject addrPoint, JSONObject addrRow) {
 		JSONObject hnAddrPart = new JSONObject();
 		

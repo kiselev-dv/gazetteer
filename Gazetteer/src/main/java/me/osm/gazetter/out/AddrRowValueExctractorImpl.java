@@ -4,6 +4,8 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
 
+import me.osm.gazetter.striper.GeoJsonWriter;
+
 import org.json.JSONObject;
 
 public class AddrRowValueExctractorImpl implements AddrRowValueExtractor {
@@ -71,6 +73,10 @@ public class AddrRowValueExctractorImpl implements AddrRowValueExtractor {
 
 			if(key.endsWith(".lvl-size")) {
 				return levels.get(key.replace(".lvl-size", "")).getString("lvl-size");
+			}
+			
+			if(LETTER.equals(key)) {
+				return jsonObject.getJSONObject(GeoJsonWriter.PROPERTIES).optString("addr:letter");
 			}
 			
 			return levels.get(key).getString("name");

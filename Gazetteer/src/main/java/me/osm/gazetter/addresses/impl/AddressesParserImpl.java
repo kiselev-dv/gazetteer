@@ -126,11 +126,6 @@ public class AddressesParserImpl implements AddressesParser {
 				addrJsonRow.add(postCodeJSON);
 			}
 
-			JSONObject letterAsJSON = levelsMatcher.letterAsJSON(addrPoint, addrRow);
-			if(letterAsJSON != null) {
-				addrJsonRow.add(letterAsJSON);
-			}
-
 			addrJsonRow.add(levelsMatcher.hnAsJSON(addrPoint, addrRow));
 			
 			JSONObject streetAsJSON = levelsMatcher.streetAsJSON(addrPoint, addrRow, associatedStreet, nearbyStreets);

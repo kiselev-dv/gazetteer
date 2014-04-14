@@ -23,8 +23,6 @@ public interface AddressesLevelsMatcher {
 	public JSONObject quarterAsJSON(JSONObject addrPoint, JSONObject addrRow,
 			Map<String, JSONObject> level2Boundary, JSONObject nearestNeighbour);
 
-	public JSONObject letterAsJSON(JSONObject addrPoint, JSONObject addrRow);
-
 	public JSONObject cityAsJSON(JSONObject addrPoint, JSONObject addrRow,
 			Map<String, JSONObject> level2Boundary, JSONObject nearestPlace, String string);
 
