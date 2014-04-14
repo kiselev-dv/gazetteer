@@ -13,11 +13,10 @@ id \
 osm-type-id \
 type \
 type-verbose \
-[hn name:ru name] \
 addr-text \
 postcode \
 letter \
-hn \
+[hn name:ru name] \
 street \
 street.id \
 [place:quarter place:neighbourhood nearest:neighbourhood] \
@@ -32,13 +31,13 @@ boundary:2.id \
 centroid \
 full-geometry \
 --types address street place \
---line-handler /home/dkiselev/osm/osm-gazetter/Gazetteer/ScriptsExamples/osmruCSVHandler.groovy
+--line-handler /home/dkiselev/osm/osm-gazetter/Gazetteer/ScriptsExamples/osmruCSVHandler.groovy \
+--out-file /opt/osm/ru-kgd-addr.csv
 
 java -Xmx4g -jar gazetteer.jar --data-dir /opt/osm/data out-csv --columns \
 id \
 osm-type-id \
 type \
-type-verbose \
 [name:ru name] \
 poi-class \
 poi-class:ru \
@@ -67,6 +66,6 @@ boundary:4.id \
 boundary:2 \
 boundary:2.id \
 centroid \
---types poi \
---line-handler /home/dkiselev/osm/osm-gazetter/Gazetteer/ScriptsExamples/osmruCSVHandler.groovy
+--types poi 
+
 

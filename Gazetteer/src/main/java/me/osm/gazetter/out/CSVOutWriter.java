@@ -240,10 +240,14 @@ public class CSVOutWriter implements LineHandler {
 						}
 						
 						if(outLineHandler != null) {
-							outLineHandler.handle(row, ftype, jsonObject, mapLevels, addrRow);
+							if(outLineHandler.handle(row, ftype, jsonObject, mapLevels, addrRow)) {
+								writeNext(row, ftype);
+							}
+						}
+						else {
+							writeNext(row, ftype);
 						}
 						
-						writeNext(row, ftype);
 					}
 				}
 			}
@@ -260,10 +264,13 @@ public class CSVOutWriter implements LineHandler {
 						}
 						
 						if(outLineHandler != null) {
-							outLineHandler.handle(row, ftype, jsonObject, mapLevels, bs);
+							if(outLineHandler.handle(row, ftype, jsonObject, mapLevels, bs)) {
+								writeNext(row, ftype);
+							}
 						}
-						
-						writeNext(row, ftype);
+						else {
+							writeNext(row, ftype);
+						}
 					}
 				}
 			}
@@ -278,10 +285,14 @@ public class CSVOutWriter implements LineHandler {
 					}
 					
 					if(outLineHandler != null) {
-						outLineHandler.handle(row, ftype, jsonObject, mapLevels, boundaries);
+						if(outLineHandler.handle(row, ftype, jsonObject, mapLevels, boundaries)) {
+							writeNext(row, ftype);
+						}
+					}
+					else {
+						writeNext(row, ftype);
 					}
 					
-					writeNext(row, ftype);
 				}
 			}
 			else if(FeatureTypes.POI_FTYPE.equals(ftype)) {
@@ -296,10 +307,14 @@ public class CSVOutWriter implements LineHandler {
 						}
 						
 						if(outLineHandler != null) {
-							outLineHandler.handle(row, ftype, jsonObject, mapLevels, addrRow);
+							if(outLineHandler.handle(row, ftype, jsonObject, mapLevels, addrRow)) {
+								writeNext(row, ftype);
+							}
+						}
+						else {
+							writeNext(row, ftype);
 						}
 						
-						writeNext(row, ftype);
 					}
 				}
 			}
@@ -311,10 +326,13 @@ public class CSVOutWriter implements LineHandler {
 				}
 				
 				if(outLineHandler != null) {
-					outLineHandler.handle(row, ftype, jsonObject, null, null);
+					if(outLineHandler.handle(row, ftype, jsonObject, null, null)) {
+						writeNext(row, ftype);
+					}
 				}
-				
-				writeNext(row, ftype);
+				else {
+					writeNext(row, ftype);
+				}
 			}
 			
 		}

@@ -1,5 +1,7 @@
 package me.osm.gazetter.sortupdate;
 
+import groovy.json.JsonOutput;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
@@ -12,8 +14,13 @@ import java.util.concurrent.atomic.AtomicInteger;
 import me.osm.gazetter.striper.GeoJsonWriter;
 
 import org.apache.commons.io.FileUtils;
+import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SortAndUpdateTask implements Runnable {
+	
+	private static final Logger log = LoggerFactory.getLogger(SortAndUpdateTask.class);
 
 	private File stripeF;
 	
@@ -59,6 +66,17 @@ public class SortAndUpdateTask implements Runnable {
 
 				String id = GeoJsonWriter.getId(line);
 				Date timestamp = GeoJsonWriter.getTimestamp(line);
+				
+				if("remove".equals(GeoJsonWriter.getAction(line))) {
+					iterator.remove();
+					counter.getAndIncrement();
+					
+					log.info("Remove feature. Reason: {}", new JSONObject(line).optString("actionDetailed"));
+					
+					//do not save removed id and timestamp
+					//into prevId and prevTimestamp
+					continue;
+				}
 
 				if (prevId != null && prevTimestamp != null
 						&& id.equals(prevId) && timestamp.before(prevTimestamp)) {

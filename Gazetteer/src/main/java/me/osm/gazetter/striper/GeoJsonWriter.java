@@ -34,6 +34,7 @@ public class GeoJsonWriter {
 	private static final String TIMESTAMP_PATTERN = "\"" + GeoJsonWriter.TIMESTAMP +  "\":\"";
 	private static final String ID_PATTERN = "\"id\":\"";
 	private static final String FTYPE_PATTERN = "\"ftype\":\"";
+	private static final String ACTION_PATTERN = "\"action\":\"";
 	
 	public static final String META = "metainfo";
 	public static final String FULL_GEOMETRY = "fullGeometry";
@@ -230,6 +231,18 @@ public class GeoJsonWriter {
 		}
 		
 		return factory.createLineString(coords);
+	}
+
+	public static String getAction(String line) {
+		if(line.contains(ACTION_PATTERN)) {
+			int begin = line.indexOf(ACTION_PATTERN) + ACTION_PATTERN.length();
+			if(begin >= 0) {
+				int end = line.indexOf("\"", begin);
+				return line.substring(begin, end);
+			}
+		}
+		
+		return null;
 	}
 	
 }

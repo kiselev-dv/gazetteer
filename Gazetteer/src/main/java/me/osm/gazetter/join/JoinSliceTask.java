@@ -8,6 +8,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -168,10 +169,13 @@ public class JoinSliceTask implements Runnable {
 				}
 			}
 			
+			
 			for(JSONObject point : pois) {
 				JSONArray ca = point.getJSONObject(GeoJsonWriter.GEOMETRY).getJSONArray(GeoJsonWriter.COORDINATES);
 				poisIndex.insert(new Envelope(new Coordinate(ca.getDouble(0), ca.getDouble(1))), point);
 			}
+
+			mergePois();
 			
 			for(JSONObject point : places) {
 				JSONArray ca = point.getJSONObject(GeoJsonWriter.GEOMETRY).getJSONArray(GeoJsonWriter.COORDINATES);
@@ -199,6 +203,73 @@ public class JoinSliceTask implements Runnable {
 			throw new RuntimeException("Failed to join " + this.src, e);
 		}
 		
+	}
+
+	@SuppressWarnings("unchecked")
+	private void mergePois() {
+		for(JSONObject poi : pois) {
+			JSONObject meta = poi.getJSONObject(GeoJsonWriter.META);
+			JSONObject fullGeometry = meta.optJSONObject("fullGeometry");
+			if(fullGeometry != null && "Polygon".equals(fullGeometry.getString("type"))) {
+				Polygon poly = GeoJsonWriter.getPolygonGeometry(
+						fullGeometry.getJSONArray(GeoJsonWriter.COORDINATES));
+				
+				List<JSONObject> dubles = (List<JSONObject>)poisIndex.query(poly.getEnvelopeInternal());
+				if(dubles.size() > 1) {
+					//remove self
+					dubles.remove(poi);
+					
+					filterMatchedPois(poi, dubles);
+					JSONObject poiProperties = poi.getJSONObject(GeoJsonWriter.PROPERTIES);
+					
+					Iterator<JSONObject> iterator = dubles.iterator();
+					while(iterator.hasNext()) {
+						JSONObject matched = iterator.next();
+						JSONArray coords = matched.getJSONObject(GeoJsonWriter.GEOMETRY).getJSONArray(GeoJsonWriter.COORDINATES);
+						
+						Point centroid = factory.createPoint(new Coordinate(coords.getDouble(0), coords.getDouble(1)));
+						if(!poly.contains(centroid)) {
+							iterator.remove();
+							continue;
+						}
+						
+						matched.put("action", "remove");
+						String poiId = poi.getString("id");
+						matched.put("actionDetailed", 
+								"Remove merged with polygonal boundary poi point." + poiId);
+						
+						JSONObject matchedProperties = matched.getJSONObject(GeoJsonWriter.PROPERTIES);
+						for(String key : (Set<String>)matchedProperties.keySet()) {
+							if(!poiProperties.has(key)) {
+								poiProperties.put(key, matchedProperties.get(key));
+							}
+						}
+					}
+					
+					//move center to the poi point instead of centroid
+					if(dubles.size() == 1) {
+						JSONArray coords = dubles.get(0).getJSONObject(GeoJsonWriter.GEOMETRY).getJSONArray(GeoJsonWriter.COORDINATES);
+						poi.getJSONObject(GeoJsonWriter.GEOMETRY).put(GeoJsonWriter.COORDINATES, coords);
+					}
+					
+				}
+			}
+		}
+	}
+
+	private void filterMatchedPois(JSONObject poi,
+			List<JSONObject> dubles) {
+		
+		String clazz = poi.getJSONArray("poiTypes").getString(0);
+		
+		Iterator<JSONObject> iterator = dubles.iterator();
+		while (iterator.hasNext()) {
+			
+			JSONObject candidate = iterator.next();
+			if(!clazz.equals(candidate.getJSONArray("poiTypes"))) {
+				iterator.remove();
+			}
+		}
 	}
 
 	private void initializeMaps() {

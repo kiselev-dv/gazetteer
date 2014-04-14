@@ -7,7 +7,7 @@ import org.json.JSONObject;
 
 public interface CSVOutLineHandler {
 
-	void handle(List<Object> row, String ftype, JSONObject jsonObject,
+	public boolean handle(List<Object> row, String ftype, JSONObject jsonObject,
 			Map<String, JSONObject> mapLevels, JSONObject addrRow);
 
 }
