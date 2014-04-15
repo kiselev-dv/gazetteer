@@ -150,8 +150,8 @@ class OSMRUAddressesLevelsMatcher extends AddressesLevelsMatcherImpl {
 	}
 	
 	private formatHN(String hn, String letter) {
-		hn = StringUtils.replace(hn, " к", " корпус");
-		hn = StringUtils.replace(hn, " c", " строение");
+		hn = StringUtils.replace(hn, " к", " корпус ");
+		hn = StringUtils.replace(hn, " c", " строение ");
 		return "дом " + hn + (StringUtils.isNotBlank(letter) ? (" литер " + letter) : "");
 	}
 }

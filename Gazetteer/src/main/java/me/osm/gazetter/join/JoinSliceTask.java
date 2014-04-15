@@ -6,9 +6,12 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -32,6 +35,7 @@ import me.osm.gazetter.utils.FileUtils;
 import me.osm.gazetter.utils.FileUtils.LineHandler;
 
 import org.apache.commons.lang3.StringUtils;
+import org.joda.time.DateTime;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -91,12 +95,17 @@ public class JoinSliceTask implements Runnable {
 
 	private Set<String> necesaryBoundaries;
 
+	private Joiner joiner;
+
 	
-	public JoinSliceTask(AddrJointHandler handler, File src, List<JSONObject> common, Set<String> filter, Joiner joiner) {
+	public JoinSliceTask(AddrJointHandler handler, File src, 
+			List<JSONObject> common, Set<String> filter, Joiner joiner) {
+		
 		this.src = src;
 		this.handler = handler;
 		this.common = common;
 		this.necesaryBoundaries = filter;
+		this.joiner = joiner;
 		
 		if(log.isTraceEnabled()) {
 			this.stripesCounter = joiner.getStripesCounter();
@@ -158,6 +167,7 @@ public class JoinSliceTask implements Runnable {
 				JSONArray ca = point.getJSONObject(GeoJsonWriter.GEOMETRY).getJSONArray(GeoJsonWriter.COORDINATES);
 				addrPointsIndex.insert(new Envelope(new Coordinate(ca.getDouble(0), ca.getDouble(1))), point);
 			}
+			buildBoundariesHierarchy();
 			Collections.sort(boundaries, BY_ID_COMPARATOR);
 			
 			for(JSONObject street : streets) {
@@ -203,6 +213,65 @@ public class JoinSliceTask implements Runnable {
 			throw new RuntimeException("Failed to join " + this.src, e);
 		}
 		
+	}
+
+	private void buildBoundariesHierarchy() {
+		
+		Map<Integer, List<JSONObject>> adminBoundaries = new HashMap<>();
+		Map<String, Set<String>> hierarchy = new LinkedHashMap<>();
+		for(JSONObject obj : boundaries) {
+			if(FeatureTypes.ADMIN_BOUNDARY_FTYPE.equals(obj.getString("ftype"))) {
+				int l = Integer.parseInt(obj.getJSONObject(GeoJsonWriter.PROPERTIES).getString("admin_level"));
+				if(adminBoundaries.get(l) == null) {
+					adminBoundaries.put(l, new ArrayList<JSONObject>());
+				}
+				adminBoundaries.get(l).add(obj);
+			}
+		}
+		
+		//clearBoundaries(adminBoundaries);
+		
+		for(Entry<Integer, List<JSONObject>> entry : adminBoundaries.entrySet()) {
+			
+			for(JSONObject obj : entry.getValue()) {
+				
+				Polygon poly = GeoJsonWriter.getPolygonGeometry(
+						obj.getJSONObject(GeoJsonWriter.GEOMETRY).getJSONArray(GeoJsonWriter.COORDINATES));
+
+				for(int i = entry.getKey() - 1; i > 0; i--) {
+					List<JSONObject> uppers = adminBoundaries.get(i);
+					if(uppers != null) {
+						for(JSONObject ub : uppers) {
+							Polygon upperPoly = GeoJsonWriter.getPolygonGeometry(
+									ub.getJSONObject(GeoJsonWriter.GEOMETRY).getJSONArray(GeoJsonWriter.COORDINATES));
+							
+							if(covers(upperPoly, poly)) {
+								
+								String id = obj.getString("id") + 
+										" " + obj.getJSONObject(GeoJsonWriter.PROPERTIES).getString("admin_level");
+								
+								if(hierarchy.get(id) == null) {
+									hierarchy.put(id, new LinkedHashSet<String>());
+								}
+								
+								String ubid = ub.getString("id") + 
+										" " + ub.getJSONObject(GeoJsonWriter.PROPERTIES).getString("admin_level");
+								
+								hierarchy.get(id).add(ubid);
+							}
+							
+						}
+					}
+				}
+			}
+		}
+		
+		this.joiner.handleBoundaryesIndex(hierarchy, this.src.getName());
+	}
+
+	private boolean covers(Polygon bigger, Polygon smaller) {
+		return bigger.covers(smaller);
+		//return Math.abs(smaller.getArea() - bigger.intersection(smaller).getArea()) < 0.0001;
 	}
 
 	@SuppressWarnings("unchecked")

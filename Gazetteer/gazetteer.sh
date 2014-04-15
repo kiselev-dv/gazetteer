@@ -15,11 +15,10 @@ type \
 type-verbose \
 addr-text \
 postcode \
-letter \
-[hn name:ru name] \
+hn \
+[name:ru name] \
 street \
 street.id \
-[place:quarter place:neighbourhood nearest:neighbourhood] \
 [place:village place:hamlet] \
 [place:village.id place:hamlet.id] \
 [place:town place:city] \
@@ -53,10 +52,8 @@ email \
 addr-text \
 addr-long-text \
 postcode \
-letter \
 hn \
 street \
-[place:quarter place:neighbourhood nearest:neighbourhood] \
 [place:village place:hamlet] \
 [place:village.id place:hamlet.id] \
 [place:town place:city] \
