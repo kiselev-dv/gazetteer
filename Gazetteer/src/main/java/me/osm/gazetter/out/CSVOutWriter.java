@@ -11,6 +11,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -71,6 +72,8 @@ public class CSVOutWriter implements LineHandler {
 	
 	private CSVOutLineHandler outLineHandler = null;
 
+	private LinkedHashSet<String> orderedTypes;
+
 	public CSVOutWriter(String dataDir, String columns, List<String> types, String out, 
 			String poiCatalog) {
 		
@@ -79,6 +82,7 @@ public class CSVOutWriter implements LineHandler {
 		this.dataDir = dataDir;
 		this.columns = parseColumns(columns);
 		this.types = new HashSet<>();
+		this.orderedTypes = new LinkedHashSet<>();
 		
 		//checkColumnsKeys();
 		
@@ -87,6 +91,7 @@ public class CSVOutWriter implements LineHandler {
 				
 				String ftype = ARG_TO_TYPE.get(type);
 				this.types.add(ftype);
+				this.orderedTypes.add(ftype);
 				writers.put(ftype, new CsvListWriter(
 						new PrintWriter(getFile4Ftype(ftype)), 
 						new CsvPreference.Builder('$', '\t', "\n").build()));
@@ -233,9 +238,7 @@ public class CSVOutWriter implements LineHandler {
 
 
 	private void out() throws IOException {
-		List<String> types = new ArrayList<>(this.types);
-		Collections.sort(types);
-		for(String type : types) {
+		for(String type : this.orderedTypes) {
 			File sorted = new File(this.dataDir + "/" + type + ".csv.sorted");
 			sort(getFile4Ftype(type), sorted);
 			FileUtils.handleLines(sorted, new LineHandler() {

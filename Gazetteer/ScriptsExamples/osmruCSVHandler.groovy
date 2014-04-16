@@ -32,9 +32,10 @@ public class OSMRUCsvHandler implements CSVOutLineHandler {
 			String addrType = row.get(3);
 			
 			String osmruType = codes.get(addrType);
-			if("admbnd".equals(addrType)) {
+			if("admbnd".equals(row.get(2))) {
 				osmruType = codes.get("boundary:" + 
 					jsonObject.getJSONObject(GeoJsonWriter.PROPERTIES).optString("admin_level"));
+				row.set(1, StringUtils.split (row.get(0), '-')[2]);
 			}
 			
 			
