@@ -29,9 +29,9 @@ boundary:2 \
 boundary:2.id \
 centroid \
 full-geometry \
---types address street place \
+--types address street place boundaries \
 --line-handler /home/dkiselev/osm/osm-gazetter/Gazetteer/ScriptsExamples/osmruCSVHandler.groovy \
---out-file /opt/osm/ru-kgd-addr.csv
+--out-file /opt/osm/ru-addr.csv
 
 java -Xmx4g -jar gazetteer.jar --data-dir /opt/osm/data out-csv --columns \
 id \
@@ -64,5 +64,6 @@ boundary:2 \
 boundary:2.id \
 centroid \
 --types poi 
+--out-file /opt/osm/ru-poi.csv
 
 
