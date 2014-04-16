@@ -1,7 +1,7 @@
 import me.osm.gazetter.out.CSVOutLineHandler;
+import me.osm.gazetter.striper.GeoJsonWriter;
 
 import org.apache.commons.lang3.StringUtils;
-
 import org.json.*;
 
 public class OSMRUCsvHandler implements CSVOutLineHandler {
@@ -32,6 +32,11 @@ public class OSMRUCsvHandler implements CSVOutLineHandler {
 			String addrType = row.get(3);
 			
 			String osmruType = codes.get(addrType);
+			if("admbnd".equals(addrType)) {
+				osmruType = codes.get("boundary:" + 
+					jsonObject.getJSONObject(GeoJsonWriter.PROPERTIES).optString("admin_level"));
+			}
+			
 			
 			if(osmruType == null) {
 				return false;

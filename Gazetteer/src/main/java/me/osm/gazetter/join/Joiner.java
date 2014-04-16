@@ -21,6 +21,11 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import me.osm.gazetter.Options;
+import me.osm.gazetter.addresses.AddressesParser;
+import me.osm.gazetter.striper.FeatureTypes;
+import me.osm.gazetter.striper.GeoJsonWriter;
+import me.osm.gazetter.striper.JSONFeature;
 import me.osm.gazetter.utils.FileUtils;
 import me.osm.gazetter.utils.FileUtils.LineHandler;
 
@@ -46,9 +51,11 @@ public class Joiner {
 	private Set<String> filter;
 	
 	private PrintWriter boundaryIndexWriter;
+	private final AddressesParser addressesParser;
 	
 	public Joiner(Set<String> filter) {
 		this.filter = filter;
+		this.addressesParser = Options.get().getAddressesParser();
 	}
 	
 	public static class StripeFilenameFilter implements FilenameFilter {
@@ -105,26 +112,26 @@ public class Joiner {
 		log.info("Join done in {}", DurationFormatUtils.formatDurationHMS(new Date().getTime() - start));
 	}
 
-
 	private void reduceBoundariesIndex() {
-		final Map<String, Set<String>> index = new HashMap<String, Set<String>>();
+		
+		final Map<JsonObjectWrapper, Set<JsonObjectWrapper>> index = 
+				new HashMap<JsonObjectWrapper, Set<JsonObjectWrapper>>();
 		
 		FileUtils.handleLines(binxFile, new LineHandler() {
 			
 			@Override
 			public void handle(String s) {
 				
-				JSONObject obj = new JSONObject(s);
+				JSONObject entry = new JSONObject(s);
 				
-				String id = obj.getString("id");
-				if(index.get(id) == null) {
-					index.put(id, new LinkedHashSet<String>());
+				JsonObjectWrapper obj = new JsonObjectWrapper(entry.getJSONObject("obj"));
+				if(index.get(obj) == null) {
+					index.put(obj, new LinkedHashSet<JsonObjectWrapper>());
 				}
 				
-				JSONArray uppers = obj.getJSONArray("uppers");
+				JSONArray uppers = entry.getJSONArray("boundaries");
 				for(int i = 0; i < uppers.length(); i++) {
-					String upb = uppers.getString(i);
-					index.get(id).add(upb);
+					index.get(obj).add(new JsonObjectWrapper(uppers.getJSONObject(i)));
 				}
 			}
 			
@@ -133,10 +140,9 @@ public class Joiner {
 		try {
 			
 			boundaryIndexWriter = new PrintWriter(binxFile);
-			for(Entry<String, Set<String>> entry : index.entrySet()) {
+			for(Entry<JsonObjectWrapper, Set<JsonObjectWrapper>> entry : index.entrySet()) {
 				
-				String[] split = StringUtils.split(entry.getKey());
-				String id = split[0];
+				String id = entry.getKey().getId();
 				int[] levels = getLevels(entry.getValue());
 				
 				if(isNotDistinct(levels)) {
@@ -145,9 +151,16 @@ public class Joiner {
 				}
 				
 				JSONObject result = new JSONObject();
-				result.put("level", Integer.parseInt(split[1]));
+				JSONObject object = new JSONFeature(entry.getKey().getObject());
+				
+				result.put("level", Integer.parseInt(object.
+						getJSONObject(GeoJsonWriter.PROPERTIES).getString("admin_level")));
+				
+				object.put("ftype", FeatureTypes.ADMIN_BOUNDARY_FTYPE);
 				result.put("id", id);
-				result.put("uppers", new JSONArray(getIds(entry.getValue())));
+				result.put("obj", object);
+				JSONObject boundaries = this.addressesParser.boundariesAsArray(object, unwrap(entry.getValue()));
+				result.put("boundaries", boundaries);
 				
 				boundaryIndexWriter.println(result.toString());
 			}
@@ -161,11 +174,11 @@ public class Joiner {
 	}
 
 
-	private List<String> getIds(Set<String> value) {
-		List<String> result = new ArrayList<>();
+	private List<JSONObject> unwrap(Set<JsonObjectWrapper> set) {
+		List<JSONObject> result = new ArrayList<>();
 		
-		for(String s : value) {
-			result.add(StringUtils.split(s)[0]);
+		for(JsonObjectWrapper s : set) {
+			result.add(s.getObject());
 		}
 		
 		return result;
@@ -186,11 +199,12 @@ public class Joiner {
 	}
 
 
-	private int[] getLevels(Set<String> ids) {
-		int[] result = new int[ids.size()];
+	private int[] getLevels(Set<JsonObjectWrapper> set) {
+		int[] result = new int[set.size()];
 		int i = 0;
-		for(String id : ids) {
-			result[i++] = Integer.valueOf(StringUtils.split(id)[1]);
+		for(JsonObjectWrapper obj : set) {
+			result[i++] = Integer.valueOf(obj.getObject()
+					.getJSONObject(GeoJsonWriter.PROPERTIES).getString("admin_level"));
 		} 
 		return result;
 	}
@@ -225,13 +239,28 @@ public class Joiner {
 		return stripesCounter;
 	}
 	
-	public synchronized void handleBoundaryesIndex(Map<String, Set<String>> hierarchy, String fileName) {
-		for(Entry<String, Set<String>> entry : hierarchy.entrySet()) {
+	public synchronized void handleBoundaryesIndex(Map<JsonObjectWrapper, Set<JsonObjectWrapper>> hierarchy, String fileName) {
+		for(Entry<JsonObjectWrapper, Set<JsonObjectWrapper>> entry : hierarchy.entrySet()) {
+			
 			JSONObject out = new JSONObject();
+			
 			out.put("file", fileName);
-			out.put("id", entry.getKey());
-			JSONArray uppers = new JSONArray(entry.getValue());
-			out.put("uppers", uppers);
+			JSONObject obj = new JSONObject();
+			obj.put("id", entry.getKey().getId());
+			obj.put(GeoJsonWriter.PROPERTIES, entry.getKey().getObject()
+					.getJSONObject(GeoJsonWriter.PROPERTIES));
+			out.put("obj", obj);
+			
+			JSONArray uppers = new JSONArray();
+			
+			for(JsonObjectWrapper upb : entry.getValue()) {
+				JSONObject ref = new JSONObject();
+				ref.put("id", upb.getObject().getString("id"));
+				ref.put(GeoJsonWriter.PROPERTIES, upb.getObject().getJSONObject(GeoJsonWriter.PROPERTIES));
+				
+				uppers.put(ref);
+			}
+			out.put("boundaries", uppers);
 			
 			boundaryIndexWriter.println(out.toString());
 		}

@@ -6,7 +6,6 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -35,7 +34,6 @@ import me.osm.gazetter.utils.FileUtils;
 import me.osm.gazetter.utils.FileUtils.LineHandler;
 
 import org.apache.commons.lang3.StringUtils;
-import org.joda.time.DateTime;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -83,6 +81,7 @@ public class JoinSliceTask implements Runnable {
 	private AddrJointHandler handler;
 	private List<JSONObject> common;
 	
+	//dependancies
 	private final PoiAddrJoinBuilder poiAddrJoinBuilder = new PoiAddrJoinBuilder();
 	private final AddressesParser addressesParser = Options.get().getAddressesParser();
 	private final NamesMatcher namesMatcher = Options.get().getNamesMatcher();
@@ -218,7 +217,7 @@ public class JoinSliceTask implements Runnable {
 	private void buildBoundariesHierarchy() {
 		
 		Map<Integer, List<JSONObject>> adminBoundaries = new HashMap<>();
-		Map<String, Set<String>> hierarchy = new LinkedHashMap<>();
+		Map<JsonObjectWrapper, Set<JsonObjectWrapper>> hierarchy = new LinkedHashMap<>();
 		for(JSONObject obj : boundaries) {
 			if(FeatureTypes.ADMIN_BOUNDARY_FTYPE.equals(obj.getString("ftype"))) {
 				int l = Integer.parseInt(obj.getJSONObject(GeoJsonWriter.PROPERTIES).getString("admin_level"));
@@ -247,17 +246,13 @@ public class JoinSliceTask implements Runnable {
 							
 							if(covers(upperPoly, poly)) {
 								
-								String id = obj.getString("id") + 
-										" " + obj.getJSONObject(GeoJsonWriter.PROPERTIES).getString("admin_level");
+								JsonObjectWrapper id = new JsonObjectWrapper(obj);
 								
 								if(hierarchy.get(id) == null) {
-									hierarchy.put(id, new LinkedHashSet<String>());
+									hierarchy.put(id, new LinkedHashSet<JsonObjectWrapper>());
 								}
-								
-								String ubid = ub.getString("id") + 
-										" " + ub.getJSONObject(GeoJsonWriter.PROPERTIES).getString("admin_level");
-								
-								hierarchy.get(id).add(ubid);
+																							
+								hierarchy.get(id).add(new JsonObjectWrapper(ub));
 							}
 							
 						}

@@ -42,6 +42,7 @@ public class CSVOutWriter implements LineHandler {
 		ARG_TO_TYPE.put("street", FeatureTypes.HIGHWAY_FEATURE_TYPE);
 		ARG_TO_TYPE.put("place", FeatureTypes.PLACE_POINT_FTYPE);
 		ARG_TO_TYPE.put("poi", FeatureTypes.POI_FTYPE);
+		ARG_TO_TYPE.put("boundaries", FeatureTypes.ADMIN_BOUNDARY_FTYPE);
 	}
 	
 	public static Comparator<String> defaultcomparator = new Comparator<String>() {
@@ -172,8 +173,47 @@ public class CSVOutWriter implements LineHandler {
 	public void write() {
 		File folder = new File(dataDir);
 		try {
-			for(File stripeF : folder.listFiles(Joiner.STRIPE_FILE_FN_FILTER)) {
-				FileUtils.handleLines(stripeF, this);
+			boolean containsBoundaries = types.remove(FeatureTypes.ADMIN_BOUNDARY_FTYPE);
+			
+			if(!types.isEmpty()) {
+				for(File stripeF : folder.listFiles(Joiner.STRIPE_FILE_FN_FILTER)) {
+					FileUtils.handleLines(stripeF, this);
+				}
+			}
+			
+			if(containsBoundaries) {
+				types.add(FeatureTypes.ADMIN_BOUNDARY_FTYPE);
+			}
+			
+			if(types.contains(FeatureTypes.ADMIN_BOUNDARY_FTYPE)) {
+				FileUtils.handleLines(new File(dataDir + "/binx.gjson"), new LineHandler() {
+					
+					@Override
+					public void handle(String s) {
+						JSONObject jsonObject = new JSONObject(s);
+						JSONObject boundaries = jsonObject.optJSONObject("boundaries");
+						jsonObject = jsonObject.getJSONObject("obj");
+						if(boundaries != null) {
+							Map<String, JSONObject> mapLevels = mapLevels(boundaries);
+							List<Object> row = new ArrayList<>();
+							
+							for (List<String> column : columns) {
+								row.add(getColumn(FeatureTypes.ADMIN_BOUNDARY_FTYPE, jsonObject, mapLevels, boundaries, column));
+							}
+							
+							if(outLineHandler != null) {
+								if(outLineHandler.handle(row, FeatureTypes.ADMIN_BOUNDARY_FTYPE, jsonObject, mapLevels, boundaries)) {
+									writeNext(row, FeatureTypes.ADMIN_BOUNDARY_FTYPE);
+								}
+							}
+							else {
+								writeNext(row, FeatureTypes.ADMIN_BOUNDARY_FTYPE);
+							}
+							
+						}
+					}
+					
+				});
 			}
 			
 			for(CsvListWriter w : writers.values()) {
@@ -223,7 +263,7 @@ public class CSVOutWriter implements LineHandler {
 	public void handle(String line) {
 		String ftype = GeoJsonWriter.getFtype(line);
 		
-		if(types.contains(ftype)) {
+		if(types.contains(ftype) && !FeatureTypes.ADMIN_BOUNDARY_FTYPE.equals(ftype)) {
 
 			JSONObject jsonObject = new JSONObject(line);
 

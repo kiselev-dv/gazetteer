@@ -161,7 +161,8 @@ public class Main {
 			parser.handleError(e);
 		}
 		catch (Exception e) {
-			log.error("Fatal error: " + ExceptionUtils.getRootCause(e).getMessage(), e);
+			Throwable rootCause = ExceptionUtils.getRootCause(e);
+			log.error("Fatal error: " + (rootCause == null ? "" : rootCause.getMessage()), e);
 			System.exit(1);
 		} 
 		
