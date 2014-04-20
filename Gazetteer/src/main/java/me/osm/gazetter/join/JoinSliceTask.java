@@ -92,9 +92,6 @@ public class JoinSliceTask implements Runnable {
 
 	private Set<String> necesaryBoundaries;
 
-	private Joiner joiner;
-
-	
 	public JoinSliceTask(AddrJointHandler handler, File src, 
 			List<JSONObject> common, Set<String> filter, Joiner joiner) {
 		
@@ -102,7 +99,6 @@ public class JoinSliceTask implements Runnable {
 		this.handler = handler;
 		this.common = common;
 		this.necesaryBoundaries = filter;
-		this.joiner = joiner;
 		
 		if(log.isTraceEnabled()) {
 			this.stripesCounter = joiner.getStripesCounter();
