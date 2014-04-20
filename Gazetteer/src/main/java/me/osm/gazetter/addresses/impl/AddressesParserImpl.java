@@ -406,12 +406,12 @@ public class AddressesParserImpl implements AddressesParser {
 			}
 		}
 		
-		JSONObject fullAddressRow = createBoundaryAddrRow(result);
+		JSONObject fullAddressRow = createBoundaryAddrRow(result, subj);
 		
 		return fullAddressRow;
 	}
 
-	protected JSONObject createBoundaryAddrRow(List<JSONObject> result) {
+	protected JSONObject createBoundaryAddrRow(List<JSONObject> result, JSONObject subj) {
 		List<JSONObject> filtered = filterForFullText(result);
 
 		JSONObject fullAddressRow = new JSONObject();

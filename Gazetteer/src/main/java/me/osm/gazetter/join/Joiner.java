@@ -142,6 +142,7 @@ public class Joiner {
 						ups.clear();
 						ups.addAll(dwns);
 						dwns.clear();
+						dwns.add(new BoundaryCortage(obj));
 					}
 					else {
 						throw new RuntimeException("Boundaries are not sorted properly.");

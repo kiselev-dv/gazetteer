@@ -17,6 +17,7 @@ import org.json.JSONObject;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.LineString;
+import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Polygon;
 
 public class FeatureValueExctractorImpl implements FeatureValueExtractor {
@@ -120,6 +121,10 @@ public class FeatureValueExctractorImpl implements FeatureValueExtractor {
 					fullGeometry = meta.optJSONObject("fullGeometry");
 				}
 				
+				if(fullGeometry != null && "MultiPolygon".equals(fullGeometry.optString("type"))) {
+					MultiPolygon polygon = GeoJsonWriter.getMultiPolygonGeometry(fullGeometry.getJSONArray("coordinates"));
+					return polygon.toString();
+				}
 				if(fullGeometry != null && "Polygon".equals(fullGeometry.optString("type"))) {
 					Polygon polygon = GeoJsonWriter.getPolygonGeometry(fullGeometry.getJSONArray("coordinates"));
 					return polygon.toString();

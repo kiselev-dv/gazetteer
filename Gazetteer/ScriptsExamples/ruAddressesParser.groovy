@@ -88,10 +88,13 @@ class OSMRUAddressesParserImpl extends AddressesParserImpl {
 		return fullAddressRow;
 	}
 	
-	protected JSONObject createBoundaryAddrRow(List<JSONObject> result) {
+	protected JSONObject createBoundaryAddrRow(List<JSONObject> result, JSONObject subj) {
 		JSONObject fullAddressRow = new JSONObject();
 
 		List<JSONObject> filtered = filterForFullText(result);
+//		if(subj != null && getAddrLevel(subj)!= null && getAddrLevel(subj).startsWith("boundary")) {
+//			filtered = result;
+//		}
 
 		fullAddressRow.put("index_name",  textFormatter.joinBoundariesNames(filtered, null));
 		

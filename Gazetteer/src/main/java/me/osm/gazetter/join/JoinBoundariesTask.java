@@ -24,6 +24,8 @@ public class JoinBoundariesTask implements Runnable {
 	public void run() {
 		
 		Envelope env = up.getGeometry().getEnvelopeInternal();
+		
+		@SuppressWarnings("unchecked")
 		List<BoundaryCortage> downs = index.query(env);
 		
 		for(BoundaryCortage bc : downs) {
