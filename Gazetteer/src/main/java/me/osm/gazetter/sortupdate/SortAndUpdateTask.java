@@ -1,7 +1,5 @@
 package me.osm.gazetter.sortupdate;
 
-import groovy.json.JsonOutput;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.Collections;

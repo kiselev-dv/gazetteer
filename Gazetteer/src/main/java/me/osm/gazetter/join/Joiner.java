@@ -3,7 +3,6 @@ package me.osm.gazetter.join;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FilenameFilter;
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -21,13 +20,12 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import javax.management.RuntimeErrorException;
-
 import me.osm.gazetter.Options;
 import me.osm.gazetter.addresses.AddressesParser;
 import me.osm.gazetter.striper.GeoJsonWriter;
 import me.osm.gazetter.striper.JSONFeature;
 import me.osm.gazetter.utils.FileUtils;
+import me.osm.gazetter.utils.FileUtils.LineHandler;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -40,8 +38,6 @@ import org.slf4j.LoggerFactory;
 import com.google.code.externalsorting.ExternalSort;
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.index.quadtree.Quadtree;
-
-import me.osm.gazetter.utils.FileUtils.LineHandler;
 
 public class Joiner {
 	

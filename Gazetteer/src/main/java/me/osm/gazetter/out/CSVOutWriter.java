@@ -19,7 +19,6 @@ import java.util.StringTokenizer;
 
 import me.osm.gazetter.Options;
 import me.osm.gazetter.join.Joiner;
-import me.osm.gazetter.join.PoiAddrJoinBuilder;
 import me.osm.gazetter.striper.FeatureTypes;
 import me.osm.gazetter.striper.GeoJsonWriter;
 import me.osm.gazetter.utils.FileUtils;
