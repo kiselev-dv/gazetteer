@@ -109,7 +109,7 @@ public class Joiner {
        
        final Iterator<Integer> lvlsi = lvls.iterator();
 
-		if (lvls.size() > 2) {
+		if (lvls.size() >= 2) {
 			
 			//one of the ugliest java things.
 			final int[] uppers = new int[]{lvlsi.next()};
@@ -182,7 +182,7 @@ public class Joiner {
 					uppers.add(o);
 				}
 				
-				if(check(obj, uppers, filter)) {
+				if(filter == null || filter.isEmpty() || check(obj, uppers, filter)) {
 					obj.put("boundaries", addressesParser.boundariesAsArray(obj, uppers));
 					
 					writer.println(obj.toString());

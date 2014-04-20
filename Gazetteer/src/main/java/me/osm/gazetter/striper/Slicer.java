@@ -207,13 +207,14 @@ public class Slicer implements BoundariesHandler,
 		
 		JSONObject meta = featureWithoutGeometry.getJSONObject(GeoJsonWriter.META);
 		meta.put(GeoJsonWriter.FULL_GEOMETRY, GeoJsonWriter.geometryToJSON(multiPolygon));
-		meta.put(GeoJsonWriter.GEOMETRY, GeoJsonWriter.geometryToJSON(multiPolygon.getCentroid()));
+		featureWithoutGeometry.put(GeoJsonWriter.GEOMETRY, GeoJsonWriter.geometryToJSON(multiPolygon.getCentroid()));
 		GeoJsonWriter.addTimestamp(featureWithoutGeometry);
 		try {
 			writeDAO.write(featureWithoutGeometry.toString(), "binx.gjson");
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
+		featureWithoutGeometry.remove(GeoJsonWriter.GEOMETRY);
 		meta.remove(GeoJsonWriter.FULL_GEOMETRY);
 		
 	}

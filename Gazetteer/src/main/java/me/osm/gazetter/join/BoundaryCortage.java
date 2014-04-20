@@ -20,7 +20,7 @@ public class BoundaryCortage {
 		
 		id = obj.getString("id");
 		
-		JSONObject geomJSON = obj.getJSONObject(GeoJsonWriter.GEOMETRY);
+		JSONObject geomJSON = obj.getJSONObject(GeoJsonWriter.META).getJSONObject(GeoJsonWriter.FULL_GEOMETRY);
 		if("MultiPolygon".equals(geomJSON.getString("type"))) {
 			geometry = GeoJsonWriter.getMultiPolygonGeometry(geomJSON.getJSONArray(GeoJsonWriter.COORDINATES)); 
 		}

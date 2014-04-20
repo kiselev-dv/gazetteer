@@ -196,7 +196,6 @@ public class CSVOutWriter implements LineHandler {
 					public void handle(String s) {
 						JSONObject jsonObject = new JSONObject(s);
 						JSONObject boundaries = jsonObject.optJSONObject("boundaries");
-						jsonObject = jsonObject.getJSONObject("obj");
 						if(boundaries != null) {
 							Map<String, JSONObject> mapLevels = mapLevels(boundaries);
 							List<Object> row = new ArrayList<>();
