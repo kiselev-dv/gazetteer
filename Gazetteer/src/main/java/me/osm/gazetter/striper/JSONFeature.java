@@ -31,8 +31,17 @@ public final class JSONFeature extends JSONObject {
 		Collections.sort(keys, new Comparator<String>() {
 			@Override
 			public int compare(String o1, String o2) {
-				int i1 = "id".equals(o1) ? 0 : "ftype".equals(o1) ? 1 : GeoJsonWriter.TIMESTAMP.equals(o1) ? 2 : "action".equals(o1) ? 3 : 10; 
-				int i2 = "id".equals(o2) ? 0 : "ftype".equals(o2) ? 1 : GeoJsonWriter.TIMESTAMP.equals(o2) ? 2 : "action".equals(o1) ? 3 : 10; 
+				int i1 = "id".equals(o1) ? 0 
+						: "ftype".equals(o1) ? 1 
+						: GeoJsonWriter.TIMESTAMP.equals(o1) ? 2 
+						: "action".equals(o1) ? 3 
+						: 10; 
+				
+				int i2 = "id".equals(o2) ? 0 
+						: "ftype".equals(o2) ? 1 
+						: GeoJsonWriter.TIMESTAMP.equals(o2) ? 2 
+						: "action".equals(o2) ? 3 
+						: 10; 
 				
 				return i1 - i2;
 			}

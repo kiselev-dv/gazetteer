@@ -1,11 +1,14 @@
 package me.osm.gazetter.striper;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
 import me.osm.gazetter.utils.HilbertCurveHasher;
 
+import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.LocalDateTime;
@@ -20,6 +23,7 @@ import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.LinearRing;
+import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
 
@@ -35,6 +39,7 @@ public class GeoJsonWriter {
 	private static final String ID_PATTERN = "\"id\":\"";
 	private static final String FTYPE_PATTERN = "\"ftype\":\"";
 	private static final String ACTION_PATTERN = "\"action\":\"";
+	private static final String ADM_LVL_PATTERN = "\"admin_level\":\"";
 	
 	public static final String META = "metainfo";
 	public static final String FULL_GEOMETRY = "fullGeometry";
@@ -67,6 +72,16 @@ public class GeoJsonWriter {
 			return null;
 		}
 		
+		if(g instanceof MultiPolygon) {
+			JSONObject geomJSON = new JSONObject();
+			geomJSON.put(GEOMETRY_TYPE, "MultiPolygon");
+			List<String> rings = new ArrayList<>();
+			for(int i = 0; i < g.getNumGeometries(); i++) {
+				rings.add(asJsonString((Polygon) g.getGeometryN(i)));
+			}
+			geomJSON.put(COORDINATES, new JsonStringWrapper("[" + StringUtils.join(rings, ",") + "]"));
+			return geomJSON;
+		}
 		if(g instanceof Polygon) {
 			JSONObject geomJSON = new JSONObject();
 			geomJSON.put(GEOMETRY_TYPE, "Polygon");
@@ -195,6 +210,16 @@ public class GeoJsonWriter {
 		return getPolygonGeometry(coords);
 	}
 
+	public static MultiPolygon getMultiPolygonGeometry(JSONArray polygon) {
+		
+		Polygon polygons[] = new Polygon[polygon.length()];
+		for(int i = 0; i < polygon.length(); i++) {
+			polygons[i] = getPolygonGeometry(polygon.getJSONArray(i));
+		}
+		
+		return factory.createMultiPolygon(polygons);
+	}
+
 	public static Polygon getPolygonGeometry(JSONArray coords) {
 		LinearRing shell = null;
 		LinearRing[] holes = new LinearRing[coords.length() - 1];
@@ -236,6 +261,18 @@ public class GeoJsonWriter {
 	public static String getAction(String line) {
 		if(line.contains(ACTION_PATTERN)) {
 			int begin = line.indexOf(ACTION_PATTERN) + ACTION_PATTERN.length();
+			if(begin >= 0) {
+				int end = line.indexOf("\"", begin);
+				return line.substring(begin, end);
+			}
+		}
+		
+		return null;
+	}
+
+	public static String getAdmLevel(String line) {
+		if(line.contains(ADM_LVL_PATTERN)) {
+			int begin = line.indexOf(ADM_LVL_PATTERN) + ADM_LVL_PATTERN.length();
 			if(begin >= 0) {
 				int end = line.indexOf("\"", begin);
 				return line.substring(begin, end);

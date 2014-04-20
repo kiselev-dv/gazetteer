@@ -166,7 +166,7 @@ public class JoinSliceTask implements Runnable {
 				JSONArray ca = point.getJSONObject(GeoJsonWriter.GEOMETRY).getJSONArray(GeoJsonWriter.COORDINATES);
 				addrPointsIndex.insert(new Envelope(new Coordinate(ca.getDouble(0), ca.getDouble(1))), point);
 			}
-			buildBoundariesHierarchy();
+
 			Collections.sort(boundaries, BY_ID_COMPARATOR);
 			
 			for(JSONObject street : streets) {
@@ -212,61 +212,6 @@ public class JoinSliceTask implements Runnable {
 			throw new RuntimeException("Failed to join " + this.src, e);
 		}
 		
-	}
-
-	private void buildBoundariesHierarchy() {
-		
-		Map<Integer, List<JSONObject>> adminBoundaries = new HashMap<>();
-		Map<JsonObjectWrapper, Set<JsonObjectWrapper>> hierarchy = new LinkedHashMap<>();
-		for(JSONObject obj : boundaries) {
-			if(FeatureTypes.ADMIN_BOUNDARY_FTYPE.equals(obj.getString("ftype"))) {
-				int l = Integer.parseInt(obj.getJSONObject(GeoJsonWriter.PROPERTIES).getString("admin_level"));
-				if(adminBoundaries.get(l) == null) {
-					adminBoundaries.put(l, new ArrayList<JSONObject>());
-				}
-				adminBoundaries.get(l).add(obj);
-			}
-		}
-		
-		//clearBoundaries(adminBoundaries);
-		
-		for(Entry<Integer, List<JSONObject>> entry : adminBoundaries.entrySet()) {
-			
-			for(JSONObject obj : entry.getValue()) {
-				
-				Polygon poly = GeoJsonWriter.getPolygonGeometry(
-						obj.getJSONObject(GeoJsonWriter.GEOMETRY).getJSONArray(GeoJsonWriter.COORDINATES));
-
-				for(int i = entry.getKey() - 1; i > 0; i--) {
-					List<JSONObject> uppers = adminBoundaries.get(i);
-					if(uppers != null) {
-						for(JSONObject ub : uppers) {
-							Polygon upperPoly = GeoJsonWriter.getPolygonGeometry(
-									ub.getJSONObject(GeoJsonWriter.GEOMETRY).getJSONArray(GeoJsonWriter.COORDINATES));
-							
-							if(covers(upperPoly, poly)) {
-								
-								JsonObjectWrapper id = new JsonObjectWrapper(obj);
-								
-								if(hierarchy.get(id) == null) {
-									hierarchy.put(id, new LinkedHashSet<JsonObjectWrapper>());
-								}
-																							
-								hierarchy.get(id).add(new JsonObjectWrapper(ub));
-							}
-							
-						}
-					}
-				}
-			}
-		}
-		
-		this.joiner.handleBoundaryesIndex(hierarchy, this.src.getName());
-	}
-
-	private boolean covers(Polygon bigger, Polygon smaller) {
-		return bigger.covers(smaller);
-		//return Math.abs(smaller.getArea() - bigger.intersection(smaller).getArea()) < 0.0001;
 	}
 
 	@SuppressWarnings("unchecked")

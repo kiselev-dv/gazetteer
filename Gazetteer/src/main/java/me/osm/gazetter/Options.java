@@ -38,6 +38,7 @@ public class Options {
 	private final NamesMatcher namesMatcher;
 	private boolean findLangsLevel;
 	private CSVOutLineHandler csvOutLineHandler = null;
+	private int nThreads = Runtime.getRuntime().availableProcessors();
 	
 
 	private Options() {
@@ -196,6 +197,14 @@ public class Options {
 
 	public void setCsvOutLineHandler(String csvOutLineHandler) {
 		this.csvOutLineHandler = getCSVHandler(csvOutLineHandler);
+	}
+
+	public int getNumberOfThreads () {
+		return this.nThreads;
+	}
+
+	public void setNThreads(int nThreads) {
+		this.nThreads = nThreads;
 	}
 	
 }

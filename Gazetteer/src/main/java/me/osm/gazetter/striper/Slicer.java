@@ -150,7 +150,12 @@ public class Slicer implements BoundariesHandler,
 
 	private void stripeBoundary(JSONObject featureWithoutGeometry,
 			MultiPolygon multiPolygon) {
+		
 		if(multiPolygon != null) {
+		
+			if(FeatureTypes.ADMIN_BOUNDARY_FTYPE.equals(featureWithoutGeometry.getString("ftype"))) {
+				writeBoundary(featureWithoutGeometry, multiPolygon);
+			} 
 			
 			JSONObject meta = featureWithoutGeometry.getJSONObject(GeoJsonWriter.META);
 			
@@ -195,6 +200,22 @@ public class Slicer implements BoundariesHandler,
 				writeOut(geoJSONString, n);
 			}
 		}
+	}
+
+	private void writeBoundary(JSONObject featureWithoutGeometry,
+			MultiPolygon multiPolygon) {
+		
+		JSONObject meta = featureWithoutGeometry.getJSONObject(GeoJsonWriter.META);
+		meta.put(GeoJsonWriter.FULL_GEOMETRY, GeoJsonWriter.geometryToJSON(multiPolygon));
+		meta.put(GeoJsonWriter.GEOMETRY, GeoJsonWriter.geometryToJSON(multiPolygon.getCentroid()));
+		GeoJsonWriter.addTimestamp(featureWithoutGeometry);
+		try {
+			writeDAO.write(featureWithoutGeometry.toString(), "binx.gjson");
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+		meta.remove(GeoJsonWriter.FULL_GEOMETRY);
+		
 	}
 
 	private boolean isPlaceBoundary(JSONObject featureWithoutGeometry) {
