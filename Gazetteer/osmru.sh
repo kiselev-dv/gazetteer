@@ -15,8 +15,8 @@ type \
 type-verbose \
 addr-text \
 postcode \
-hn \
 [name:ru name] \
+hn \
 street \
 street.id \
 [place:village place:hamlet] \
