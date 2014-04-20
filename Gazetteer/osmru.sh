@@ -23,6 +23,8 @@ street.id \
 [place:village.id place:hamlet.id] \
 [place:town place:city] \
 [place:town.id place:city.id] \
+boundary:6 \
+boundary:6.id \
 boundary:4 \
 boundary:4.id \
 boundary:2 \
