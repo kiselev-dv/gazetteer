@@ -15,7 +15,7 @@ type \
 type-verbose \
 addr-text \
 postcode \
-[name:ru name] \
+[hn name:ru name] \
 hn \
 street \
 street.id \
@@ -30,7 +30,7 @@ boundary:2.id \
 centroid \
 full-geometry \
 --types address street place boundaries \
---line-handler /home/dkiselev/osm/osm-gazetter/Gazetteer/ScriptsExamples/osmruCSVHandler.groovy \
+--line-handler /opt/osm/gazetteer/Gazetteer/ScriptsExamples/osmruCSVHandler.groovy \
 --out-file /opt/osm/ru-addr.csv
 
 java -Xmx4g -jar gazetteer.jar --data-dir /opt/osm/data out-csv --columns \

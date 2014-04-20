@@ -355,6 +355,10 @@ public class AddressesParserImpl implements AddressesParser {
 			if(addrLevelComparator.supports(bk)) {
 				return bk;
 			}
+			
+			if(properties.has("highway")) {
+				return "street";
+			}
 		}
 		
 		return null;
