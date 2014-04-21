@@ -41,7 +41,7 @@ import com.vividsolutions.jts.index.quadtree.Quadtree;
 
 public class Joiner {
 	
-	private AddrJointHandler addrPointFormatter = (AddrJointHandler) new AddrPointFormatter();
+	private AddrJointHandler addrPointFormatter = new AddrPointFormatter();
 	
 	private static final Logger log = LoggerFactory.getLogger(Joiner.class.getName());
 	

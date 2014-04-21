@@ -68,24 +68,34 @@ public class Main {
 	
 	private enum Command implements CommandDescription {
 	    SPLIT {
-	    	public String longName() {return name().toLowerCase();}
-	    	public String help() {return "Prepare osm data. Split nodes, ways and relations.";}
+	    	@Override
+			public String longName() {return name().toLowerCase();}
+	    	@Override
+			public String help() {return "Prepare osm data. Split nodes, ways and relations.";}
 	    }, 
 	    SLICE {
-	    	public String longName() {return name().toLowerCase();}
-	    	public String help() {return "Parse features from osm data and write it into stripes 0.1 degree wide.";}
+	    	@Override
+			public String longName() {return name().toLowerCase();}
+	    	@Override
+			public String help() {return "Parse features from osm data and write it into stripes 0.1 degree wide.";}
 	    }, 
 	    JOIN {
-	    	public String longName() {return name().toLowerCase();}
-	    	public String help() {return "Join features. Made spatial joins for address points inside polygons and so on.";}
+	    	@Override
+			public String longName() {return name().toLowerCase();}
+	    	@Override
+			public String help() {return "Join features. Made spatial joins for address points inside polygons and so on.";}
 	    }, 
 	    SYNCHRONIZE {
-	    	public String longName() {return name().toLowerCase();}
-	    	public String help() {return "Sort and update features. Remove outdated dublicates.";}
+	    	@Override
+			public String longName() {return name().toLowerCase();}
+	    	@Override
+			public String help() {return "Sort and update features. Remove outdated dublicates.";}
 	    }, 
 	    OUT_CSV {
-	    	public String longName() {return name().toLowerCase().replace('_', '-');}
-	    	public String help() {return "Write data out in csv format.";}
+	    	@Override
+			public String longName() {return name().toLowerCase().replace('_', '-');}
+	    	@Override
+			public String help() {return "Write data out in csv format.";}
 	    };
 
 	};

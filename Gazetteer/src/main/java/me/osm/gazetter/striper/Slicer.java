@@ -224,6 +224,7 @@ public class Slicer implements BoundariesHandler,
 				.getJSONObject(GeoJsonWriter.PROPERTIES).has("place");
 	}
 
+	@Override
 	public void writeOut(String line, String n) {
 		
 		String fileName = "stripe" + n + ".gjson";
@@ -494,6 +495,7 @@ public class Slicer implements BoundariesHandler,
 		}
 	}
 
+	@Override
 	public synchronized void newThreadpoolUser(String user) {
 		threadPoolUsers.add(user);
 	}

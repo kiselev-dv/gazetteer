@@ -175,7 +175,7 @@ public class HighwaysBuilder extends ABuilder implements HighwaysHandler {
 		List<ByteBuffer> nodeRows = findAll(node2way, li, line.id, 8);
 		
 		//sort by node
-		Collections.sort(nodeRows, ABuilder.FIRST_LONG_FIELD_COMPARATOR);
+		Collections.sort(nodeRows, Builder.FIRST_LONG_FIELD_COMPARATOR);
 
 		List<Coordinate> coords = new ArrayList<>(line.nodes.size());
 		for (final long pid : line.nodes) {
@@ -212,7 +212,7 @@ public class HighwaysBuilder extends ABuilder implements HighwaysHandler {
 
 	private void orderByWay() {
 		if (!byWayOrdered) {
-			Collections.sort(node2way, ABuilder.SECOND_LONG_FIELD_COMPARATOR);
+			Collections.sort(node2way, Builder.SECOND_LONG_FIELD_COMPARATOR);
 			byWayOrdered = true;
 		}
 	}
@@ -238,7 +238,7 @@ public class HighwaysBuilder extends ABuilder implements HighwaysHandler {
 	@Override
 	public void firstRunDoneWays() {
 		indexFilled = true;
-		Collections.sort(node2way, ABuilder.FIRST_LONG_FIELD_COMPARATOR);
+		Collections.sort(node2way, Builder.FIRST_LONG_FIELD_COMPARATOR);
 		
 		this.highwaysHandler.newThreadpoolUser(getThreadPoolUser());
 		this.junctionsHandler.newThreadpoolUser(getThreadPoolUser());
@@ -247,7 +247,7 @@ public class HighwaysBuilder extends ABuilder implements HighwaysHandler {
 	@Override
 	public void secondRunDoneRelations() {
 		if (this.junctionsHandler != null) {
-			Collections.sort(node2way, ABuilder.FIRST_LONG_FIELD_COMPARATOR);
+			Collections.sort(node2way, Builder.FIRST_LONG_FIELD_COMPARATOR);
 			findJunctions();
 		}
 		executorService.shutdown();

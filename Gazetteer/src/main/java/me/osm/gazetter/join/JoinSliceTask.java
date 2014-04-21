@@ -217,7 +217,7 @@ public class JoinSliceTask implements Runnable {
 				Polygon poly = GeoJsonWriter.getPolygonGeometry(
 						fullGeometry.getJSONArray(GeoJsonWriter.COORDINATES));
 				
-				List<JSONObject> dubles = (List<JSONObject>)poisIndex.query(poly.getEnvelopeInternal());
+				List<JSONObject> dubles = poisIndex.query(poly.getEnvelopeInternal());
 				if(dubles.size() > 1) {
 					//remove self
 					dubles.remove(poi);

@@ -16,6 +16,7 @@ public class AddressesSchemesParserImpl implements AddressesSchemesParser {
 	
 	private static final Logger log = LoggerFactory.getLogger(AddressesSchemesParserImpl.class);
 	
+	@Override
 	public List<JSONObject> parseSchemes(JSONObject properties) {
 		
 		List<JSONObject> result = new ArrayList<>();

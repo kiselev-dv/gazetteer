@@ -92,6 +92,7 @@ public class PlaceBuilder extends BoundariesBuilder {
 		this.handler = slicer;
 	}
 	
+	@Override
 	protected boolean filterByTags(Map<String, String> tags) {
 		return tags.containsKey("place") 
 				&& (PLACE_CITY.contains(tags.get("place")) || PLACE_NEIGHBOUR.contains(tags.get("place"))); 
@@ -194,7 +195,7 @@ public class PlaceBuilder extends BoundariesBuilder {
 				.getVoronoiCellPolygons(fatory);
 
 		for (Polygon cityPolygon : cityVoronoiPolygons) {
-			JSONObject cityJSON = cityes.get((Coordinate) cityPolygon
+			JSONObject cityJSON = cityes.get(cityPolygon
 					.getUserData());
 			handleCityVoronoy(cityJSON, cityPolygon, neighboursQT);
 		}

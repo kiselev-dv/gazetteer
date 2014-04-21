@@ -223,7 +223,7 @@ public class PoisBuilder extends ABuilder {
 			if(line.isClosed() && line.tags.containsKey("building")) {
 				for(int i = 0; i < line.nodes.size() - 1; i++) {
 					long nid = line.nodes.get(i);
-					int nodeIndex = AddrPointsBuilder.binarySearchWithMask(writedAddrNodes, nid);
+					int nodeIndex = ABuilder.binarySearchWithMask(writedAddrNodes, nid);
 					if(nodeIndex >= 0) {
 						long addrNodeIdWithN = writedAddrNodes.get(nodeIndex);
 						long n = addrNodeIdWithN & MASK_16_BITS;
