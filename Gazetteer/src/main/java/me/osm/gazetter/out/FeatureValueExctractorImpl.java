@@ -97,13 +97,13 @@ public class FeatureValueExctractorImpl implements FeatureValueExtractor {
 							jsonObject.getJSONObject(GeoJsonWriter.GEOMETRY)
 								.getJSONArray(GeoJsonWriter.COORDINATES));
 					Coordinate c = new LocatePoint(ls, 0.5).getPoint();
-					return "POINT (" + c.x + " " + c.y + ")";
+					return "SRID=4326;POINT (" + c.x + " " + c.y + ")";
 				}
 				else {
 					JSONArray coords = jsonObject.getJSONObject(GeoJsonWriter.GEOMETRY)
 							.getJSONArray(GeoJsonWriter.COORDINATES);
 					
-					return "POINT (" + coords.getDouble(0) + " " + coords.getDouble(1) + ")";
+					return "SRID=4326;POINT (" + coords.getDouble(0) + " " + coords.getDouble(1) + ")";
 				}
 
 			case FULL_GEOMETRY:
@@ -123,15 +123,15 @@ public class FeatureValueExctractorImpl implements FeatureValueExtractor {
 				
 				if(fullGeometry != null && "MultiPolygon".equals(fullGeometry.optString("type"))) {
 					MultiPolygon polygon = GeoJsonWriter.getMultiPolygonGeometry(fullGeometry.getJSONArray("coordinates"));
-					return polygon.toString();
+					return "SRID=4326;" + polygon.toString();
 				}
 				if(fullGeometry != null && "Polygon".equals(fullGeometry.optString("type"))) {
 					Polygon polygon = GeoJsonWriter.getPolygonGeometry(fullGeometry.getJSONArray("coordinates"));
-					return polygon.toString();
+					return "SRID=4326;" + polygon.toString();
 				}
 				else if(fullGeometry != null && "LineString".equals(fullGeometry.optString("type"))) {
 					LineString ls = GeoJsonWriter.getLineStringGeometry(fullGeometry.getJSONArray("coordinates"));
-					return ls.toString();
+					return "SRID=4326;" + ls.toString();
 				}
 				
 				break;
