@@ -1,14 +1,14 @@
-java -Xmx4g -jar gazetteer.jar --data-dir /opt/osm/data split /opt/osm/ru.osm.bz2
+java -Dfile.encoding=UTF8 -Xmx4g -jar gazetteer.jar --data-dir /opt/osm/data split /opt/osm/ru.osm.bz2
 
-java -Xmx6g -jar gazetteer.jar --data-dir /opt/osm/data slice all
+java -Dfile.encoding=UTF8 -Xmx6g -jar gazetteer.jar --data-dir /opt/osm/data slice all
 
-java -Xmx6g -jar gazetteer.jar --data-dir /opt/osm/data join \
+java -Dfile.encoding=UTF8 -Xmx6g -jar gazetteer.jar --data-dir /opt/osm/data join \
 --skip-in-text boundary:8 boundary:3 \
 --check-boundaries r60189 \
 --addr-parser /home/dkiselev/osm/osm-gazetter/Gazetteer/ScriptsExamples/ruAddressesParser.groovy \
 --addr-order CITY_STREET_HN
 
-java -Xmx4g -jar gazetteer.jar --data-dir /opt/osm/data out-csv --columns \
+java -Dfile.encoding=UTF8 -Xmx4g -jar gazetteer.jar --data-dir /opt/osm/data out-csv --columns \
 id \
 osm-type-id \
 type \
@@ -35,7 +35,7 @@ full-geometry \
 --line-handler /opt/osm/gazetteer/Gazetteer/ScriptsExamples/osmruCSVHandler.groovy \
 --out-file /opt/osm/ru-addr.csv
 
-java -Xmx4g -jar gazetteer.jar --data-dir /opt/osm/data out-csv --columns \
+java -Dfile.encoding=UTF8 -Xmx4g -jar gazetteer.jar --data-dir /opt/osm/data out-csv --columns \
 id \
 osm-type-id \
 type \
