@@ -139,12 +139,18 @@ public class PoisBuilder extends ABuilder {
 				}
 
 				if(coords.isEmpty()) {
-					log.error("Failed to build geometry for relation {}. No points found.", rel.id);
+					log.warn("Failed to build geometry for relation {}. No points found.", rel.id);
 					return;
 				}
 				
-				LineString l = factory.createLineString(coords.toArray(new Coordinate[coords.size()]));
-				lines.add(l);
+				if(coords.size() >= 2) {
+					LineString l = factory.createLineString(coords.toArray(new Coordinate[coords.size()]));
+					lines.add(l);
+				}
+				else {
+					log.warn("Wrong geometry rel {}, way {}", rel.id, way);
+					centroid = factory.createPoint(new Coordinate(coords.get(0).x, coords.get(0).y));
+				}
 			}
 			else {
 				for(ByteBuffer bb2 : findAll(node2way, p, way, 8)) {
