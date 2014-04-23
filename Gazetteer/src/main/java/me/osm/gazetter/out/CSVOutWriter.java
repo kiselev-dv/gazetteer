@@ -194,27 +194,29 @@ public class CSVOutWriter implements LineHandler {
 					
 					@Override
 					public void handle(String s) {
-						JSONObject jsonObject = new JSONObject(s);
-						JSONObject boundaries = jsonObject.optJSONObject("boundaries");
-						if(boundaries != null) {
-							Map<String, JSONObject> mapLevels = mapLevels(boundaries);
-							List<Object> row = new ArrayList<>();
-							
-							for (List<String> column : columns) {
-								row.add(getColumn(FeatureTypes.ADMIN_BOUNDARY_FTYPE, jsonObject, mapLevels, boundaries, column));
-							}
-							
-							if(outLineHandler != null) {
-								if(outLineHandler.handle(row, FeatureTypes.ADMIN_BOUNDARY_FTYPE, jsonObject, mapLevels, boundaries)) {
+						if(s != null) {
+							JSONObject jsonObject = new JSONObject(s);
+							JSONObject boundaries = jsonObject.optJSONObject("boundaries");
+							if(boundaries != null) {
+								Map<String, JSONObject> mapLevels = mapLevels(boundaries);
+								List<Object> row = new ArrayList<>();
+								
+								for (List<String> column : columns) {
+									row.add(getColumn(FeatureTypes.ADMIN_BOUNDARY_FTYPE, jsonObject, mapLevels, boundaries, column));
+								}
+								
+								if(outLineHandler != null) {
+									if(outLineHandler.handle(row, FeatureTypes.ADMIN_BOUNDARY_FTYPE, jsonObject, mapLevels, boundaries)) {
+										writeNext(row, FeatureTypes.ADMIN_BOUNDARY_FTYPE);
+									}
+								}
+								else {
 									writeNext(row, FeatureTypes.ADMIN_BOUNDARY_FTYPE);
 								}
+								
 							}
-							else {
-								writeNext(row, FeatureTypes.ADMIN_BOUNDARY_FTYPE);
-							}
-							
 						}
-					}
+						}
 					
 				});
 			}

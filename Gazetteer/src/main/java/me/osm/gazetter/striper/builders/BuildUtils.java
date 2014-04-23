@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineString;
+import com.vividsolutions.jts.geom.MultiLineString;
 import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Polygon;
 import com.vividsolutions.jts.io.WKTWriter;
@@ -37,8 +38,13 @@ public class BuildUtils {
 				if(!polygons.isEmpty()) {
 					Polygon[] ps =  polygons.toArray(new Polygon[polygons.size()]);
 					MultiPolygon mp = geometryFactory.createMultiPolygon(ps);
-					if(mp.isValid())
+					if(mp.isValid()) {
 						return mp;
+					}
+					else {
+						MultiLineString mls = geometryFactory.createMultiLineString(lines.toArray(new LineString[lines.size()]));
+						log.warn("Polygon for {} is invalid. \n{}\n{}", rel.id, mp.toString(), mls.toString());
+					}
 				}
 			}
 			catch (Exception e) {

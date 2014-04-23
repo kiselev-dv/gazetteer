@@ -176,17 +176,20 @@ public class BoundariesBuilder extends ABuilder {
 					}
 				});
 				
-				if(!points.isEmpty()) {
-					Coordinate[] coords = new Coordinate[points.size()];
-					int i = 0;
+				if(!points.isEmpty() && points.size() >= 2) {
+					List<Coordinate> coords = new ArrayList<Coordinate>();
 					for(ByteBuffer bb : points) {
 						double lon = bb.getDouble(20);
 						double lat = bb.getDouble(28);
 						
-						coords[i++] = new Coordinate(lon, lat);
+						if(lon != 0.0 && lat != 0.0) {
+							coords.add(new Coordinate(lon, lat));
+						}
 					}
-					
-					lines.add(geometryFactory.createLineString(coords));
+
+					if(coords.size() >= 2) {
+						lines.add(geometryFactory.createLineString(coords.toArray(new Coordinate[coords.size()])));
+					}
 				}
 			}
 		}

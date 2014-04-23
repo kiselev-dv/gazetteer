@@ -194,11 +194,11 @@ public class Main {
 
 		Iterator<String> iterator = Arrays.asList(args).iterator();
 		while(iterator.hasNext()) {
-			if(iterator.next().equals(LOG_OPT) && iterator.hasNext()) {
+			String k = iterator.next();
+			if(k.equals(LOG_OPT) && iterator.hasNext()) {
 				System.setProperty(org.slf4j.impl.SimpleLogger.DEFAULT_LOG_LEVEL_KEY, iterator.next());
 			}
-			
-			if(iterator.next().equals(LOG_FILE_OPT) && iterator.hasNext()) {
+			else if(k.equals(LOG_FILE_OPT) && iterator.hasNext()) {
 				System.setProperty(org.slf4j.impl.SimpleLogger.LOG_FILE_KEY, iterator.next());
 			}
 		}
