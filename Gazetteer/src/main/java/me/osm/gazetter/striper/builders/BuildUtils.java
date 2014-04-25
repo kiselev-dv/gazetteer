@@ -42,8 +42,7 @@ public class BuildUtils {
 						return mp;
 					}
 					else {
-						MultiLineString mls = geometryFactory.createMultiLineString(lines.toArray(new LineString[lines.size()]));
-						log.warn("Polygon for {} is invalid. \n{}\n{}", rel.id, mp.toString(), mls.toString());
+						log.warn("Polygon for {} is invalid.", rel.id);
 					}
 				}
 			}

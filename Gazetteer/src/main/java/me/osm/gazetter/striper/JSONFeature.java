@@ -75,4 +75,32 @@ public final class JSONFeature extends JSONObject {
 		return result;
 	}
 
+	@Override
+	public int hashCode() {
+		if (get("id") != null) {
+			if(get("timestamp") != null) {
+				return get("id").hashCode() * 123 + get("timestamp").hashCode();  
+			}
+			else {
+				return get("id").hashCode();
+			}
+		}
+		else {
+			return super.hashCode();
+		}
+	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if(obj == null) {
+			return false;
+		}
+		
+		if(obj instanceof JSONFeature) {
+			return hashCode() == obj.hashCode();
+		}
+		
+		return super.equals(obj);
+	}
+
 }
