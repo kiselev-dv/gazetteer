@@ -5,6 +5,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import me.osm.gazetter.Options;
 import me.osm.gazetter.join.Joiner;
 
 import org.slf4j.Logger;
@@ -20,7 +21,7 @@ public class SortUpdate {
 	}
 	
 	public void run() {
-		ExecutorService executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+		ExecutorService executorService = Executors.newFixedThreadPool(Options.get().getNumberOfThreads());
 		
 		for(File stripeF : new File(dataDir).listFiles(Joiner.STRIPE_FILE_FN_FILTER)) {
 			executorService.execute( new SortAndUpdateTask(stripeF));

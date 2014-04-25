@@ -257,13 +257,13 @@ public class Joiner {
 	}
 
 	private void joinStripes(String stripesFolder, List<JSONObject> common) {
-		ExecutorService executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+		ExecutorService executorService = Executors.newFixedThreadPool(Options.get().getNumberOfThreads());
 		
 		File folder = new File(stripesFolder);
 		File[] stripesFiles = folder.listFiles(STRIPE_FILE_FN_FILTER);
 		stripesCounter = new AtomicInteger(stripesFiles.length); 
 		for(File stripeF : stripesFiles) {
-			executorService.execute(new JoinSliceTask(addrPointFormatter, stripeF, common, filter, this));
+			executorService.execute(new JoinAndUpdateTask(addrPointFormatter, stripeF, common, filter, this));
 		}
 		
 		executorService.shutdown();

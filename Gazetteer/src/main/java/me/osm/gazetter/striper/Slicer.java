@@ -16,6 +16,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import me.osm.gazetter.Options;
 import me.osm.gazetter.dao.FileWriteDao;
 import me.osm.gazetter.dao.WriteDao;
 import me.osm.gazetter.striper.builders.AddrPointsBuilder;
@@ -59,7 +60,7 @@ public class Slicer implements BoundariesHandler,
 	private static final Set<String> threadPoolUsers = new HashSet<String>();
 
 	private static final GeometryFactory factory = new GeometryFactory();
-	private static final ExecutorService executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+	private ExecutorService executorService;
 	
 	private static double dx = 0.1;
 	private static double x0 = 0;
@@ -79,6 +80,7 @@ public class Slicer implements BoundariesHandler,
 	public Slicer(String dirPath) {
 		this.osmSlicesPath = dirPath;
 		writeDAO = new FileWriteDao(new File(dirPath));
+		executorService = Executors.newFixedThreadPool(Options.get().getNumberOfThreads());
 	}
 	
 	public void run(String poiCatalogPath, List<String> types, List<String> exclude, 

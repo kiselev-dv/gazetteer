@@ -13,6 +13,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import me.osm.gazetter.Options;
 import me.osm.gazetter.striper.FeatureTypes;
 import me.osm.gazetter.striper.GeoJsonWriter;
 import me.osm.gazetter.striper.builders.handlers.BoundariesHandler;
@@ -64,7 +65,8 @@ public class BoundariesBuilder extends ABuilder {
 	
 	private boolean indexFilled = false;
 	
-	private final ExecutorService executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+	private final ExecutorService executorService = 
+			Executors.newFixedThreadPool(Options.get().getNumberOfThreads());
 	
 	private static final class Task implements Runnable {
 
@@ -131,25 +133,6 @@ public class BoundariesBuilder extends ABuilder {
 		meta.put("id", rel.id);
 		meta.put("type", "relation");
 
-		JSONArray outers = new JSONArray();
-		JSONArray inners = new JSONArray();
-		
-		for(RelationMember rm : rel.members) {
-			if(rm.type == ReferenceType.WAY) {
-				 Boolean outer = isOuter(rm);
-				 
-				 if(outer != null) {
-					 if (outer) 
-						 outers.put(rm.ref);
-					 else
-						 inners.put(rm.ref);
-				 } 
-			}
-		}
-		
-		meta.put("outers", outers);
-		meta.put("inners", inners);
-		
 		return meta;
 	}
 

@@ -13,6 +13,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import me.osm.gazetter.Options;
 import me.osm.gazetter.striper.builders.handlers.HighwaysHandler;
 import me.osm.gazetter.striper.builders.handlers.JunctionsHandler;
 import me.osm.gazetter.striper.readers.PointsReader.Node;
@@ -34,7 +35,8 @@ public class HighwaysBuilder extends ABuilder implements HighwaysHandler {
 	private static final Logger log = LoggerFactory
 			.getLogger(HighwaysBuilder.class.getName());
 
-	private static volatile ExecutorService executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+	private static volatile ExecutorService executorService = 
+			Executors.newFixedThreadPool(Options.get().getNumberOfThreads());
 	
 	private static final class BuildWayGeometryTask implements Runnable {
 
