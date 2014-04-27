@@ -264,6 +264,10 @@ public class CSVOutWriter implements LineHandler {
 
 	@Override
 	public void handle(String line) {
+		if(line == null) {
+			return;
+		}
+		
 		String ftype = GeoJsonWriter.getFtype(line);
 		
 		if(types.contains(ftype) && !FeatureTypes.ADMIN_BOUNDARY_FTYPE.equals(ftype)) {

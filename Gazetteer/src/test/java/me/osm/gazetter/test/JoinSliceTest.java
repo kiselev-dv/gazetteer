@@ -31,10 +31,13 @@ public class JoinSliceTest {
 	@Test
 	public void test() {
 		try {
-			JoinSliceTask task = new JoinSliceTask(addrPointFormatter, new File("/opt/osm/data/stripe2197.gjson"), new ArrayList<JSONObject>(), new HashSet<String>(), null){
+			System.setProperty(org.slf4j.impl.SimpleLogger.DEFAULT_LOG_LEVEL_KEY, "TRACE");
+			new File("/opt/osm/test.gjson").delete();
+			
+			JoinSliceTask task = new JoinSliceTask(addrPointFormatter, new File("/opt/osm/data/stripe0931.gjson"), new ArrayList<JSONObject>(), new HashSet<String>(), null){
 				@Override
 				protected PrintWriter getOutWriter() throws FileNotFoundException {
-					return new PrintWriter(new FakeOutStream());
+					return new PrintWriter(new File("/opt/osm/test.gjson"));
 				}
 			};
 			

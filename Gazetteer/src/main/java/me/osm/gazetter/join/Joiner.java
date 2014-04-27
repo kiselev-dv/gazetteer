@@ -263,7 +263,7 @@ public class Joiner {
 		File[] stripesFiles = folder.listFiles(STRIPE_FILE_FN_FILTER);
 		stripesCounter = new AtomicInteger(stripesFiles.length); 
 		for(File stripeF : stripesFiles) {
-			executorService.execute(new JoinAndUpdateTask(addrPointFormatter, stripeF, common, filter, this));
+			executorService.execute(new JoinSliceTask(addrPointFormatter, stripeF, common, filter, this));
 		}
 		
 		executorService.shutdown();

@@ -79,7 +79,12 @@ public class AddrRowValueExctractorImpl implements AddrRowValueExtractor {
 				return jsonObject.getJSONObject(GeoJsonWriter.PROPERTIES).optString("addr:letter");
 			}
 			
-			return levels.get(key).getString("name");
+			JSONObject lvl = levels.get(key);
+			if(lvl != null && lvl.has("name")) {
+				return lvl.getString("name");
+			}
+			
+			return null;
 			
 		}
 		catch (Exception e) {

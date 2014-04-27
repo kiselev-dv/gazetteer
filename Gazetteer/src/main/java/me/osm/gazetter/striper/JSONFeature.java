@@ -77,7 +77,7 @@ public final class JSONFeature extends JSONObject {
 
 	@Override
 	public int hashCode() {
-		if (get("id") != null) {
+		if (has("id")) {
 			if(get("timestamp") != null) {
 				return get("id").hashCode() * 123 + get("timestamp").hashCode();  
 			}
