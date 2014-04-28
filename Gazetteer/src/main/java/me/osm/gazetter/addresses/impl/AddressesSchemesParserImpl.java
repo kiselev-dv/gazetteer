@@ -3,6 +3,7 @@ package me.osm.gazetter.addresses.impl;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import me.osm.gazetter.addresses.AddressesSchemesParser;
 import me.osm.gazetter.striper.JSONFeature;
@@ -80,15 +81,36 @@ public class AddressesSchemesParserImpl implements AddressesSchemesParser {
 		//AddrN
 		//TODO: search for all addrN levels and Ns
 		else if(properties.has("addr2:housenumber")) {
+			
 			JSONObject addr1 = JSONFeature.copy(properties);
 			addr1.put(ADDR_SCHEME, "addrN-1");
 			result.add(addr1);
 
-			JSONObject addr2 = JSONFeature.copy(properties);
-			addr2.put("addr:housenumber", properties.optString("addr2:housenumber"));
-			addr2.put("addr:street", properties.optString("addr:street2"));
-			addr2.put(ADDR_SCHEME, "addrN-2");
-			result.add(addr2);
+			for(int i = 2;;i++) {
+				
+				JSONObject addrN = new JSONObject();
+				String pref = "addr" + i;
+				
+				if(properties.has(pref + ":housenumber")) {
+					for(String key : (Set<String>)properties.keySet()) {
+						
+						if(!key.startsWith("addr")) {
+							addrN.put(key, properties.get(key));
+						}
+						
+						if (key.startsWith(pref)) {
+							addrN.put(key.replace(pref, "addr"), properties.get(key));
+							addrN.remove(key);
+						}
+					}
+					
+					addrN.put(ADDR_SCHEME, "addrN-" + i);
+					result.add(addrN);
+				}
+				else {
+					break;
+				}
+			}
 		}
 		else {
 			JSONObject addr1 = JSONFeature.copy(properties);
