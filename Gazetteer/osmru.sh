@@ -15,7 +15,7 @@ java -Dfile.encoding=UTF8 -Xmx6g -jar gazetteer.jar \
 --addr-order CITY_STREET_HN
 
 java -Dfile.encoding=UTF8 -Xmx4g -jar gazetteer.jar --data-dir /opt/osm/data out-csv --columns \
-id \
+uid \
 osm-type-id \
 type \
 type-verbose \
@@ -72,6 +72,7 @@ boundary:2 \
 boundary:2.id \
 centroid \
 --types poi \
+--line-handler /opt/osm/gazetteer/Gazetteer/ScriptsExamples/osmruPoiCsvFilter.groovy \
 --out-file /opt/osm/ru-poi.csv
 
 

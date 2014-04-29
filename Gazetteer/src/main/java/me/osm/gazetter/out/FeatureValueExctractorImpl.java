@@ -34,6 +34,7 @@ public class FeatureValueExctractorImpl implements FeatureValueExtractor {
 	private static final String OSM_TYPE_ID = "osm-type-id";
 	private static final String OSM_ID = "osm-id";
 	private static final String ID = "id";
+	private static final String UID = "uid";
 	private static final String TYPE = "type";
 	private static final String TAGS_JSON = "tags.json";
 	private static final String TAGS_HSTORE = "tags.hstore";
@@ -43,13 +44,17 @@ public class FeatureValueExctractorImpl implements FeatureValueExtractor {
 	private static final String VERBOSE_TYPE = "type-verbose";
 	
 	@Override
-	public Object getValue(String key, JSONObject jsonObject) {
+	public Object getValue(String key, JSONObject jsonObject, Integer rowIndex) {
 		try {
 			String ftype = jsonObject.getString("ftype");
 			
 			switch (key) {
 			case ID:
 				return jsonObject.getString(ID);
+
+			case UID:
+				String sid = jsonObject.getString(ID);
+				return rowIndex == null ? sid : (sid + "-" + (rowIndex + 1));
 
 			case TYPE:
 				return ftype;
@@ -230,7 +235,7 @@ public class FeatureValueExctractorImpl implements FeatureValueExtractor {
 				CENTROID, FULL_GEOMETRY, NEAREST_CITY, NEAREST_CITY_ID,
 				NEAREST_NEIGHBOURHOOD, NEAREST_NEIGHBOURHOOD_ID,
 				DESCRIPTION, WIKIPEDIA, TAGS_JSON, TAGS_HSTORE, OSM_TYPE_ID, 
-				VERBOSE_TYPE);
+				VERBOSE_TYPE, UID);
 	}
 	
 	

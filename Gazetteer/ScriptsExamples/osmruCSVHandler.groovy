@@ -27,7 +27,7 @@ public class OSMRUCsvHandler implements CSVOutLineHandler {
         "house":35];
 	
 	public boolean handle(List<Object> row, String ftype, JSONObject jsonObject,
-			Map<String, JSONObject> mapLevels, JSONObject addrRow) {
+			Map<String, JSONObject> mapLevels, JSONObject addrRow, Integer rowIndex) {
 
 			String addrType = row.get(3);
 			
@@ -37,7 +37,6 @@ public class OSMRUCsvHandler implements CSVOutLineHandler {
 					jsonObject.getJSONObject(GeoJsonWriter.PROPERTIES).optString("admin_level"));
 				row.set(1, StringUtils.split (row.get(0), '-')[2]);
 			}
-			
 			
 			if(osmruType == null) {
 				return false;
