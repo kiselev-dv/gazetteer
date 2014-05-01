@@ -4,6 +4,8 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
 
+import me.osm.gazetter.addresses.AddressesSchemesParser;
+import me.osm.gazetter.striper.FeatureTypes;
 import me.osm.gazetter.striper.GeoJsonWriter;
 
 import org.json.JSONObject;
@@ -43,12 +45,14 @@ public class AddrRowValueExctractorImpl implements AddrRowValueExtractor {
 	private static final String PLACE_QUARTER_ID = "place:quarter.id";
 	private static final String PLACE_QUARTER = "place:quarter";
 	private static final String STREET_ID = "street.id";
+	private static final String STREET_UID = "street.uid";
 	private static final String STREET = "street";
 	private static final String HOUSENUMBER = "hn";
 	private static final String LETTER = "letter";
 	private static final String POSTCODE = "postcode";
 	private static final String ADDR_TEXT = "addr-text";
 	private static final String ADDR_LONG_TEXT = "addr-long-text";
+	private static final String UID = "uid";
 
 	@Override
 	public String getValue(String key, JSONObject jsonObject, Map<String, JSONObject> levels, JSONObject addrRow) {
@@ -59,6 +63,34 @@ public class AddrRowValueExctractorImpl implements AddrRowValueExtractor {
 		
 		try {
 			
+			if(UID.equals(key)) {
+				
+				String ftype = jsonObject.getString("ftype");
+				if(FeatureTypes.HIGHWAY_FEATURE_TYPE.equals(ftype)) {
+					int hash = addrRow.getInt("boundariesHash");
+					if(hash == 0) {
+						return jsonObject.getString("id");
+					}
+					String h = getPositiveHash(hash);
+					
+					return jsonObject.getString("id") + "-" + h;
+				}
+
+				if(FeatureTypes.ADDR_POINT_FTYPE.equals(ftype)) {
+					String addrType = addrRow.optString(AddressesSchemesParser.ADDR_SCHEME);
+					
+					return jsonObject.getString("id") + "-" + addrType;
+				}
+
+				if(FeatureTypes.POI_FTYPE.equals(ftype)) {
+					String addrType = addrRow.optString(AddressesSchemesParser.ADDR_SCHEME);
+					
+					return jsonObject.getString("id") + "-" + addrType;
+				}
+				
+				return jsonObject.getString("id");
+			}
+			
 			if(ADDR_TEXT.equals(key)) {
 				return addrRow.optString("text");
 			}
@@ -66,7 +98,25 @@ public class AddrRowValueExctractorImpl implements AddrRowValueExtractor {
 			if(ADDR_LONG_TEXT.equals(key)) {
 				return addrRow.optString("longText");
 			}
-			
+
+			if(key.endsWith(".uid")) {
+				String keyUID = key.replace(".uid", "");
+				
+				if("street".equals(keyUID)) {
+					int strtUID = levels.get(keyUID).getInt("strtUID");
+					if(strtUID == 0) {
+						return levels.get(keyUID).getString("lnk");
+					}
+					
+					String h = getPositiveHash(strtUID);
+					
+					return levels.get(keyUID).getString("lnk") + "-" + h;
+				}
+				
+				return levels.get(keyUID).getString("lnk");
+			}
+
+				
 			if(key.endsWith(".id")) {
 				return levels.get(key.replace(".id", "")).getString("lnk");
 			}
@@ -93,6 +143,14 @@ public class AddrRowValueExctractorImpl implements AddrRowValueExtractor {
 		
 	}
 
+	private String getPositiveHash(int hash) {
+		if(hash > 0) {
+			return String.valueOf(hash);
+		}
+		
+		return "m" + String.valueOf(Math.abs(hash));
+	}
+
 	@Override
 	public Collection<String> getSupportedKeys() {
 		return Arrays.asList(POSTCODE, LETTER, HOUSENUMBER, 
@@ -106,7 +164,7 @@ public class AddrRowValueExctractorImpl implements AddrRowValueExtractor {
 			BOUNDARY_8, BOUNDARY_8_ID, BOUNDARY_6, BOUNDARY_6_ID, 
 			BOUNDARY_5, BOUNDARY_5_ID, BOUNDARY_4, BOUNDARY_4_ID,
 			BOUNDARY_3, BOUNDARY_3_ID, BOUNDARY_2, BOUNDARY_2_ID,
-			ADDR_TEXT, ADDR_LONG_TEXT);
+			ADDR_TEXT, ADDR_LONG_TEXT, UID, STREET_UID);
 	}
 
 }

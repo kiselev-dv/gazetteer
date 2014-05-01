@@ -24,7 +24,7 @@ postcode \
 [hn name:ru name] \
 hn \
 street \
-street.id \
+street.uid \
 [place:village place:hamlet] \
 [place:village.id place:hamlet.id] \
 [place:town place:city] \

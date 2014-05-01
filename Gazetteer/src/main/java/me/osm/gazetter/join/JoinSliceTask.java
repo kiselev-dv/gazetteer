@@ -59,7 +59,7 @@ public class JoinSliceTask implements Runnable {
 	
 	private static final int MB = 1024*1024;
 	
-	private static final double STREET_BUFFER_DISTANCE = 1.0 / 111195.0 * 250;
+	private static final double STREET_BUFFER_DISTANCE = 1.0 / 111195.0 * 500;
 	private static final double POI_BUFFER_DISTANCE = 1.0 / 111195.0 * 100;
 	
 	private File src;
@@ -435,8 +435,10 @@ public class JoinSliceTask implements Runnable {
 		
 		s = debug("join [addr2bndries, place2bndries, poi2bndries, street2bndries]", s);
 		
-		joinStreets2Addresses();
+		joinBoundaries2Streets();
+		s = debug("write json streets to boundaries", s);
 		
+		joinStreets2Addresses();
 		s = debug("joinStreets2Addresses", s);
 		
 		one2OneJoin(placesVoronoi, addr2PlaceVoronoy);
@@ -461,6 +463,35 @@ public class JoinSliceTask implements Runnable {
 		s = debug("joinPoi2Addresses", s);
 	}
 
+	private void joinBoundaries2Streets() {
+		Map<Integer, Set<String>> streetsByBndrs = new HashMap<Integer, Set<String>>();
+		for(Entry<JSONObject, List<List<JSONObject>>> entry : street2bndries.entrySet()) {
+			if(streetsByBndrs.get(entry.getValue().size()) == null) {
+				streetsByBndrs.put(entry.getValue().size(), new HashSet<String>());
+			}
+			streetsByBndrs.get(entry.getValue().size()).add(entry.getKey().getString("id"));
+		}
+		
+		for(Entry<JSONObject, List<List<JSONObject>>> entry : street2bndries.entrySet()) {
+			
+			List<List<JSONObject>> boundaries = new ArrayList<>(entry.getValue());
+			
+			JSONArray bndriesJSON = new JSONArray();
+			for(List<JSONObject> b : boundaries) {
+				if(necesaryBoundaries.isEmpty() || checkNecesaryBoundaries(b)) {
+					b.addAll(common);
+					bndriesJSON.put(addressesParser.boundariesAsArray(entry.getKey(), b));
+				}
+
+			}
+
+			if(bndriesJSON.length() > 0) {
+				JSONObject street = entry.getKey();
+				street.put("boundaries", bndriesJSON);
+			}
+		}
+	}
+
 	private boolean checkNecesaryBoundaries(List<JSONObject> joinedBoundaries) {
 		for(JSONObject b : joinedBoundaries) {
 			String osmId = StringUtils.split(b.getString("id"), '-')[2];
@@ -483,7 +514,7 @@ public class JoinSliceTask implements Runnable {
 	}
 
 	private void joinStreets2Addresses() {
-		for (JSONObject strtJSON : streets) {
+		for (JSONObject strtJSON : street2bndries.keySet()) {
 			LineString ls = GeoJsonWriter.getLineStringGeometry(
 					strtJSON.getJSONObject("geometry").getJSONArray("coordinates"));
 			
@@ -667,42 +698,13 @@ public class JoinSliceTask implements Runnable {
 			
 			s = debug("write out addrPoints", s);
 			
-			Map<Integer, Set<String>> streetsByBndrs = new HashMap<Integer, Set<String>>();
-			for(Entry<JSONObject, List<List<JSONObject>>> entry : street2bndries.entrySet()) {
-				if(streetsByBndrs.get(entry.getValue().size()) == null) {
-					streetsByBndrs.put(entry.getValue().size(), new HashSet<String>());
-				}
-				streetsByBndrs.get(entry.getValue().size()).add(entry.getKey().getString("id"));
-			}
-			
-			for(Entry<JSONObject, List<List<JSONObject>>> entry : street2bndries.entrySet()) {
-				
-				List<List<JSONObject>> boundaries = new ArrayList<>(entry.getValue());
-				
-				JSONArray bndriesJSON = new JSONArray();
-				for(List<JSONObject> b : boundaries) {
-					if(necesaryBoundaries.isEmpty() || checkNecesaryBoundaries(b)) {
-						b.addAll(common);
-						bndriesJSON.put(addressesParser.boundariesAsArray(entry.getKey(), b));
-					}
-
-				}
-
-				if(bndriesJSON.length() > 0) {
-					JSONObject street = entry.getKey();
-					street.put("boundaries", bndriesJSON);
+			for(JSONObject street : street2bndries.keySet()) {
+				if(street.has("boundaries")) {
 					GeoJsonWriter.addTimestamp(street);
-					
-					String geoJSONString = new JSONFeature(street).toString();
-					assert GeoJsonWriter.getId(geoJSONString).equals(street.optString("id")) 
-					: "Failed getId for " + geoJSONString;
-					
-					assert GeoJsonWriter.getFtype(geoJSONString).equals(FeatureTypes.HIGHWAY_FEATURE_TYPE) 
-					: "Failed getFtype for " + geoJSONString;
+					String geoJSONString = street.toString();
 					
 					printWriter.println(geoJSONString);
 				}
-					
 			}
 			
 			s = debug("write out street2bndries", s);

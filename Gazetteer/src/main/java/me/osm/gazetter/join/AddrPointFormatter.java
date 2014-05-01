@@ -24,7 +24,9 @@ public class AddrPointFormatter implements AddrJointHandler {
 			JSONObject nearestNeighbour,
 			JSONObject associatedStreet) {
 		
-		List<JSONObject> streetsRefers = JSONFeature.asRefers(nearbyStreets);
+//		List<JSONObject> streetsRefers = JSONFeature.asRefers(nearbyStreets);
+		List<JSONObject> streetsRefers = nearbyStreets;
+		
 		JSONArray addresses = parser.parse(
 				addrPoint, boundaries, streetsRefers, 
 				nearestPlace, nearestNeighbour, associatedStreet);
@@ -40,7 +42,7 @@ public class AddrPointFormatter implements AddrJointHandler {
 		}
 		
 		if(nearbyStreets != null) {
-			addrPoint.put("nearbyStreets", new JSONArray(streetsRefers));
+			addrPoint.put("nearbyStreets", new JSONArray(JSONFeature.asRefers(nearbyStreets)));
 		}
 		
 		return addrPoint;

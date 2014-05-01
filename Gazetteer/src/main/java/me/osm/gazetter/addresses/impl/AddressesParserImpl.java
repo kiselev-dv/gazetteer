@@ -46,6 +46,22 @@ public class AddressesParserImpl implements AddressesParser {
 	protected boolean findLangs;
 
 	protected static final Set<String> langCodes = new HashSet<>(Arrays.asList(Locale.getISOLanguages()));
+	protected static final Set<String> hashedBoundariesLelvels = new HashSet<String>();
+	static {
+		hashedBoundariesLelvels.addAll(Arrays.asList(
+				"place:hamlet", 
+				"place:village", 
+				"place:town", 
+				"place:city", 
+				"boundary:8", 
+				"boundary:7", 
+				"boundary:6", 
+				"boundary:5", 
+				"boundary:4", 
+				"boundary:3", 
+				"boundary:2"
+		));
+	}
 	
 	public AddressesParserImpl(AddressesSchemesParser schemesParser, 
 			AddressesLevelsMatcher levelsMatcher, AddrTextFormatter textFormatter,
@@ -127,7 +143,9 @@ public class AddressesParserImpl implements AddressesParser {
 
 			addrJsonRow.add(levelsMatcher.hnAsJSON(addrPoint, addrRow));
 			
-			JSONObject streetAsJSON = levelsMatcher.streetAsJSON(addrPoint, addrRow, associatedStreet, nearbyStreets);
+			JSONObject streetAsJSON = levelsMatcher.streetAsJSON(
+					addrPoint, addrRow, associatedStreet, nearbyStreets, hashBoundaries(boundaries));
+			
 			if(streetAsJSON != null) {
 				addrJsonRow.add(streetAsJSON);
 			}
@@ -409,10 +427,32 @@ public class AddressesParserImpl implements AddressesParser {
 				}
 			}
 		}
-		
 		JSONObject fullAddressRow = createBoundaryAddrRow(result, subj);
 		
+		fullAddressRow.put("boundariesHash", hashBoundaries(input));
+		
 		return fullAddressRow;
+	}
+	
+	public int hashBoundaries(List<JSONObject> input) {
+		
+		if(input != null) {
+		
+			StringBuilder hashString = new StringBuilder();
+			
+			for(JSONObject bndry : input) {
+				String addrLevel = getAddrLevel(bndry); 
+				if(addrLevel != null && hashedBoundariesLelvels.contains(addrLevel)) {
+					hashString.append(bndry.getString("id"));
+				}
+			}
+
+			if(hashString.length() > 0) {
+				return hashString.toString().hashCode();
+			}
+		}
+		
+		return 0;
 	}
 
 	protected JSONObject createBoundaryAddrRow(List<JSONObject> result, JSONObject subj) {

@@ -216,7 +216,7 @@ public class CSVOutWriter implements LineHandler {
 								
 							}
 						}
-						}
+					}
 					
 				});
 			}
@@ -307,11 +307,11 @@ public class CSVOutWriter implements LineHandler {
 						List<Object> row = new ArrayList<>();
 						
 						for (List<String> column : columns) {
-							row.add(getColumn(ftype, jsonObject, mapLevels, bs, column, null));
+							row.add(getColumn(ftype, jsonObject, mapLevels, bs, column, i));
 						}
 						
 						if(outLineHandler != null) {
-							if(outLineHandler.handle(row, ftype, jsonObject, mapLevels, bs, null)) {
+							if(outLineHandler.handle(row, ftype, jsonObject, mapLevels, bs, i)) {
 								writeNext(row, ftype);
 							}
 						}

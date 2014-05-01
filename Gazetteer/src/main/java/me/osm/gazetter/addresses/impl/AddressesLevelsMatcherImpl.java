@@ -62,7 +62,7 @@ public class AddressesLevelsMatcherImpl implements AddressesLevelsMatcher {
 
 	@Override
 	public JSONObject streetAsJSON(JSONObject addrPoint, JSONObject addrRow,
-			JSONObject associatedStreet, List<JSONObject> nearbyStreets) {
+			JSONObject associatedStreet, List<JSONObject> nearbyStreets, int boundariesHash) {
 			
 		if(associatedStreet != null) {
 			TLongSet waysSet = new TLongHashSet();
@@ -86,6 +86,8 @@ public class AddressesLevelsMatcherImpl implements AddressesLevelsMatcher {
 						streetAddrPart.put(ADDR_NAMES, new JSONObject(nameTags));
 						streetAddrPart.put("lnk", ls.optString("id"));
 						streetAddrPart.put(ADDR_LVL_SIZE, lelvelsComparator.getLVLSize("street"));
+						
+						streetAddrPart.put("strtUID", getStreetUUID(ls, boundariesHash));
 						
 						return streetAddrPart;
 					}
@@ -122,9 +124,28 @@ public class AddressesLevelsMatcherImpl implements AddressesLevelsMatcher {
 		if(matchedStreet != null) {
 			streetAddrPart.put(ADDR_NAMES, new JSONObject(AddressesUtils.filterNameTags(matchedStreet)));
 			streetAddrPart.put("lnk", matchedStreet.optString("id"));
+			streetAddrPart.put("strtUID", getStreetUUID(matchedStreet, boundariesHash));
 		}
 		
 		return streetAddrPart;
+	}
+
+	private int getStreetUUID(JSONObject street, int boundariesHash) {
+		
+		JSONArray streetBoundaries = street.optJSONArray("boundaries");
+		
+		if(streetBoundaries == null || streetBoundaries.length() == 0) {
+			return 0;
+		}
+		
+		for(int i = 0; i < streetBoundaries.length(); i++) {
+			int hash = streetBoundaries.getJSONObject(i).optInt("boundariesHash");
+			if(boundariesHash == hash) {
+				return hash;
+			}
+		}
+		
+		return streetBoundaries.getJSONObject(0).optInt("boundariesHash");
 	}
 
 	@Override

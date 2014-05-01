@@ -18,7 +18,7 @@ public interface AddressesLevelsMatcher {
 	public JSONObject hnAsJSON(JSONObject addrPoint, JSONObject addrRow);
 
 	public JSONObject streetAsJSON(JSONObject addrPoint, JSONObject addrRow,
-			JSONObject associatedStreet, List<JSONObject> nearbyStreets);
+			JSONObject associatedStreet, List<JSONObject> nearbyStreets, int boundariesHash);
 
 	public JSONObject quarterAsJSON(JSONObject addrPoint, JSONObject addrRow,
 			Map<String, JSONObject> level2Boundary, JSONObject nearestNeighbour);
