@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>Gazetteer</groupId>
 	<artifactId>Gazetteer</artifactId>
@@ -87,9 +88,9 @@
 			<version>0.1.9</version>
 		</dependency>
 		<dependency>
-    		<groupId>org.elasticsearch</groupId>
-    		<artifactId>elasticsearch</artifactId>
-    		<version>1.1.1</version>
+			<groupId>org.elasticsearch</groupId>
+			<artifactId>elasticsearch</artifactId>
+			<version>1.1.1</version>
 		</dependency>
 	</dependencies>
 
@@ -132,8 +133,9 @@
 	</build>
 
 	<scm>
-		<developerConnection>scm:git:git@github.com:kiselev-dv/gazetteer.git</developerConnection>
-		<tag>Gazetteer-0.7</tag>
+		<connection>scm:git:ssh://github.com/kiselev-dv/gazetteer.git</connection>
+		<developerConnection>scm:git:ssh://git@github.com/kiselev-dv/gazetteer.git</developerConnection>
+		<url>http://github.com/kiselev-dv/gazetteer</url>
 	</scm>
 
 	<repositories>
