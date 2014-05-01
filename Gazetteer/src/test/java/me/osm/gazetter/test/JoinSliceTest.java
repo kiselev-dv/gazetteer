@@ -28,8 +28,8 @@ public class JoinSliceTest {
 		
 	}
 	
-	@Test
 	public void test() {
+		
 		try {
 			System.setProperty(org.slf4j.impl.SimpleLogger.DEFAULT_LOG_LEVEL_KEY, "TRACE");
 			new File("/opt/osm/test.gjson").delete();
