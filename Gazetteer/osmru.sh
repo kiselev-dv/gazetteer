@@ -62,6 +62,7 @@ addr-long-text \
 postcode \
 hn \
 street \
+street.uid
 [place:village place:hamlet] \
 [place:village.id place:hamlet.id] \
 [place:town place:city] \
