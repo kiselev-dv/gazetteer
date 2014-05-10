@@ -48,7 +48,7 @@
 	if(requesParams.containsKey("import")) {
 		String[] importPathParam = requesParams.get("import");
 		Importer importer = new Importer(importPathParam[0]);
-		importer.go();
+		importer.run();
 		response.sendRedirect("admin.jsp");
 	}
 	
@@ -62,8 +62,10 @@
 </head>
 <body>
 	<h1>Gazetter elasticsearch administration page</h1>
-	
-	<a href="admin.jsp?import=/opt/osm/data">import data</a>
+	<form>
+		<input name="import" type="text"></input>
+		<input type="submit" value="Import"></input>
+	</form>
 	<br><br>
 	<table>
 	<% 

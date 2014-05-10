@@ -6,7 +6,7 @@ Viewer = function() {
 	this.featuresDirective = {
 		'.feature' : {
 	        'feature<-features':{
-	          '@href':function(i){ return "api/feature=" + i.item.feature_id; },
+	          '@href':function(i){ return "api?feature=" + i.item.feature_id; },
 	          '.':'feature.name'
 	        }
 	    }

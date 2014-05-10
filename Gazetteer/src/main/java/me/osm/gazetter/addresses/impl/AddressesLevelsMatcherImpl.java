@@ -71,29 +71,32 @@ public class AddressesLevelsMatcherImpl implements AddressesLevelsMatcher {
 				waysSet.add(jsonArray.getLong(i));
 			}
 			
-			for(JSONObject ls : nearbyStreets) {
-				long wayId = Long.parseLong(StringUtils.split(ls.getString("id"), '-')[2].substring(1));  
-				if(waysSet.contains(wayId)) {
-					
-					JSONObject streetAddrPart = new JSONObject();
-					
-					Map<String, String> nameTags = AddressesUtils.filterNameTags(ls);
-					nameTags.putAll(AddressesUtils.filterNameTags(associatedStreet));
-					
-					if(nameTags.get("name") != null) {
-						streetAddrPart.put(ADDR_NAME, nameTags.get("name"));
-						streetAddrPart.put(ADDR_LVL, "street");
-						streetAddrPart.put(ADDR_NAMES, new JSONObject(nameTags));
-						streetAddrPart.put("lnk", ls.optString("id"));
-						streetAddrPart.put(ADDR_LVL_SIZE, lelvelsComparator.getLVLSize("street"));
+			if(nearbyStreets != null)
+			{
+				for(JSONObject ls : nearbyStreets) {
+					long wayId = Long.parseLong(StringUtils.split(ls.getString("id"), '-')[2].substring(1));  
+					if(waysSet.contains(wayId)) {
 						
-						streetAddrPart.put("strtUID", getStreetUUID(ls, boundariesHash));
+						JSONObject streetAddrPart = new JSONObject();
 						
-						return streetAddrPart;
-					}
-					else {
-						log.warn("Can't find name for associated street.\nStreet:\n{}\nRelation\n{}", 
-								ls.toString(), associatedStreet.toString());
+						Map<String, String> nameTags = AddressesUtils.filterNameTags(ls);
+						nameTags.putAll(AddressesUtils.filterNameTags(associatedStreet));
+						
+						if(nameTags.get("name") != null) {
+							streetAddrPart.put(ADDR_NAME, nameTags.get("name"));
+							streetAddrPart.put(ADDR_LVL, "street");
+							streetAddrPart.put(ADDR_NAMES, new JSONObject(nameTags));
+							streetAddrPart.put("lnk", ls.optString("id"));
+							streetAddrPart.put(ADDR_LVL_SIZE, lelvelsComparator.getLVLSize("street"));
+							
+							streetAddrPart.put("strtUID", getStreetUUID(ls, boundariesHash));
+							
+							return streetAddrPart;
+						}
+						else {
+							log.warn("Can't find name for associated street.\nStreet:\n{}\nRelation\n{}", 
+									ls.toString(), associatedStreet.toString());
+						}
 					}
 				}
 			}

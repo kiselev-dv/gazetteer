@@ -14,6 +14,8 @@ import javax.servlet.http.HttpServletResponse;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.client.Client;
+import org.elasticsearch.index.query.BoolQueryBuilder;
+import org.elasticsearch.index.query.MatchQueryBuilder;
 import org.elasticsearch.index.query.NestedQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
@@ -24,14 +26,18 @@ import org.json.JSONObject;
 /**
  * Servlet implementation class SearchFacade
  */
-@WebServlet("/api")
-public class SearchFacade extends HttpServlet {
+@WebServlet("/api/*")
+public class ApiDispatchServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 
 	/**
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		
+//		API api = dispatch(request);
+//		
+//		api.request(request, response);
 
 		String result = "{\"result\" : \"error\", \"error\" : \"Undefined api method request.\"}";
 		
@@ -54,17 +60,43 @@ public class SearchFacade extends HttpServlet {
 		response.getWriter().flush();
 	}
 
-	private String doGetFeature(HttpServletRequest request) {
+	private API dispatch(HttpServletRequest request) {
+		// TODO Auto-generated method stub
 		return null;
+	}
+
+	private String doGetFeature(HttpServletRequest request) {
+		Client client = ESNodeHodel.getClient();
+		
+		MatchQueryBuilder matchQuery = QueryBuilders.matchQuery("feature_id", request.getParameter("feature"));
+		
+		SearchResponse searchResponse = client.prepareSearch("gazetteer")
+			.setSearchType(SearchType.QUERY_AND_FETCH).setSize(25)
+			.setQuery(matchQuery)
+			.execute().actionGet();
+		
+		SearchHit[] hits = searchResponse.getHits().getHits();
+		
+		return hits[0].getSourceAsString();
 	}
 
 	private String doSearch(HttpServletRequest request) {
 		String querry = request.getParameter("search");
 		
+		String[] mainFields = new String[]{"name", "address", "poi_class", "poi_class_names", "operator", "brand"};
+		String[] secondaryFields = new String[]{"parts", "alt_addresses", "alt_names"};
+		String[] tertiaryFields = new String[]{"nearby_streets", "nearest_city", "nearest_neighbour"};
+		
+		BoolQueryBuilder q = QueryBuilders.boolQuery()
+			.should(QueryBuilders.multiMatchQuery(querry, mainFields).boost(100))
+			.should(QueryBuilders.multiMatchQuery(querry, secondaryFields).boost(50))
+			.should(QueryBuilders.multiMatchQuery(querry, tertiaryFields).boost(25));
+			
+		
 		Client client = ESNodeHodel.getClient();
 		SearchResponse searchResponse = client.prepareSearch("gazetteer")
-			.setSearchType(SearchType.QUERY_AND_FETCH).setSize(10)
-			.setQuery(QueryBuilders.simpleQueryString(querry))
+			.setSearchType(SearchType.QUERY_AND_FETCH).setSize(50)
+			.setQuery(q)
 			.execute().actionGet();
 
 		return encodeSearchResult(searchResponse, 

@@ -66,29 +66,7 @@ public class AddrRowValueExctractorImpl implements AddrRowValueExtractor {
 			if(UID.equals(key)) {
 				
 				String ftype = jsonObject.getString("ftype");
-				if(FeatureTypes.HIGHWAY_FEATURE_TYPE.equals(ftype)) {
-					int hash = addrRow.getInt("boundariesHash");
-					if(hash == 0) {
-						return jsonObject.getString("id");
-					}
-					String h = getPositiveHash(hash);
-					
-					return jsonObject.getString("id") + "-" + h;
-				}
-
-				if(FeatureTypes.ADDR_POINT_FTYPE.equals(ftype)) {
-					String addrType = addrRow.optString(AddressesSchemesParser.ADDR_SCHEME);
-					
-					return jsonObject.getString("id") + "-" + addrType;
-				}
-
-				if(FeatureTypes.POI_FTYPE.equals(ftype)) {
-					String addrType = addrRow.optString(AddressesSchemesParser.ADDR_SCHEME);
-					
-					return jsonObject.getString("id") + "-" + addrType;
-				}
-				
-				return jsonObject.getString("id");
+				return getUID(jsonObject, addrRow, ftype);
 			}
 			
 			if(ADDR_TEXT.equals(key)) {
@@ -143,7 +121,35 @@ public class AddrRowValueExctractorImpl implements AddrRowValueExtractor {
 		
 	}
 
-	private String getPositiveHash(int hash) {
+	public static String getUID(JSONObject jsonObject, JSONObject addrRow,
+			String ftype) {
+		
+		if(FeatureTypes.HIGHWAY_FEATURE_TYPE.equals(ftype)) {
+			int hash = addrRow.getInt("boundariesHash");
+			if(hash == 0) {
+				return jsonObject.getString("id");
+			}
+			String h = getPositiveHash(hash);
+			
+			return jsonObject.getString("id") + "-" + h;
+		}
+
+		if(FeatureTypes.ADDR_POINT_FTYPE.equals(ftype)) {
+			String addrType = addrRow.optString(AddressesSchemesParser.ADDR_SCHEME);
+			
+			return jsonObject.getString("id") + "-" + addrType;
+		}
+
+		if(FeatureTypes.POI_FTYPE.equals(ftype)) {
+			String addrType = addrRow.optString(AddressesSchemesParser.ADDR_SCHEME);
+			
+			return jsonObject.getString("id") + "-" + addrType;
+		}
+		
+		return jsonObject.getString("id");
+	}
+
+	private static String getPositiveHash(int hash) {
 		if(hash > 0) {
 			return String.valueOf(hash);
 		}

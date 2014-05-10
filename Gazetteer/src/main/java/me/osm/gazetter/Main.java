@@ -12,6 +12,7 @@ import java.util.List;
 import me.osm.gazetter.addresses.AddrLevelsSorting;
 import me.osm.gazetter.join.Joiner;
 import me.osm.gazetter.out.CSVOutWriter;
+import me.osm.gazetter.out.GazetteerOutWriter;
 import me.osm.gazetter.sortupdate.SortUpdate;
 import me.osm.gazetter.split.Split;
 import me.osm.gazetter.striper.Slicer;
@@ -97,6 +98,12 @@ public class Main {
 			public String longName() {return name().toLowerCase().replace('_', '-');}
 	    	@Override
 			public String help() {return "Write data out in csv format.";}
+	    },
+	    OUT_GAZETTEER {
+	    	@Override
+	    	public String longName() {return name().toLowerCase().replace('_', '-');}
+	    	@Override
+	    	public String help() {return "Write data out in json format with gazetter/pelias format.";}
 	    };
 
 	};
@@ -183,6 +190,20 @@ public class Main {
 						namespace.getString("out_file"),
 						namespace.getString(POI_CATALOG_VAL)).write();
 			}
+
+			if(namespace.get(COMMAND).equals(Command.OUT_GAZETTEER)) {
+				
+				if(threads != null) {
+					Options.get().setNThreads(threads);
+				}
+				new GazetteerOutWriter(
+						namespace.getString(DATA_DIR_VAL), 
+						namespace.getString("out_file"),
+						namespace.getString(POI_CATALOG_VAL),
+						list(namespace.getList("local_admin")),
+						list(namespace.getList("locality")),
+						list(namespace.getList("neighborhood"))).write();
+			}
 			
 		} 
 		catch (ArgumentParserException e) {
@@ -232,7 +253,7 @@ public class Main {
 		parser.addArgument("--threads").required(false);
 		
         parser.addArgument(DATA_DIR_OPT).required(false).
-                help("Use folder as data storage.").setDefault("slices");
+                help("Use folder as data storage.").setDefault("data");
         
         parser.addArgument(LOG_OPT).required(false).setDefault("WARN");
         parser.addArgument(LOG_FILE_OPT).required(false);
@@ -319,7 +340,7 @@ public class Main {
 					.help(command.help());
 		}
 
-		//out
+		//out-csv
 		{
 			Command command = Command.OUT_CSV;
 			Subparser outCSV = subparsers.addParser(command.longName())
@@ -334,6 +355,24 @@ public class Main {
 				.help("Path to osm-doc catalog xml file. By default internal osm-doc.xml will be used.");
 			
 			outCSV.addArgument("--line-handler").help("Path to custom groovy line handler.");
+			
+		}
+
+		//out-gazetteer
+		{
+			Command command = Command.OUT_GAZETTEER;
+			Subparser outCSV = subparsers.addParser(command.longName())
+					.setDefault(COMMAND, command)
+					.help(command.help());
+			
+			outCSV.addArgument("--out-file").setDefault("-");
+			
+			outCSV.addArgument(POI_CATALOG_OPT).setDefault("jar")
+			.help("Path to osm-doc catalog xml file. By default internal osm-doc.xml will be used.");
+			
+			outCSV.addArgument("--local-admin").help("Addr levels for local administrations.");
+			outCSV.addArgument("--locality").help("Addr levels for locality.");
+			outCSV.addArgument("--neighborhood").help("Addr levels for neighborhood.");
 			
 		}
 		
