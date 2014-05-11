@@ -13,7 +13,14 @@
 	<div id="wrapper">
 		<div id="header">
 			<form name="search">
-				<input name="querry" id="search" type="text"></input>
+				<input name="q" id="search" type="text"></input>
+				<div>
+					<span><input type="checkbox" name="type" value="adrpnt">Address</span>
+					<span><input type="checkbox" name="type" value="plcpnt">Town</span>
+					<span><input type="checkbox" name="type" value="hghway">Street</span>
+					<span><input type="checkbox" name="type" value="admbnd">Admin. boundary</span>
+					<span><input type="checkbox" name="type" value="poipnt">POI</span>
+				</div>
 			</form>
 		</div>
 		<div id="content">

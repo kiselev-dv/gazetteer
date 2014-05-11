@@ -1,9 +1,8 @@
 package me.osm.gazetteer.web;
 
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.net.URLDecoder;
-import java.util.Set;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -11,17 +10,15 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.action.search.SearchType;
-import org.elasticsearch.client.Client;
-import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.index.query.MatchQueryBuilder;
-import org.elasticsearch.index.query.NestedQueryBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.search.SearchHit;
-import org.elasticsearch.search.suggest.SuggestBuilder;
-import org.json.JSONArray;
-import org.json.JSONObject;
+import me.osm.gazetteer.web.api.API;
+import me.osm.gazetteer.web.api.API.GazetteerAPIException;
+import me.osm.gazetteer.web.api.FeatureAPI;
+import me.osm.gazetteer.web.api.InverseGeocodeAPI;
+import me.osm.gazetteer.web.api.ListFeaturesAPI;
+import me.osm.gazetteer.web.api.MassiveAPI;
+import me.osm.gazetteer.web.api.SearchAPI;
+
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Servlet implementation class SearchFacade
@@ -29,99 +26,80 @@ import org.json.JSONObject;
 @WebServlet("/api/*")
 public class ApiDispatchServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
+	
+	public static final Map<String, API> apis = new HashMap<String, API>();
+	
+	public static final class ApiDispatchException extends Exception {
+
+		private static final long serialVersionUID = -1893317883061533965L;
+
+		public ApiDispatchException(String string) {
+			super(string);
+		}
+
+		public ApiDispatchException() {
+			super();
+		}
+		
+	}
+	
+	static {
+		apis.put("search", new SearchAPI());
+		apis.put("feature", new FeatureAPI());
+		apis.put("list", new ListFeaturesAPI());
+		apis.put("igeocode", new InverseGeocodeAPI());
+		apis.put("massive", new MassiveAPI());
+	}
 
 	/**
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		
-//		API api = dispatch(request);
-//		
-//		api.request(request, response);
-
-		String result = "{\"result\" : \"error\", \"error\" : \"Undefined api method request.\"}";
+		try {
+			API api = dispatch(request);
 		
-		if(request.getParameter("search") != null) {
-			result = doSearch(request);
+			api.request(request, response);
 		}
-
-		if(request.getParameter("feature") != null) {
-			result = doGetFeature(request);
+		catch (ApiDispatchException e) {
+			throw new ServletException("Can't dispatch api request", e);
 		}
-
-		response.setCharacterEncoding("UTF-8");
-		response.setContentType("application/json");
+		catch (GazetteerAPIException e) {
+			throw new ServletException("Can't perform api request", e);
+		}
 		
-		response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate"); // HTTP 1.1.
-		response.setHeader("Pragma", "no-cache"); // HTTP 1.0.
-		response.setDateHeader("Expires", 0); // Proxies.
-		
-		response.getWriter().print(result);
-		response.getWriter().flush();
 	}
 
-	private API dispatch(HttpServletRequest request) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	private String doGetFeature(HttpServletRequest request) {
-		Client client = ESNodeHodel.getClient();
+	private API dispatch(HttpServletRequest request) throws ApiDispatchException {
 		
-		MatchQueryBuilder matchQuery = QueryBuilders.matchQuery("feature_id", request.getParameter("feature"));
-		
-		SearchResponse searchResponse = client.prepareSearch("gazetteer")
-			.setSearchType(SearchType.QUERY_AND_FETCH).setSize(25)
-			.setQuery(matchQuery)
-			.execute().actionGet();
-		
-		SearchHit[] hits = searchResponse.getHits().getHits();
-		
-		return hits[0].getSourceAsString();
-	}
-
-	private String doSearch(HttpServletRequest request) {
-		String querry = request.getParameter("search");
-		
-		String[] mainFields = new String[]{"name", "address", "poi_class", "poi_class_names", "operator", "brand"};
-		String[] secondaryFields = new String[]{"parts", "alt_addresses", "alt_names"};
-		String[] tertiaryFields = new String[]{"nearby_streets", "nearest_city", "nearest_neighbour"};
-		
-		BoolQueryBuilder q = QueryBuilders.boolQuery()
-			.should(QueryBuilders.multiMatchQuery(querry, mainFields).boost(100))
-			.should(QueryBuilders.multiMatchQuery(querry, secondaryFields).boost(50))
-			.should(QueryBuilders.multiMatchQuery(querry, tertiaryFields).boost(25));
+		String pathInfo = request.getPathInfo();
+		if(pathInfo != null) {
+			String[] pathParts = StringUtils.split(pathInfo, '/');
 			
-		
-		Client client = ESNodeHodel.getClient();
-		SearchResponse searchResponse = client.prepareSearch("gazetteer")
-			.setSearchType(SearchType.QUERY_AND_FETCH).setSize(50)
-			.setQuery(q)
-			.execute().actionGet();
-
-		return encodeSearchResult(searchResponse, 
-				request.getParameter("pretty") != null && "true".equals(request.getParameter("pretty")),
-				request.getParameter("full_geometry") != null && "true".equals(request.getParameter("full_geometry")));
-	}
-
-	private String encodeSearchResult(SearchResponse searchResponse, boolean preaty, boolean fullGeometry) {
-		JSONObject result = new JSONObject();
-		result.put("result", "success");
-		
-		JSONArray features = new JSONArray();
-		result.put("features", features);
-		
-		for(SearchHit hit : searchResponse.getHits().getHits()) {
-			JSONObject feature = new JSONObject(hit.getSource());
-			
-			if(!fullGeometry) {
-				feature.remove("full_geometry");
+			if(pathParts.length > 0) {
+				
+				String apiName = pathParts[0];
+				API api = apis.get(apiName.toLowerCase());
+				
+				if(api != null) {
+					if(pathParts.length > 1) {
+						String format = pathParts[1];
+						api.setFormat(format);
+					}
+					else {
+						api.setDefaultFormat();
+					}
+					
+					return api;
+				}
+				else {
+					throw new ApiDispatchException("Can't find api with name " + apiName);
+				}
 			}
 			
-			features.put(feature);
 		}
 		
-		return result.toString(preaty ? 2 : 0);
+		throw new ApiDispatchException();
 	}
 
 	/**

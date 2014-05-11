@@ -1,3 +1,8 @@
+<%@page import="org.elasticsearch.action.support.IndicesOptions"%>
+<%@page import="org.json.JSONObject"%>
+<%@page import="org.elasticsearch.cluster.metadata.MappingMetaData"%>
+<%@page import="org.elasticsearch.action.admin.indices.mapping.get.GetMappingsResponse"%>
+<%@page import="org.elasticsearch.action.admin.indices.mapping.get.GetMappingsRequest"%>
 <%@page import="me.osm.gazetteer.web.Importer"%>
 <%@page import="java.nio.charset.Charset"%>
 <%@page import="org.apache.commons.codec.binary.Base64"%>
@@ -52,6 +57,11 @@
 		response.sendRedirect("admin.jsp");
 	}
 	
+	JSONObject clusterInfo = new JSONObject(
+			ESNodeHodel.getClient().admin().cluster()
+				.prepareClusterStats().get().toString());
+	
+	JSONObject nodes = clusterInfo.getJSONObject("nodes");
 	%>
 	
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
@@ -62,6 +72,7 @@
 </head>
 <body>
 	<h1>Gazetter elasticsearch administration page</h1>
+	<h3>Versions: <%=nodes.getJSONArray("versions").toString() %></h3>
 	<form>
 		<input name="import" type="text"></input>
 		<input type="submit" value="Import"></input>
@@ -69,6 +80,7 @@
 	<br><br>
 	<table>
 	<% 
+	
 	IndicesStatusResponse indecesResponse = ESNodeHodel.getClient().admin().indices().prepareStatus().execute().actionGet();
 	for (Entry<String, IndexStatus> entry : indecesResponse.getIndices().entrySet()) { 
 		long indexSize = entry.getValue().getStoreSize().getMb();
@@ -81,5 +93,21 @@
 		</tr>
 	<%}	%>
 	</table>
+	<h3>mapping</h3>
+	<pre><% 
+	if(indecesResponse.getIndices().get("gazetteer") != null) {
+		GetMappingsResponse getMappingsResponse = 
+			ESNodeHodel.getClient().admin().indices().getMappings(
+					new GetMappingsRequest().indices("gazetteer")).get();
+		
+		MappingMetaData placeMapping = getMappingsResponse.getMappings().get("gazetteer").get(Importer.TYPE_NAME);
+		
+		if(placeMapping != null) {
+			String mapping = new JSONObject(placeMapping.source().toString()).toString(2);
+			out.println(mapping);
+		}
+	}
+	%>
+	</pre>	
 </body>
 </html>
