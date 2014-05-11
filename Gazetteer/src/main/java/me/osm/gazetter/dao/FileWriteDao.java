@@ -3,6 +3,7 @@ package me.osm.gazetter.dao;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.Map;
@@ -40,7 +41,7 @@ public class FileWriteDao implements WriteDao {
 					}
 					
 					FileOutputStream fos = new FileOutputStream(file, true);
-					pw = new PrintWriter(fos);
+					pw = new PrintWriter(new OutputStreamWriter(fos, "UTF8"));
 					writers.put(key, pw);
 				}
 			}

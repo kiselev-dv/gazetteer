@@ -13,7 +13,6 @@ import me.osm.gazetter.join.AddrPointFormatter;
 import me.osm.gazetter.join.JoinSliceTask;
 
 import org.json.JSONObject;
-import org.junit.Test;
 
 public class JoinSliceTest {
 

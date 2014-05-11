@@ -2,6 +2,7 @@ package me.osm.gazetter.out;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -92,15 +93,15 @@ public class CSVOutWriter implements LineHandler {
 				this.types.add(ftype);
 				this.orderedTypes.add(ftype);
 				writers.put(ftype, new CsvListWriter(
-						new PrintWriter(getFile4Ftype(ftype)), 
+						new PrintWriter(getFile4Ftype(ftype), "UTF8"), 
 						new CsvPreference.Builder('$', '\t', "\n").build()));
 			}
 
 			if("-".equals(out)) {
-				this.out = new PrintWriter(System.out);
+				this.out = new PrintWriter(new OutputStreamWriter(System.out, "UTF8"));
 			}
 			else {
-				this.out = new PrintWriter(new File(out));
+				this.out = new PrintWriter(new File(out), "UTF8");
 			}
 		}
 		catch (Exception e) {

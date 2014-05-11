@@ -30,7 +30,7 @@ public class FileUtils {
 	public static void handleLines(InputStream f, LineHandler handler) {
 		BufferedReader bufferedReader = null;
 		try {
-			bufferedReader = new BufferedReader(new InputStreamReader(f));
+			bufferedReader = new BufferedReader(new InputStreamReader(f, "UTF8"));
 			
 			String line = bufferedReader.readLine();
 			do {

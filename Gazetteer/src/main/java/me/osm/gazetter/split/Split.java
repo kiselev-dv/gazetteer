@@ -31,18 +31,9 @@ public class Split implements LineHandler {
 		this.input = input;
 		destFolder.mkdirs();
 		try {
-			nodePW = new PrintWriter(new File(destFolder.getAbsolutePath() + "/" + "nodes.osm"));
-			wayPW = new PrintWriter(new File(destFolder.getAbsolutePath() + "/" + "ways.osm"));
-			relPW = new PrintWriter(new File(destFolder.getAbsolutePath() + "/" + "rels.osm"));
-			
-			nodePW.println(HEADER);
-			nodePW.println("<osm>");
-			
-			wayPW.println(HEADER);
-			wayPW.println("<osm>");
-			
-			relPW.println(HEADER);
-			relPW.println("<osm>");
+			nodePW = new PrintWriter(new File(destFolder.getAbsolutePath() + "/" + "nodes.osm"), "UTF8");
+			wayPW = new PrintWriter(new File(destFolder.getAbsolutePath() + "/" + "ways.osm"), "UTF8");
+			relPW = new PrintWriter(new File(destFolder.getAbsolutePath() + "/" + "rels.osm"), "UTF8");
 		}
 		catch (Exception e) {
 			throw new RuntimeException("Failed to initialize splitter. "
@@ -54,6 +45,16 @@ public class Split implements LineHandler {
 		long start = new Date().getTime();
 		try {
 			InputStream fileIS = FileUtils.getFileIS(input);
+			
+			nodePW.println(HEADER);
+			nodePW.println("<osm>");
+			
+			wayPW.println(HEADER);
+			wayPW.println("<osm>");
+			
+			relPW.println(HEADER);
+			relPW.println("<osm>");
+			
 			FileUtils.handleLines(fileIS, this);
 		} catch (FileNotFoundException e) {
 			throw new RuntimeException("Input file not found: " + input, e);

@@ -154,7 +154,7 @@ public class Joiner {
 		}
 		
 		File binxnew = new File(stripesFolder + "/binx-updated.gjson");
-		final PrintWriter writer = new PrintWriter(binxnew);
+		final PrintWriter writer = new PrintWriter(binxnew, "UTF8");
 		
 		FileUtils.handleLines(binxFile, new LineHandler() {
 

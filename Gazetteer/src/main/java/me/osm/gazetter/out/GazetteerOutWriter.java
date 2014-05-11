@@ -2,49 +2,39 @@ package me.osm.gazetter.out;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.StringTokenizer;
 
-import org.apache.commons.lang3.StringUtils;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.supercsv.io.CsvListWriter;
-import org.supercsv.prefs.CsvPreference;
-
-import com.google.code.externalsorting.ExternalSort;
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.LineString;
-import com.vividsolutions.jts.geom.MultiPolygon;
-import com.vividsolutions.jts.geom.Polygon;
-
-import me.osm.gazetter.Options;
-import me.osm.gazetter.addresses.AddressesSchemesParser;
 import me.osm.gazetter.addresses.AddressesUtils;
 import me.osm.gazetter.join.Joiner;
 import me.osm.gazetter.striper.FeatureTypes;
 import me.osm.gazetter.striper.GeoJsonWriter;
 import me.osm.gazetter.striper.JSONFeature;
 import me.osm.gazetter.utils.FileUtils;
-import me.osm.gazetter.utils.LocatePoint;
 import me.osm.gazetter.utils.FileUtils.LineHandler;
+import me.osm.gazetter.utils.LocatePoint;
 import me.osm.osmdoc.model.Feature;
 import me.osm.osmdoc.read.OSMDocFacade;
+
+import org.apache.commons.lang3.StringUtils;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import com.google.code.externalsorting.ExternalSort;
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.LineString;
 
 public class GazetteerOutWriter  implements LineHandler  {
 	
@@ -88,17 +78,17 @@ public class GazetteerOutWriter  implements LineHandler  {
 		this.dataDir = dataDir;
 		
 		try {
-			writers.put(FeatureTypes.POI_FTYPE, new PrintWriter(getFile4Ftype(FeatureTypes.POI_FTYPE)));
-			writers.put(FeatureTypes.ADDR_POINT_FTYPE, new PrintWriter(getFile4Ftype(FeatureTypes.ADDR_POINT_FTYPE)));
-			writers.put(FeatureTypes.HIGHWAY_FEATURE_TYPE, new PrintWriter(getFile4Ftype(FeatureTypes.HIGHWAY_FEATURE_TYPE)));
-			writers.put(FeatureTypes.PLACE_POINT_FTYPE, new PrintWriter(getFile4Ftype(FeatureTypes.PLACE_POINT_FTYPE)));
-			writers.put(FeatureTypes.ADMIN_BOUNDARY_FTYPE, new PrintWriter(getFile4Ftype(FeatureTypes.ADMIN_BOUNDARY_FTYPE)));
+			writers.put(FeatureTypes.POI_FTYPE, new PrintWriter(getFile4Ftype(FeatureTypes.POI_FTYPE), "UTF8"));
+			writers.put(FeatureTypes.ADDR_POINT_FTYPE, new PrintWriter(getFile4Ftype(FeatureTypes.ADDR_POINT_FTYPE), "UTF8"));
+			writers.put(FeatureTypes.HIGHWAY_FEATURE_TYPE, new PrintWriter(getFile4Ftype(FeatureTypes.HIGHWAY_FEATURE_TYPE), "UTF8"));
+			writers.put(FeatureTypes.PLACE_POINT_FTYPE, new PrintWriter(getFile4Ftype(FeatureTypes.PLACE_POINT_FTYPE), "UTF8"));
+			writers.put(FeatureTypes.ADMIN_BOUNDARY_FTYPE, new PrintWriter(getFile4Ftype(FeatureTypes.ADMIN_BOUNDARY_FTYPE), "UTF8"));
 
 			if("-".equals(out)) {
-				this.out = new PrintWriter(System.out);
+				this.out = new PrintWriter(new OutputStreamWriter(System.out, "UTF8"));
 			}
 			else {
-				this.out = new PrintWriter(new File(out));
+				this.out = new PrintWriter(new File(out), "UTF8");
 			}
 		}
 		catch (Exception e) {
@@ -300,6 +290,7 @@ public class GazetteerOutWriter  implements LineHandler  {
 		JSONObject refs = new JSONObject();
 		
 		putAddrParts(result, refs, addrRow, mapLevels, langs);
+		result.put("refs", refs);
 		
 		JSONObject properties = jsonObject.optJSONObject("properties");
 		if(properties != null) {

@@ -3,7 +3,9 @@ package me.osm.gazetter.join;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -147,7 +149,7 @@ public class JoinSliceTask implements Runnable {
 		
 		try {
 			printWriter = getOutWriter();
-		} catch (FileNotFoundException e) {
+		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
 	}
@@ -780,8 +782,8 @@ public class JoinSliceTask implements Runnable {
 		}
 	}
 
-	protected PrintWriter getOutWriter() throws FileNotFoundException {
-		return new PrintWriter(new FileOutputStream(this.outFile));
+	protected PrintWriter getOutWriter() throws FileNotFoundException, UnsupportedEncodingException {
+		return new PrintWriter(new OutputStreamWriter(new FileOutputStream(this.outFile), "UTF8"));
 		
 		//old way with append to file and sort/update
 		//It's not efficient / anyway I can write out all features which
