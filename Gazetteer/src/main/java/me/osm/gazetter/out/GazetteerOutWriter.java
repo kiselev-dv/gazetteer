@@ -279,8 +279,8 @@ public class GazetteerOutWriter  implements LineHandler  {
 		result.put("type", ftype);
 		result.put("timestamp", jsonObject.getString("timestamp"));
 		
-		putName(result, ftype, mapLevels, jsonObject);
-		putAltNames(result, ftype, mapLevels, jsonObject);
+		putName(result, ftype, mapLevels, jsonObject, addrRow);
+		putAltNames(result, ftype, mapLevels, jsonObject, addrRow);
 
 		putNearbyStreets(result, ftype, mapLevels, jsonObject);
 		putNearbyPlaces(result, ftype, mapLevels, jsonObject);
@@ -600,7 +600,7 @@ public class GazetteerOutWriter  implements LineHandler  {
 	}
 
 	private void putAltNames(JSONObject result, String ftype,
-			Map<String, JSONObject> mapLevels, JSONObject jsonObject) {
+			Map<String, JSONObject> mapLevels, JSONObject jsonObject, JSONObject addrRow) {
 		if(!FeatureTypes.ADDR_POINT_FTYPE.equals(ftype))  {
 			JSONObject properties = jsonObject.optJSONObject("properties");
 			Map<String, String> altNames = AddressesUtils.filterNameTags(properties);
@@ -613,7 +613,7 @@ public class GazetteerOutWriter  implements LineHandler  {
 	}
 
 	private void putName(JSONObject result, String ftype,
-			Map<String, JSONObject> mapLevels, JSONObject jsonObject) {
+			Map<String, JSONObject> mapLevels, JSONObject jsonObject, JSONObject addrRow) {
 		
 		if(FeatureTypes.ADDR_POINT_FTYPE.equals(ftype)) {
 			String hn = mapLevels.get("hn") != null ? mapLevels.get("hn").getString("name") : null;

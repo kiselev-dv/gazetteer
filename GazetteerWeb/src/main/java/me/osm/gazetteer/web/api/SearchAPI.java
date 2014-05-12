@@ -24,6 +24,7 @@ public class SearchAPI implements API {
 	public void request(HttpServletRequest request, HttpServletResponse response)
 			throws GazetteerAPIException, IOException {
 
+		boolean explain = "true".equals(request.getParameter("explain"));
 		String querry = request.getParameter("q");
 		String[] typesFilter = request.getParameterValues("type");
 		
@@ -43,12 +44,13 @@ public class SearchAPI implements API {
 		Client client = ESNodeHodel.getClient();
 		SearchResponse searchResponse = client.prepareSearch("gazetteer")
 			.setSearchType(SearchType.QUERY_AND_FETCH).setSize(20)
-			.setQuery(q)
+			.setQuery(q).setExplain(explain)
 			.execute().actionGet();
 
 		String answer = encodeSearchResult(searchResponse, 
 				request.getParameter("pretty") != null && "true".equals(request.getParameter("pretty")),
-				request.getParameter("full_geometry") != null && "true".equals(request.getParameter("full_geometry")));
+				request.getParameter("full_geometry") != null && "true".equals(request.getParameter("full_geometry")),
+				explain);
 		
 		ServletUtils.writeJson(answer, response);
 		
@@ -64,7 +66,9 @@ public class SearchAPI implements API {
 		
 	}
 
-	private String encodeSearchResult(SearchResponse searchResponse, boolean preaty, boolean fullGeometry) {
+	private String encodeSearchResult(SearchResponse searchResponse, boolean preaty, 
+			boolean fullGeometry, boolean explain) {
+		
 		JSONObject result = new JSONObject();
 		result.put("result", "success");
 		
@@ -79,6 +83,17 @@ public class SearchAPI implements API {
 			}
 			
 			features.put(feature);
+		}
+		
+		if(explain) {
+			JSONArray explanations = new JSONArray();
+			result.put("explanations", explanations);
+
+			for(SearchHit hit : searchResponse.getHits().getHits()) {
+				JSONObject explanation = new JSONObject(hit.explanation().toString());
+				
+				explanations.put(explanation);
+			}
 		}
 		
 		return result.toString(preaty ? 2 : 0);
