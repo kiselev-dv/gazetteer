@@ -6,6 +6,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import me.osm.gazetteer.web.ESNodeHodel;
+import me.osm.gazetteer.web.api.API.GazetteerAPIException;
 
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
@@ -21,7 +22,7 @@ public class SearchAPI implements API {
 
 	
 	@Override
-	public void request(HttpServletRequest request, HttpServletResponse response)
+	public JSONObject request(HttpServletRequest request) 
 			throws GazetteerAPIException, IOException {
 
 		boolean explain = "true".equals(request.getParameter("explain"));
@@ -47,26 +48,14 @@ public class SearchAPI implements API {
 			.setQuery(q).setExplain(explain)
 			.execute().actionGet();
 
-		String answer = encodeSearchResult(searchResponse, 
-				request.getParameter("pretty") != null && "true".equals(request.getParameter("pretty")),
+		JSONObject answer = encodeSearchResult(searchResponse, 
 				request.getParameter("full_geometry") != null && "true".equals(request.getParameter("full_geometry")),
 				explain);
 		
-		ServletUtils.writeJson(answer, response);
-		
+		return answer;
 	}
 
-	@Override
-	public void setFormat(String format) {
-
-	}
-
-	@Override
-	public void setDefaultFormat() {
-		
-	}
-
-	private String encodeSearchResult(SearchResponse searchResponse, boolean preaty, 
+	private JSONObject encodeSearchResult(SearchResponse searchResponse, 
 			boolean fullGeometry, boolean explain) {
 		
 		JSONObject result = new JSONObject();
@@ -96,6 +85,6 @@ public class SearchAPI implements API {
 			}
 		}
 		
-		return result.toString(preaty ? 2 : 0);
+		return result;
 	}
 }

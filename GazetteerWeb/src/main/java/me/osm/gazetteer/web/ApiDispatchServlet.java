@@ -17,8 +17,10 @@ import me.osm.gazetteer.web.api.InverseGeocodeAPI;
 import me.osm.gazetteer.web.api.ListFeaturesAPI;
 import me.osm.gazetteer.web.api.MassiveAPI;
 import me.osm.gazetteer.web.api.SearchAPI;
+import me.osm.gazetteer.web.api.ServletUtils;
 
 import org.apache.commons.lang3.StringUtils;
+import org.json.JSONObject;
 
 /**
  * Servlet implementation class SearchFacade
@@ -58,8 +60,17 @@ public class ApiDispatchServlet extends HttpServlet {
 		
 		try {
 			API api = dispatch(request);
+			if(api != null) {
+				String pathInfo = request.getPathInfo();
+				String[] pathParts = StringUtils.split(pathInfo, '/');
+				if(pathParts.length > 1) {
+					String format = pathParts[1];
+				}
+			}
 		
-			api.request(request, response);
+			JSONObject result = api.request(request);
+			
+			ServletUtils.writeJson(result.toString(), response);
 		}
 		catch (ApiDispatchException e) {
 			throw new ServletException("Can't dispatch api request", e);
@@ -82,14 +93,6 @@ public class ApiDispatchServlet extends HttpServlet {
 				API api = apis.get(apiName.toLowerCase());
 				
 				if(api != null) {
-					if(pathParts.length > 1) {
-						String format = pathParts[1];
-						api.setFormat(format);
-					}
-					else {
-						api.setDefaultFormat();
-					}
-					
 					return api;
 				}
 				else {

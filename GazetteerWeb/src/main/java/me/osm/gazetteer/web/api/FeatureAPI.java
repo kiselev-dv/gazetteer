@@ -7,6 +7,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import me.osm.gazetteer.web.ESNodeHodel;
 import me.osm.gazetteer.web.Importer;
+import me.osm.gazetteer.web.api.API.GazetteerAPIException;
 
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
@@ -63,7 +64,7 @@ public class FeatureAPI implements API {
 	};
 
 	@Override
-	public void request(HttpServletRequest request, HttpServletResponse response)
+	public JSONObject request(HttpServletRequest request) 
 			throws GazetteerAPIException, IOException {
 		
 		Client client = ESNodeHodel.getClient();
@@ -83,10 +84,10 @@ public class FeatureAPI implements API {
 		if(hits.length > 0) {
 			JSONObject feature = mergeIntoFeature(hits);
 			
-			ServletUtils.writeJson(feature.toString(), response);
+			return feature;
 		}
 		
-		
+		return null;
 	}
 
 	private JSONObject mergeIntoFeature(SearchHit[] hits) {
@@ -110,18 +111,6 @@ public class FeatureAPI implements API {
 		}
 		
 		return result;
-	}
-
-	@Override
-	public void setFormat(String format) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void setDefaultFormat() {
-		// TODO Auto-generated method stub
-
 	}
 
 }

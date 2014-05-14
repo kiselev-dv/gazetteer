@@ -3,7 +3,8 @@ package me.osm.gazetteer.web.api;
 import java.io.IOException;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+
+import org.json.JSONObject;
 
 public interface API {
 	
@@ -25,8 +26,7 @@ public interface API {
 		
 	}
 
-	void request(HttpServletRequest request, HttpServletResponse response) throws GazetteerAPIException, IOException;
-	void setFormat(String format);
-	void setDefaultFormat();
+	JSONObject request(HttpServletRequest request) 
+			throws GazetteerAPIException, IOException;
 
 }
