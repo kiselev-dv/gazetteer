@@ -48,6 +48,9 @@ public class Main {
 	private static final String JOIN_COMMON_VAL = "common";
 	private static final String JOIN_COMMON_OPT = "--common";
 
+	private static final String COMPRESS_VAL = "compress";
+	private static final String COMPRESS_OPT = "--compress";
+
 	private static final String DATA_DIR_VAL = "data_dir";
 	private static final String DATA_DIR_OPT = "--data-dir";
 	
@@ -124,6 +127,21 @@ public class Main {
 			
 			String thrds = namespace.get("threads");
 			Integer threads = thrds == null ? null : Integer.valueOf(thrds); 
+			
+			if(namespace.get(COMMAND).equals(Command.JOIN)) {
+				Options.initialize(
+						AddrLevelsSorting.valueOf(namespace.getString(ADDR_ORDER_VAL)),
+						namespace.getString(ADDR_FORMATTER_VAL),
+						new HashSet(list(namespace.getList("skip_in_text"))),
+						namespace.getBoolean("find_langs")
+				);
+			}
+
+			if(threads != null) {
+				Options.get().setNThreads(threads);
+			}
+
+			Options.get().setCompress((boolean)namespace.get(COMPRESS_VAL));
 
 			if(namespace.get(COMMAND).equals(Command.SPLIT)) {
 				Split splitter = new Split(new File(namespace.getString(DATA_DIR_VAL)), namespace.getString("osm_file"));
@@ -139,10 +157,6 @@ public class Main {
 					types.addAll((Collection<String>)namespace.get(FEATURE_TYPES_VAL));
 				}
 				
-				if(threads != null) {
-					Options.get().setNThreads(threads);
-				}
-				
 				new Slicer(namespace.getString(DATA_DIR_VAL)).run(
 						namespace.getString(POI_CATALOG_VAL), 
 						types,
@@ -154,16 +168,6 @@ public class Main {
 			}
 
 			if(namespace.get(COMMAND).equals(Command.JOIN)) {
-				Options.initialize(
-						AddrLevelsSorting.valueOf(namespace.getString(ADDR_ORDER_VAL)),
-						namespace.getString(ADDR_FORMATTER_VAL),
-						new HashSet(list(namespace.getList("skip_in_text"))),
-						namespace.getBoolean("find_langs")
-				);
-				
-				if(threads != null) {
-					Options.get().setNThreads(threads);
-				}
 				
 				new Joiner(new HashSet(list(namespace.getList("check_boundaries"))))
 					.run(namespace.getString(DATA_DIR_VAL), namespace.getString(JOIN_COMMON_VAL));
@@ -171,18 +175,13 @@ public class Main {
 			}
 
 			if(namespace.get(COMMAND).equals(Command.SYNCHRONIZE)) {
-				if(threads != null) {
-					Options.get().setNThreads(threads);
-				}
 				new SortUpdate(namespace.getString(DATA_DIR_VAL)).run();
 			}
 			
 			if(namespace.get(COMMAND).equals(Command.OUT_CSV)) {
 
 				Options.get().setCsvOutLineHandler(namespace.getString("line_handler"));
-				if(threads != null) {
-					Options.get().setNThreads(threads);
-				}
+
 				new CSVOutWriter(
 						namespace.getString(DATA_DIR_VAL), 
 						StringUtils.join(list(namespace.getList("columns")), ' '), 
@@ -193,9 +192,6 @@ public class Main {
 
 			if(namespace.get(COMMAND).equals(Command.OUT_GAZETTEER)) {
 				
-				if(threads != null) {
-					Options.get().setNThreads(threads);
-				}
 				new GazetteerOutWriter(
 						namespace.getString(DATA_DIR_VAL), 
 						namespace.getString("out_file"),
@@ -250,7 +246,9 @@ public class Main {
                 .defaultHelp(true)
                 .description("Create alphabetical index of osm file features");
 
-		parser.addArgument("--threads").required(false);
+		parser.addArgument("--threads").required(false).help("set number of threads avaible");
+		
+		parser.addArgument(COMPRESS_OPT).required(false).help("Do cmpress data").setDefault(true);
 		
         parser.addArgument(DATA_DIR_OPT).required(false).
                 help("Use folder as data storage.").setDefault("data");

@@ -1,8 +1,10 @@
 package me.osm.gazetter.join;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FilenameFilter;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -71,24 +73,36 @@ public class Joiner {
 	public static final StripeFilenameFilter STRIPE_FILE_FN_FILTER = new StripeFilenameFilter();
 
 	public void run(String stripesFolder, String coomonPartFile) {
-		
+
 		long start = (new Date()).getTime();
-		
-		List<JSONObject> common = getCommonPart(coomonPartFile);
-		binxFile = new File(stripesFolder + "/binx.gjson");
-		
-		joinStripes(stripesFolder, common);
-		
-		log.info("Join stripes done in {}", DurationFormatUtils.formatDurationHMS(new Date().getTime() - start));
-		start = new Date().getTime();
-		
+
 		try {
+			List<JSONObject> common = getCommonPart(coomonPartFile);
+			binxFile = FileUtils
+					.withGz(new File(stripesFolder + "/binx.gjson"));
+
+			List<String> bndrs = FileUtils.readLines(binxFile);
+			Collections.sort(bndrs, ADM_LVL_COMPARATOR);
+			FileUtils.writeLines(binxFile, bndrs);
+			bndrs = null;
+
+			joinStripes(stripesFolder, common);
+
+			log.info(
+					"Join stripes done in {}",
+					DurationFormatUtils.formatDurationHMS(new Date().getTime()
+							- start));
+			start = new Date().getTime();
+
 			joinBoundaries(stripesFolder, common);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
-		
-		log.info("Join boundaries done in {}", DurationFormatUtils.formatDurationHMS(new Date().getTime() - start));
+
+		log.info(
+				"Join boundaries done in {}",
+				DurationFormatUtils.formatDurationHMS(new Date().getTime()
+						- start));
 	}
 
 	private static final AdmLvlComparator ADM_LVL_COMPARATOR = new AdmLvlComparator();
@@ -97,12 +111,14 @@ public class Joiner {
 		
 		addressesParser = Options.get().getAddressesParser();
 		
-		List<File> l = ExternalSort.sortInBatch(binxFile, ADM_LVL_COMPARATOR,
-                100, Charset.defaultCharset(), new File(stripesFolder), true, 0,
-                false);
-
-       ExternalSort.mergeSortedFiles(l, binxFile, ADM_LVL_COMPARATOR, Charset.defaultCharset(),
-                true, false, false);
+		BufferedReader binxReader = new BufferedReader(new InputStreamReader(FileUtils.getFileIS(binxFile)));
+		List<File> l = ExternalSort.sortInBatch(binxReader, binxFile.length() * 10, ADM_LVL_COMPARATOR,
+                100, 100 * 1024 * 1024, Charset.forName("UTF8"), new File(stripesFolder), true, 0,
+                true);
+		
+		binxFile = new File(stripesFolder + "/" + "binx-sorted.gjson");
+		ExternalSort.mergeSortedFiles(l, binxFile, ADM_LVL_COMPARATOR, Charset.forName("UTF8"),
+                true, false, true);
                 
        List<Integer> lvls = new ArrayList<Integer>(ADM_LVL_COMPARATOR.getLvls());
        Collections.sort(lvls);
@@ -153,8 +169,8 @@ public class Joiner {
 			});
 		}
 		
-		File binxnew = new File(stripesFolder + "/binx-updated.gjson");
-		final PrintWriter writer = new PrintWriter(binxnew, "UTF8");
+		File binxnew = new File(stripesFolder + "/binx-updated.gjson" + (Options.get().isCompress() ? ".gz" : ""));
+		final PrintWriter writer = FileUtils.getPrintwriter(binxnew, false);
 		
 		FileUtils.handleLines(binxFile, new LineHandler() {
 
@@ -227,7 +243,7 @@ public class Joiner {
 		writer.close();
        
 		binxFile.delete();
-		binxnew.renameTo(binxFile);
+		binxnew.renameTo(new File(stripesFolder + "/binx.gjson" + (Options.get().isCompress() ? ".gz" : "")));
 	}
 	
 	private void fillHierarchy(List<BoundaryCortage> ups, List<BoundaryCortage> dwns) {

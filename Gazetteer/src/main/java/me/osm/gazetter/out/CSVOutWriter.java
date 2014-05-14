@@ -93,7 +93,7 @@ public class CSVOutWriter implements LineHandler {
 				this.types.add(ftype);
 				this.orderedTypes.add(ftype);
 				writers.put(ftype, new CsvListWriter(
-						new PrintWriter(getFile4Ftype(ftype), "UTF8"), 
+						FileUtils.getPrintwriter(getFile4Ftype(ftype), false), 
 						new CsvPreference.Builder('$', '\t', "\n").build()));
 			}
 
@@ -101,7 +101,7 @@ public class CSVOutWriter implements LineHandler {
 				this.out = new PrintWriter(new OutputStreamWriter(System.out, "UTF8"));
 			}
 			else {
-				this.out = new PrintWriter(new File(out), "UTF8");
+				this.out = FileUtils.getPrintwriter(new File(out), false);
 			}
 		}
 		catch (Exception e) {
@@ -191,7 +191,7 @@ public class CSVOutWriter implements LineHandler {
 			}
 			
 			if(types.contains(FeatureTypes.ADMIN_BOUNDARY_FTYPE)) {
-				FileUtils.handleLines(new File(dataDir + "/binx.gjson"), new LineHandler() {
+				FileUtils.handleLines(FileUtils.withGz(new File(dataDir + "/binx.gjson")), new LineHandler() {
 					
 					@Override
 					public void handle(String s) {

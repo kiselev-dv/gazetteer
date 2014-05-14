@@ -39,6 +39,7 @@ public class Options {
 	private boolean findLangsLevel;
 	private CSVOutLineHandler csvOutLineHandler = null;
 	private int nThreads = Runtime.getRuntime().availableProcessors();
+	private boolean compress = true;
 	
 
 	private Options() {
@@ -205,6 +206,14 @@ public class Options {
 
 	public void setNThreads(int nThreads) {
 		this.nThreads = nThreads;
+	}
+
+	public void setCompress(boolean compress) {
+		this.compress = compress;
+	}
+
+	public boolean isCompress() {
+		return compress;
 	}
 	
 }

@@ -1,14 +1,14 @@
 package me.osm.gazetter.dao;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.Map;
 
+import me.osm.gazetter.Options;
 import me.osm.gazetter.striper.GeoJsonWriter;
+import me.osm.gazetter.utils.FileUtils;
 
 public class FileWriteDao implements WriteDao {
 
@@ -35,13 +35,12 @@ public class FileWriteDao implements WriteDao {
 			synchronized(writers) {
 				pw = writers.get(key);
 				if(pw == null) {
-					File file = new File(dir.getAbsolutePath() + "/" + key);
+					File file = new File(dir.getAbsolutePath() + "/" + key + (Options.get().isCompress() ? ".gz" : ""));
 					if(!file.exists()) {
 						file.createNewFile();
 					}
 					
-					FileOutputStream fos = new FileOutputStream(file, true);
-					pw = new PrintWriter(new OutputStreamWriter(fos, "UTF8"));
+					pw = FileUtils.getPrintwriter(file, true);
 					writers.put(key, pw);
 				}
 			}

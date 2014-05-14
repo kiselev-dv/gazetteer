@@ -2,12 +2,14 @@ package me.osm.gazetter.striper;
 
 import static me.osm.gazetter.utils.FileUtils.getFileIS;
 
+import java.io.File;
 import java.util.HashSet;
 
 import me.osm.gazetter.striper.builders.Builder;
 import me.osm.gazetter.striper.readers.PointsReader;
 import me.osm.gazetter.striper.readers.RelationsReader;
 import me.osm.gazetter.striper.readers.WaysReader;
+import me.osm.gazetter.utils.FileUtils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,9 +19,9 @@ public class Engine {
 	private static final Logger log = LoggerFactory.getLogger(Engine.class);
 	
 	public void filter(HashSet<String> drop, String datatDir, Builder... builders) {
-		String nodes = datatDir + "/" + "nodes.osm";
-		String ways = datatDir + "/" + "ways.osm";
-		String rels = datatDir + "/" + "rels.osm";
+		File nodes = FileUtils.withGz(new File(datatDir + "/" + "nodes.osm"));
+		File ways = FileUtils.withGz(new File(datatDir + "/" + "ways.osm"));
+		File rels = FileUtils.withGz(new File(datatDir + "/" + "rels.osm"));
 
 		try {
 			new RelationsReader(drop).read(getFileIS(rels), builders);

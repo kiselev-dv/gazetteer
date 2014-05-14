@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.io.PrintWriter;
 import java.util.Date;
 
+import me.osm.gazetter.Options;
 import me.osm.gazetter.utils.FileUtils;
 import me.osm.gazetter.utils.FileUtils.LineHandler;
 
@@ -31,9 +32,16 @@ public class Split implements LineHandler {
 		this.input = input;
 		destFolder.mkdirs();
 		try {
-			nodePW = new PrintWriter(new File(destFolder.getAbsolutePath() + "/" + "nodes.osm"), "UTF8");
-			wayPW = new PrintWriter(new File(destFolder.getAbsolutePath() + "/" + "ways.osm"), "UTF8");
-			relPW = new PrintWriter(new File(destFolder.getAbsolutePath() + "/" + "rels.osm"), "UTF8");
+			nodePW = FileUtils.getPrintwriter(new File(destFolder.getAbsolutePath() 
+					+ "/" + "nodes.osm" 
+					+ (Options.get().isCompress() ? ".gz" : "" )), false);
+			
+			wayPW = FileUtils.getPrintwriter(new File(destFolder.getAbsolutePath() 
+					+ "/" + "ways.osm" 
+					+ (Options.get().isCompress() ? ".gz" : "" )), false);
+			relPW = FileUtils.getPrintwriter(new File(destFolder.getAbsolutePath() 
+					+ "/" + "rels.osm" 
+					+ (Options.get().isCompress() ? ".gz" : "" )), false);
 		}
 		catch (Exception e) {
 			throw new RuntimeException("Failed to initialize splitter. "
@@ -44,7 +52,7 @@ public class Split implements LineHandler {
 	public void run() {
 		long start = new Date().getTime();
 		try {
-			InputStream fileIS = FileUtils.getFileIS(input);
+			InputStream fileIS = FileUtils.getFileIS(new File(input));
 			
 			nodePW.println(HEADER);
 			nodePW.println("<osm>");

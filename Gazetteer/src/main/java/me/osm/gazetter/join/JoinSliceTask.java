@@ -3,6 +3,7 @@ package me.osm.gazetter.join;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
@@ -127,7 +128,8 @@ public class JoinSliceTask implements Runnable {
 		
 		this.src = src;
 		this.outFile = new File(src.getParent() + "/" + 
-				src.getName().replace(".gjson", "") + ".1.gjson");
+				src.getName().replace(".gjson", "") + ".1.gjson" 
+				+ (Options.get().isCompress() ? ".gz" : ""));
 		this.handler = handler;
 		this.common = common;
 		this.necesaryBoundaries = filter;
@@ -346,7 +348,7 @@ public class JoinSliceTask implements Runnable {
 		addrPnt2AsStreet = new HashMap<>(associatedStreets.size() * 10);
 	}
 
-	private void readFeatures() {
+	private void readFeatures() throws IOException {
 		FileUtils.handleLines(src, new LineHandler() {
 			
 			@Override
@@ -782,8 +784,8 @@ public class JoinSliceTask implements Runnable {
 		}
 	}
 
-	protected PrintWriter getOutWriter() throws FileNotFoundException, UnsupportedEncodingException {
-		return new PrintWriter(new OutputStreamWriter(new FileOutputStream(this.outFile), "UTF8"));
+	protected PrintWriter getOutWriter() throws IOException {
+		return FileUtils.getPrintwriter(this.outFile, false);
 		
 		//old way with append to file and sort/update
 		//It's not efficient / anyway I can write out all features which

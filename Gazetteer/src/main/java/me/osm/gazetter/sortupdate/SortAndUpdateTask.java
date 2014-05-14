@@ -33,7 +33,7 @@ public class SortAndUpdateTask implements Runnable {
 		try {
 			
 			@SuppressWarnings("unchecked")
-			List<String> lines = FileUtils.readLines(stripeF);
+			List<String> lines = me.osm.gazetter.utils.FileUtils.readLines(stripeF);
 			
 			Collections.sort(lines, new Comparator<String>() {
 
@@ -86,7 +86,7 @@ public class SortAndUpdateTask implements Runnable {
 				prevTimestamp = timestamp;
 			}
 
-			FileUtils.writeLines(stripeF, lines);
+			me.osm.gazetter.utils.FileUtils.writeLines(stripeF, lines);
 		} catch (IOException e) {
 			throw new RuntimeException("Failed to update " + this.stripeF, e);
 		}

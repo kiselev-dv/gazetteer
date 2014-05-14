@@ -88,7 +88,7 @@ public class GazetteerOutWriter  implements LineHandler  {
 				this.out = new PrintWriter(new OutputStreamWriter(System.out, "UTF8"));
 			}
 			else {
-				this.out = new PrintWriter(new File(out), "UTF8");
+				this.out = FileUtils.getPrintwriter(new File(out), false);
 			}
 		}
 		catch (Exception e) {
@@ -109,7 +109,7 @@ public class GazetteerOutWriter  implements LineHandler  {
 				FileUtils.handleLines(stripeF, this);
 			}
 			
-			FileUtils.handleLines(new File(dataDir + "/binx.gjson"), new LineHandler() {
+			FileUtils.handleLines(FileUtils.withGz(new File(dataDir + "/binx.gjson")), new LineHandler() {
 				
 				@Override
 				public void handle(String s) {
