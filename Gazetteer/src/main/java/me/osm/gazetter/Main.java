@@ -48,8 +48,8 @@ public class Main {
 	private static final String JOIN_COMMON_VAL = "common";
 	private static final String JOIN_COMMON_OPT = "--common";
 
-	private static final String COMPRESS_VAL = "compress";
-	private static final String COMPRESS_OPT = "--compress";
+	private static final String COMPRESS_VAL = "no_compress";
+	private static final String NO_COMPRESS_OPT = "--no-compress";
 
 	private static final String DATA_DIR_VAL = "data_dir";
 	private static final String DATA_DIR_OPT = "--data-dir";
@@ -141,7 +141,7 @@ public class Main {
 				Options.get().setNThreads(threads);
 			}
 
-			Options.get().setCompress((boolean)namespace.get(COMPRESS_VAL));
+			Options.get().setCompress(namespace.getBoolean(COMPRESS_VAL));
 
 			if(namespace.get(COMMAND).equals(Command.SPLIT)) {
 				Split splitter = new Split(new File(namespace.getString(DATA_DIR_VAL)), namespace.getString("osm_file"));
@@ -248,7 +248,8 @@ public class Main {
 
 		parser.addArgument("--threads").required(false).help("set number of threads avaible");
 		
-		parser.addArgument(COMPRESS_OPT).required(false).help("Do cmpress data").setDefault(true);
+		parser.addArgument(NO_COMPRESS_OPT).required(false)
+			.help("Do not cmpress tepmlorary stored data").setDefault(true).setConst(false).nargs("?");
 		
         parser.addArgument(DATA_DIR_OPT).required(false).
                 help("Use folder as data storage.").setDefault("data");
@@ -319,7 +320,7 @@ public class Main {
 				.help("Skip in addr full text.");
 			
 			join.addArgument("--find-langs").setDefault(Boolean.FALSE)
-				.nargs("?").setConst(Boolean.FALSE)
+				.nargs("?").setConst(Boolean.TRUE)
 				.help("Search for translated address rows. \n"
 						+ "Eg. if street and all upper addr levels \n"
 						+ "have name name:uk name:ru name:en \n"
@@ -366,7 +367,7 @@ public class Main {
 			outCSV.addArgument("--out-file").setDefault("-");
 			
 			outCSV.addArgument(POI_CATALOG_OPT).setDefault("jar")
-			.help("Path to osm-doc catalog xml file. By default internal osm-doc.xml will be used.");
+				.help("Path to osm-doc catalog xml file. By default internal osm-doc.xml will be used.");
 			
 			outCSV.addArgument("--local-admin").help("Addr levels for local administrations.");
 			outCSV.addArgument("--locality").help("Addr levels for locality.");
