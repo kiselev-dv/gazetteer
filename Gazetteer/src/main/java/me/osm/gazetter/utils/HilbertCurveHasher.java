@@ -1,7 +1,8 @@
 package me.osm.gazetter.utils;
 
 /**
- * see: http://blog.notdot.net/2009/11/Damn-Cool-Algorithms-Spatial-indexing-with-Quadtrees-and-Hilbert-Curves
+ * Locality preserving hashing.
+ * {@link http://blog.notdot.net/2009/11/Damn-Cool-Algorithms-Spatial-indexing-with-Quadtrees-and-Hilbert-Curves}
  * */
 public class HilbertCurveHasher {
 
@@ -35,24 +36,41 @@ public class HilbertCurveHasher {
 		inverse_hilbert_map[D] = new int[][]{{0, 0, A}, {1, 0, D}, {1, 1, D}, {0, 1, C}};
 	}
 	
+	/**
+	 * Converts pair of coordinates into long HilbertCurve hash.
+	 * with depth 16 (32 bits of resulting hash)
+	 * */
 	public static long encode(double x, double y) {
 		int[] intCoordinates = intCoordinates(x, y);
 		return encode(intCoordinates[0], intCoordinates[1]);
 	}
 
+	/**
+	 * Converts long HilbertCurve hash into pair of coordinates. 
+	 * */
 	public static double[] decode(long hash) {
 		long[] decode = decodeL(hash);
 		return doubleCoordinates(decode[0], decode[1]);
 	}
 	
+	/**
+	 * Converts pair of coordinates into long HilbertCurve hash.
+	 * with depth 16 (32 bits of resulting hash)
+	 * */
 	public static long encode(long x, long y) {
 		return encode(x, y, 16);
 	}
 
+	/**
+	 * Decodes hash into binary coordinates.
+	 * */
 	public static long[] decodeL(long hash) {
 		return decode(hash, 16);
 	}
 	
+	/**
+	 * Encodes pair of long x,y with provided HilbertHash algorithm order.
+	 * */
 	public static long encode(long x, long y, int order) {
 		
 		int currentSquare = A;
@@ -71,6 +89,10 @@ public class HilbertCurveHasher {
 		return position;
 	}
 
+	/**
+	 * Decode long HilbertCurve hash into [x, y] long coordinates array
+	 * with given HilbertCurve algorithm order
+	 * */
 	public static long[] decode(long hash, int order) {
 		
 		int position = A;
@@ -91,28 +113,10 @@ public class HilbertCurveHasher {
 		
 		return new long[]{x, y};
 	}
-	
-	public static void main(String[] args) {
-		System.out.println(encode(5, 2, 3)); //55
-		System.out.println(encode(5, 4, 3)); //33
-		
-		System.out.println();
-		
-		long t[] = decode(55, 3);
-		System.out.println(t[0] + ", " + t[1]);
-		
-		t = decode(33, 3);
-		System.out.println(t[0] + ", " + t[1]);
-		
-		int[] intCoordinates = new int[]{0xFFFFFFFF, 0xFFFFFFFF};
-		long hash = encode(intCoordinates[0], intCoordinates[1]);
-		System.out.println(hash);
-		
-		long[] decode = decodeL(hash);
-		System.out.println(Integer.toHexString((int) decode[0]) + " " + Integer.toHexString((int) decode[1]));
-		
-	}
-	
+
+	/**
+	 * Convert double x, y into int [x, y]
+	 * */
 	private static int[] intCoordinates(double x, double y) {
 		return new int[]{
 			(int) (new Double((x + 180.0) * FFFFFFFF / 360.0).longValue() & FFFFFFFF), 
@@ -120,6 +124,9 @@ public class HilbertCurveHasher {
 		};
 	}
 
+	/**
+	 * Convert long x, y into double [x, y]
+	 * */
 	private static double[] doubleCoordinates(long x, long y) {
 		
 		return new double[]{

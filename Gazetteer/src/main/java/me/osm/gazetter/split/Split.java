@@ -16,6 +16,9 @@ import org.apache.commons.lang3.time.DurationFormatUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Splits osm file into 3 file with nodes, ways relations only.
+ * */
 public class Split implements LineHandler {
 	
 	private String input;
@@ -73,6 +76,9 @@ public class Split implements LineHandler {
 		log.info("Split done in {}", DurationFormatUtils.formatDurationHMS(new Date().getTime() - start));
 	}
 
+	/**
+	 * Close all writers, free resources.
+	 * */
 	private void done() {
 		nodePW.println("</osm>");
 		

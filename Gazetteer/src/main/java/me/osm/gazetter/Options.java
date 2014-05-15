@@ -23,6 +23,9 @@ import me.osm.gazetter.out.CSVOutLineHandler;
 
 import org.apache.commons.lang3.StringUtils;
 
+/**
+ * 
+ * */
 public class Options {
 	
 	public static final class SecondaryOptionsInitializationException

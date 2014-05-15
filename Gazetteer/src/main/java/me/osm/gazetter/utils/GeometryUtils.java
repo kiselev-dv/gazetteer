@@ -15,11 +15,20 @@ import com.vividsolutions.jts.geom.Polygon;
 import com.vividsolutions.jts.geom.util.LineStringExtracter;
 import com.vividsolutions.jts.operation.polygonize.Polygonizer;
 
+/**
+ * Utilities for geometry processing.
+ * <p>
+ * Some of them was copyied from vividsolutions JCS and OpenJUMP
+ * under GNU GPLv2
+ * */
 public class GeometryUtils {
 
 	/* Most imports from vividsolutions JCS (GNU GPLv2)
 	 */
 	
+	/**
+	 * Split polygon among the line. Line should cover polygon.
+	 * */
 	public static List<Polygon> splitPolygon(Polygon polygon, LineString line) {
 		GeometryFactory f = new GeometryFactory();
 

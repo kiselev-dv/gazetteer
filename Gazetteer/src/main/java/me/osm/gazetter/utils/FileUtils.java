@@ -18,20 +18,40 @@ import java.util.zip.GZIPOutputStream;
 
 import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream;
 
+/**
+ * File reading and writing utilities
+ * */
 public class FileUtils {
 
+	/**
+	 * @see me.osm.gazetter.utils.FileUtils.readLines(File, LineFilter)
+	 * */
 	public static interface LineFilter {
+		
+		/**
+		 * If line isSuitable - it will be passed to LineHandler
+		 * */
 		public boolean isSuitable(String s);
 	}
 
+	/**
+	 * @see me.osm.gazetter.utils.FileUtils.handleLines(InputStream, LineHandler)
+	 * */
 	public static interface LineHandler {
 		public void handle(String s);
 	}
 
+	/**
+	 * Read file line by line into list of strings
+	 * */
 	public static List<String> readLines(File f) throws IOException {
 		return readLines(f, null);
 	}
 
+	/**
+	 * Read InputStream line by line, and pass lines without storing 
+	 * to the LineHandler. 
+	 * */
 	public static void handleLines(InputStream f, LineHandler handler) {
 		BufferedReader bufferedReader = null;
 		try {
@@ -55,6 +75,12 @@ public class FileUtils {
 		}
 	}
 	
+	/**
+	 * Read file line by line, and pass lines without storing 
+	 * to the LineHandler.
+	 * <p>
+	 * If file ends with .gz or .bz2 - it will be readed with decompression
+	 * */
 	public static void handleLines(File f, LineHandler handler) throws IOException {
 		try {
 			handleLines(getFileIS(f), handler);
@@ -63,6 +89,9 @@ public class FileUtils {
 		}
 	}
 
+	/**
+	 * Read all lines in file into the List, with lines filtration. 
+	 * */
 	public static List<String> readLines(File f, final LineFilter filter) throws IOException {
 
 		final List<String> result = new ArrayList<>();
@@ -81,6 +110,12 @@ public class FileUtils {
 		return result;
 	}
 
+	/**
+	 * Returns InputStream for file.
+	 * <p>
+	 * If file name ends with .gz or bz2 stream will be wrapped into
+	 * GZIPInputStream or BZip2CompressorInputStream accordingly.
+	 * */
 	public static InputStream getFileIS(File osmFilePath) throws IOException,
 			FileNotFoundException {
 		if (osmFilePath.getName().endsWith(".gz")) {
@@ -93,6 +128,14 @@ public class FileUtils {
 		return new FileInputStream(osmFilePath);
 	}
 	
+	/**
+	 * Return print writer for file with UTF8 encoding.
+	 * <p>
+	 * If filename ends with .gz - file will be compressed 
+	 * 
+	 * @param file - file to write into
+	 * @param append - append or overwrite file content
+	 * */
 	public static PrintWriter getPrintwriter(File file, boolean append) throws IOException {
 		
 		OutputStream os = new FileOutputStream(file, append);
@@ -103,6 +146,11 @@ public class FileUtils {
 		return new PrintWriter(new OutputStreamWriter(os, "UTF8"));
 	}
 
+	/**
+	 * Try to find exists file with or without .gz name suffix.
+	 * <p>
+	 * If none of them doesn't exists, returns original file.
+	 * */
 	public static File withGz(File file) {
 		if(file.exists()) {
 			return file;
@@ -123,6 +171,10 @@ public class FileUtils {
 		return file;
 	}
 
+	/**
+	 * Write lines into file.
+	 * If file name ends with .gz - file will be compressed
+	 * */
 	public static void writeLines(File stripeF, List<String> lines) throws IOException {
 		PrintWriter printwriter = null;
 		try {

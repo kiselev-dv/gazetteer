@@ -30,7 +30,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Entry point for executable jar.
- * */
+ */
 public class Main {
 	
 	private static final String NAMED_POI_BRANCH_OPT = "--named-poi-branch";
@@ -66,42 +66,62 @@ public class Main {
 	
 	private static Logger log;
 
+	/**
+	 * Command line command description
+	 * */
 	public static interface CommandDescription {
-		public String longName(); 
+		
+		/**
+		 * Name of command, will be used as executable.jar long-coomand-name
+		 * */
+		public String longName();
+		
+		/**
+		 * Command description
+		 * */
 		public String help(); 
 	}
-	
+
+	/**
+	 * Supported commands
+	 * */
 	private enum Command implements CommandDescription {
+		
 	    SPLIT {
 	    	@Override
 			public String longName() {return name().toLowerCase();}
 	    	@Override
 			public String help() {return "Prepare osm data. Split nodes, ways and relations.";}
 	    }, 
+	    
 	    SLICE {
 	    	@Override
 			public String longName() {return name().toLowerCase();}
 	    	@Override
 			public String help() {return "Parse features from osm data and write it into stripes 0.1 degree wide.";}
 	    }, 
+	    
 	    JOIN {
 	    	@Override
 			public String longName() {return name().toLowerCase();}
 	    	@Override
 			public String help() {return "Join features. Made spatial joins for address points inside polygons and so on.";}
 	    }, 
+	    
 	    SYNCHRONIZE {
 	    	@Override
 			public String longName() {return name().toLowerCase();}
 	    	@Override
 			public String help() {return "Sort and update features. Remove outdated dublicates.";}
 	    }, 
+	    
 	    OUT_CSV {
 	    	@Override
 			public String longName() {return name().toLowerCase().replace('_', '-');}
 	    	@Override
 			public String help() {return "Write data out in csv format.";}
 	    },
+	    
 	    OUT_GAZETTEER {
 	    	@Override
 	    	public String longName() {return name().toLowerCase().replace('_', '-');}
@@ -213,6 +233,9 @@ public class Main {
 		
 	}
 
+	/**
+	 * Returns string list or empty list for null 
+	 * */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private static List<String> list( List list) {
 		if(list == null) {
@@ -221,6 +244,11 @@ public class Main {
 		return list;
 	}
 
+	/**
+	 * Initialize logging system.
+	 * <p>
+	 * Logging options should be set before any logger will be instantiated.
+	 * */
 	private static void initLog(String[] args) {
 		System.setProperty(org.slf4j.impl.SimpleLogger.SHOW_DATE_TIME_KEY, "true");
 		System.setProperty(org.slf4j.impl.SimpleLogger.DATE_TIME_FORMAT_KEY, "yyyy-MM-dd HH.mm.ss.S");
