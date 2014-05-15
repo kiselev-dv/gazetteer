@@ -204,6 +204,12 @@
                     "index_analyzer": "suggest_synonyms",
                     "search_analyzer": "standard"
                 },
+                "housenumber": {
+                	"type": "string",
+                    "index": "analyzed",
+                    "index_analyzer": "suggest_synonyms",
+                    "search_analyzer": "standard"
+                },
                 "tags": {
                     "type": "object",
                     "enabled" : false 

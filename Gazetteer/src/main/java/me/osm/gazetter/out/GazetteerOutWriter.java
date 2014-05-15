@@ -430,6 +430,10 @@ public class GazetteerOutWriter  implements LineHandler  {
 		JSONObject street = mapLevels.get("street");
 		putAddrLevel(result, refs, langs, street, "street");
 		
+		JSONObject hn = mapLevels.get("hn");
+		if(hn != null) {
+			result.put("housenumber", hn.optString("name"));
+		}
 	}
 
 	private JSONObject getNotNull(Map<String, JSONObject> mapLevels,
