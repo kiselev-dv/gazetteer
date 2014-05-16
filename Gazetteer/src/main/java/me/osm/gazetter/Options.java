@@ -24,7 +24,7 @@ import me.osm.gazetter.out.CSVOutLineHandler;
 import org.apache.commons.lang3.StringUtils;
 
 /**
- * 
+ * Stores command line provided options.
  * */
 public class Options {
 	
