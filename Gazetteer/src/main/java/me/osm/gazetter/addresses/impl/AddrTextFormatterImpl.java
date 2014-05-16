@@ -9,6 +9,10 @@ import me.osm.gazetter.addresses.AddrTextFormatter;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONObject;
 
+/**
+ * Default implementation for
+ * {@link AddrTextFormatter}
+ * */
 public class AddrTextFormatterImpl implements AddrTextFormatter {
 	
 	@Override

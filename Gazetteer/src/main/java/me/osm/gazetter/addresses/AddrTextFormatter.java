@@ -4,6 +4,9 @@ import java.util.List;
 
 import org.json.JSONObject;
 
+/**
+ * Generate full address string from addr levels
+ * */
 public interface AddrTextFormatter {
 
 	String joinNames(List<JSONObject> addrJsonRow, JSONObject properties, String lang);

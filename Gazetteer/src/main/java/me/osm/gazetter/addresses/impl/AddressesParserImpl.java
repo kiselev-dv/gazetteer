@@ -33,6 +33,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+/**
+ * Default implementation for
+ * {@link AddressesParser}
+ * */
 public class AddressesParserImpl implements AddressesParser {
 	
 	//DI meaning dependencies

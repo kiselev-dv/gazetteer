@@ -11,6 +11,10 @@ import me.osm.gazetter.addresses.AddressesParserFactory;
 import me.osm.gazetter.addresses.AddressesSchemesParser;
 import me.osm.gazetter.addresses.NamesMatcher;
 
+/**
+ * Default implementation for
+ * {@link AddressesParserFactory}
+ * */
 public class AddressesParserFactoryImpl implements AddressesParserFactory {
 
 	@Override

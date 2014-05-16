@@ -13,6 +13,10 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Default implementation for
+ * {@link AddressesSchemesParser}
+ * */
 public class AddressesSchemesParserImpl implements AddressesSchemesParser {
 	
 	private static final Logger log = LoggerFactory.getLogger(AddressesSchemesParserImpl.class);

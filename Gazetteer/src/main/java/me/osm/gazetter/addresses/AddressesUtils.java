@@ -6,6 +6,9 @@ import java.util.Map;
 
 import org.json.JSONObject;
 
+/**
+ * Utilities for address parsing.
+ * */
 public class AddressesUtils {
 	
 	public static Map<String, String> filterNameTags(JSONObject obj) {

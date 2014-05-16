@@ -10,6 +10,9 @@ import me.osm.gazetter.addresses.Constants;
 import org.apache.commons.lang3.ObjectUtils;
 import org.json.JSONObject;
 
+/**
+ * Sorts addresses parts in order: Street, House, City, Country. 
+ * */
 public class StreetHNCityComparator implements AddrLevelsComparator {
 
 	@Override

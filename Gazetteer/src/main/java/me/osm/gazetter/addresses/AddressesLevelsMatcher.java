@@ -5,6 +5,13 @@ import java.util.Map;
 
 import org.json.JSONObject;
 
+/**
+ * Return addr levels as addr part JSON object. 
+ * Try to match data from tags with objects. 
+ * (Place points, streets, and so on.)
+ * <p>
+ * If matches found, add alt names and links to the AddrPart object.
+ * */
 public interface AddressesLevelsMatcher {
 	
 	public static final String ADDR_NAMES = "names";

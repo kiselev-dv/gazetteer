@@ -17,6 +17,10 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Default implementation for
+ * {@link AddressesLevelsMatcher}
+ * */
 public class AddressesLevelsMatcherImpl implements AddressesLevelsMatcher {
 	
 	private static final Logger log = LoggerFactory.getLogger(AddressesLevelsMatcherImpl.class);

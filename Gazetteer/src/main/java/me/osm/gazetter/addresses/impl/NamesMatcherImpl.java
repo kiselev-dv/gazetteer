@@ -6,6 +6,10 @@ import java.util.Set;
 
 import me.osm.gazetter.addresses.NamesMatcher;
 
+/**
+ * Default implementation for
+ * {@link NamesMatcher}
+ * */
 public class NamesMatcherImpl implements NamesMatcher {
 
 	@Override

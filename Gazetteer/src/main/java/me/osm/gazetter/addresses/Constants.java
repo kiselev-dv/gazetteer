@@ -3,6 +3,9 @@ package me.osm.gazetter.addresses;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Constants, and some JSON fields names.
+ * */
 public class Constants {
 	public static final Map<String, Integer> defaultType2size = new HashMap<>();
 	public static final int HN_LVL_SIZE = 10;

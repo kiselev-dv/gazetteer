@@ -1,5 +1,22 @@
 package me.osm.gazetter.addresses;
 
+/**
+ * Supported addr levels orders.
+ * */
 public enum AddrLevelsSorting {
-	HN_STREET_CITY, STREET_HN_CITY, CITY_STREET_HN
+	/**
+	 * House, Street, City, Country
+	 * */
+	HN_STREET_CITY, 
+	
+	
+	/**
+	 * Street, House, City, Country
+	 * */
+	STREET_HN_CITY,
+	
+	/**
+	 * Country, City, Street, House  
+	 * */
+	CITY_STREET_HN
 }

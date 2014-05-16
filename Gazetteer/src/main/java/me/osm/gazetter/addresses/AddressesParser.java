@@ -5,6 +5,12 @@ import java.util.List;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+/**
+ * Parse addresses array from object tags, nearby objects and
+ * polygonal boundaries.
+ * 
+ * @returns JSONArray of JSONObject's with addresses.
+ * */
 public interface AddressesParser {
 
 	public JSONArray parse(JSONObject addrPoint,
