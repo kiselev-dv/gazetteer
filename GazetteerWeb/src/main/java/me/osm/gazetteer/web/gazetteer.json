@@ -15,7 +15,7 @@
                 "synonym_filter": {
                     "type": "synonym",
                     "expand": true,
-                    "synonyms" : ['bar=>baz']
+                    "synonyms" : ["bar=>baz"]
                 }
             }
         }
@@ -261,6 +261,11 @@
                 "center_point": {
                     "type": "geo_point",
                     "index": "not_analyzed"
+                },
+                "full_geometry": {
+                	"type": "geo_shape",
+                    "tree": "quadtree",
+                    "precision": "100m"
                 },
                 "refs": {
                     "type": "object",

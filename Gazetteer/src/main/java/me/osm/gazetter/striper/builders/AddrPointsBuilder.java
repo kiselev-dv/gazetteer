@@ -423,7 +423,10 @@ public class AddrPointsBuilder extends ABuilder {
 				else {
 					LinearRing geom = factory.createLinearRing(coords.toArray(new Coordinate[coords.size()]));
 					centroid = geom.getCentroid();
-					meta.put("fullGeometry", GeoJsonWriter.geometryToJSON(factory.createPolygon(geom)));
+					Polygon p = factory.createPolygon(geom);
+					if(p.isValid()) {
+						meta.put("fullGeometry", GeoJsonWriter.geometryToJSON(p));
+					}
 				}
 				
 			}
