@@ -19,40 +19,56 @@ usage
 -----
 
 <pre>
-usage: java -jar gazetteer.jar [-h] [--data-dir DATA_DIR] [--log-level LOG_LEVEL] {split,slice,join,out-csv} ...
+usage: gazetter [-h] [--threads THREADS] [--no-compress [NO_COMPRESS]] [--data-dir DATA_DIR] [--log-level LOG_LEVEL] [--log-file LOG_FILE] {man,split,slice,join,synchronize,out-csv,out-gazetteer} ...
 
 Create alphabetical index of osm file features
 
 positional arguments:
-  {split,slice,join,out-csv}
+  {man,split,slice,join,synchronize,out-csv,out-gazetteer}
+    man                  Prints extended usage
     split                Prepare osm data. Split nodes, ways and relations.
     slice                Parse features from osm data and write it into stripes 0.1 degree wide.
     join                 Join features. Made spatial joins for address points inside polygons and so on.
+    synchronize          Sort and update features. Remove outdated dublicates.
     out-csv              Write data out in csv format.
+    out-gazetteer        Write data out in json format with gazetter/pelias format.
 
 optional arguments:
   -h, --help             show this help message and exit
-  --data-dir DATA_DIR    Use folder as data storage. (default: slices)
+  --threads THREADS      set number of threads avaible
+  --no-compress [NO_COMPRESS]
+                         Do not cmpress tepmlorary stored data (default: true)
+  --data-dir DATA_DIR    Use folder as data storage. (default: data)
   --log-level LOG_LEVEL  (default: WARN)
+  --log-file LOG_FILE
 
-</pre>
+Commands:
 
-1 split
+MAN
 
-<pre>
-usage: java -jar gazetteer.jar split [-h] osm_file
+usage: gazetter man [-h]
+
+optional arguments:
+  -h, --help             show this help message and exit
+
+
+
+SPLIT
+
+usage: gazetter split [-h] osm_file
 
 positional arguments:
   osm_file               Path to osm file. *.osm *.osm.bz *.osm.gz supported.
 
 optional arguments:
   -h, --help             show this help message and exit
-</pre>
 
-2 slice
 
-<pre>
-usage: java -jar gazetteer.jar slice [-h] [--poi-catalog POI_CATALOG] [{all,boundaries,places,highways,addresses,pois} [{all,boundaries,places,highways,addresses,pois} ...]]
+
+SLICE
+
+usage: gazetter slice [-h] [--poi-catalog POI_CATALOG] [--excclude-poi-branch [EXCCLUDE_POI_BRANCH [EXCCLUDE_POI_BRANCH ...]]] [--named-poi-branch [NAMED_POI_BRANCH [NAMED_POI_BRANCH ...]]] [--drop [DROP [DROP ...]]]
+                [{all,boundaries,places,highways,addresses,pois} [{all,boundaries,places,highways,addresses,pois} ...]]
 
 positional arguments:
   {all,boundaries,places,highways,addresses,pois}
@@ -61,23 +77,83 @@ positional arguments:
 optional arguments:
   -h, --help             show this help message and exit
   --poi-catalog POI_CATALOG
-                         Path to osm-doc catalog. Interna poi catalog will
-                         be used by default
-</pre>
+                         Path to osm-doc catalog xml file. By default internal osm-doc.xml will be used.
+  --excclude-poi-branch [EXCCLUDE_POI_BRANCH [EXCCLUDE_POI_BRANCH ...]]
+                         Exclude branch of osm-doc features hierarchy. Eg: osm-ru:transport where osm-ru is a name of the hierarchy, and transport is a name of the branch
+  --named-poi-branch [NAMED_POI_BRANCH [NAMED_POI_BRANCH ...]]
+                         Kepp POIS from this banch only if they have name tag
+  --drop [DROP [DROP ...]]
+                         List of objects osm ids which will be dropped ex r60189.
 
-3 join
 
-<pre>
-usage: java -jar gazetteer.jar join [-h] [--common COMMON] [--addr-order {HN_STREET_CITY,STREET_HN_CITY,CITY_STREET_HN}] [--addr-formatter ADDR_FORMATTER]
+
+JOIN
+
+usage: gazetter join [-h] [--common COMMON] [--addr-order {HN_STREET_CITY,STREET_HN_CITY,CITY_STREET_HN}] [--addr-parser ADDR_PARSER] [--check-boundaries [CHECK_BOUNDARIES [CHECK_BOUNDARIES ...]]]
+                [--skip-in-text [SKIP_IN_TEXT [SKIP_IN_TEXT ...]]] [--find-langs [FIND_LANGS]]
 
 optional arguments:
   -h, --help             show this help message and exit
   --common COMMON        Path for *.json with array of features which will be added to boundaries list for every feature.
   --addr-order {HN_STREET_CITY,STREET_HN_CITY,CITY_STREET_HN}
                          How to sort addr levels in full addr text
-  --addr-formatter ADDR_FORMATTER
-                         Path to *.js or *.groovy file with full addresses texts formatter. 
-                         Not supported in this version!
+  --addr-parser ADDR_PARSER
+                         Path to *.groovy file with full addresses texts formatter.
+  --check-boundaries [CHECK_BOUNDARIES [CHECK_BOUNDARIES ...]]
+                         Filter only addresses inside any of boundary given as osm id. eg. r12345 w123456 
+  --skip-in-text [SKIP_IN_TEXT [SKIP_IN_TEXT ...]]
+                         Skip in addr full text.
+  --find-langs [FIND_LANGS]
+                         Search for translated address rows. 
+                         Eg. if street and all upper addr levels 
+                         have name name:uk name:ru name:en 
+                         generate 4 address rows.
+                         If one of [name:uk name:ru name:en] is equals 
+                         to name still generate additional row. 
+                         (You can filter it later with simple distinct check).
+
+
+
+UPDATE
+
+usage: gazetter synchronize [-h]
+
+optional arguments:
+  -h, --help             show this help message and exit
+
+
+
+OUT CSV
+
+usage: gazetter out-csv [-h] [--columns COLUMNS [COLUMNS ...]] [--types {address,street,place,poi,boundaries} [{address,street,place,poi,boundaries} ...]] [--out-file OUT_FILE] [--poi-catalog POI_CATALOG]
+                [--line-handler LINE_HANDLER]
+
+optional arguments:
+  -h, --help             show this help message and exit
+  --columns COLUMNS [COLUMNS ...]
+  --types {address,street,place,poi,boundaries} [{address,street,place,poi,boundaries} ...]
+  --out-file OUT_FILE
+  --poi-catalog POI_CATALOG
+                         Path to osm-doc catalog xml file. By default internal osm-doc.xml will be used.
+  --line-handler LINE_HANDLER
+                         Path to custom groovy line handler.
+
+
+
+OUT GAZETTEER
+
+usage: gazetter out-gazetteer [-h] [--out-file OUT_FILE] [--poi-catalog POI_CATALOG] [--local-admin LOCAL_ADMIN] [--locality LOCALITY] [--neighborhood NEIGHBORHOOD]
+
+optional arguments:
+  -h, --help             show this help message and exit
+  --out-file OUT_FILE
+  --poi-catalog POI_CATALOG
+                         Path to osm-doc catalog xml file. By default internal osm-doc.xml will be used.
+  --local-admin LOCAL_ADMIN
+                         Addr levels for local administrations.
+  --locality LOCALITY    Addr levels for locality.
+  --neighborhood NEIGHBORHOOD
+                         Addr levels for neighborhood.
 
 </pre>
 
