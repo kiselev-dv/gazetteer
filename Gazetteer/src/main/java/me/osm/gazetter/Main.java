@@ -65,6 +65,14 @@ public class Main {
 	private static final String COMMAND = "command";
 	
 	private static Logger log;
+	
+	private static Subparser split;
+	private static Subparser slice;
+	private static Subparser join;
+	private static Subparser update;
+	private static Subparser outCSV;
+	private static Subparser outGazetteer;
+	private static Subparser man;
 
 	/**
 	 * Command line command description
@@ -87,7 +95,14 @@ public class Main {
 	 * */
 	private enum Command implements CommandDescription {
 		
-	    SPLIT {
+		MAN {
+			@Override
+			public String longName() {return name().toLowerCase();}
+			@Override
+			public String help() {return "Prints extended usage";}
+		}, 
+
+		SPLIT {
 	    	@Override
 			public String longName() {return name().toLowerCase();}
 	    	@Override
@@ -163,6 +178,11 @@ public class Main {
 
 			Options.get().setCompress(namespace.getBoolean(COMPRESS_VAL));
 
+			if(namespace.get(COMMAND).equals(Command.MAN)) {
+				printFullHelp(parser);
+				System.exit(0);
+			}
+
 			if(namespace.get(COMMAND).equals(Command.SPLIT)) {
 				Split splitter = new Split(new File(namespace.getString(DATA_DIR_VAL)), namespace.getString("osm_file"));
 				splitter.run();
@@ -233,6 +253,34 @@ public class Main {
 		
 	}
 
+	private static void printFullHelp(ArgumentParser parser) {
+		
+		parser.printHelp();
+		
+		System.out.print("\nCommands:\n\n");
+		
+		System.out.print("MAN\n\n");
+		man.printHelp();
+		
+		System.out.print("\n\n\nSPLIT\n\n");
+		split.printHelp();
+		
+		System.out.print("\n\n\nSLICE\n\n");
+		slice.printHelp();
+		
+		System.out.print("\n\n\nJOIN\n\n");
+		join.printHelp();
+
+		System.out.print("\n\n\nUPDATE\n\n");
+		update.printHelp();
+
+		System.out.print("\n\n\nOUT CSV\n\n");
+		outCSV.printHelp();
+		
+		System.out.print("\n\n\nOUT GAZETTEER\n\n");
+		outGazetteer.printHelp();
+	}
+
 	/**
 	 * Returns string list or empty list for null 
 	 * */
@@ -287,10 +335,18 @@ public class Main {
         
         Subparsers subparsers = parser.addSubparsers();
 		
+        //man
+        {
+        	Command command = Command.MAN;
+        	man = subparsers.addParser(command.longName())
+        			.setDefault(COMMAND, command)
+        			.help(command.help());
+        }
+
         //split
         {
         	Command command = Command.SPLIT;
-			Subparser split = subparsers.addParser(command.longName())
+			split = subparsers.addParser(command.longName())
         			.setDefault(COMMAND, command)
 					.help(command.help());
         	
@@ -301,7 +357,7 @@ public class Main {
 		//slice
 		{
 			Command command = Command.SLICE;
-			Subparser slice = subparsers.addParser(command.longName())
+			slice = subparsers.addParser(command.longName())
         			.setDefault(COMMAND, command)
 					.help(command.help());
 			
@@ -327,7 +383,7 @@ public class Main {
 		//join
 		{
 			Command command = Command.JOIN;
-			Subparser join = subparsers.addParser(command.longName())
+			join = subparsers.addParser(command.longName())
         			.setDefault(COMMAND, command)
 					.help(command.help());
 			
@@ -362,7 +418,7 @@ public class Main {
 		//update
 		{
 			Command command = Command.SYNCHRONIZE;
-			subparsers.addParser(command.longName())
+			update = subparsers.addParser(command.longName())
 					.setDefault(COMMAND, command)
 					.help(command.help());
 		}
@@ -370,7 +426,7 @@ public class Main {
 		//out-csv
 		{
 			Command command = Command.OUT_CSV;
-			Subparser outCSV = subparsers.addParser(command.longName())
+			outCSV = subparsers.addParser(command.longName())
         			.setDefault(COMMAND, command)
 					.help(command.help());
 			
@@ -388,18 +444,18 @@ public class Main {
 		//out-gazetteer
 		{
 			Command command = Command.OUT_GAZETTEER;
-			Subparser outCSV = subparsers.addParser(command.longName())
+			outGazetteer = subparsers.addParser(command.longName())
 					.setDefault(COMMAND, command)
 					.help(command.help());
 			
-			outCSV.addArgument("--out-file").setDefault("-");
+			outGazetteer.addArgument("--out-file").setDefault("-");
 			
-			outCSV.addArgument(POI_CATALOG_OPT).setDefault("jar")
+			outGazetteer.addArgument(POI_CATALOG_OPT).setDefault("jar")
 				.help("Path to osm-doc catalog xml file. By default internal osm-doc.xml will be used.");
 			
-			outCSV.addArgument("--local-admin").help("Addr levels for local administrations.");
-			outCSV.addArgument("--locality").help("Addr levels for locality.");
-			outCSV.addArgument("--neighborhood").help("Addr levels for neighborhood.");
+			outGazetteer.addArgument("--local-admin").help("Addr levels for local administrations.");
+			outGazetteer.addArgument("--locality").help("Addr levels for locality.");
+			outGazetteer.addArgument("--neighborhood").help("Addr levels for neighborhood.");
 			
 		}
 		
