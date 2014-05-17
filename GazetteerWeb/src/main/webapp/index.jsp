@@ -72,7 +72,7 @@
 				}
 				%>
 				<li class="addr-row">
-					<a href="feature?id=<%=feature.getString("feature_id") %>"><%=feature.optString("name") %></a>
+					<a href="feature.jsp?id=<%=feature.getString("feature_id") %>"><%=feature.optString("address") %></a>
 					<%if (expl != null) { %>
 						<div style="white-space: nowrap; font-size: 4;"><%=expl %></div>
 					<%} %>	

@@ -70,7 +70,9 @@ public class ApiDispatchServlet extends HttpServlet {
 		
 			JSONObject result = api.request(request);
 			
-			ServletUtils.writeJson(result.toString(), response);
+			if(result != null) {
+				ServletUtils.writeJson(result.toString(), response);
+			}
 		}
 		catch (ApiDispatchException e) {
 			throw new ServletException("Can't dispatch api request", e);

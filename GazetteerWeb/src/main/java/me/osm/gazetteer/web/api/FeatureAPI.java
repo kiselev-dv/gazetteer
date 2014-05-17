@@ -60,6 +60,7 @@ public class FeatureAPI implements API {
 		"neighborhood_alternate_names",
 		"street_name",
 		"street_alternate_names",
+		"housenumber",
 		"refs"
 	};
 
