@@ -264,7 +264,13 @@ public class AddressesParserImpl implements AddressesParser {
 				}
 				
 				if(lvlSize > Constants.STREET_LVL_SIZE) {
+					
+					if(names == null) {
+						return Collections.emptySet();
+					}
+					
 					Set<String> langs = getLangsFromTags(names.keySet());
+					
 					Iterator<String> it = result.iterator();
 					while (it.hasNext()) {
 						if(!langs.contains(it.next())) {
