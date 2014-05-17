@@ -62,7 +62,7 @@ public class Importer {
 		JSONObject settings;
 		try {
 			settings = new JSONObject(IOUtils.toString(getClass().getResourceAsStream(
-					"gazetteer.json")));
+					"gazetteer_schema.json")));
 		} catch (IOException e) {
 			throw new RuntimeException("couldn't read index settings", e);
 		}
