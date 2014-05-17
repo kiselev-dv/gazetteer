@@ -3,17 +3,14 @@ package me.osm.gazetteer.web.api;
 import java.io.IOException;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import me.osm.gazetteer.web.ESNodeHodel;
-import me.osm.gazetteer.web.api.API.GazetteerAPIException;
 
+import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.index.query.MatchQueryBuilder.Operator;
-import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.json.JSONArray;
@@ -21,6 +18,9 @@ import org.json.JSONObject;
 
 public class SearchAPI implements API {
 
+	private static final String[] mainFields = new String[]{"name", "address", "poi_class", "poi_class_names", "operator", "brand"};
+	private static final String[] secondaryFields = new String[]{"parts", "alt_addresses", "alt_names"};
+	private static final String[] tertiaryFields = new String[]{"nearby_streets", "nearest_city", "nearest_neighbour"};
 	
 	@Override
 	public JSONObject request(HttpServletRequest request) 
@@ -32,9 +32,6 @@ public class SearchAPI implements API {
 			
 			String[] typesFilter = request.getParameterValues("type");
 			
-			String[] mainFields = new String[]{"name", "address", "poi_class", "poi_class_names", "operator", "brand"};
-			String[] secondaryFields = new String[]{"parts", "alt_addresses", "alt_names"};
-			String[] tertiaryFields = new String[]{"nearby_streets", "nearest_city", "nearest_neighbour"};
 			
 			BoolQueryBuilder q = QueryBuilders.boolQuery()
 					.should(buildAddRowQ(querry).boost(20))
@@ -47,10 +44,13 @@ public class SearchAPI implements API {
 			}
 			
 			Client client = ESNodeHodel.getClient();
-			SearchResponse searchResponse = client.prepareSearch("gazetteer")
-					.setSearchType(SearchType.QUERY_AND_FETCH).setSize(10)
-					.setQuery(q).setExplain(explain)
-					.execute().actionGet();
+			SearchRequestBuilder searchQ = client.prepareSearch("gazetteer")
+					.setSearchType(SearchType.QUERY_AND_FETCH).setQuery(q)
+					.setExplain(explain);
+			
+			applyPaging(request, searchQ);
+			
+			SearchResponse searchResponse = searchQ.execute().actionGet();
 			
 			JSONObject answer = encodeSearchResult(searchResponse, 
 					request.getParameter("full_geometry") != null && "true".equals(request.getParameter("full_geometry")),
@@ -60,6 +60,24 @@ public class SearchAPI implements API {
 		}
 		
 		return null;
+	}
+
+	private void applyPaging(HttpServletRequest request,
+			SearchRequestBuilder searchQ) {
+		int pageSize = 20;
+		if(request.getParameter("pagesize") != null) {
+			pageSize = Integer.parseInt(request.getParameter("pagesize"));
+		}
+		
+		int page = 1;
+		if(request.getParameter("page") != null) {
+			page = Integer.parseInt(request.getParameter("page"));
+			if(page < 1) {
+				page = 1;
+			}
+		}
+		searchQ.setSize(pageSize);
+		searchQ.setFrom((page - 1) * pageSize);
 	}
 
 	private BoolQueryBuilder buildAddRowQ(String querry) {

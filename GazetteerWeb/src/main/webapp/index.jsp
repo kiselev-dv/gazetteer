@@ -1,3 +1,8 @@
+<%@page import="java.util.HashSet"%>
+<%@page import="java.util.Arrays"%>
+<%@page import="java.util.Collections"%>
+<%@page import="java.util.Set"%>
+<%@page import="org.apache.commons.lang3.StringUtils"%>
 <%@page import="org.json.JSONArray"%>
 <%@page import="org.json.JSONObject"%>
 <%@page import="me.osm.gazetteer.web.api.SearchAPI"%>
@@ -16,17 +21,40 @@
 	<div id="wrapper">
 		<div id="header">
 			<form name="search">
-				<input name="q" id="search" type="text"></input>
+				<input name="q" id="search" type="text" 
+					value="<%=StringUtils.stripToEmpty(request.getParameter("q")) %>"></input>
+				
+				<% 
+				Set<String> types = new HashSet<String>();
+				
+				if (request.getParameterMap().get("type") != null) {
+					types.addAll(Arrays.asList(request.getParameterValues("type")));
+				}
+				
+				%>
+				
 				<div>
-					<span><input type="checkbox" name="type" value="adrpnt">Address</span>
-					<span><input type="checkbox" name="type" value="plcpnt">Town</span>
-					<span><input type="checkbox" name="type" value="hghway">Street</span>
-					<span><input type="checkbox" name="type" value="admbnd">Admin. boundary</span>
-					<span><input type="checkbox" name="type" value="poipnt">POI</span>
+					<span><input type="checkbox" name="type" 
+						value="adrpnt" <%=types.contains("adrpnt") ? "checked=\"yes\"" : "" %>>Address</span>
+					
+					<span><input type="checkbox" name="type" value="plcpnt" 
+						 <%=types.contains("plcpnt") ? "checked=\"yes\"" : "" %>>Town</span>
+						
+					<span><input type="checkbox" name="type" value="hghway" 
+						<%=types.contains("hghway") ? "checked=\"yes\"" : "" %>>Street</span>
+					
+					<span><input type="checkbox" name="type" value="admbnd" 
+						<%=types.contains("admbnd") ? "checked=\"yes\"" : "" %>>Admin. boundary</span>
+					
+					<span><input type="checkbox" name="type" value="poipnt" 
+						<%=types.contains("poipnt") ? "checked=\"yes\"" : "" %>>POI</span>
 				</div>
+				
 				<div>
-					<span><input type="checkbox" name="explain" value="true">explain</span>
+					<span><input type="checkbox" name="explain" value="true" 
+						<%="true".equals(request.getParameter("explain")) ? "checked=\"yes\"" : "" %>>explain</span>
 				</div>
+				
 			</form>
 		</div>
 		<div id="content">
