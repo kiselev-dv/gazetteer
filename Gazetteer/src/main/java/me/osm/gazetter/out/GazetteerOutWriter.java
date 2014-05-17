@@ -34,6 +34,7 @@ import org.json.JSONObject;
 
 import com.google.code.externalsorting.ExternalSort;
 import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.LineString;
 
 public class GazetteerOutWriter  implements LineHandler  {
@@ -353,7 +354,10 @@ public class GazetteerOutWriter  implements LineHandler  {
 		
 		JSONObject geom = getFullGeometry(jsonObject, ftype); 
 		if(geom != null) {
-			result.put("full_geometry", geom);
+			Geometry g = GeoJsonWriter.parseGeometry(geom);
+			if(g != null && g.isValid()) {
+				result.put("full_geometry", geom);
+			}
 		}
 		
 		

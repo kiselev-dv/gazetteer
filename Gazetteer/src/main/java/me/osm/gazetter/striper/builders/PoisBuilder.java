@@ -306,12 +306,17 @@ public class PoisBuilder extends ABuilder {
 				else if(isClosed(line) && coords.size() >= 4) {
 					LinearRing geom = factory.createLinearRing(coords.toArray(new Coordinate[coords.size()]));
 					centroid = geom.getCentroid();
-					meta.put(GeoJsonWriter.FULL_GEOMETRY, GeoJsonWriter.geometryToJSON(factory.createPolygon(geom)));
+					Polygon p = factory.createPolygon(geom);
+					if(p.isValid()) {
+						meta.put(GeoJsonWriter.FULL_GEOMETRY, GeoJsonWriter.geometryToJSON(p));
+					}
 				}
 				else {
 					LineString geom = factory.createLineString(coords.toArray(new Coordinate[coords.size()]));
 					centroid = geom.getCentroid();
-					meta.put(GeoJsonWriter.FULL_GEOMETRY, GeoJsonWriter.geometryToJSON(geom));
+					if(geom.isValid()) {
+						meta.put(GeoJsonWriter.FULL_GEOMETRY, GeoJsonWriter.geometryToJSON(geom));
+					}
 				}
 				
 			}

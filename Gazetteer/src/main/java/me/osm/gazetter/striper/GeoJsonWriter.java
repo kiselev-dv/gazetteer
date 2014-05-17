@@ -281,5 +281,24 @@ public class GeoJsonWriter {
 		
 		return null;
 	}
+
+	public static Geometry parseGeometry(JSONObject geom) {
+		if(geom != null) {
+			String type = geom.optString("type");
+			JSONArray coords = geom.getJSONArray("coordinates");
+			switch (type) {
+			case "Point":
+				return factory.createPoint(new Coordinate(coords.getDouble(0), coords.getDouble(1)));
+			case "LineString":
+				return getLineStringGeometry(coords);
+			case "Polygon":
+				return getPolygonGeometry(coords);
+			case "MultiPolygon":
+				return getMultiPolygonGeometry(coords);
+			}
+		}
+		
+		return null;
+	}
 	
 }
