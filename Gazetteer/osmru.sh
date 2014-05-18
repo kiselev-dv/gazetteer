@@ -42,9 +42,8 @@ centroid \
 --out-file /opt/osm/ru-addr.csv
 
 java -Dfile.encoding=UTF8 -Xmx4g -jar gazetteer.jar --data-dir /opt/osm/data out-csv --columns \
-id \
+uid \
 osm-type-id \
-type \
 [name:ru name] \
 poi-class \
 poi-class:ru \
@@ -57,8 +56,9 @@ phone \
 fax \
 website \
 email \
+wikipedia \
+description \
 addr-text \
-addr-long-text \
 postcode \
 hn \
 street \
@@ -67,6 +67,8 @@ street.uid
 [place:village.id place:hamlet.id] \
 [place:town place:city] \
 [place:town.id place:city.id] \
+boundary:6 \
+boundary:6.id \
 boundary:4 \
 boundary:4.id \
 boundary:2 \

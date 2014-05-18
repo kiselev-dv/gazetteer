@@ -257,6 +257,10 @@ public class Main {
 		
 		parser.printHelp();
 		
+		System.out.print("\nGazetteer version: ");
+		System.out.print(Versions.gazetteer);
+		System.out.print("\n\n");
+		
 		System.out.print("\nCommands:\n\n");
 		
 		System.out.print("MAN\n\n");

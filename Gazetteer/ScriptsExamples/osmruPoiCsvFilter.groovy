@@ -11,7 +11,14 @@ public class OSMRUCsvHandler implements CSVOutLineHandler {
 	public boolean handle(List<Object> row, String ftype, JSONObject jsonObject,
 		Map<String, JSONObject> mapLevels, JSONObject addrRow, Integer rowIndex) {
 
-		return rowIndex == null || rowIndex == 0;
+		if(rowIndex == null || rowIndex == 0) {
+			
+			row.add(16, addrRow.optString("index_name"));
+			
+			return true;
+		}
+		
+		return false;
 	}
 	
 }
