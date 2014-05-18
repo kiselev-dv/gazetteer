@@ -322,6 +322,8 @@ public class Main {
                 .defaultHelp(true)
                 .description("Create alphabetical index of osm file features");
 
+		parser.version(Versions.gazetteer);
+		
 		parser.addArgument("--threads").required(false).help("set number of threads avaible");
 		
 		parser.addArgument(NO_COMPRESS_OPT).required(false)
