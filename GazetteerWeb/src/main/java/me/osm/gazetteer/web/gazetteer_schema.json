@@ -44,6 +44,10 @@
                     "type": "string",
                     "index": "not_analyzed"
                 },
+                "addr_level": {
+                	"type": "string",
+                	"index": "not_analyzed"
+                },
                 "timestamp": {
                     "type": "date",
                     "index": "not_analyzed"

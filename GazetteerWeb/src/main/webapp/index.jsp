@@ -56,6 +56,8 @@
 				</div>
 				
 			</form>
+			
+			<a href="hierarchy.jsp">Hierarchy</a>
 		</div>
 		<div id="content">
 			<ul>

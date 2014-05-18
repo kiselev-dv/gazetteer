@@ -7,6 +7,7 @@ import java.io.PrintWriter;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -290,8 +291,12 @@ public class GazetteerOutWriter  implements LineHandler  {
 		Set<String> langs = putAltAddresses(result, addrRow);
 		JSONObject refs = new JSONObject();
 		
-		putAddrParts(result, refs, addrRow, mapLevels, langs);
+		String minLVL = putAddrParts(result, refs, addrRow, mapLevels, langs);
 		result.put("refs", refs);
+		
+		if(minLVL != null) {
+			result.put("addr_level", minLVL);
+		}
 		
 		JSONObject properties = jsonObject.optJSONObject("properties");
 		if(properties != null) {
@@ -409,35 +414,64 @@ public class GazetteerOutWriter  implements LineHandler  {
 		return fullGeometry;
 	}
 
-	private void putAddrParts(JSONObject result, JSONObject refs,
+	private String putAddrParts(JSONObject result, JSONObject refs,
 			JSONObject addrRow, Map<String, JSONObject> mapLevels, 
 			Set<String> langs) {
 		
+		String minLvl = null;
+		
 		JSONObject admin0 = mapLevels.get("boundary:2");
 		putAddrLevel(result, refs, langs, admin0, "admin0");
+		if(admin0 != null) {
+			minLvl = "admin0";
+		}
 
 		JSONObject admin1 = mapLevels.get("boundary:3");
 		putAddrLevel(result, refs, langs, admin1, "admin1");
+		if(admin1 != null) {
+			minLvl = "admin1";
+		}
 
 		JSONObject admin2 = mapLevels.get("boundary:4");
 		putAddrLevel(result, refs, langs, admin2, "admin2");
+		if(admin2 != null) {
+			minLvl = "admin2";
+		}
 
 		JSONObject local_admin = getNotNull(mapLevels, localAdminKeys, null);
 		putAddrLevel(result, refs, langs, local_admin, "local_admin");
+		if(local_admin != null) {
+			minLvl = "local_admin";
+		}
 
 		JSONObject locality = getNotNull(mapLevels, localityKeys, local_admin);
 		putAddrLevel(result, refs, langs, locality, "locality");
+		if(locality != null) {
+			minLvl = "locality";
+		}
 
 		JSONObject neighborhood = getNotNull(mapLevels, neighborhoodKeys, locality);
 		putAddrLevel(result, refs, langs, neighborhood, "neighborhood");
+		if(neighborhood != null) {
+			minLvl = "neighborhood";
+		}
 
 		JSONObject street = mapLevels.get("street");
 		putAddrLevel(result, refs, langs, street, "street");
+		if(street != null) {
+			minLvl = "street";
+		}
 		
 		JSONObject hn = mapLevels.get("hn");
 		if(hn != null) {
 			result.put("housenumber", hn.optString("name"));
 		}
+		
+		if(hn != null) {
+			minLvl = "housenumber";
+		}
+		
+		return minLvl;
 	}
 
 	private JSONObject getNotNull(Map<String, JSONObject> mapLevels,

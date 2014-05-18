@@ -33,11 +33,7 @@ public class SearchAPI implements API {
 			String[] typesFilter = request.getParameterValues("type");
 			
 			
-			BoolQueryBuilder q = QueryBuilders.boolQuery()
-					.should(buildAddRowQ(querry).boost(20))
-					.should(QueryBuilders.multiMatchQuery(querry, mainFields).boost(10))
-					.should(QueryBuilders.multiMatchQuery(querry, secondaryFields).boost(9))
-					.should(QueryBuilders.multiMatchQuery(querry, tertiaryFields).boost(8));
+			BoolQueryBuilder q = getSearchQuerry(querry);
 			
 			if(typesFilter != null && typesFilter.length > 0) {
 				q.must(QueryBuilders.termsQuery("type", typesFilter));
@@ -48,11 +44,11 @@ public class SearchAPI implements API {
 					.setSearchType(SearchType.QUERY_AND_FETCH).setQuery(q)
 					.setExplain(explain);
 			
-			applyPaging(request, searchQ);
+			APIUtils.applyPaging(request, searchQ);
 			
 			SearchResponse searchResponse = searchQ.execute().actionGet();
 			
-			JSONObject answer = encodeSearchResult(searchResponse, 
+			JSONObject answer = APIUtils.encodeSearchResult(searchResponse, 
 					request.getParameter("full_geometry") != null && "true".equals(request.getParameter("full_geometry")),
 					explain);
 			
@@ -62,25 +58,16 @@ public class SearchAPI implements API {
 		return null;
 	}
 
-	private void applyPaging(HttpServletRequest request,
-			SearchRequestBuilder searchQ) {
-		int pageSize = 20;
-		if(request.getParameter("pagesize") != null) {
-			pageSize = Integer.parseInt(request.getParameter("pagesize"));
-		}
-		
-		int page = 1;
-		if(request.getParameter("page") != null) {
-			page = Integer.parseInt(request.getParameter("page"));
-			if(page < 1) {
-				page = 1;
-			}
-		}
-		searchQ.setSize(pageSize);
-		searchQ.setFrom((page - 1) * pageSize);
+	public static BoolQueryBuilder getSearchQuerry(String querry) {
+		BoolQueryBuilder q = QueryBuilders.boolQuery()
+				.should(buildAddRowQ(querry).boost(20))
+				.should(QueryBuilders.multiMatchQuery(querry, mainFields).boost(10))
+				.should(QueryBuilders.multiMatchQuery(querry, secondaryFields).boost(9))
+				.should(QueryBuilders.multiMatchQuery(querry, tertiaryFields).boost(8));
+		return q;
 	}
 
-	private BoolQueryBuilder buildAddRowQ(String querry) {
+	public static BoolQueryBuilder buildAddRowQ(String querry) {
 		return QueryBuilders.boolQuery()
 			.should(QueryBuilders.matchQuery("admin0_name", querry).boost(1))
 			.should(QueryBuilders.matchQuery("admin0_alternate_names", querry).boost(0.1f))
@@ -98,34 +85,5 @@ public class SearchAPI implements API {
 			.should(QueryBuilders.matchQuery("housenumber", querry).boost(100));
 	}
 
-	private JSONObject encodeSearchResult(SearchResponse searchResponse, 
-			boolean fullGeometry, boolean explain) {
-		
-		JSONObject result = new JSONObject();
-		result.put("result", "success");
-		
-		JSONArray features = new JSONArray();
-		result.put("features", features);
-		
-		for(SearchHit hit : searchResponse.getHits().getHits()) {
-			JSONObject feature = new JSONObject(hit.getSource());
-			
-			if(!fullGeometry) {
-				feature.remove("full_geometry");
-			}
-			
-			features.put(feature);
-		}
-		
-		if(explain) {
-			JSONArray explanations = new JSONArray();
-			result.put("explanations", explanations);
-
-			for(SearchHit hit : searchResponse.getHits().getHits()) {
-				explanations.put(hit.explanation().toHtml());
-			}
-		}
-		
-		return result;
-	}
+	
 }
