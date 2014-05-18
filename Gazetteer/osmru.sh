@@ -2,7 +2,7 @@
 
 rm /opt/osm/data/*
 
-java -Dfile.encoding=UTF8 -Xmx4g -jar gazetteer.jar --data-dir /opt/osm/data split /opt/osm/RU.osm.bz2
+java -Dfile.encoding=UTF8 -Xmx4g -jar gazetteer.jar --data-dir /opt/osm/data split $1
 
 java -Dfile.encoding=UTF8 -Xmx6g -jar gazetteer.jar --data-dir /opt/osm/data slice all
 
@@ -39,7 +39,7 @@ centroid \
 [full-geometry centroid] \
 --types address street place boundaries \
 --line-handler /opt/osm/gazetteer/Gazetteer/ScriptsExamples/osmruCSVHandler.groovy \
---out-file /opt/osm/ru-addr.csv
+--out-file - | gzip > /opt/osm/ru-addr.csv.gz
 
 java -Dfile.encoding=UTF8 -Xmx4g -jar gazetteer.jar --data-dir /opt/osm/data out-csv --columns \
 uid \
@@ -62,7 +62,7 @@ addr-text \
 postcode \
 hn \
 street \
-street.uid
+street.uid \
 [place:village place:hamlet] \
 [place:village.id place:hamlet.id] \
 [place:town place:city] \
@@ -76,6 +76,6 @@ boundary:2.id \
 centroid \
 --types poi \
 --line-handler /opt/osm/gazetteer/Gazetteer/ScriptsExamples/osmruPoiCsvFilter.groovy \
---out-file /opt/osm/ru-poi.csv
+--out-file - | gzip > /opt/osm/ru-poi.csv.gz
 
 
