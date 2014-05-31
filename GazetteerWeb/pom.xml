@@ -4,13 +4,25 @@
 	<groupId>me.osm.Gazetteer</groupId>
 	<artifactId>GazetteerWeb</artifactId>
 	<version>0.1-SNAPSHOT</version>
+	<packaging>jar</packaging>
 
 	<properties>
 		<maven.compiler.source>1.7</maven.compiler.source>
 		<maven.compiler.target>1.7</maven.compiler.target>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
 
 	<dependencies>
+		<dependency>
+			<groupId>com.strategicgains</groupId>
+			<artifactId>RestExpress</artifactId>
+			<version>0.10.3</version>
+		</dependency>
+		<dependency>
+			<groupId>com.strategicgains.plugin-express</groupId>
+			<artifactId>RoutesMetadataPlugin</artifactId>
+			<version>0.2.2</version>
+		</dependency>
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-lang3</artifactId>
@@ -41,11 +53,11 @@
 			<artifactId>slf4j-simple</artifactId>
 			<version>1.7.6</version>
 		</dependency>
-<!-- 		<dependency> -->
-<!-- 			<groupId>osm-doc</groupId> -->
-<!-- 			<artifactId>osm-doc</artifactId> -->
-<!-- 			<version>0.3</version> -->
-<!-- 		</dependency> -->
+		<!-- <dependency> -->
+		<!-- <groupId>osm-doc</groupId> -->
+		<!-- <artifactId>osm-doc</artifactId> -->
+		<!-- <version>0.3</version> -->
+		<!-- </dependency> -->
 		<dependency>
 			<groupId>org.elasticsearch</groupId>
 			<artifactId>elasticsearch</artifactId>
@@ -67,25 +79,43 @@
 			<artifactId>commons-codec</artifactId>
 			<version>1.4</version>
 		</dependency>
-		<dependency>
-			<groupId>javax</groupId>
-			<artifactId>javaee-api</artifactId>
-			<version>6.0</version>
-			<scope>provided</scope>
-		</dependency>
 	</dependencies>
 	
 	<build>
-        <plugins>
-            <plugin>
+		<plugins>
+			<plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-war-plugin</artifactId>
+                <artifactId>maven-jar-plugin</artifactId>
                 <configuration>
-                    <webXml>WebContent/WEB-INF/web.xml</webXml>
+                    <archive>
+                        <manifest>
+                            <addClasspath>true</addClasspath>
+                            <classpathPrefix>lib/</classpathPrefix>
+                            <mainClass>me.osm.gazetteer.web.Main</mainClass>
+                        </manifest>
+                    </archive>
                 </configuration>
             </plugin>
-        </plugins>
-    </build>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>
+                              ${project.build.directory}/lib
+                            </outputDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+		</plugins>
+	</build>
 
 	<repositories>
 		<repository>
@@ -98,5 +128,4 @@
 		</repository>
 	</repositories>
 
-	<packaging>war</packaging>
 </project>

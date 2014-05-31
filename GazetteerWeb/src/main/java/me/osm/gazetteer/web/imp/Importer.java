@@ -1,4 +1,4 @@
-package me.osm.gazetteer.web;
+package me.osm.gazetteer.web.imp;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
@@ -7,6 +7,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.zip.GZIPInputStream;
+
+import me.osm.gazetteer.web.ESNodeHodel;
 
 import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream;
 import org.apache.commons.io.IOUtils;
@@ -62,7 +64,7 @@ public class Importer {
 		JSONObject settings;
 		try {
 			settings = new JSONObject(IOUtils.toString(getClass().getResourceAsStream(
-					"gazetteer_schema.json")));
+					"/gazetteer_schema.json")));
 		} catch (IOException e) {
 			throw new RuntimeException("couldn't read index settings", e);
 		}

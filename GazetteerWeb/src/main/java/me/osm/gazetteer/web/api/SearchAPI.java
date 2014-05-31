@@ -2,35 +2,33 @@ package me.osm.gazetteer.web.api;
 
 import java.io.IOException;
 
-import javax.servlet.http.HttpServletRequest;
-
 import me.osm.gazetteer.web.ESNodeHodel;
 
+import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.search.SearchHit;
-import org.json.JSONArray;
 import org.json.JSONObject;
+import org.restexpress.Request;
+import org.restexpress.Response;
 
-public class SearchAPI implements API {
+public class SearchAPI {
 
 	private static final String[] mainFields = new String[]{"name", "address", "poi_class", "poi_class_names", "operator", "brand"};
 	private static final String[] secondaryFields = new String[]{"parts", "alt_addresses", "alt_names"};
 	private static final String[] tertiaryFields = new String[]{"nearby_streets", "nearest_city", "nearest_neighbour"};
 	
-	@Override
-	public JSONObject request(HttpServletRequest request) 
-			throws GazetteerAPIException, IOException {
+	public JSONObject read(Request request, Response response) 
+			throws IOException {
 
-		boolean explain = "true".equals(request.getParameter("explain"));
-		String querry = request.getParameter("q");
+		boolean explain = "true".equals(request.getHeader("explain"));
+		String querry = request.getHeader("q");
 		if(querry != null) {
 			
-			String[] typesFilter = request.getParameterValues("type");
+			String[] typesFilter = StringUtils.split(request.getHeader("type"), ',');
 			
 			
 			BoolQueryBuilder q = getSearchQuerry(querry);

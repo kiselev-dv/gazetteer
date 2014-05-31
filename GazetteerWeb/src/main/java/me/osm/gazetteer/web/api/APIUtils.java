@@ -1,12 +1,11 @@
 package me.osm.gazetteer.web.api;
 
-import javax.servlet.http.HttpServletRequest;
-
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.search.SearchHit;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.restexpress.Request;
 
 public class APIUtils {
 	
@@ -41,16 +40,16 @@ public class APIUtils {
 		return result;
 	}
 	
-	public static void applyPaging(HttpServletRequest request,
+	public static void applyPaging(Request request,
 			SearchRequestBuilder searchQ) {
 		int pageSize = 20;
-		if(request.getParameter("pagesize") != null) {
-			pageSize = Integer.parseInt(request.getParameter("pagesize"));
+		if(request.getHeader("pagesize") != null) {
+			pageSize = Integer.parseInt(request.getHeader("pagesize"));
 		}
 		
 		int page = 1;
-		if(request.getParameter("page") != null) {
-			page = Integer.parseInt(request.getParameter("page"));
+		if(request.getHeader("page") != null) {
+			page = Integer.parseInt(request.getHeader("page"));
 			if(page < 1) {
 				page = 1;
 			}

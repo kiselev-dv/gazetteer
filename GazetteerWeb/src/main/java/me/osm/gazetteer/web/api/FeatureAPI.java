@@ -2,12 +2,8 @@ package me.osm.gazetteer.web.api;
 
 import java.io.IOException;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import me.osm.gazetteer.web.ESNodeHodel;
-import me.osm.gazetteer.web.Importer;
-import me.osm.gazetteer.web.api.API.GazetteerAPIException;
+import me.osm.gazetteer.web.imp.Importer;
 
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
@@ -18,8 +14,9 @@ import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.restexpress.Request;
 
-public class FeatureAPI implements API {
+public class FeatureAPI {
 
 	private static final String[] COMMON_FIELDS = new String[]{
 		"feature_id",
@@ -64,13 +61,12 @@ public class FeatureAPI implements API {
 		"refs"
 	};
 
-	@Override
-	public JSONObject request(HttpServletRequest request) 
-			throws GazetteerAPIException, IOException {
+	public JSONObject request(Request request) 
+			throws IOException {
 		
 		Client client = ESNodeHodel.getClient();
 		
-		String idParam = request.getParameter("id");
+		String idParam = request.getHeader("id");
 		
 		QueryBuilder q = QueryBuilders.constantScoreQuery(
 				FilterBuilders.termsFilter("feature_id", idParam));

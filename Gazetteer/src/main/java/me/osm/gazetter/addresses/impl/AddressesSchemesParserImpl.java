@@ -26,7 +26,8 @@ public class AddressesSchemesParserImpl implements AddressesSchemesParser {
 		
 		List<JSONObject> result = new ArrayList<>();
 		
-		// addr:...2
+		// addr:street  addr:housenumber
+		// addr:street2 addr:housenumber2
 		if(properties.has("addr:housenumber2")) {
 			
 			JSONObject addr1 = JSONFeature.copy(properties);
@@ -51,6 +52,7 @@ public class AddressesSchemesParserImpl implements AddressesSchemesParser {
 				result.add(addr2);
 			}
 		}
+		
 		//addr:hn=1/2 addr:street1 addr:street2
 		else if(properties.has("addr:street2")) {
 			String hn = properties.optString("addr:housenumber");
@@ -82,8 +84,8 @@ public class AddressesSchemesParserImpl implements AddressesSchemesParser {
 				result.add(properties);
 			}
 		}
+		
 		//AddrN
-		//TODO: search for all addrN levels and Ns
 		else if(properties.has("addr2:housenumber")) {
 			
 			JSONObject addr1 = JSONFeature.copy(properties);
@@ -115,11 +117,41 @@ public class AddressesSchemesParserImpl implements AddressesSchemesParser {
 					break;
 				}
 			}
+			
+			result = searchHNn(result);
 		}
 		else {
 			JSONObject addr1 = JSONFeature.copy(properties);
 			addr1.put(ADDR_SCHEME, "regular");
 			result.add(addr1);
+		}
+		
+		return result;
+	}
+
+	
+	//Say hello to SviMik 
+	private List<JSONObject> searchHNn(List<JSONObject> list) {
+		
+		List<JSONObject> result = new ArrayList<JSONObject>();
+		
+		for(JSONObject obj : list) {
+			if(obj.has("addr:housenumber2")) {
+				
+				JSONObject addr = JSONFeature.copy(obj);
+				result.add(addr);
+
+				for(int i = 2;;i++) {
+					if(obj.has("addr:housenumber" + i)) {
+						addr = JSONFeature.copy(obj);
+						addr.put("addr:housenumber", obj.get("addr:housenumber" + i));
+					}
+					break;
+				}
+			}
+			else {
+				result.add(obj);
+			}
 		}
 		
 		return result;
