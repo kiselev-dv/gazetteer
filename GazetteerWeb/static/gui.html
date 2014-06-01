@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<head>
+     <title>OSM Gazetteer</title>
+     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.0.7/angular.min.js" type="text/javascript"></script>
+     <script src="static/js/gazetteer.js" type="text/javascript"></script>
+</head>
+<body>
+     <div id='content' ng-app='Gazetteer' ng-controller='MainController'>
+    	
+    	<form name="searchForm" ng-submit="searchForm.submitForm()">
+			<input name="q" id="search" type="text" ng-model="searchForm.q"></input>
+
+
+			<div>
+				<input type="checkbox" ng-model="searchForm.adrpnt"> Address
+				<input type="checkbox" ng-model="searchForm.plcpnt"> Town
+				<input type="checkbox" ng-model="searchForm.hghway"> Street
+				<input type="checkbox" ng-model="searchForm.admbnd"> Admin. boundary
+				<input type="checkbox" ng-model="searchForm.poipnt"> POI
+			</div>
+
+			<div>
+				<input type="checkbox" name="explain" value="true" ng-model="searchForm.explain"> explain
+			</div>
+			
+		</form>
+		
+     </div>
+</body>
+</html>

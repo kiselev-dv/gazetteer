@@ -18,8 +18,25 @@ public class APIUtils {
 		JSONArray features = new JSONArray();
 		result.put("features", features);
 		
+//		ObjectMapper mapper = new ObjectMapper();
+//        
+//		AnnotationIntrospector introspector
+//		    = new JaxbAnnotationIntrospector();
+//		mapper.setAnnotationIntrospector(introspector);
+		
 		for(SearchHit hit : searchResponse.getHits().getHits()) {
+			
+			
 			JSONObject feature = new JSONObject(hit.getSource());
+//			try {
+//				IndexRow row = mapper.readValue(feature.toString(), IndexRow.class);
+//			} catch (JsonParseException e) {
+//				e.printStackTrace();
+//			} catch (JsonMappingException e) {
+//				e.printStackTrace();
+//			} catch (IOException e) {
+//				e.printStackTrace();
+//			}
 			
 			if(!fullGeometry) {
 				feature.remove("full_geometry");
