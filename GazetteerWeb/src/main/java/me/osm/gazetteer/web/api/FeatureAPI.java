@@ -15,6 +15,7 @@ import org.elasticsearch.search.SearchHit;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.restexpress.Request;
+import org.restexpress.Response;
 
 public class FeatureAPI {
 
@@ -61,7 +62,7 @@ public class FeatureAPI {
 		"refs"
 	};
 
-	public JSONObject request(Request request) 
+	public JSONObject read(Request request, Response response) 
 			throws IOException {
 		
 		Client client = ESNodeHodel.getClient();

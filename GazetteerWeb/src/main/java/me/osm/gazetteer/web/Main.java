@@ -3,6 +3,7 @@ package me.osm.gazetteer.web;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
+import me.osm.gazetteer.web.api.FeatureAPI;
 import me.osm.gazetteer.web.api.ImportAPI;
 import me.osm.gazetteer.web.api.SearchAPI;
 import me.osm.gazetteer.web.api.Static;
@@ -72,7 +73,7 @@ public class Main {
 				.flag(Flags.Cache.DONT_CACHE);
 
 		server.uri("/feature",
-				new ImportAPI())
+				new FeatureAPI())
 				.method(HttpMethod.GET)
 				.flag(Flags.Cache.DONT_CACHE);
 		

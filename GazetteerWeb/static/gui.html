@@ -1,10 +1,14 @@
 <!DOCTYPE html>
 <head>
      <title>OSM Gazetteer</title>
-     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.0.7/angular.min.js" type="text/javascript"></script>
+     <script src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.2.16/angular.min.js" type="text/javascript"></script>
+     <script src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.2.16/angular-route.min.js" type="text/javascript"></script>
+     <script src="//cdn.leafletjs.com/leaflet-0.7.1/leaflet.js"></script>
+     <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.1/leaflet.css">
+     <script src="/static/js/angular-leaflet-directive.min.js"></script>
 </head>
-<body>
-     <div id="content" ng-app="Gazetteer" ng-controller="MainController">
+<body ng-app="Gazetteer" ng-controller="MainController">
+     <div id="content">
     	
 		<input name="q" id="search" type="text" ng-enter="searchForm.submitForm();" ng-model="searchForm.q"></input>
 
@@ -21,13 +25,23 @@
 		</div>
 		
      </div>
-     
-     <div id="results" ng-app="Gazetteer" ng-controller="ResultsListController">
+		
+	<div style="width:40%; float:left;">
      	<ul>
-     		<li ng-repeat="f in features">{{f.name}}</li>
+     		<li ng-repeat="f in searchResult.features">
+     			<a href="#feature={{f.feature_id}}"> {{frmtSrchRes(f);}}</a>
+     		</li>
      	</ul>
-     </div>
-
+	</div>
+    	
+   	<div style="width:60%; float:left;">
+   		<leaflet center="center" markers="markers" bounds="bounds" 
+   			style="width: 600px; height:400px"></leaflet>
+   			
+   		<div ng-view></div>	
+   	</div>
+     	
+     
      <script src="static/js/gazetteer.js" type="text/javascript"></script>
 </body>
 </html>
