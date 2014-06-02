@@ -28,7 +28,7 @@ public class SearchAPI {
 		String querry = request.getHeader("q");
 		if(querry != null) {
 			
-			String[] typesFilter = StringUtils.split(request.getHeader("type"), ',');
+			String[] typesFilter = StringUtils.split(request.getHeader("type"), ", []\"\'");
 			
 			
 			BoolQueryBuilder q = getSearchQuerry(querry);
@@ -49,6 +49,8 @@ public class SearchAPI {
 			JSONObject answer = APIUtils.encodeSearchResult(searchResponse, 
 					request.getParameter("full_geometry") != null && "true".equals(request.getParameter("full_geometry")),
 					explain);
+			
+			APIUtils.resultPaging(request, answer);
 			
 			return answer;
 		}

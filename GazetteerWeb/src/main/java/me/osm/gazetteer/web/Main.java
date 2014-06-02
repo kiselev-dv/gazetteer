@@ -6,6 +6,7 @@ import java.io.IOException;
 import me.osm.gazetteer.web.api.ImportAPI;
 import me.osm.gazetteer.web.api.SearchAPI;
 import me.osm.gazetteer.web.api.Static;
+import me.osm.gazetteer.web.postprocessor.AllowOriginPP;
 import me.osm.gazetteer.web.postprocessor.LastModifiedHeaderPostprocessor;
 import me.osm.gazetteer.web.serialization.SerializationProvider;
 
@@ -44,6 +45,7 @@ public class Main {
 		server = new RestExpress()
 				.setName(config.getName())
 				.addPostprocessor(new LastModifiedHeaderPostprocessor())
+				.addPostprocessor(new AllowOriginPP())
 				.addMessageObserver(new SimpleConsoleLogMessageObserver());
 
 		defineRoutes(config, server);
