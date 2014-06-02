@@ -626,7 +626,7 @@ public class GazetteerOutWriter  implements LineHandler  {
 		
 		street.put("id", streetSRC.getString("id"));
 		
-		Map<String, String> nameTags = AddressesUtils.filterNameTags(street.optJSONObject("properties"));
+		Map<String, String> nameTags = AddressesUtils.filterNameTags(streetSRC.optJSONObject("properties"));
 		if(nameTags.containsKey("name")) {
 			street.put("name", nameTags.get("name"));
 			
