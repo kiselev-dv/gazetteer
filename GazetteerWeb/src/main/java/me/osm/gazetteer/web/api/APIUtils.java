@@ -47,7 +47,7 @@ public class APIUtils {
 	
 	public static void applyPaging(Request request,
 			SearchRequestBuilder searchQ) {
-		int pageSize = 20;
+		int pageSize = 4;
 		if(request.getHeader(PAGE_SIZE) != null) {
 			pageSize = Integer.parseInt(request.getHeader(PAGE_SIZE));
 		}
@@ -64,7 +64,7 @@ public class APIUtils {
 	}
 
 	public static void resultPaging(Request request, JSONObject answer) {
-		int pageSize = 20;
+		int pageSize = 4;
 		if(request.getHeader(PAGE_SIZE) != null) {
 			pageSize = Integer.parseInt(request.getHeader(PAGE_SIZE));
 		}

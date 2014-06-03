@@ -1,9 +1,14 @@
 var app = angular.module('Gazetteer', [ 'ngRoute', 'leaflet-directive' ]);
 
+app.config(['$locationProvider', function($locationProvider) {
+	$locationProvider.hashPrefix('!');
+}]);
+
 app.config(function($routeProvider) {
     $routeProvider
     	.when('/feature=:fid', {templateUrl: '/static/feature.html', controller:'FeatureController' });
 });
+
 
 app.directive('ngEnter', function() {
 	return function(scope, element, attrs) {

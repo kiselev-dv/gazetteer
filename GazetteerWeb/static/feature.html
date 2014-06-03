@@ -2,13 +2,13 @@
 	
 	<div ng-repeat="addr in feature.addresses">
 		<span>
-			<a class="addrPart" ng-show="addr.admin0_name" href="#/feature={{addr.refs.admin0}}">{{addr.admin0_name}}</a> 
-			<a class="addrPart" ng-show="addr.admin1_name" href="#/feature={{addr.refs.admin1}}">{{addr.admin1_name}}</a> 
-			<a class="addrPart" ng-show="addr.admin2_name" href="#/feature={{addr.refs.admin2}}">{{addr.admin2_name}}</a>
-			<a class="addrPart" ng-show="addr.local_admin_name" href="#/feature={{addr.refs.local_admin}}">{{addr.local_admin_name}}</a>
-			<a class="addrPart" ng-show="addr.locality_name" href="#/feature={{addr.refs.locality}}">{{addr.locality_name}}</a>
-			<a class="addrPart" ng-show="addr.neighborhood_name" href="#/feature={{addr.refs.neighborhood}}">{{addr.neighborhood_name}}</a>
-			<a class="addrPart" ng-show="addr.street_name" href="#/feature={{addr.refs.street}}">{{addr.street_name}}</a>
+			<a class="addrPart" ng-show="addr.admin0_name" href="#!/feature={{addr.refs.admin0}}">{{addr.admin0_name}}</a> 
+			<a class="addrPart" ng-show="addr.admin1_name" href="#!/feature={{addr.refs.admin1}}">{{addr.admin1_name}}</a> 
+			<a class="addrPart" ng-show="addr.admin2_name" href="#!/feature={{addr.refs.admin2}}">{{addr.admin2_name}}</a>
+			<a class="addrPart" ng-show="addr.local_admin_name" href="#!/feature={{addr.refs.local_admin}}">{{addr.local_admin_name}}</a>
+			<a class="addrPart" ng-show="addr.locality_name" href="#!/feature={{addr.refs.locality}}">{{addr.locality_name}}</a>
+			<a class="addrPart" ng-show="addr.neighborhood_name" href="#!/feature={{addr.refs.neighborhood}}">{{addr.neighborhood_name}}</a>
+			<a class="addrPart" ng-show="addr.street_name" href="#!/feature={{addr.refs.street}}">{{addr.street_name}}</a>
 			<span class="addrPart" ng-show="addr.housenumber">{{addr.housenumber}}</span>
 		</span>
 		<div ng-repeat="alt in addr.alt_addresses">
@@ -28,7 +28,7 @@
 	
 	<div ng-show="feature.nearby_streets">
 		<div>Nearby streets</div>
-		<a ng-repeat="strt in feature.nearby_streets" href="#/feature={{strt.id}}">
+		<a ng-repeat="strt in feature.nearby_streets" href="#!/feature={{strt.id}}">
 			<div>{{strt.name}}</div>
 			<div ng-show="strt.alt_names">
 				(
@@ -40,7 +40,7 @@
 
 	<div ng-show="feature.nearby_places">
 		<div>Nearby places</div>
-		<a ng-repeat="place in feature.nearby_places" href="#/feature={{place.id}}">
+		<a ng-repeat="place in feature.nearby_places" href="#!/feature={{place.id}}">
 			<div>{{place.name}}</div>
 			<div ng-show="place.alt_names">
 				(
