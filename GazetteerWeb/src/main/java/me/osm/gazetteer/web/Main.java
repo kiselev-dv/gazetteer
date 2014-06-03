@@ -2,6 +2,7 @@ package me.osm.gazetteer.web;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.security.MessageDigest;
 
 import me.osm.gazetteer.web.api.FeatureAPI;
 import me.osm.gazetteer.web.api.ImportAPI;
@@ -11,13 +12,20 @@ import me.osm.gazetteer.web.postprocessor.AllowOriginPP;
 import me.osm.gazetteer.web.postprocessor.LastModifiedHeaderPostprocessor;
 import me.osm.gazetteer.web.serialization.SerializationProvider;
 
+import org.apache.commons.codec.digest.DigestUtils;
 import org.jboss.netty.handler.codec.http.HttpMethod;
 import org.restexpress.Flags;
 import org.restexpress.Format;
 import org.restexpress.Parameters;
+import org.restexpress.Request;
 import org.restexpress.RestExpress;
+import org.restexpress.exception.UnauthorizedException;
+import org.restexpress.pipeline.Postprocessor;
+import org.restexpress.pipeline.Preprocessor;
 import org.restexpress.pipeline.SimpleConsoleLogMessageObserver;
 import org.restexpress.plugin.RoutePlugin;
+import org.restexpress.preprocessor.HttpBasicAuthenticationPreprocessor;
+import org.restexpress.route.Route;
 import org.restexpress.util.Environment;
 
 import com.strategicgains.restexpress.plugin.route.RoutesMetadataPlugin;
@@ -47,6 +55,31 @@ public class Main {
 				.setName(config.getName())
 				.addPostprocessor(new LastModifiedHeaderPostprocessor())
 				.addPostprocessor(new AllowOriginPP())
+				.addPreprocessor(new HttpBasicAuthenticationPreprocessor(null){
+					@Override
+					public void process(Request request) {
+
+						Route route = request.getResolvedRoute();
+
+						if (route != null && (route.isFlagged(Flags.Auth.PUBLIC_ROUTE)
+							|| route.isFlagged(Flags.Auth.NO_AUTHENTICATION)))
+						{
+							return;
+						}
+						
+						super.process(request);
+						
+						if(!"admin".equals(request.getHeader(X_AUTHENTICATED_USER)) ||
+								!checkPass(request.getHeader(X_AUTHENTICATED_PASSWORD))) {
+							throw new UnauthorizedException();
+						}
+					}
+
+					private boolean checkPass(String header) {
+						return DigestUtils.md5Hex(header).equals("21232f297a57a5a743894a0e4a801fc3");
+					}
+					
+				})
 				.addMessageObserver(new SimpleConsoleLogMessageObserver());
 
 		defineRoutes(config, server);
@@ -65,6 +98,7 @@ public class Main {
 				new SearchAPI())
 				.method(HttpMethod.GET)
 				.name(Constants.FEATURE_URI)
+				.flag(Flags.Auth.PUBLIC_ROUTE)
 				.parameter(Parameters.Cache.MAX_AGE, 3600);
 
 		server.uri("/_import",
@@ -75,10 +109,12 @@ public class Main {
 		server.uri("/feature",
 				new FeatureAPI())
 				.method(HttpMethod.GET)
+				.flag(Flags.Auth.PUBLIC_ROUTE)
 				.flag(Flags.Cache.DONT_CACHE);
 		
 		server.uri("/static/.*", new Static())
 			.method(HttpMethod.GET)
+			.flag(Flags.Auth.PUBLIC_ROUTE)
 			.noSerialization();
 		
 	}
