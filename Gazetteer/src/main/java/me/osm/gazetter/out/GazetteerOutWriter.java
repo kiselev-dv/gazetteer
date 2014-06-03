@@ -611,8 +611,11 @@ public class GazetteerOutWriter  implements LineHandler  {
 			if(streetsSRC.length() > 0) {
 				JSONArray streets = new JSONArray();
 				for(int i = 0; i < streetsSRC.length(); i++) {
-					JSONObject street = asIdNameNames(streetsSRC.getJSONObject(i));
+					JSONObject streetSRC = streetsSRC.getJSONObject(i);
+					JSONObject street = asIdNameNames(streetSRC);
 					if(street != null) {
+						JSONObject properties = streetSRC.optJSONObject("properties");
+						street.put("highway", properties.optString("highway"));
 						streets.put(street);
 					}
 				}
