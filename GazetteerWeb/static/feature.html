@@ -1,4 +1,4 @@
-<div ng-controller="FeatureController">
+<div id="featureView" ng-controller="FeatureController">
 	
 	<div ng-repeat="addr in feature.addresses">
 		<span>
@@ -27,27 +27,23 @@
 	</div> 
 	
 	<div ng-show="feature.nearby_streets">
-		<div>Nearby streets</div>
-		<a ng-repeat="strt in feature.nearby_streets" href="#!/feature={{strt.id}}">
-			<div>{{strt.name}}</div>
-			<div ng-show="strt.alt_names">
-				(
-				<span ng-repeat="aname in strt.alt_names">{{aname}}</span>
-				)
+		<h4>Nearby streets</h4>
+		<div ng-repeat="strt in feature.nearby_streets">
+			<a href="#!/feature={{strt.id}}">{{strt.name}}</a>
+			<div class="aname" ng-show="strt.alt_names">
+				(<span class="part" ng-repeat="aname in strt.alt_names">{{aname}}</span>)
 			</div>
-		</a>
+		</div>
 	</div> 
 
 	<div ng-show="feature.nearby_places">
-		<div>Nearby places</div>
-		<a ng-repeat="place in feature.nearby_places" href="#!/feature={{place.id}}">
-			<div>{{place.name}}</div>
-			<div ng-show="place.alt_names">
-				(
-				<span ng-repeat="aname in place.alt_names">{{aname}}</span>
-				)
+		<h4>Nearby places</h4>
+		<div ng-repeat="place in feature.nearby_places">
+			<a href="#!/feature={{place.id}}">{{place.name}}</a>
+			<div class="aname" ng-show="place.alt_names">
+				(<span class="part" ng-repeat="aname in place.alt_names">{{aname}}</span>)
 			</div>
-		</a>
+		</div>
 	</div> 
 	
 </div>

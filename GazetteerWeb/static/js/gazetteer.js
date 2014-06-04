@@ -111,6 +111,7 @@ function MainController($scope, $http, $location) {
 			$scope.map.setView($scope.selectedMarker.getLatLng(), 17);
 			$scope.selectedMarker.openPopup();
 		}
+		
     });
 
 }

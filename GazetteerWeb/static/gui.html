@@ -4,7 +4,8 @@
      <script src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.2.16/angular.min.js" type="text/javascript"></script>
      <script src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.2.16/angular-route.min.js" type="text/javascript"></script>
      <script src="//cdn.leafletjs.com/leaflet-0.7.1/leaflet.js"></script>
-     <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.1/leaflet.css">     
+     <link rel="stylesheet" href="//cdn.leafletjs.com/leaflet-0.7.1/leaflet.css">     
+     <link rel="stylesheet" href="/static/gui.css">     
 </head>
 <body ng-app="Gazetteer" ng-controller="MainController">
      <div id="content">
@@ -25,15 +26,15 @@
 		
      </div>
 		
-	<div style="width:40%; float:left;">
+	<div id="list">
      	<ul>
-     		<li ng-repeat="f in searchResult.features">
+     		<li id="{{f.id}}" ng-class="{selected: f.id==selectedRowId}" ng-repeat="f in searchResult.features">
      			<a href="#!/feature={{f.feature_id}}&rowId={{f.id}}"> {{frmtSrchRes(f);}}</a>
      		</li>
      	</ul>
 	</div>
     	
-   	<div style="width:60%; float:left;">
+   	<div id="map-container" style="width:60%; float:left;">
    		<div id="map" style="width: 600px; height:400px"></div>
    			
    		<div ng-view></div>	
