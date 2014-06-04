@@ -1,4 +1,4 @@
-var app = angular.module('Gazetteer', [ 'ngRoute', 'leaflet-directive' ]);
+var app = angular.module('Gazetteer', [ 'ngRoute' ]);
 
 app.config(['$locationProvider', function($locationProvider) {
 	$locationProvider.hashPrefix('!');
@@ -6,9 +6,10 @@ app.config(['$locationProvider', function($locationProvider) {
 
 app.config(function($routeProvider) {
     $routeProvider
+    	.when('/feature=:fid&rowId=:rowId', {templateUrl: '/static/feature.html', controller:'FeatureController' });
+    $routeProvider
     	.when('/feature=:fid', {templateUrl: '/static/feature.html', controller:'FeatureController' });
 });
-
 
 app.directive('ngEnter', function() {
 	return function(scope, element, attrs) {
@@ -24,7 +25,8 @@ app.directive('ngEnter', function() {
 	};
 });
 
-function MainController($scope, $http, $location, leafletBoundsHelpers) {
+
+function MainController($scope, $http, $location) {
 
 	var controller = this;
 	$scope.searchForm = {};
@@ -52,36 +54,43 @@ function MainController($scope, $http, $location, leafletBoundsHelpers) {
 		return false;
 	};
 
-	$scope.center = {lat : 47.398, lng : 18.677, zoom : 4};
-	$scope.defaults = {
-		scrollWheelZoom : false
-	};
+	$scope.map = L.map('map').setView([47.398, 18.677], 4);
+	L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+	    attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+	}).addTo($scope.map);
+	
 	$scope.markersMap = {};
 	$scope.markers = [];
 
-	$scope.bounds = leafletBoundsHelpers.createBoundsFromArray([
-			[ 51.508742458803326, -0.087890625 ],
-			[ 51.508742458803326, -0.087890625 ] ]);
-
 	$scope.$watch('searchResult', function(results) {
+		
+		angular.forEach($scope.markers, function(v, k) {
+			$scope.map.removeLayer(v);
+		});
+		
 		$scope.markersMap = {};
 		$scope.markers = [];
 		
+		var lls = [];
 		if (results) {
 			angular.forEach(results.features, function(v, k) {
 				if (!(v.center_point.lat == 0 && v.center_point.lon == 0)) {
-					var m = {
-						'lat' : v.center_point.lat,
-						'lng' : v.center_point.lon,
-						'message' : $scope.frmtSrchRes(v)
-					};
-
+					
+					var m = L.marker([v.center_point.lat, v.center_point.lon]).addTo($scope.map)
+				    	.bindPopup($scope.frmtSrchRes(v))
+					
+				    m.rid = hashCode(v.id);
+					m.fid = hashCode(v.feature_id);
+				    	
 					$scope.markersMap[hashCode(v.id)] = m;
 					$scope.markers.push(m);
-
-					$scope.bounds = L.latLngBounds($scope.markers);
+					
+					lls.push(L.latLng(v.center_point.lat, v.center_point.lon));
 				}
 			});
+
+			$scope.bounds = L.latLngBounds(lls);
+			$scope.map.fitBounds($scope.bounds);
 		}
 	});
 
@@ -94,6 +103,14 @@ function MainController($scope, $http, $location, leafletBoundsHelpers) {
 		}
 		return f.name;
 	};
+	
+	$scope.$on('showFeature', function(event, data) {
+		$scope.selectedRowId = data.rid;
+		if($scope.markersMap[$scope.selectedRowId]) {
+			$scope.selectedMarker = $scope.markersMap[$scope.selectedRowId];
+			$scope.selectedMarker.openPopup();
+		}
+    });
 
 }
 
@@ -105,20 +122,13 @@ MainController.prototype.getParams = function($scope) {
 	return params;
 }
 
-app.controller('MainController', ['$scope', '$http', '$location',
-                              		'leafletBoundsHelpers', MainController ]);
+app.controller('MainController', ['$scope', '$http', '$location', MainController ]);
 
 function hashCode(str){
-    var hash = 0,
-        len = str.length;
-
-    for (var i = 0; i < len; i++) {
-        hash = hash * 31 + str.charCodeAt(i);
-    }
-    return hash;
+	return '' + str;
 }
 
-function FeatureController($scope, $routeParams, $http) {
+function FeatureController($scope, $rootScope, $routeParams, $http) {
 	$http.get('/feature', {
 		'params':{
 			'id': $routeParams.fid,
@@ -126,5 +136,7 @@ function FeatureController($scope, $routeParams, $http) {
 		}
 	}).success(function(data) {
 		$scope.feature = data;
+		$rootScope.$broadcast('showFeature', {'fid':data.feature_id, 'rid':$routeParams.rowId});
 	});
 }
+
