@@ -77,7 +77,7 @@ function MainController($scope, $http, $location) {
 				if (!(v.center_point.lat == 0 && v.center_point.lon == 0)) {
 					
 					var m = L.marker([v.center_point.lat, v.center_point.lon]).addTo($scope.map)
-				    	.bindPopup($scope.frmtSrchRes(v))
+				    	.bindPopup('<a href="#!/feature=' + v.feature_id + '&rowId=' + v.id + '">' + $scope.frmtSrchRes(v) + '</a>')
 					
 				    m.rid = hashCode(v.id);
 					m.fid = hashCode(v.feature_id);
@@ -108,6 +108,7 @@ function MainController($scope, $http, $location) {
 		$scope.selectedRowId = data.rid;
 		if($scope.markersMap[$scope.selectedRowId]) {
 			$scope.selectedMarker = $scope.markersMap[$scope.selectedRowId];
+			$scope.map.setView($scope.selectedMarker.getLatLng(), 17);
 			$scope.selectedMarker.openPopup();
 		}
     });
