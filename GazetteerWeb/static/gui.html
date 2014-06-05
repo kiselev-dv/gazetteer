@@ -4,43 +4,10 @@
      <script src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.2.16/angular.min.js" type="text/javascript"></script>
      <script src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.2.16/angular-route.min.js" type="text/javascript"></script>
      <script src="//cdn.leafletjs.com/leaflet-0.7.1/leaflet.js"></script>
+     <script src="static/js/gazetteer.js" type="text/javascript"></script>
      <link rel="stylesheet" href="//cdn.leafletjs.com/leaflet-0.7.1/leaflet.css">     
      <link rel="stylesheet" href="/static/gui.css">     
 </head>
-<body ng-app="Gazetteer" ng-controller="MainController">
-     <div id="content">
-    	
-		<input name="q" id="search" type="text" ng-enter="searchForm.submitForm();" ng-model="searchForm.q"></input>
-
-		<div>
-			<input type="checkbox" ng-model="searchForm.types.adrpnt"> Address
-			<input type="checkbox" ng-model="searchForm.types.plcpnt"> Town
-			<input type="checkbox" ng-model="searchForm.types.hghway"> Street
-			<input type="checkbox" ng-model="searchForm.types.admbnd"> Admin. boundary
-			<input type="checkbox" ng-model="searchForm.types.poipnt"> POI
-		</div>
-		
-		<div>
-			<input type="checkbox" name="explain" value="true" ng-model="searchForm.explain"> explain
-		</div>
-		
-     </div>
-		
-	<div id="list">
-     	<ul>
-     		<li id="{{f.id}}" ng-class="{selected: f.id==selectedRowId}" ng-repeat="f in searchResult.features">
-     			<a href="#!/feature={{f.feature_id}}&rowId={{f.id}}"> {{frmtSrchRes(f);}}</a>
-     		</li>
-     	</ul>
-	</div>
-    	
-   	<div id="map-container" style="width:60%; float:left;">
-   		<div id="map" style="width: 600px; height:400px"></div>
-   			
-   		<div ng-view></div>	
-   	</div>
-     	
-     
-     <script src="static/js/gazetteer.js" type="text/javascript"></script>
+<body ng-app="Gazetteer" ng-view >
 </body>
 </html>

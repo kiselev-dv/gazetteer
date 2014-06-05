@@ -6,9 +6,17 @@ app.config(['$locationProvider', function($locationProvider) {
 
 app.config(function($routeProvider) {
     $routeProvider
-    	.when('/feature=:fid&rowId=:rowId', {templateUrl: '/static/feature.html', controller:'FeatureController' });
+    	.when('/search', {
+    		templateUrl: '/static/search.html', 
+    		controller:'SearchController', 
+    		reloadOnSearch: false });
+
     $routeProvider
-    	.when('/feature=:fid', {templateUrl: '/static/feature.html', controller:'FeatureController' });
+    	.when('/', {redirectTo: '/search'});
+    
+    $routeProvider.otherwise({
+            redirectTo: '/search'
+        });
 });
 
 app.directive('ngEnter', function() {
@@ -26,15 +34,41 @@ app.directive('ngEnter', function() {
 });
 
 
-function MainController($scope, $http, $location) {
+function SearchController($scope, $http, $location, $routeParams) {
 
 	var controller = this;
+	
 	$scope.searchForm = {};
 	$scope.searchForm.types = {};
 	$scope.searchForm.type = [];
 
-	$scope.searchForm.q = "";
+	$scope.$watch(function () {return $location.search();}, 
+		function() {
+			$scope.searchForm.q = $location.search()['q'] || '';
+			$scope.searchForm.type = $location.search()['type'] || [];
+			$scope.selectedRowId = $location.search()['id'];
+			$scope.searchForm.submitForm();
+		}
+	);
+	     
+    $scope.$watch('searchForm.q', function(term) {
+       $location.search('q', term);
+    });
 
+    $scope.$watch('searchForm.type', function(term) {
+    	$location.search('type', term);
+    	var h = {};
+    	if(Array.isArray(term)) {
+    		for(i in term) {
+    			h[term[i]] = true;
+    		}
+    	}
+    	else if (term) {
+    		h[term] = true;
+    	}
+    	$scope.searchForm.types = h;
+    });
+	
 	$scope.$watch('searchForm.types', function(v) {
 		$scope.searchForm.type = [];
 		for ( var k in v) {
@@ -45,15 +79,18 @@ function MainController($scope, $http, $location) {
 	}, true);
 
 	$scope.searchForm.submitForm = function() {
-		$http.get('/_search', {
-			'params' : controller.getParams($scope)
-		}).success(function(data) {
-			$scope.searchResult = data;
-		});
+
+		if($scope.searchForm.q) {
+			$http.get('/_search', {
+				'params' : controller.getParams($scope)
+			}).success(function(data) {
+				$scope.searchResult = data;
+			});
+		}
 
 		return false;
 	};
-
+	
 	$scope.map = L.map('map').setView([47.398, 18.677], 4);
 	L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
 	    attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
@@ -61,6 +98,23 @@ function MainController($scope, $http, $location) {
 	
 	$scope.markersMap = {};
 	$scope.markers = [];
+	
+	$scope.$watch('selectedRowId', function(rid) {
+		$location.search('id', rid);
+		if(rid) {
+			var a = rid.split('-');
+			var fid = a[0] + '-' + a[1] + '-' + a[2];
+			$http.get('/feature', {
+				'params':{
+					'id': fid,
+					'format': 'json'
+				}
+			}).success(function(data) {
+				$scope.feature = data;
+				$scope.$broadcast('showFeature', {'fid':data.feature_id, 'rid':$routeParams.rowId});
+			});
+		}
+	}, true);
 
 	$scope.$watch('searchResult', function(results) {
 		
@@ -77,13 +131,22 @@ function MainController($scope, $http, $location) {
 				if (!(v.center_point.lat == 0 && v.center_point.lon == 0)) {
 					
 					var m = L.marker([v.center_point.lat, v.center_point.lon]).addTo($scope.map)
-				    	.bindPopup('<a href="#!/feature=' + v.feature_id + '&rowId=' + v.id + '">' + $scope.frmtSrchRes(v) + '</a>')
+				    	.bindPopup($scope.frmtSrchRes(v))
+				    	.on('click', function(event){
+				    		$scope.selectF(v, event);
+				    		$scope.$digest();
+				    	});
 					
 				    m.rid = hashCode(v.id);
 					m.fid = hashCode(v.feature_id);
 				    	
 					$scope.markersMap[hashCode(v.id)] = m;
 					$scope.markers.push(m);
+					
+					if(v.id == $scope.selectedRowId) {
+						m.openPopup();
+						$scope.map.setView(m.getLatLng(), 17);
+					}
 					
 					lls.push(L.latLng(v.center_point.lat, v.center_point.lon));
 				}
@@ -93,6 +156,15 @@ function MainController($scope, $http, $location) {
 			$scope.map.fitBounds($scope.bounds);
 		}
 	});
+	
+	$scope.selectF = function(f, $event) {
+		$scope.selectedRowId = f.id;
+		if($scope.markersMap[$scope.selectedRowId]) {
+			$scope.selectedMarker = $scope.markersMap[$scope.selectedRowId];
+			$scope.map.setView($scope.selectedMarker.getLatLng(), 17);
+			$scope.selectedMarker.openPopup();
+		}
+	};
 
 	$scope.frmtSrchRes = function(f) {
 		if (f.type == 'adrpnt') {
@@ -103,20 +175,10 @@ function MainController($scope, $http, $location) {
 		}
 		return f.name;
 	};
-	
-	$scope.$on('showFeature', function(event, data) {
-		$scope.selectedRowId = data.rid;
-		if($scope.markersMap[$scope.selectedRowId]) {
-			$scope.selectedMarker = $scope.markersMap[$scope.selectedRowId];
-			$scope.map.setView($scope.selectedMarker.getLatLng(), 17);
-			$scope.selectedMarker.openPopup();
-		}
-		
-    });
 
 }
 
-MainController.prototype.getParams = function($scope) {
+SearchController.prototype.getParams = function($scope) {
 	var params = {};
 	angular.extend(params, $scope.searchForm);
 	params.types = undefined;
@@ -124,21 +186,6 @@ MainController.prototype.getParams = function($scope) {
 	return params;
 }
 
-app.controller('MainController', ['$scope', '$http', '$location', MainController ]);
-
 function hashCode(str){
 	return '' + str;
 }
-
-function FeatureController($scope, $rootScope, $routeParams, $http) {
-	$http.get('/feature', {
-		'params':{
-			'id': $routeParams.fid,
-			'format': 'json'
-		}
-	}).success(function(data) {
-		$scope.feature = data;
-		$rootScope.$broadcast('showFeature', {'fid':data.feature_id, 'rid':$routeParams.rowId});
-	});
-}
-

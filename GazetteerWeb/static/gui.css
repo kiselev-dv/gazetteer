@@ -1,5 +1,5 @@
 .selected {
-	background-color: #EEEEEE;
+	background-color: #BBBBBB;
 }
 
 #content {
@@ -27,3 +27,9 @@
  #featureView {
  	margin-top: 2em;
  }
+ 
+ .columns2 {
+ 	width:45%;
+ 	float:left;
+ }
+ 
