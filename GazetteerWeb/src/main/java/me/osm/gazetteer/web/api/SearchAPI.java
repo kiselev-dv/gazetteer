@@ -1,6 +1,10 @@
 package me.osm.gazetteer.web.api;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import me.osm.gazetteer.web.ESNodeHodel;
 
@@ -28,13 +32,18 @@ public class SearchAPI {
 		String querry = request.getHeader("q");
 		if(querry != null) {
 			
-			String[] typesFilter = StringUtils.split(request.getHeader("type"), ", []\"\'");
-			
+			Set<String> types = new HashSet<String>();
+			List<String> t = request.getHeaders("type");
+			if(t != null) {
+				for(String s : t) {
+					types.addAll(Arrays.asList(StringUtils.split(s, ", []\"\'")));
+				}
+			}
 			
 			BoolQueryBuilder q = getSearchQuerry(querry);
 			
-			if(typesFilter != null && typesFilter.length > 0) {
-				q.must(QueryBuilders.termsQuery("type", typesFilter));
+			if(!types.isEmpty()) {
+				q.must(QueryBuilders.termsQuery("type", types));
 			}
 			
 			Client client = ESNodeHodel.getClient();
