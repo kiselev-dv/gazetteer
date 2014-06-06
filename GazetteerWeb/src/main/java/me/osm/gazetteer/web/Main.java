@@ -2,11 +2,11 @@ package me.osm.gazetteer.web;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.security.MessageDigest;
 
 import me.osm.gazetteer.web.api.FeatureAPI;
 import me.osm.gazetteer.web.api.ImportAPI;
 import me.osm.gazetteer.web.api.SearchAPI;
+import me.osm.gazetteer.web.api.Sitemap;
 import me.osm.gazetteer.web.api.Static;
 import me.osm.gazetteer.web.postprocessor.AllowOriginPP;
 import me.osm.gazetteer.web.postprocessor.LastModifiedHeaderPostprocessor;
@@ -15,15 +15,11 @@ import me.osm.gazetteer.web.serialization.SerializationProvider;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.jboss.netty.handler.codec.http.HttpMethod;
 import org.restexpress.Flags;
-import org.restexpress.Format;
 import org.restexpress.Parameters;
 import org.restexpress.Request;
 import org.restexpress.RestExpress;
 import org.restexpress.exception.UnauthorizedException;
-import org.restexpress.pipeline.Postprocessor;
-import org.restexpress.pipeline.Preprocessor;
 import org.restexpress.pipeline.SimpleConsoleLogMessageObserver;
-import org.restexpress.plugin.RoutePlugin;
 import org.restexpress.preprocessor.HttpBasicAuthenticationPreprocessor;
 import org.restexpress.route.Route;
 import org.restexpress.util.Environment;
@@ -108,11 +104,17 @@ public class Main {
 
 		server.uri("/feature",
 				new FeatureAPI())
+				.alias("/feature/{id}.xml")
 				.method(HttpMethod.GET)
 				.flag(Flags.Auth.PUBLIC_ROUTE)
 				.flag(Flags.Cache.DONT_CACHE);
 		
 		server.uri("/static/.*", new Static())
+			.method(HttpMethod.GET)
+			.flag(Flags.Auth.PUBLIC_ROUTE)
+			.noSerialization();
+		
+		server.uri("/sitemap.*", new Sitemap(config))
 			.method(HttpMethod.GET)
 			.flag(Flags.Auth.PUBLIC_ROUTE)
 			.noSerialization();
