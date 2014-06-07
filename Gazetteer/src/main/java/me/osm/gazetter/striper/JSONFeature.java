@@ -8,6 +8,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.lang3.StringUtils;
 import org.json.JSONObject;
 
 public final class JSONFeature extends JSONObject {
@@ -34,14 +35,20 @@ public final class JSONFeature extends JSONObject {
 				int i1 = "id".equals(o1) ? 0 
 						: "ftype".equals(o1) ? 1 
 						: GeoJsonWriter.TIMESTAMP.equals(o1) ? 2 
-						: "action".equals(o1) ? 3 
+						: "action".equals(o1) ? 3
+						: "md5".equals(o2) ? 4		
 						: 10; 
 				
 				int i2 = "id".equals(o2) ? 0 
 						: "ftype".equals(o2) ? 1 
 						: GeoJsonWriter.TIMESTAMP.equals(o2) ? 2 
 						: "action".equals(o2) ? 3 
+						: "md5".equals(o2) ? 4 
 						: 10; 
+				
+				if(i1 == 10 && i2 == 10) {
+					return o1.compareTo(o2);
+				}
 				
 				return i1 - i2;
 			}

@@ -40,6 +40,7 @@ public class GeoJsonWriter {
 	private static final String FTYPE_PATTERN = "\"ftype\":\"";
 	private static final String ACTION_PATTERN = "\"action\":\"";
 	private static final String ADM_LVL_PATTERN = "\"admin_level\":\"";
+	private static final String MD5_PATTERN = "\"md5\":\"";
 	
 	public static final String META = "metainfo";
 	public static final String FULL_GEOMETRY = "fullGeometry";
@@ -174,8 +175,21 @@ public class GeoJsonWriter {
 		json.put(TIMESTAMP, date.toDateTime(timeZone).toInstant().toString());
 	}
 
+	public static String getMD5(String line) {
+		int indexOf = line.indexOf(MD5_PATTERN);
+		if(indexOf >= 0) {
+			int begin = indexOf + MD5_PATTERN.length();
+			int end = line.indexOf("\"", begin);
+			return line.substring(begin, end);
+		}
+		
+		log.error("Can't parse timestamp for line {}", line);
+		
+		return null;
+	}
+
 	public static Date getTimestamp(String line) {
-		int indexOf = line.indexOf(TIMESTAMP_PATTERN);
+		int indexOf = line.indexOf("md5");
 		if(indexOf >= 0) {
 			int begin = indexOf + TIMESTAMP_PATTERN.length();
 			int end = line.indexOf("\"", begin);

@@ -28,6 +28,7 @@ import me.osm.gazetter.utils.LocatePoint;
 import me.osm.osmdoc.model.Feature;
 import me.osm.osmdoc.read.OSMDocFacade;
 
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -120,7 +121,7 @@ public class GazetteerOutWriter  implements LineHandler  {
 						JSONObject boundaries = jsonObject.optJSONObject("boundaries");
 						if(boundaries != null) {
 							Map<String, JSONObject> mapLevels = mapLevels(boundaries);
-							JSONObject row = new JSONFeature();
+							JSONFeature row = new JSONFeature();
 							
 							fillObject(row, FeatureTypes.ADMIN_BOUNDARY_FTYPE, boundaries, mapLevels, jsonObject);
 							
@@ -214,7 +215,7 @@ public class GazetteerOutWriter  implements LineHandler  {
 				JSONArray addresses = jsonObject.optJSONArray("addresses");
 				if(addresses != null) {
 					for(int ri = 0; ri < addresses.length(); ri++ ) {
-						JSONObject row = new JSONFeature();
+						JSONFeature row = new JSONFeature();
 						JSONObject addrRow = addresses.getJSONObject(ri);
 						Map<String, JSONObject> mapLevels = mapLevels(addrRow);
 						
@@ -229,7 +230,7 @@ public class GazetteerOutWriter  implements LineHandler  {
 				if(boundaries != null) {
 					for(int i = 0; i < boundaries.length(); i++) {
 
-						JSONObject row = new JSONFeature();
+						JSONFeature row = new JSONFeature();
 						
 						JSONObject bs = boundaries.getJSONObject(i);
 						Map<String, JSONObject> mapLevels = mapLevels(bs);
@@ -244,7 +245,7 @@ public class GazetteerOutWriter  implements LineHandler  {
 				JSONObject boundaries = jsonObject.optJSONObject("boundaries");
 				if(boundaries != null) {
 
-					JSONObject row = new JSONFeature();
+					JSONFeature row = new JSONFeature();
 					Map<String, JSONObject> mapLevels = mapLevels(boundaries);
 					
 					fillObject(row, ftype, boundaries, mapLevels, jsonObject);
@@ -257,7 +258,7 @@ public class GazetteerOutWriter  implements LineHandler  {
 				List<JSONObject> addresses = getPoiAddresses(jsonObject);
 				if(addresses != null) {
 					for(JSONObject addrRow : addresses) {
-						JSONObject row = new JSONFeature();
+						JSONFeature row = new JSONFeature();
 						Map<String, JSONObject> mapLevels = mapLevels(addrRow);
 						
 						fillObject(row, ftype, addrRow, mapLevels, jsonObject);
@@ -271,7 +272,7 @@ public class GazetteerOutWriter  implements LineHandler  {
 		
 	}
 	
-	private void fillObject(JSONObject result, String ftype, JSONObject addrRow,
+	private void fillObject(JSONFeature result, String ftype, JSONObject addrRow,
 			Map<String, JSONObject> mapLevels, JSONObject jsonObject) {
 		
 		String rowId = AddrRowValueExctractorImpl.getUID(jsonObject, addrRow, ftype);
@@ -350,6 +351,11 @@ public class GazetteerOutWriter  implements LineHandler  {
 			if(StringUtils.isNotEmpty(website)) {
 				result.put("website", website);
 			}
+			
+			JSONArray jsonArray = jsonObject.optJSONArray("nearbyAddresses");
+			if(jsonArray != null) {
+				result.put("nearby_addresses", jsonArray);
+			}
 		}
 		
 		JSONObject centroid = getCentroid(jsonObject, ftype);
@@ -365,6 +371,7 @@ public class GazetteerOutWriter  implements LineHandler  {
 			}
 		}
 		
+		result.put("md5", DigestUtils.md5Hex(result.toString()));
 		
 	}
 
