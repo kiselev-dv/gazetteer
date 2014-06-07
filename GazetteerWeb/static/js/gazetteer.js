@@ -10,6 +10,11 @@ app.config(function($routeProvider) {
     		templateUrl: '/static/search.html', 
     		controller:'SearchController', 
     		reloadOnSearch: false });
+    
+    $routeProvider
+	.when('/feature/:id', {
+		templateUrl: '/static/feature.html', 
+		controller:'FeatureController'});
 
     $routeProvider
     	.when('/', {redirectTo: '/search'});
@@ -102,11 +107,9 @@ function SearchController($scope, $http, $location, $routeParams) {
 	$scope.$watch('selectedRowId', function(rid) {
 		$location.search('id', rid);
 		if(rid) {
-			var a = rid.split('-');
-			var fid = a[0] + '-' + a[1] + '-' + a[2];
 			$http.get('/feature', {
 				'params':{
-					'id': fid,
+					'row': rid,
 					'format': 'json'
 				}
 			}).success(function(data) {
@@ -137,10 +140,10 @@ function SearchController($scope, $http, $location, $routeParams) {
 				    		$scope.$digest();
 				    	});
 					
-				    m.rid = hashCode(v.id);
-					m.fid = hashCode(v.feature_id);
+				    m.rid = '' + v.id;
+					m.fid = '' + v.feature_id;
 				    	
-					$scope.markersMap[hashCode(v.id)] = m;
+					$scope.markersMap['' + v.id] = m;
 					$scope.markers.push(m);
 					
 					if(v.id == $scope.selectedRowId) {
@@ -186,6 +189,17 @@ SearchController.prototype.getParams = function($scope) {
 	return params;
 }
 
-function hashCode(str){
-	return '' + str;
+function FeatureController($scope, $http, $location, $routeParams) {
+	$http.get('/feature', {
+		'params' : {
+			'id': $routeParams.id,
+			'related': true
+		}
+	}).success(function(data) {
+		$scope.feature = data;
+		if(feature.related) {
+			$scope.related = data.related;
+			$scope.feature.related = undefined;
+		}
+	});
 }

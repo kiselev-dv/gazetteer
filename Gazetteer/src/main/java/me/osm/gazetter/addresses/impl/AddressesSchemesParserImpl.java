@@ -31,7 +31,7 @@ public class AddressesSchemesParserImpl implements AddressesSchemesParser {
 		if(properties.has("addr:housenumber2")) {
 			
 			JSONObject addr1 = JSONFeature.copy(properties);
-			addr1.put(ADDR_SCHEME, "addr:hn2-1");
+			addr1.put(ADDR_SCHEME, "addr:hn2.1");
 			result.add(addr1);
 
 			String hn2 = properties.optString("addr:housenumber2");
@@ -40,7 +40,7 @@ public class AddressesSchemesParserImpl implements AddressesSchemesParser {
 			JSONObject addr2 = new JSONObject(properties);
 			if(StringUtils.isNotEmpty(hn2)) {
 				addr2.put("addr:housenumber", hn2);
-				addr2.put(ADDR_SCHEME, "addr:hn2-2");
+				addr2.put(ADDR_SCHEME, "addr:hn2.2");
 				if(StringUtils.isNotEmpty(street2)) {
 					addr2.put("addr:street", street2);
 				}
@@ -70,14 +70,14 @@ public class AddressesSchemesParserImpl implements AddressesSchemesParser {
 				JSONObject addr1 = JSONFeature.copy(properties);
 				addr1.put("addr:housenumber", split[0]);
 				addr1.put("addr:hn-orig", hn);
-				addr1.put(ADDR_SCHEME, "addr:street2-1");
+				addr1.put(ADDR_SCHEME, "addr:street2.1");
 				result.add(addr1);
 
 				JSONObject addr2 = JSONFeature.copy(properties);
 				addr2.put("addr:housenumber", split[1]);
 				addr2.put("addr:street", s2);
 				addr2.put("addr:hn-orig", hn);
-				addr2.put(ADDR_SCHEME, "addr:street2-2");
+				addr2.put(ADDR_SCHEME, "addr:street2.2");
 				result.add(addr2);
 			}
 			else {
@@ -89,7 +89,7 @@ public class AddressesSchemesParserImpl implements AddressesSchemesParser {
 		else if(properties.has("addr2:housenumber")) {
 			
 			JSONObject addr1 = JSONFeature.copy(properties);
-			addr1.put(ADDR_SCHEME, "addrN-1");
+			addr1.put(ADDR_SCHEME, "addrN.1");
 			result.add(addr1);
 
 			for(int i = 2;;i++) {
@@ -110,7 +110,7 @@ public class AddressesSchemesParserImpl implements AddressesSchemesParser {
 						}
 					}
 					
-					addrN.put(ADDR_SCHEME, "addrN-" + i);
+					addrN.put(ADDR_SCHEME, "addrN." + i);
 					result.add(addrN);
 				}
 				else {

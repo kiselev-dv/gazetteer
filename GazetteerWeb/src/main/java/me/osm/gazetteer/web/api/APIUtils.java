@@ -9,6 +9,8 @@ import org.restexpress.Request;
 
 public class APIUtils {
 	
+	private static final int DEFAULT_PAGE_SIZE = 20;
+	
 	private static final String PAGE_PARAM = "page";
 	private static final String PAGE_SIZE = "size";
 
@@ -47,7 +49,7 @@ public class APIUtils {
 	
 	public static void applyPaging(Request request,
 			SearchRequestBuilder searchQ) {
-		int pageSize = 4;
+		int pageSize = 20;
 		if(request.getHeader(PAGE_SIZE) != null) {
 			pageSize = Integer.parseInt(request.getHeader(PAGE_SIZE));
 		}
@@ -64,7 +66,7 @@ public class APIUtils {
 	}
 
 	public static void resultPaging(Request request, JSONObject answer) {
-		int pageSize = 4;
+		int pageSize = DEFAULT_PAGE_SIZE;
 		if(request.getHeader(PAGE_SIZE) != null) {
 			pageSize = Integer.parseInt(request.getHeader(PAGE_SIZE));
 		}

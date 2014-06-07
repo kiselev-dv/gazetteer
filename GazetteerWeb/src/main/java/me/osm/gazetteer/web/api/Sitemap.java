@@ -7,12 +7,10 @@ import java.util.regex.Pattern;
 import me.osm.gazetteer.web.Configuration;
 import me.osm.gazetteer.web.ESNodeHodel;
 
-import org.apache.commons.compress.utils.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.action.count.CountResponse;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
@@ -59,7 +57,6 @@ public class Sitemap {
 		Client client = ESNodeHodel.getClient();
 		
 		SearchRequestBuilder searchQ = client.prepareSearch("gazetteer")
-				.setSearchType(SearchType.QUERY_AND_FETCH)
 				.setNoFields()
 				.setQuery(QueryBuilders.matchAllQuery())
 				.setExplain(false);
@@ -84,7 +81,6 @@ public class Sitemap {
 			sb.append("    </url>\n");
 			i++;
 		}
-		System.out.print(i);
 		
 		sb.append("</urlset>");
 		

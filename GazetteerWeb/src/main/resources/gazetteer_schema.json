@@ -1,5 +1,7 @@
 {
     "settings": {
+    	"number_of_shards" : 4,
+        "number_of_replicas" : 1,
         "analysis": {
             "analyzer": {
                 "suggest_synonyms": {
@@ -265,6 +267,10 @@
                     "index": "analyzed",
                     "index_analyzer": "suggest_synonyms",
                     "search_analyzer": "standard"
+                },
+                "nearby_addresses": {
+                	"type": "string",
+                    "index": "not_analyzed"
                 },
                 "center_point": {
                     "type": "geo_point",

@@ -48,7 +48,7 @@ public class SearchAPI {
 			
 			Client client = ESNodeHodel.getClient();
 			SearchRequestBuilder searchQ = client.prepareSearch("gazetteer")
-					.setSearchType(SearchType.QUERY_AND_FETCH).setQuery(q)
+					.setQuery(q)
 					.setExplain(explain);
 			
 			APIUtils.applyPaging(request, searchQ);

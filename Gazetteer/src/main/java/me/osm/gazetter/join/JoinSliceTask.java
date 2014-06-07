@@ -8,6 +8,7 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -559,6 +560,7 @@ public class JoinSliceTask implements Runnable {
 			if(addrPnts != null && !addrPnts.isEmpty()) {
 				BestFitAddresses join = poiAddrJoinBuilder.join(poi, addrPnts);
 				poi.put("joinedAddresses", join.asJSON());
+				poi.put("nearbyAddresses", getIds(addrPnts));
 			}
 			
 			
@@ -578,6 +580,16 @@ public class JoinSliceTask implements Runnable {
 		
 		poi2bndries = null;
 		poisIndex = null;
+	}
+
+	private Collection<String> getIds(List<JSONObject> addrPnts) {
+		List<String> result = new ArrayList<String>();
+		
+		for(JSONObject obj : addrPnts) {
+			result.add(obj.getString("id"));
+		}
+		
+		return result;
 	}
 
 	private List<JSONObject> copyWithAddrJoin(List<JSONObject> addrPnts) {

@@ -104,7 +104,7 @@ public class Main {
 
 		server.uri("/feature",
 				new FeatureAPI())
-				.alias("/feature/{id}.xml")
+				.alias("/feature/{id}.{format}")
 				.method(HttpMethod.GET)
 				.flag(Flags.Auth.PUBLIC_ROUTE)
 				.flag(Flags.Cache.DONT_CACHE);

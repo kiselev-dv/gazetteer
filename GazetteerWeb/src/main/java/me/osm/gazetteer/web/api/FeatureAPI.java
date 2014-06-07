@@ -1,14 +1,26 @@
 package me.osm.gazetteer.web.api;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 import me.osm.gazetteer.web.ESNodeHodel;
+import me.osm.gazetteer.web.FeatureTypes;
 import me.osm.gazetteer.web.imp.Importer;
 
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.index.query.FilterBuilders;
+import org.elasticsearch.index.query.FilteredQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
@@ -17,7 +29,29 @@ import org.json.JSONObject;
 import org.restexpress.Request;
 import org.restexpress.Response;
 
+import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonArrayFormatVisitor;
+
 public class FeatureAPI {
+	
+	private static Map<String, Set<String>> typesMap = new HashMap<String, Set<String>>();
+	static {
+		
+		typesMap.put(FeatureTypes.ADDR_POINT_FTYPE, new HashSet<String>(Arrays.asList(new String[]{
+				FeatureTypes.POI_FTYPE, FeatureTypes.HIGHWAY_FEATURE_TYPE	
+		})));
+
+		typesMap.put(FeatureTypes.POI_FTYPE, new HashSet<String>(Arrays.asList(new String[]{
+				FeatureTypes.ADDR_POINT_FTYPE, FeatureTypes.HIGHWAY_FEATURE_TYPE	
+		})));
+
+		typesMap.put(FeatureTypes.HIGHWAY_FEATURE_TYPE, new HashSet<String>(Arrays.asList(new String[]{
+				FeatureTypes.ADDR_POINT_FTYPE, FeatureTypes.POI_FTYPE	
+		})));
+
+		typesMap.put(FeatureTypes.PLACE_POINT_FTYPE, new HashSet<String>(Arrays.asList(new String[]{
+				FeatureTypes.HIGHWAY_FEATURE_TYPE	
+		})));
+	}
 
 	private static final String[] COMMON_FIELDS = new String[]{
 		"feature_id",
@@ -68,24 +102,88 @@ public class FeatureAPI {
 		Client client = ESNodeHodel.getClient();
 		
 		String idParam = request.getHeader("id");
+		String row = request.getHeader("row");
+		if(StringUtils.isEmpty(idParam) && StringUtils.isNotEmpty(row)) {
+			String[] parts = StringUtils.split(row, '-');
+			if(parts[0].equals(FeatureTypes.ADDR_POINT_FTYPE) || 
+					parts[0].equals(FeatureTypes.POI_FTYPE) || 
+					parts[0].equals(FeatureTypes.HIGHWAY_FEATURE_TYPE)) {
+				
+				parts = ArrayUtils.remove(parts, parts.length - 1);
+				idParam = StringUtils.join(parts, '-');
+			}
+		}
 		
 		QueryBuilder q = QueryBuilders.constantScoreQuery(
 				FilterBuilders.termsFilter("feature_id", idParam));
 		
 		SearchResponse searchResponse = client.prepareSearch("gazetteer").setTypes(Importer.TYPE_NAME)
-			.setSearchType(SearchType.QUERY_AND_FETCH).setSize(1000)
+			.setSize(100)
 			.setQuery(q)
 			.execute().actionGet();
 		
 		SearchHit[] hits = searchResponse.getHits().getHits();
 		
 		if(hits.length > 0) {
+			
 			JSONObject feature = mergeIntoFeature(hits);
+
+			if("true".equals(request.getHeader("related"))) {
+				JSONObject related =  getRelated(feature);
+				feature.put("_related", related);
+			}
 			
 			return feature;
 		}
 		
 		return null;
+	}
+
+	private JSONObject getRelated(JSONObject feature) {
+
+		String id = feature.getString("feature_id");
+		String type = feature.getString("type");
+		Set<String> lowerTypes = typesMap.get(type);
+		
+		Client client = ESNodeHodel.getClient();
+		
+		QueryBuilder q = buildQ(id, lowerTypes); 
+		
+		SearchResponse searchResponse = client.prepareSearch("gazetteer")
+				.setTypes(Importer.TYPE_NAME)
+				.setSize(100)
+				.setQuery(q)
+				.execute().actionGet();
+		
+		
+		JSONObject result = new JSONObject();
+		
+		Map<String, List<JSONObject>> byTypes = new HashMap<String, List<JSONObject>>();
+		for(SearchHit hit : searchResponse.getHits().getHits()) {
+			JSONObject h = new JSONObject(hit.getSourceAsString());
+			if(byTypes.get(h) == null) {
+				byTypes.put(h.getString("type"), new ArrayList<JSONObject>());
+			}
+			
+			byTypes.get(h.getString("type")).add(h);
+		}
+		
+		for(Entry<String, List<JSONObject>> entry : byTypes.entrySet()) {
+			result.put(entry.getKey(), new JSONArray(entry.getValue()));
+		}
+		
+		return result;
+	}
+
+	private QueryBuilder buildQ(String id, Collection<String> lowerTypes) {
+		
+		return QueryBuilders.boolQuery()
+			.should(QueryBuilders.queryString("refs.\\*:\"" + id + "\"").boost(10))
+			.should(QueryBuilders.queryString("nearby_streets.\\*:\"" + id + "\""))
+			.should(QueryBuilders.queryString("nearby_places.\\*:\"" + id + "\""))
+			.should(QueryBuilders.queryString("nearby_addresses.\\*:\"" + id + "\""))
+			.must(QueryBuilders.termsQuery("type", lowerTypes));
+		
 	}
 
 	private JSONObject mergeIntoFeature(SearchHit[] hits) {
