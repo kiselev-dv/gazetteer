@@ -39,7 +39,7 @@ app.directive('ngEnter', function() {
 });
 
 
-function SearchController($scope, $http, $location, $routeParams) {
+function SearchController($scope, $http, $location, $routeParams, $rootScope) {
 
 	var controller = this;
 	
@@ -197,9 +197,19 @@ function FeatureController($scope, $http, $location, $routeParams) {
 		}
 	}).success(function(data) {
 		$scope.feature = data;
-		if(feature.related) {
-			$scope.related = data.related;
-			$scope.feature.related = undefined;
+		if($scope.feature._related) {
+			$scope.related = data._related;
+			$scope.feature._related = undefined;
 		}
 	});
+	
+	$scope.frmtSrchRes = function(f) {
+		if (f.type == 'adrpnt') {
+			return f.address;
+		}
+		if (f.type == 'poipnt') {
+			return f.poi_class_names[0] + ' ' + (f.name || '') + ' (' + f.address + ')';
+		}
+		return f.name;
+	};
 }

@@ -161,7 +161,7 @@ public class FeatureAPI {
 		Map<String, List<JSONObject>> byTypes = new HashMap<String, List<JSONObject>>();
 		for(SearchHit hit : searchResponse.getHits().getHits()) {
 			JSONObject h = new JSONObject(hit.getSourceAsString());
-			if(byTypes.get(h) == null) {
+			if(byTypes.get(h.getString("type")) == null) {
 				byTypes.put(h.getString("type"), new ArrayList<JSONObject>());
 			}
 			

@@ -40,6 +40,7 @@ import com.vividsolutions.jts.geom.Polygon;
 import com.vividsolutions.jts.geom.util.GeometryEditor;
 import com.vividsolutions.jts.index.quadtree.Quadtree;
 import com.vividsolutions.jts.triangulate.VoronoiDiagramBuilder;
+import com.vividsolutions.jts.triangulate.quadedge.QuadEdge;
 import com.vividsolutions.jts.triangulate.quadedge.QuadEdgeSubdivision;
 
 public class PlaceBuilder extends BoundariesBuilder {
@@ -189,6 +190,7 @@ public class PlaceBuilder extends BoundariesBuilder {
 				bbox.maxY));
 
 		QuadEdgeSubdivision subdivision = cvb.getSubdivision();
+		
 
 		@SuppressWarnings("unchecked")
 		Collection<Polygon> cityVoronoiPolygons = subdivision
