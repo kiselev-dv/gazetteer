@@ -198,7 +198,28 @@ function FeatureController($scope, $http, $location, $routeParams) {
 	}).success(function(data) {
 		$scope.feature = data;
 		if($scope.feature._related) {
-			$scope.related = data._related;
+			
+			$scope.related = {};
+			
+			for(var k in data._related) {
+				for(var i in data._related[k]) {
+					var f = data._related[k][i];
+					var key = k;
+					if(f._hitFields) {
+						for(var hfi in f._hitFields) {
+							var hf = f._hitFields[hfi];
+							if(hf.indexOf('refs') >= 0) {
+								key += 'ref';
+							}
+						}
+					}
+					if(!$scope.related[key]){
+						$scope.related[key] = [];
+					}
+					$scope.related[key].push(f);
+				}
+			}
+			
 			$scope.feature._related = undefined;
 		}
 	});

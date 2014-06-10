@@ -307,6 +307,10 @@
                         "neighborhood": {
                             "type": "string",
                             "index": "not_analyzed"
+                        },
+                        "street": {
+                        	"type": "string",
+                        	"index": "not_analyzed"
                         }
                     }
                 }

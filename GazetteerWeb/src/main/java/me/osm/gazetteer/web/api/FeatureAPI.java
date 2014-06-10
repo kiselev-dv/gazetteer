@@ -17,6 +17,7 @@ import me.osm.gazetteer.web.imp.Importer;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.index.query.FilterBuilders;
@@ -24,6 +25,7 @@ import org.elasticsearch.index.query.FilteredQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.highlight.HighlightBuilder;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.restexpress.Request;
@@ -149,23 +151,33 @@ public class FeatureAPI {
 		
 		QueryBuilder q = buildQ(id, lowerTypes); 
 		
-		SearchResponse searchResponse = client.prepareSearch("gazetteer")
+		SearchRequestBuilder querry = client.prepareSearch("gazetteer")
 				.setTypes(Importer.TYPE_NAME)
 				.setSize(100)
-				.setQuery(q)
-				.execute().actionGet();
+				.setQuery(q);
 		
+		addHighlitedFields(querry);
+		
+		SearchResponse searchResponse = querry
+				.execute().actionGet();
 		
 		JSONObject result = new JSONObject();
 		
 		Map<String, List<JSONObject>> byTypes = new HashMap<String, List<JSONObject>>();
 		for(SearchHit hit : searchResponse.getHits().getHits()) {
+			
 			JSONObject h = new JSONObject(hit.getSourceAsString());
-			if(byTypes.get(h.getString("type")) == null) {
-				byTypes.put(h.getString("type"), new ArrayList<JSONObject>());
+			
+			String typeKey = h.getString("type");
+			
+			Set<String> fieldSet = hit.getHighlightFields().keySet();
+			h.put("_hitFields", new JSONArray(fieldSet));
+			
+			if(byTypes.get(typeKey) == null) {
+				byTypes.put(typeKey, new ArrayList<JSONObject>());
 			}
 			
-			byTypes.get(h.getString("type")).add(h);
+			byTypes.get(typeKey).add(h);
 		}
 		
 		for(Entry<String, List<JSONObject>> entry : byTypes.entrySet()) {
@@ -173,6 +185,13 @@ public class FeatureAPI {
 		}
 		
 		return result;
+	}
+
+	private void addHighlitedFields(SearchRequestBuilder querry) {
+		querry.addHighlightedField("refs.*");
+		querry.addHighlightedField("nearby_streets.*");
+		querry.addHighlightedField("nearby_places.*");
+		querry.addHighlightedField("nearby_addresses.*");
 	}
 
 	private QueryBuilder buildQ(String id, Collection<String> lowerTypes) {
