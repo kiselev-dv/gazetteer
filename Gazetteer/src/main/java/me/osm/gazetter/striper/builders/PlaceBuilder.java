@@ -42,6 +42,7 @@ import com.vividsolutions.jts.index.quadtree.Quadtree;
 import com.vividsolutions.jts.triangulate.VoronoiDiagramBuilder;
 import com.vividsolutions.jts.triangulate.quadedge.QuadEdge;
 import com.vividsolutions.jts.triangulate.quadedge.QuadEdgeSubdivision;
+import com.vividsolutions.jts.triangulate.quadedge.Vertex;
 
 public class PlaceBuilder extends BoundariesBuilder {
 
@@ -151,6 +152,7 @@ public class PlaceBuilder extends BoundariesBuilder {
 
 	//single threaded
 	private void buildVoronoyDiagrams() {
+		
 		// Possibly we processing Russia.
 		// And we have wrong originalBBOX which covers whole planet.
 		// So lets translate all coordinates for Vronoi diagramm and
@@ -175,6 +177,8 @@ public class PlaceBuilder extends BoundariesBuilder {
 			}
 			neighbours = russianNeighbours;
 		}
+		
+		
 
 		VoronoiDiagramBuilder cvb = new VoronoiDiagramBuilder();
 
@@ -191,6 +195,12 @@ public class PlaceBuilder extends BoundariesBuilder {
 
 		QuadEdgeSubdivision subdivision = cvb.getSubdivision();
 		
+		Map<JSONObject, Set<JSONObject>> nCities = new HashMap<JSONObject, Set<JSONObject>>();
+		for (Vertex[] vs : (List<Vertex[]>)subdivision.getTriangleVertices(false)) {
+			putNeighbours(vs[0], vs[1], nCities);
+			putNeighbours(vs[0], vs[2], nCities);
+			putNeighbours(vs[1], vs[2], nCities);
+		}
 
 		@SuppressWarnings("unchecked")
 		Collection<Polygon> cityVoronoiPolygons = subdivision
@@ -199,8 +209,25 @@ public class PlaceBuilder extends BoundariesBuilder {
 		for (Polygon cityPolygon : cityVoronoiPolygons) {
 			JSONObject cityJSON = cityes.get(cityPolygon
 					.getUserData());
-			handleCityVoronoy(cityJSON, cityPolygon, neighboursQT);
+			handleCityVoronoy(cityJSON, cityPolygon, neighboursQT, nCities.get(cityJSON));
 		}
+	}
+
+	private void putNeighbours(Vertex vertexA, Vertex vertexB,
+			Map<JSONObject, Set<JSONObject>> nCities) {
+		JSONObject ca = cityes.get(vertexA.getCoordinate()); 
+		JSONObject cb = cityes.get(vertexB.getCoordinate()); 
+		
+		if(nCities.get(ca) == null){
+			nCities.put(ca, new HashSet<JSONObject>());
+		}
+		
+		if(nCities.get(cb) == null){
+			nCities.put(cb, new HashSet<JSONObject>());
+		}
+		
+		nCities.get(ca).add(cb);
+		nCities.get(cb).add(ca);
 	}
 
 	private static Coordinate getCoordinateFromGJSON(JSONObject gjson) {
@@ -223,9 +250,10 @@ public class PlaceBuilder extends BoundariesBuilder {
 	/**
 	 * placeFeature - original coordinates cityPolygon - translated coordinates
 	 * neighboursQT - translated coordinates
+	 * @param nCities 
 	 * */
 	private void handleCityVoronoy(JSONObject placeFeature,
-			Polygon cityPolygon, Quadtree neighboursQT) {
+			Polygon cityPolygon, Quadtree neighboursQT, Set<JSONObject> nCities) {
 
 		Polygon originalCityPolygon = weAreInRussia ? movePolygonBack(cityPolygon)
 				: cityPolygon;
@@ -233,6 +261,8 @@ public class PlaceBuilder extends BoundariesBuilder {
 		// original coords
 		JSONObject rfeature = mergeDeloneyCenter(placeFeature,
 				originalCityPolygon, FeatureTypes.PLACE_DELONEY_FTYPE);
+		
+		rfeature.put("neighbourCities", nCities);
 		
 		assert GeoJsonWriter.getId(rfeature.toString()).equals(rfeature.optString("id")) 
 			: "Failed getId for " + rfeature.toString();

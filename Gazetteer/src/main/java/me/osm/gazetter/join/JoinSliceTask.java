@@ -1,12 +1,8 @@
 package me.osm.gazetter.join;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -428,6 +424,8 @@ public class JoinSliceTask implements Runnable {
 		
 		s = debug("sort boundaries", s);
 		
+		joinNeighbourPlaces(places, placesVoronoi);
+		
 		for(JSONObject boundary : boundaries) {
 			Polygon polygon = GeoJsonWriter.getPolygonGeometry(boundary);
 			
@@ -466,6 +464,25 @@ public class JoinSliceTask implements Runnable {
 		
 		joinPoi2Addresses();
 		s = debug("joinPoi2Addresses", s);
+		
+	}
+
+	private void joinNeighbourPlaces(List<JSONObject> places,
+			List<JSONObject> placesVoronoi) {
+
+		Map<String, JSONObject> byId = new HashMap<String, JSONObject>(placesVoronoi.size());
+		for(JSONObject vor : placesVoronoi) {
+			String placeId = StringUtils.replace(vor.getString("id"), 
+					FeatureTypes.PLACE_DELONEY_FTYPE, FeatureTypes.PLACE_POINT_FTYPE);
+			byId.put(placeId, vor);
+		}
+		
+		for(JSONObject obj : places) {
+			JSONObject vor = byId.get(obj.getString("id"));
+			if(vor != null) {
+				obj.put("neighbourCities", vor.get("neighbourCities"));
+			}
+		}
 	}
 
 	private void joinBoundaries2Streets() {

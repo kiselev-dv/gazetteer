@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 public final class JSONFeature extends JSONObject {
@@ -77,6 +78,16 @@ public final class JSONFeature extends JSONObject {
 		if(features != null) {
 			for(JSONObject obj : features) {
 				result.add(asRefer(obj));
+			}
+		}
+		return result;
+	}
+
+	public static List<JSONObject> asRefers(JSONArray features) {
+		List<JSONObject> result = new ArrayList<>();
+		if(features != null) {
+			for(int i = 0; i < features.length(); i++) {
+				result.add(asRefer(features.getJSONObject(i)));
 			}
 		}
 		return result;

@@ -303,7 +303,7 @@ public class GazetteerOutWriter  implements LineHandler  {
 		if(properties != null) {
 			result.put("tags", properties);
 		}
-
+		
 		if(FeatureTypes.POI_FTYPE.equals(ftype)) {
 			String poiType = jsonObject.getJSONArray("poiTypes").getString(0);
 			result.put("poi_class", poiType);
@@ -579,8 +579,6 @@ public class GazetteerOutWriter  implements LineHandler  {
 	private void putNearbyPlaces(JSONObject result, String ftype,
 			Map<String, JSONObject> mapLevels, JSONObject jsonObject) {
 
-		List<JSONObject> places = new ArrayList<JSONObject>();
-		
 		if(jsonObject.has("nearestCity")) {
 			JSONObject nearestCitySRC = jsonObject.getJSONObject("nearestCity");
 			String placeString = nearestCitySRC.getJSONObject("properties").optString("place");
@@ -588,7 +586,7 @@ public class GazetteerOutWriter  implements LineHandler  {
 				JSONObject place = asIdNameNames(nearestCitySRC);
 				if(place != null) {
 					place.put("place", placeString);
-					places.add(place);
+					result.put("nearest_place", place);
 				}
 			}
 		}
@@ -600,13 +598,13 @@ public class GazetteerOutWriter  implements LineHandler  {
 				JSONObject place = asIdNameNames(nearestCitySRC);
 				if(place != null) {
 					place.put("place", placeString);
-					places.add(place);
+					result.put("nearest_neighbour", place);
 				}
 			}
 		}
 		
-		if(!places.isEmpty()) {
-			result.put("nearby_places", new JSONArray(places));
+		if(jsonObject.has("neighbourCities")) {
+			result.put("nearby_places", jsonObject.getJSONArray("neighbourCities"));
 		}
 	}
 

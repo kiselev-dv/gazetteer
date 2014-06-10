@@ -35,7 +35,13 @@ public class AddrPointFormatter implements AddrJointHandler {
 		
 		if(nearestPlace != null) {
 			addrPoint.put("nearestCity", JSONFeature.asRefer(nearestPlace));
+
+			JSONArray neighbourCities = nearestPlace.getJSONArray("neighbourCities");
+			if(neighbourCities != null) {
+				addrPoint.put("neighbourCities", new JSONArray(JSONFeature.asRefers(neighbourCities)));
+			}
 		}
+		
 		
 		if(nearestNeighbour != null) {
 			addrPoint.put("nearestNeighbour", JSONFeature.asRefer(nearestNeighbour));
