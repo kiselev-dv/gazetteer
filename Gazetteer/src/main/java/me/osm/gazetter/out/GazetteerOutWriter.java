@@ -586,6 +586,10 @@ public class GazetteerOutWriter  implements LineHandler  {
 				JSONObject place = asIdNameNames(nearestCitySRC);
 				if(place != null) {
 					place.put("place", placeString);
+					if(place.has("id")) {
+						place.put("id", StringUtils.replace(place.getString("id"), 
+								FeatureTypes.PLACE_DELONEY_FTYPE, FeatureTypes.PLACE_POINT_FTYPE));
+					}
 					result.put("nearest_place", place);
 				}
 			}
@@ -598,13 +602,32 @@ public class GazetteerOutWriter  implements LineHandler  {
 				JSONObject place = asIdNameNames(nearestCitySRC);
 				if(place != null) {
 					place.put("place", placeString);
+					if(place.has("id")) {
+						place.put("id", StringUtils.replace(place.getString("id"), 
+								FeatureTypes.PLACE_DELONEY_FTYPE, FeatureTypes.PLACE_POINT_FTYPE));
+					}
 					result.put("nearest_neighbour", place);
 				}
 			}
 		}
 		
 		if(jsonObject.has("neighbourCities")) {
-			result.put("nearby_places", jsonObject.getJSONArray("neighbourCities"));
+			List<JSONObject> list = new ArrayList<JSONObject>();
+			JSONArray jsonArray = jsonObject.getJSONArray("neighbourCities");
+			for(int i = 0; i < jsonArray.length(); i++) {
+				JSONObject placeSRC = jsonArray.getJSONObject(i);
+				String placeString = placeSRC.getJSONObject("properties").optString("place");
+				JSONObject place = asIdNameNames(placeSRC);
+				if(place != null) {
+					place.put("place", placeString);
+					if(place.has("id")) {
+						place.put("id", StringUtils.replace(place.getString("id"), 
+								FeatureTypes.PLACE_DELONEY_FTYPE, FeatureTypes.PLACE_POINT_FTYPE));
+					}
+					list.add(place);
+				}
+			}
+			result.put("nearby_places", new JSONArray(list));
 		}
 	}
 

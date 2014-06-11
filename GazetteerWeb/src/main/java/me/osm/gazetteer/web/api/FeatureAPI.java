@@ -63,6 +63,8 @@ public class FeatureAPI {
 		"alt_names",
 		"nearby_streets",
 		"nearby_places",
+		"nearest_place",
+		"nearest_neighbour",
 		"tags",
         "poi_class",
         "poi_class_names",
@@ -191,6 +193,8 @@ public class FeatureAPI {
 		querry.addHighlightedField("refs.*");
 		querry.addHighlightedField("nearby_streets.*");
 		querry.addHighlightedField("nearby_places.*");
+		querry.addHighlightedField("nearest_place.*");
+		querry.addHighlightedField("nearest_neighbour.*");
 		querry.addHighlightedField("nearby_addresses.*");
 	}
 
@@ -198,8 +202,10 @@ public class FeatureAPI {
 		
 		return QueryBuilders.boolQuery()
 			.should(QueryBuilders.queryString("refs.\\*:\"" + id + "\"").boost(10))
-			.should(QueryBuilders.queryString("nearby_streets.\\*:\"" + id + "\""))
-			.should(QueryBuilders.queryString("nearby_places.\\*:\"" + id + "\""))
+			.should(QueryBuilders.queryString("nearby_streets.id:\"" + id + "\""))
+			.should(QueryBuilders.queryString("nearby_places.id:\"" + id + "\""))
+			.should(QueryBuilders.queryString("nearest_place.id:\"" + id + "\""))
+			.should(QueryBuilders.queryString("nearest_neighbour.id:\"" + id + "\""))
 			.should(QueryBuilders.queryString("nearby_addresses.\\*:\"" + id + "\""))
 			.must(QueryBuilders.termsQuery("type", lowerTypes));
 		
