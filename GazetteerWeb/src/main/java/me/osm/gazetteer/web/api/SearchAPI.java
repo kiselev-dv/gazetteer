@@ -53,10 +53,12 @@ public class SearchAPI {
 			
 			APIUtils.applyPaging(request, searchQ);
 			
+			searchQ.setMinScore(0.001f);
+			
 			SearchResponse searchResponse = searchQ.execute().actionGet();
 			
 			JSONObject answer = APIUtils.encodeSearchResult(searchResponse, 
-					request.getParameter("full_geometry") != null && "true".equals(request.getParameter("full_geometry")),
+					request.getHeader("full_geometry") != null && "true".equals(request.getParameter("full_geometry")),
 					explain);
 			
 			APIUtils.resultPaging(request, answer);

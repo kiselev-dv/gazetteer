@@ -116,6 +116,9 @@ public class FeatureAPI {
 				parts = ArrayUtils.remove(parts, parts.length - 1);
 				idParam = StringUtils.join(parts, '-');
 			}
+			else {
+				idParam = request.getHeader("row");
+			}
 		}
 		
 		QueryBuilder q = QueryBuilders.constantScoreQuery(

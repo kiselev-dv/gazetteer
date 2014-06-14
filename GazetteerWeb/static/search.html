@@ -47,7 +47,7 @@
 				</div>
 			</div>
 			
-			<div><a href="#!/feature/{{feature.feature_id}}">Details</a></div>
+			<div><a href="#!/feature/{{feature.feature_id || feature.id}}">Details</a></div>
 			
 			<div ng-show="feature.type == 'poipnt'">
 				<h4><span>{{feature.name}}</span> (<span>{{feature.poi_class_names[0]}}</span>)</h4>
