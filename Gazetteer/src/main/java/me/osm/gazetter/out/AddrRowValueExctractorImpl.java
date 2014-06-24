@@ -2,7 +2,9 @@ package me.osm.gazetter.out;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import me.osm.gazetter.addresses.AddressesSchemesParser;
 import me.osm.gazetter.striper.FeatureTypes;
@@ -53,6 +55,8 @@ public class AddrRowValueExctractorImpl implements AddrRowValueExtractor {
 	private static final String ADDR_TEXT = "addr-text";
 	private static final String ADDR_LONG_TEXT = "addr-long-text";
 	private static final String UID = "uid";
+	
+	private Set<String> supported = new HashSet<String>(getSupportedKeys());
 
 	@Override
 	public String getValue(String key, JSONObject jsonObject, Map<String, JSONObject> levels, JSONObject addrRow) {
@@ -171,6 +175,11 @@ public class AddrRowValueExctractorImpl implements AddrRowValueExtractor {
 			BOUNDARY_5, BOUNDARY_5_ID, BOUNDARY_4, BOUNDARY_4_ID,
 			BOUNDARY_3, BOUNDARY_3_ID, BOUNDARY_2, BOUNDARY_2_ID,
 			ADDR_TEXT, ADDR_LONG_TEXT, UID, STREET_UID);
+	}
+
+	@Override
+	public boolean supports(String key) {
+		return supported.contains(key);
 	}
 
 }

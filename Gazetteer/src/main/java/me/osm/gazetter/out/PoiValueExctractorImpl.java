@@ -3,9 +3,11 @@ package me.osm.gazetter.out;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 import me.osm.gazetter.striper.GeoJsonWriter;
 import me.osm.osmdoc.model.Feature;
@@ -167,6 +169,18 @@ public class PoiValueExctractorImpl extends FeatureValueExctractorImpl {
 		List<String> suuported = Arrays.asList(POI_CLASS);
 		suuported.addAll(super.getSupportedKeys());
 		return suuported;
+	}
+	
+	private Set<String> contacts = new HashSet<String>(
+			Arrays.asList("operator", "brand", "opening_hours",
+					"phone", "fax", "website", "email"));
+	
+	@Override
+	public boolean supports(String key) {
+		return super.supports(key) 
+				|| key.startsWith(POI_CLASS)
+				|| key.startsWith(MORE_TAGS)
+				|| contacts.contains(key);
 	}
 
 }

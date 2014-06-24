@@ -3,9 +3,11 @@ package me.osm.gazetter.out;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import me.osm.gazetter.striper.FeatureTypes;
 import me.osm.gazetter.striper.GeoJsonWriter;
@@ -41,6 +43,13 @@ public class FeatureValueExctractorImpl implements FeatureValueExtractor {
 	private static final String WIKIPEDIA = "wikipedia";
 	private static final String NAME = "name";
 	private static final String VERBOSE_TYPE = "type-verbose";
+	
+	private Set<String> supported = 
+			new HashSet<String>(Arrays.asList(ID, TYPE, OSM_ID, OSM_TYPE, LON, LAT,
+			CENTROID, FULL_GEOMETRY, NEAREST_CITY, NEAREST_CITY_ID,
+			NEAREST_NEIGHBOURHOOD, NEAREST_NEIGHBOURHOOD_ID,
+			DESCRIPTION, WIKIPEDIA, TAGS_JSON, TAGS_HSTORE, OSM_TYPE_ID, 
+			VERBOSE_TYPE));
 	
 	@Override
 	public Object getValue(String key, JSONObject jsonObject, Integer rowIndex) {
@@ -226,12 +235,13 @@ public class FeatureValueExctractorImpl implements FeatureValueExtractor {
 
 	@Override
 	public Collection<String> getSupportedKeys() {
-		return Arrays.asList(ID, TYPE, OSM_ID, OSM_TYPE, LON, LAT,
-				CENTROID, FULL_GEOMETRY, NEAREST_CITY, NEAREST_CITY_ID,
-				NEAREST_NEIGHBOURHOOD, NEAREST_NEIGHBOURHOOD_ID,
-				DESCRIPTION, WIKIPEDIA, TAGS_JSON, TAGS_HSTORE, OSM_TYPE_ID, 
-				VERBOSE_TYPE);
+		
+		return supported;
 	}
-	
+
+	@Override
+	public boolean supports(String key) {
+		return supported.contains(key);
+	}
 	
 }

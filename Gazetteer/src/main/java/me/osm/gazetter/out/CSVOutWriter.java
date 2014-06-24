@@ -46,12 +46,7 @@ public class CSVOutWriter implements LineHandler {
 		ARG_TO_TYPE.put("boundaries", FeatureTypes.ADMIN_BOUNDARY_FTYPE);
 	}
 	
-	public static Comparator<String> defaultcomparator = new Comparator<String>() {
-		@Override
-		public int compare(String r1, String r2) {
-			return r1.compareTo(r2);
-		}
-	};
+	public static Comparator<String> defaultcomparator;
 
 	private String dataDir;
 	private List<List<String>> columns;
@@ -73,6 +68,8 @@ public class CSVOutWriter implements LineHandler {
 	private CSVOutLineHandler outLineHandler = null;
 
 	private LinkedHashSet<String> orderedTypes;
+	
+	private int uuidColumnIndex = -1;
 
 	public CSVOutWriter(String dataDir, String columns, List<String> types, String out, 
 			String poiCatalog) {
@@ -84,7 +81,38 @@ public class CSVOutWriter implements LineHandler {
 		this.types = new HashSet<>();
 		this.orderedTypes = new LinkedHashSet<>();
 		
-		//checkColumnsKeys();
+		checkColumnsKeys();
+		
+		//XXX: Actualy rather shity place
+		int i = 0;
+		for(List<String> bc : this.columns) {
+			for(String key : bc) {
+				if(key.equals("uid")) {
+					uuidColumnIndex = i;
+				}
+			}
+			i++;
+		}
+		
+		if(this.uuidColumnIndex < 0) {
+			defaultcomparator = new Comparator<String>() {
+				@Override
+				public int compare(String r1, String r2) {
+					return r1.compareTo(r2);
+				}
+			};
+		}
+		else {
+			defaultcomparator = new Comparator<String>() {
+				@Override
+				public int compare(String r1, String r2) {
+					String uid1 = StringUtils.split(r1, '\t')[uuidColumnIndex];
+					String uid2 = StringUtils.split(r2, '\t')[uuidColumnIndex];
+					
+					return uid1.compareTo(uid2);
+				}
+			};
+		}
 		
 		try {
 			for(String type : types) {
@@ -115,22 +143,19 @@ public class CSVOutWriter implements LineHandler {
 	}
 
 	private void checkColumnsKeys() {
-		boolean keyNotFound = false;
+		boolean flag = false;
 		for(List<String> c : this.columns) {
-			for(String s : c) {
-				if(!this.allSupportedKeys.contains(s)) {
-					System.out.println("Unsupported column key " + s);
-					keyNotFound = true;
-				}
+			for(String key : c) {
+				if(featureEXT != null && !featureEXT.supports(key) 
+						&& poiEXT != null && !poiEXT.supports(key) 
+						&& addrRowEXT != null && !addrRowEXT.supports(key)) {
+					System.err.println("Column key " + key + " is not supported.");
+					flag = true;
+				}  
 			}
 		}
-		if(keyNotFound) {
-			List<String> keys = new ArrayList<>(allSupportedKeys);
-			Collections.sort(keys);
-			System.out.println("Supported keys are:");
-			for(String k : keys) {
-				System.out.println("\t" + k);
-			}
+		
+		if(flag) {
 			System.exit(1);
 		}
 	}
@@ -254,10 +279,10 @@ public class CSVOutWriter implements LineHandler {
 
 	private void sort(File in, File out) throws IOException {
             List<File> l = ExternalSort.sortInBatch(in, defaultcomparator,
-                    100, Charset.defaultCharset(), new File(dataDir), true, 0,
+                    100, Charset.forName("UTF-8"), new File(dataDir), true, 0,
                     false);
 
-           ExternalSort.mergeSortedFiles(l, out, defaultcomparator, Charset.defaultCharset(),
+           ExternalSort.mergeSortedFiles(l, out, defaultcomparator, Charset.forName("UTF-8"),
                     true, false, false);
                     
            in.delete();    
