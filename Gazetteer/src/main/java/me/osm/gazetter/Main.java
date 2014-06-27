@@ -184,7 +184,10 @@ public class Main {
 			}
 
 			if(namespace.get(COMMAND).equals(Command.SPLIT)) {
-				Split splitter = new Split(new File(namespace.getString(DATA_DIR_VAL)), namespace.getString("osm_file"));
+				File destFolder = new File(namespace.getString(DATA_DIR_VAL));
+				String in = namespace.getString("osm_file");
+				String compression = namespace.getString("compression");
+				Split splitter = new Split(destFolder, in, compression);
 				splitter.run();
 			}
 
@@ -357,7 +360,11 @@ public class Main {
 					.help(command.help());
         	
         	split.addArgument("osm_file").required(true)
-        		.help("Path to osm file. *.osm *.osm.bz *.osm.gz supported.");
+        		.help("Path to osm file. *.osm *.osm.bz2 *.osm.gz supported. Use - to read from STDIN");
+        	
+        	split.addArgument("compression").required(false).choices("none", "gzip", "bz2")
+        		.setConst("none").setDefault("bz2")
+        		.help("Use with \"osm_file -\" allow to read compressed stream from STDIN.");
         }
         
 		//slice

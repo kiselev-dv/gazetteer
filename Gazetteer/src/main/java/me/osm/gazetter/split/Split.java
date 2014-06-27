@@ -6,11 +6,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.util.Date;
+import java.util.zip.GZIPInputStream;
 
 import me.osm.gazetter.Options;
 import me.osm.gazetter.utils.FileUtils;
 import me.osm.gazetter.utils.FileUtils.LineHandler;
 
+import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DurationFormatUtils;
 import org.slf4j.Logger;
@@ -30,9 +32,30 @@ public class Split implements LineHandler {
 	private PrintWriter nodePW;
 	private PrintWriter wayPW;
 	private PrintWriter relPW;
-	
-	public Split (File destFolder, String input) {
+
+	public Split (File destFolder, String input, String compression) {
 		this.input = input;
+		try {
+			if(input.equals("-")) {
+				if("gzip".equals(compression)) {
+					fileIS = new GZIPInputStream(System.in);
+				}
+				else if("bz2".equals(compression)) {
+					fileIS = new BZip2CompressorInputStream(System.in);
+				}
+				else {
+					fileIS = System.in;
+				}
+			}
+			else {
+				fileIS = FileUtils.getFileIS(new File(input));
+			}
+		}
+		catch (FileNotFoundException e) {
+			throw new RuntimeException("Input file not found: " + input, e);
+		} catch (IOException e) {
+			throw new RuntimeException("Read error for file: " + input, e);
+		}
 		destFolder.mkdirs();
 		try {
 			nodePW = FileUtils.getPrintwriter(new File(destFolder.getAbsolutePath() 
@@ -54,24 +77,18 @@ public class Split implements LineHandler {
 	
 	public void run() {
 		long start = new Date().getTime();
-		try {
-			InputStream fileIS = FileUtils.getFileIS(new File(input));
-			
-			nodePW.println(HEADER);
-			nodePW.println("<osm>");
-			
-			wayPW.println(HEADER);
-			wayPW.println("<osm>");
-			
-			relPW.println(HEADER);
-			relPW.println("<osm>");
-			
-			FileUtils.handleLines(fileIS, this);
-		} catch (FileNotFoundException e) {
-			throw new RuntimeException("Input file not found: " + input, e);
-		} catch (IOException e) {
-			throw new RuntimeException("Read error for file: " + input, e);
-		}
+
+		nodePW.println(HEADER);
+		nodePW.println("<osm>");
+		
+		wayPW.println(HEADER);
+		wayPW.println("<osm>");
+		
+		relPW.println(HEADER);
+		relPW.println("<osm>");
+		
+		FileUtils.handleLines(fileIS, this);
+		
 		done();
 		log.info("Split done in {}", DurationFormatUtils.formatDurationHMS(new Date().getTime() - start));
 	}
@@ -98,6 +115,8 @@ public class Split implements LineHandler {
 	private boolean insideNode = false;
 	private boolean insideWay = false;
 	private boolean insideRelation = false;
+
+	private InputStream fileIS;
 	
 	@Override
 	public void handle(String line) {
