@@ -265,27 +265,23 @@ public class CSVOutWriter implements LineHandler {
 
 	private void out() throws IOException {
 		for(String type : this.orderedTypes) {
-			File sorted = new File(this.dataDir + "/" + type + ".csv.sorted");
-			sort(getFile4Ftype(type), sorted);
-			FileUtils.handleLines(sorted, new LineHandler() {
+			final Set<String> ids = new HashSet<String>();
+			FileUtils.handleLines(getFile4Ftype(type), new LineHandler() {
 				@Override
 				public void handle(String s) {
-					out.println(s);					
+					if(uuidColumnIndex >= 0) {
+						String uid = StringUtils.split(s, '\t')[uuidColumnIndex];
+						if(ids.add(uid)) {
+							out.println(s);
+						}
+					}
+					else {
+						out.println(s);					
+					}
 				}
 			});
-			sorted.delete();
+			getFile4Ftype(type).delete();
 		}		
-	}
-
-	private void sort(File in, File out) throws IOException {
-            List<File> l = ExternalSort.sortInBatch(in, defaultcomparator,
-                    100, Charset.forName("UTF-8"), new File(dataDir), true, 0,
-                    false);
-
-           ExternalSort.mergeSortedFiles(l, out, defaultcomparator, Charset.forName("UTF-8"),
-                    true, false, false);
-                    
-           in.delete();    
 	}
 
 	@Override
