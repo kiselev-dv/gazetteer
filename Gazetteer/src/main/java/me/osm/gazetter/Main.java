@@ -362,7 +362,7 @@ public class Main {
         	split.addArgument("osm_file").required(true)
         		.help("Path to osm file. *.osm *.osm.bz2 *.osm.gz supported. Use - to read from STDIN");
         	
-        	split.addArgument("compression").required(false).choices("none", "gzip", "bz2")
+        	split.addArgument("compression").required(false).nargs("?").choices("none", "gzip", "bz2")
         		.setConst("none").setDefault("bz2")
         		.help("Use with \"osm_file -\" allow to read compressed stream from STDIN.");
         }

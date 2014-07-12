@@ -115,7 +115,7 @@ public class Slicer implements BoundariesHandler,
 		if(typesSet.contains("all") || typesSet.contains("pois")) {
 			builders.add(new PoisBuilder(this, poiCatalogPath, exclude, named));
 		}
-		
+
 		
 		Builder[] buildersArray = builders.toArray(new Builder[builders.size()]);
 		new Engine().filter(drop, osmSlicesPath, buildersArray);

@@ -1,6 +1,7 @@
 package me.osm.gazetter.striper.readers;
 
 import java.io.InputStream;
+import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -8,6 +9,7 @@ import java.util.Map;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
+import org.apache.commons.lang3.StringUtils;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
@@ -16,6 +18,8 @@ public class PointsReader extends DefaultHandler {
 
 	private PointsHandler[] handlers;
 	private HashSet<String> drop;
+	
+	private Timestamp lastNodeTimestamp = null;
 	
 	public static class Node {
 		public long id;
@@ -57,6 +61,11 @@ public class PointsReader extends DefaultHandler {
 			this.node.id = Long.valueOf(attributes.getValue("id"));
 			this.node.lon = Double.valueOf(attributes.getValue("lon"));
 			this.node.lat = Double.valueOf(attributes.getValue("lat"));
+			
+			Timestamp ts = Timestamp.valueOf(StringUtils.remove(attributes.getValue("timestamp"), 'Z').replace('T', ' '));
+			if(lastNodeTimestamp == null || ts.after(lastNodeTimestamp)) {
+				lastNodeTimestamp = ts;
+			}
 		}
 		
 		if(qName.equals("tag") && this.node != null) {
@@ -79,6 +88,10 @@ public class PointsReader extends DefaultHandler {
 	
 	private final boolean drop(Node n) {
 		return !this.drop.isEmpty() && this.drop.contains("n" + n.id);
+	}
+
+	public Timestamp getLastNodeTimestamp() {
+		return lastNodeTimestamp;
 	}
 	
 }

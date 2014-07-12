@@ -36,11 +36,13 @@ public class Engine {
 				builder.firstRunDoneWays();
 			}
 
-			new PointsReader(drop).read(getFileIS(nodes), builders);
+			PointsReader pr = new PointsReader(drop);
+			pr.read(getFileIS(nodes), builders);
 			log.info("First run: done nodes.");
 			for(Builder builder : builders) {
 				builder.firstRunDoneNodes();
 			}
+			log.info("Yongest known timestamp of a node: " + pr.getLastNodeTimestamp());
 
 			new WaysReader(drop).read(getFileIS(ways), builders);
 			log.info("Second run: done ways.");
