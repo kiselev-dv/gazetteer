@@ -277,10 +277,6 @@ public class GazetteerOutWriter  implements LineHandler  {
 		
 		String rowId = AddrRowValueExctractorImpl.getUID(jsonObject, addrRow, ftype);
 		
-		if(rowId.equals("adrpnt-0653799849-w32682200-regular")){
-			System.out.println("bingo");
-		}
-		
 		result.put("id", rowId);
 		result.put("feature_id", jsonObject.getString("id"));
 		result.put("type", ftype);
