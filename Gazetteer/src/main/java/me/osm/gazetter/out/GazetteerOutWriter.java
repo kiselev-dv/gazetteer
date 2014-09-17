@@ -545,11 +545,15 @@ public class GazetteerOutWriter  implements LineHandler  {
 	}
 
 	private Set<String> putAltAddresses(JSONObject result, JSONObject addrRow) {
+
 		Set<String> langsSet = new HashSet<String>();
-		
 		JSONArray langs = addrRow.optJSONArray("langs");
+		
 		if(langs != null && langs.length() > 0) {
+			
 			List<String> altAddresses = new ArrayList<String>();
+			Map<String, String> altAddressesHash = new HashMap<String, String>();
+
 			for(int i = 0; i < langs.length(); i++) {
 				String lang = langs.optString(i);
 				if(StringUtils.isNotBlank(lang)) {
@@ -557,12 +561,14 @@ public class GazetteerOutWriter  implements LineHandler  {
 					String altText = addrRow.optString("text:" + lang);
 					if(StringUtils.isNotBlank(altText)) {
 						altAddresses.add(altText);
+						altAddressesHash.put(lang, altText);
 					}
 				}
 			}
 			
 			if(!altAddresses.isEmpty()) {
 				result.put("alt_addresses", new JSONArray(altAddresses));
+				result.put("alt_addresses_hash", new JSONObject(altAddressesHash));
 			}
 		}
 		
