@@ -75,7 +75,7 @@ public class GazetteerOutWriter  implements LineHandler  {
 
 		neighborhoodKeys = neighborhood;
 		if(neighborhoodKeys == null || neighborhoodKeys.isEmpty()) {
-			neighborhoodKeys = Arrays.asList("place:town", "place:village", "place:hamlet", "boundary:9", "boundary:10");
+			neighborhoodKeys = Arrays.asList("place:town", "place:village", "place:hamlet", "place:neighbour", "boundary:9", "boundary:10");
 		}
 		
 		this.dataDir = dataDir;
@@ -276,6 +276,10 @@ public class GazetteerOutWriter  implements LineHandler  {
 			Map<String, JSONObject> mapLevels, JSONObject jsonObject) {
 		
 		String rowId = AddrRowValueExctractorImpl.getUID(jsonObject, addrRow, ftype);
+		
+		if(rowId.equals("adrpnt-0653799849-w32682200-regular")){
+			System.out.println("bingo");
+		}
 		
 		result.put("id", rowId);
 		result.put("feature_id", jsonObject.getString("id"));
@@ -487,7 +491,10 @@ public class GazetteerOutWriter  implements LineHandler  {
 		for(String lvl : levels) {
 			if(mapLevels.get(lvl) != null) {
 				if(upper != null) {
-					if(!upper.optString("id").equals(mapLevels.get(lvl).optString("id"))) {
+					String upperId = getAddrPartId(upper);
+					String thisId = getAddrPartId(mapLevels.get(lvl));
+					
+					if(!upperId.equals(thisId)) {
 						return mapLevels.get(lvl);
 					}
 				}
@@ -498,6 +505,16 @@ public class GazetteerOutWriter  implements LineHandler  {
 		}
 		
 		return null;
+	}
+
+	private String getAddrPartId(JSONObject upper) {
+		String upperId = upper.optString("lnk");
+
+		if(StringUtils.stripToNull(upperId) == null) {
+			upperId = upper.optString("name");
+		}
+		
+		return upperId;
 	}
 
 	private void putAddrLevel(JSONObject result, JSONObject refs,
