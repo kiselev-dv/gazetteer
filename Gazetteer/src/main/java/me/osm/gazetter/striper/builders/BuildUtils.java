@@ -1,6 +1,7 @@
 package me.osm.gazetter.striper.builders;
 
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -13,12 +14,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Polygon;
 import com.vividsolutions.jts.io.WKTWriter;
 import com.vividsolutions.jts.operation.polygonize.Polygonizer;
+import com.vividsolutions.jts.operation.valid.IsValidOp;
+import com.vividsolutions.jts.operation.valid.TopologyValidationError;
 
 public class BuildUtils {
 	
@@ -26,10 +30,61 @@ public class BuildUtils {
 	private static final  GeometryFactory geometryFactory = new GeometryFactory();
 	
 	public static MultiPolygon buildMultyPolygon(final Relation rel,
-			List<LineString> lines) {
-		if(!lines.isEmpty()) {
+			List<LineString> outers, List<LineString> inners) {
+		
+		MultiPolygon outer = buildPolygon(rel, outers);
+		if(inners == null || inners.isEmpty()) {
+			return outer;
+		}
+		
+		MultiPolygon inner = buildPolygon(rel, inners);
+		
+		MultiPolygon mix = substract(outer, inner);
+		
+		if(mix != null) {
+			return mix;
+		}
+		else {
+			log.warn("Multipolygon is invalid after substract inners. Use only outers. Rel. id: {}", rel.id);
+			return outer;
+		}
+	}
+
+	private static MultiPolygon substract(MultiPolygon outer, MultiPolygon inner) {
+		
+		List<Polygon> polygons = new ArrayList<Polygon>();
+		
+		if(inner != null && !inner.isEmpty()) {
+
+			for(int j = 0; j < outer.getNumGeometries(); j++) {
+				Polygon outerN = (Polygon) outer.getGeometryN(j);
+				
+				for(int i = 0; i < inner.getNumGeometries(); i++) {
+				Polygon innerN = (Polygon) inner.getGeometryN(i);
+					if(outerN.intersects(innerN)) {
+						outerN = (Polygon) outerN.difference(innerN);
+					}
+				}
+				
+				if(!outerN.isEmpty()) {
+					polygons.add(outerN);
+				}
+			}
+		}
+		
+		Polygon[] ps =  polygons.toArray(new Polygon[polygons.size()]);
+		MultiPolygon mp = geometryFactory.createMultiPolygon(ps);
+		if(mp.isValid()) {
+			return mp;
+		}
+		
+		return null;
+	}
+
+	private static MultiPolygon buildPolygon(final Relation rel, List<LineString> linestrings) {
+		if(!linestrings.isEmpty()) {
 			Polygonizer polygonizer = new Polygonizer();
-			polygonizer.add(lines);
+			polygonizer.add(linestrings);
 			
 			try	{
 				@SuppressWarnings("unchecked")
@@ -41,7 +96,13 @@ public class BuildUtils {
 						return mp;
 					}
 					else {
-						log.warn("Polygon for {} is invalid.", rel.id);
+						IsValidOp validOptions = new IsValidOp(mp);
+						TopologyValidationError validationError = validOptions.getValidationError();
+
+						log.warn("Polygon for relation {} is invalid. Error is {}", rel.id, validationError.toString());
+						if(log.isDebugEnabled()) {
+							log.debug(mp.toString());
+						}
 					}
 				}
 			}
@@ -50,19 +111,18 @@ public class BuildUtils {
 
 					StringBuilder sb = new StringBuilder();
 					WKTWriter wktWriter = new WKTWriter();
-					for(LineString ls : lines) {
+					for(LineString ls : linestrings) {
 						sb.append("\n").append(wktWriter.write(ls));
 					}
 					
 					log.warn("Cant polygonize relation: {} \nLines ({}):{}\nCause: {}", new Object[]{
 							rel.id,
-							lines.size(),
+							linestrings.size(),
 							sb.toString(),
 							e.getMessage()
 					});
 				}
 			}
-			
 		}
 		
 		return null;

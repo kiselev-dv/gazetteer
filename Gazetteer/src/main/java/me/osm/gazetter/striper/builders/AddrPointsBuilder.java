@@ -147,7 +147,7 @@ public class AddrPointsBuilder extends ABuilder {
 				return;
 			}
 			
-			MultiPolygon mp = BuildUtils.buildMultyPolygon(rel, lines);
+			MultiPolygon mp = BuildUtils.buildMultyPolygon(rel, lines, null);
 			if(mp != null && !mp.isEmpty() && mp.isValid()) {
 				centroid = mp.getCentroid();
 				

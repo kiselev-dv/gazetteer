@@ -139,7 +139,8 @@ public class BoundariesBuilder extends ABuilder {
 			
 		orderByWay();
 		
-		List<LineString> lines = new ArrayList<>();
+		List<LineString> outers = new ArrayList<>();
+		List<LineString> inners = new ArrayList<>();
 		
 		for(final RelationMember m : rel.members) {
 			if(m.type == ReferenceType.WAY) {
@@ -170,13 +171,19 @@ public class BoundariesBuilder extends ABuilder {
 					}
 
 					if(coords.size() >= 2) {
-						lines.add(geometryFactory.createLineString(coords.toArray(new Coordinate[coords.size()])));
+						LineString ls = geometryFactory.createLineString(coords.toArray(new Coordinate[coords.size()]));
+						if("inner".equals(m.role)) {
+							inners.add(ls);
+						}
+						else {
+							outers.add(ls);
+						}
 					}
 				}
 			}
 		}
 		
-		return BuildUtils.buildMultyPolygon(rel, lines);
+		return BuildUtils.buildMultyPolygon(rel, outers, inners);
 	}
 
 	private Coordinate[] buildWayGeometry(Way line) {
