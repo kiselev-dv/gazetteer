@@ -35,6 +35,10 @@ public class BuildUtils {
 		
 		MultiPolygon outer = polygonizeLinestrings(rel, outers);
 		
+		if(outer == null) {
+			return null;
+		}
+		
 		if(!outer.isValid()) {
 			IsValidOp validOptions = new IsValidOp(outer);
 			TopologyValidationError validationError = validOptions.getValidationError();
@@ -61,8 +65,6 @@ public class BuildUtils {
 				}
 				return null;
 			}
-
-			
 		}
 		
 		if(inners == null || inners.isEmpty()) {
