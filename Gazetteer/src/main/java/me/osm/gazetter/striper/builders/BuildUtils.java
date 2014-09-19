@@ -9,6 +9,7 @@ import java.util.List;
 
 import me.osm.gazetter.striper.readers.RelationsReader.Relation;
 import me.osm.gazetter.striper.readers.WaysReader.Way;
+import me.osm.gazetter.utils.MultipolygonBuilder;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,22 +33,78 @@ public class BuildUtils {
 	public static MultiPolygon buildMultyPolygon(final Relation rel,
 			List<LineString> outers, List<LineString> inners) {
 		
-		MultiPolygon outer = buildPolygon(rel, outers);
+		MultiPolygon outer = polygonizeLinestrings(rel, outers);
+		
+		if(!outer.isValid()) {
+			IsValidOp validOptions = new IsValidOp(outer);
+			TopologyValidationError validationError = validOptions.getValidationError();
+			
+			if(validationError.getErrorType() == TopologyValidationError.SELF_INTERSECTION) {
+				log.info("Trying to mend polygon for {}. Error is {}", rel.id, validationError.toString());
+				MultiPolygon mended = dropOverlaps(outer, validOptions);
+				
+				if(mended == null || !mended.isValid() || mended.isEmpty()) {
+					log.warn("Can't mend polygon for {}.", rel.id);
+					if(log.isDebugEnabled()) {
+						log.debug(outer.toString());
+					}
+					
+					return null;
+				}
+				
+				outer = mended;
+			}
+			else {
+				log.warn("Polygon for relation {} is invalid. Error is {}", rel.id, validationError.toString());
+				if(log.isDebugEnabled()) {
+					log.debug(outer.toString());
+				}
+				return null;
+			}
+
+			
+		}
+		
 		if(inners == null || inners.isEmpty()) {
 			return outer;
 		}
 		
-		MultiPolygon inner = buildPolygon(rel, inners);
+		MultiPolygon inner = polygonizeLinestrings(rel, inners);
 		
 		MultiPolygon mix = substract(outer, inner);
 		
-		if(mix != null) {
+		if(mix != null && !mix.isEmpty()) {
 			return mix;
 		}
 		else {
 			log.warn("Multipolygon is invalid after substract inners. Use only outers. Rel. id: {}", rel.id);
 			return outer;
 		}
+	}
+
+	private static MultiPolygon dropOverlaps(MultiPolygon outer, IsValidOp validOptions) {
+		
+		Geometry result = null;
+		for(int i=0; i < outer.getNumGeometries(); i++) {
+			Geometry geometryN = outer.getGeometryN(i);
+			
+			if(i == 0) {
+				result = geometryN;
+			}
+			else {
+				result = result.union(geometryN);
+			}
+		}
+		
+		if(result instanceof MultiPolygon) {
+			return (MultiPolygon) result;
+		}
+
+		if(result instanceof Polygon) {
+			return geometryFactory.createMultiPolygon(new Polygon[]{(Polygon)result});
+		}
+		
+		return null;
 	}
 
 	private static MultiPolygon substract(MultiPolygon outer, MultiPolygon inner) {
@@ -81,7 +138,7 @@ public class BuildUtils {
 		return null;
 	}
 
-	private static MultiPolygon buildPolygon(final Relation rel, List<LineString> linestrings) {
+	private static MultiPolygon polygonizeLinestrings(final Relation rel, List<LineString> linestrings) {
 		if(!linestrings.isEmpty()) {
 			Polygonizer polygonizer = new Polygonizer();
 			polygonizer.add(linestrings);
@@ -92,18 +149,7 @@ public class BuildUtils {
 				if(!polygons.isEmpty()) {
 					Polygon[] ps =  polygons.toArray(new Polygon[polygons.size()]);
 					MultiPolygon mp = geometryFactory.createMultiPolygon(ps);
-					if(mp.isValid()) {
-						return mp;
-					}
-					else {
-						IsValidOp validOptions = new IsValidOp(mp);
-						TopologyValidationError validationError = validOptions.getValidationError();
-
-						log.warn("Polygon for relation {} is invalid. Error is {}", rel.id, validationError.toString());
-						if(log.isDebugEnabled()) {
-							log.debug(mp.toString());
-						}
-					}
+					return mp;
 				}
 			}
 			catch (Exception e) {
