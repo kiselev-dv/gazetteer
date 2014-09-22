@@ -17,7 +17,7 @@ extends org.restexpress.util.Environment
 	private String name = "GazetterWeb";
 	private String defaultFormat = Format.JSON;
 	private String siteXMLFeatureURL = "/feature/{id}.html";
-	private boolean seveStatic = false;
+	private boolean serveStatic = false;
 	private String root = "";
 	
 	@Override
@@ -27,7 +27,7 @@ extends org.restexpress.util.Environment
 		this.port = Integer.parseInt(p.getProperty(PORT_PROPERTY, String.valueOf(RestExpress.DEFAULT_PORT)));
 		this.defaultFormat = p.getProperty(DEFAULT_FORMAT_PROPERTY, Format.JSON);
 		this.siteXMLFeatureURL = p.getProperty(SITE_FEATURE_URL, "/feature/{id}.html");
-		this.seveStatic = "true".equals(p.getProperty("seve_static", "false"));
+		this.serveStatic = "true".equals(p.getProperty("serve_static", "false"));
 		this.root = p.getProperty("web_root", "");
 	}
 
@@ -50,8 +50,8 @@ extends org.restexpress.util.Environment
 		return siteXMLFeatureURL;
 	}
 
-	public boolean isSeveStatic() {
-		return seveStatic;
+	public boolean isServeStatic() {
+		return serveStatic;
 	}
 
 	public String getWebRoot() {

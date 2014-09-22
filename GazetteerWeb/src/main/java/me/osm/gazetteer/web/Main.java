@@ -122,7 +122,7 @@ public class Main {
 				.flag(Flags.Auth.PUBLIC_ROUTE)
 				.flag(Flags.Cache.DONT_CACHE);
 		
-		if(config.isSeveStatic()) {
+		if(config.isServeStatic()) {
 			server.uri(root + "/static/.*", new Static())
 				.method(HttpMethod.GET)
 				.flag(Flags.Auth.PUBLIC_ROUTE)
