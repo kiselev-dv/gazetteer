@@ -17,6 +17,7 @@ extends org.restexpress.util.Environment
 	private String name = "GazetterWeb";
 	private String defaultFormat = Format.JSON;
 	private String siteXMLFeatureURL = "/feature/{id}.html";
+	private boolean seveStatic = false;
 	
 	@Override
 	protected void fillValues(Properties p)
@@ -25,6 +26,7 @@ extends org.restexpress.util.Environment
 		this.port = Integer.parseInt(p.getProperty(PORT_PROPERTY, String.valueOf(RestExpress.DEFAULT_PORT)));
 		this.defaultFormat = p.getProperty(DEFAULT_FORMAT_PROPERTY, Format.JSON);
 		this.siteXMLFeatureURL = p.getProperty(SITE_FEATURE_URL, "/feature/{id}.html");
+		this.seveStatic = "true".equals(p.getProperty("seve_static", "false"));
 	}
 
 	public String getDefaultFormat()
@@ -44,6 +46,10 @@ extends org.restexpress.util.Environment
 
 	public String getSiteXMLFeatureURL() {
 		return siteXMLFeatureURL;
+	}
+
+	public boolean isSeveStatic() {
+		return seveStatic;
 	}
 	
 }

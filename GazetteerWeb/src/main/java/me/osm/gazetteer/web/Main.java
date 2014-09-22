@@ -117,10 +117,12 @@ public class Main {
 				.flag(Flags.Auth.PUBLIC_ROUTE)
 				.flag(Flags.Cache.DONT_CACHE);
 		
-		server.uri("/static/.*", new Static())
-			.method(HttpMethod.GET)
-			.flag(Flags.Auth.PUBLIC_ROUTE)
-			.noSerialization();
+		if(config.isSeveStatic()) {
+			server.uri("/static/.*", new Static())
+				.method(HttpMethod.GET)
+				.flag(Flags.Auth.PUBLIC_ROUTE)
+				.noSerialization();
+		}
 		
 		server.uri("/sitemap.*", new Sitemap(config))
 			.method(HttpMethod.GET)
