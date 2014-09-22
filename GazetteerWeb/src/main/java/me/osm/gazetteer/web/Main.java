@@ -91,40 +91,42 @@ public class Main {
 
 	private static void defineRoutes(Configuration config, RestExpress server) {
 		
-		server.uri("/_search",
+		String root = config.getWebRoot();
+		
+		server.uri(root + "/_search",
 				new SearchAPI())
 				.method(HttpMethod.GET)
 				.name(Constants.FEATURE_URI)
 				.flag(Flags.Auth.PUBLIC_ROUTE)
 				.parameter(Parameters.Cache.MAX_AGE, 3600);
 
-		server.uri("/_inverse",
+		server.uri(root + "/_inverse",
 				new InverseGeocodeAPI())
 				.method(HttpMethod.GET)
 				.name(Constants.FEATURE_URI)
 				.flag(Flags.Auth.PUBLIC_ROUTE)
 				.parameter(Parameters.Cache.MAX_AGE, 3600);
 
-		server.uri("/_import",
+		server.uri(root + "/_import",
 				new ImportAPI())
 				.method(HttpMethod.GET)
 				.flag(Flags.Cache.DONT_CACHE);
 
-		server.uri("/feature",
+		server.uri(root + "/feature",
 				new FeatureAPI())
-				.alias("/feature/{id}.{format}")
+				.alias("*/feature/{id}.{format}")
 				.method(HttpMethod.GET)
 				.flag(Flags.Auth.PUBLIC_ROUTE)
 				.flag(Flags.Cache.DONT_CACHE);
 		
 		if(config.isSeveStatic()) {
-			server.uri("/static/.*", new Static())
+			server.uri(root + "/static/.*", new Static())
 				.method(HttpMethod.GET)
 				.flag(Flags.Auth.PUBLIC_ROUTE)
 				.noSerialization();
 		}
 		
-		server.uri("/sitemap.*", new Sitemap(config))
+		server.uri(root + "/sitemap.*", new Sitemap(config))
 			.method(HttpMethod.GET)
 			.flag(Flags.Auth.PUBLIC_ROUTE)
 			.noSerialization();

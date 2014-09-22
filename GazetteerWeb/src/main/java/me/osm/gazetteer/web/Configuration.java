@@ -18,6 +18,7 @@ extends org.restexpress.util.Environment
 	private String defaultFormat = Format.JSON;
 	private String siteXMLFeatureURL = "/feature/{id}.html";
 	private boolean seveStatic = false;
+	private String root = "";
 	
 	@Override
 	protected void fillValues(Properties p)
@@ -27,6 +28,7 @@ extends org.restexpress.util.Environment
 		this.defaultFormat = p.getProperty(DEFAULT_FORMAT_PROPERTY, Format.JSON);
 		this.siteXMLFeatureURL = p.getProperty(SITE_FEATURE_URL, "/feature/{id}.html");
 		this.seveStatic = "true".equals(p.getProperty("seve_static", "false"));
+		this.root = p.getProperty("web_root", "");
 	}
 
 	public String getDefaultFormat()
@@ -50,6 +52,10 @@ extends org.restexpress.util.Environment
 
 	public boolean isSeveStatic() {
 		return seveStatic;
+	}
+
+	public String getWebRoot() {
+		return "";
 	}
 	
 }
