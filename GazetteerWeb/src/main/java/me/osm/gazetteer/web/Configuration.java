@@ -55,7 +55,7 @@ extends org.restexpress.util.Environment
 	}
 
 	public String getWebRoot() {
-		return "";
+		return root;
 	}
 	
 }
