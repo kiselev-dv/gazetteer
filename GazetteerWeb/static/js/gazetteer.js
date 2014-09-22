@@ -233,4 +233,16 @@ function FeatureController($scope, $http, $location, $routeParams) {
 		}
 		return f.name;
 	};
+	
+}
+
+function unique(arr) {
+	var sorted = arr.sort(function (a, b) { return a*1 - b*1; });
+    var ret = [sorted[0]];
+    for (var i = 1; i < sorted.length; i++) { 
+        if (sorted[i-1] !== sorted[i]) {
+            ret.push(sorted[i]);
+        }
+    }
+    return ret;
 }

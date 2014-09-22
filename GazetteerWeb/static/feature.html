@@ -10,7 +10,7 @@
 			<a class="addrPart" ng-show="addr.street_name" href="#!/feature/{{addr.refs.street}}">{{addr.street_name}}</a>
 			<span class="addrPart" ng-show="addr.housenumber">{{addr.housenumber}}</span>
 		</span>
-		<div ng-repeat="alt in addr.alt_addresses">
+		<div ng-repeat="alt in unique(addr.alt_addresses)">
 			{{alt}}		
 		</div>
 	</div>
@@ -30,7 +30,7 @@
 		<div ng-repeat="strt in feature.nearby_streets">
 			<a href="#!/feature/{{strt.id}}">{{strt.name}}</a>
 			<div class="aname" ng-show="strt.alt_names">
-				(<span class="part" ng-repeat="aname in strt.alt_names">{{aname}}</span>)
+				(<span class="part" ng-repeat="aname in unique(strt.alt_names)">{{aname}}</span>)
 			</div>
 		</div>
 	</div> 
@@ -40,7 +40,7 @@
 		<div ng-repeat="place in feature.nearby_places">
 			<a href="#!/feature/{{place.id}}">{{place.name}}</a>
 			<div class="aname" ng-show="place.alt_names">
-				(<span class="part" ng-repeat="aname in place.alt_names">{{aname}}</span>)
+				(<span class="part" ng-repeat="aname in unique(place.alt_names)">{{aname}}</span>)
 			</div>
 		</div>
 	</div> 
