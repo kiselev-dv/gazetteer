@@ -81,7 +81,8 @@ public class Main {
 
 		defineRoutes(config, server);
 		
-		new RoutesMetadataPlugin().register(server);
+		RoutesMetadataPlugin routesMetadataPlugin = new RoutesMetadataPlugin();
+		routesMetadataPlugin.register(server);
 
 		server.bind(config.getPort());
 		Runtime runtime = Runtime.getRuntime();
@@ -92,6 +93,8 @@ public class Main {
 	private static void defineRoutes(Configuration config, RestExpress server) {
 		
 		String root = config.getWebRoot();
+
+		System.out.println("Define routes with web root: " + root);
 		
 		server.uri(root + "/_search",
 				new SearchAPI())
@@ -114,7 +117,7 @@ public class Main {
 
 		server.uri(root + "/feature",
 				new FeatureAPI())
-				.alias("*/feature/{id}.{format}")
+				.alias(root + "/feature/{id}.{format}")
 				.method(HttpMethod.GET)
 				.flag(Flags.Auth.PUBLIC_ROUTE)
 				.flag(Flags.Cache.DONT_CACHE);
