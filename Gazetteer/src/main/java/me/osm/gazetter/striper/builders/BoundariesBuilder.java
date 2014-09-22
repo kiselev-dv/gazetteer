@@ -253,7 +253,7 @@ public class BoundariesBuilder extends ABuilder {
 		else if (line.isClosed() && filterByTags(line.tags)) {
 			Coordinate[] wayGeometry = buildWayGeometry(line);
 			
-			if(wayGeometry != null && wayGeometry.length > 0) {
+			if(wayGeometry != null && wayGeometry.length > 3) {
 				
 				LinearRing shell = geometryFactory.createLinearRing(wayGeometry);
 				Polygon poly = geometryFactory.createPolygon(shell);

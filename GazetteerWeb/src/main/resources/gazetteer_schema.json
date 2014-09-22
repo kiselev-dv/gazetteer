@@ -66,6 +66,10 @@
                     "index_analyzer": "suggest_synonyms",
                     "search_analyzer": "standard"
                 },
+                "name_trans": {
+                	"type": "object",
+                	"index": "not_analyzed",
+                },
                 "nearby_streets": {
                     "properties": {
                         "id": {
@@ -87,6 +91,10 @@
                             "index": "analyzed",
                             "index_analyzer": "suggest_synonyms",
                             "search_analyzer": "standard"
+                        },
+                        "name_trans": {
+                        	"type": "object",
+                        	"index": "not_analyzed",
                         }
                     }
                 },
@@ -111,6 +119,10 @@
                             "index": "analyzed",
                             "index_analyzer": "suggest_synonyms",
                             "search_analyzer": "standard"
+                        },
+                        "name_trans": {
+                        	"type": "object",
+                        	"index": "not_analyzed",
                         }
                     }
                 },
@@ -135,7 +147,11 @@
                 			"index": "analyzed",
                 			"index_analyzer": "suggest_synonyms",
                 			"search_analyzer": "standard"
-                		}
+                		},
+                		"name_trans": {
+                        	"type": "object",
+                        	"index": "not_analyzed",
+                        }
                 	}
                 },
                 "nearby_places": {
@@ -159,6 +175,10 @@
                             "index": "analyzed",
                             "index_analyzer": "suggest_synonyms",
                             "search_analyzer": "standard"
+                        },
+                        "name_trans": {
+                        	"type": "object",
+                        	"index": "not_analyzed",
                         }
                     }
                 },
@@ -174,7 +194,7 @@
                     "index_analyzer": "suggest_synonyms",
                     "search_analyzer": "standard"
                 },
-                "alt_addresses_hash": {
+                "alt_addresses_trans": {
                 	"type": "object",
                 	"index": "not_analyzed"
                 },
@@ -188,6 +208,10 @@
                     "index_analyzer": "suggest_synonyms",
                     "search_analyzer": "standard"
                 },
+                "admin0_name_trans": {
+                	"type": "object",
+                	"index": "not_analyzed"
+                },
                 "admin0_alternate_names": {
                     "type": "string",
                     "index": "analyzed",
@@ -199,6 +223,10 @@
                     "index": "analyzed",
                     "index_analyzer": "suggest_synonyms",
                     "search_analyzer": "standard"
+                },
+                "admin1_name_trans": {
+                	"type": "object",
+                	"index": "not_analyzed"
                 },
                 "admin1_alternate_names": {
                     "type": "string",
@@ -212,6 +240,10 @@
                     "index_analyzer": "suggest_synonyms",
                     "search_analyzer": "standard"
                 },
+                "admin2_name_trans": {
+                	"type": "object",
+                	"index": "not_analyzed"
+                },
                 "admin2_alternate_names": {
                     "type": "string",
                     "index": "analyzed",
@@ -223,6 +255,10 @@
                     "index": "analyzed",
                     "index_analyzer": "suggest_synonyms",
                     "search_analyzer": "standard"
+                },
+                "local_admin_name_trans": {
+                	"type": "object",
+                	"index": "not_analyzed"
                 },
                 "local_admin_alternate_names": {
                     "type": "string",
@@ -236,6 +272,10 @@
                     "index_analyzer": "suggest_synonyms",
                     "search_analyzer": "standard"
                 },
+                "locality_name_trans": {
+                	"type": "object",
+                	"index": "not_analyzed"
+                },
                 "locality_alternate_names": {
                     "type": "string",
                     "index": "analyzed",
@@ -248,6 +288,10 @@
                     "index_analyzer": "suggest_synonyms",
                     "search_analyzer": "standard"
                 },
+                "neighborhood_name_trans": {
+                	"type": "object",
+                	"index": "not_analyzed"
+                },
                 "neighborhood_alternate_names": {
                     "type": "string",
                     "index": "analyzed",
@@ -259,6 +303,10 @@
                     "index": "analyzed",
                     "index_analyzer": "suggest_synonyms",
                     "search_analyzer": "standard"
+                },
+                "street_name_trans": {
+                	"type": "object",
+                	"index": "not_analyzed"
                 },
                 "street_alternate_names": {
                     "type": "string",

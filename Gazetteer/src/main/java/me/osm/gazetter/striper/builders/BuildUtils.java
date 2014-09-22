@@ -9,7 +9,6 @@ import java.util.List;
 
 import me.osm.gazetter.striper.readers.RelationsReader.Relation;
 import me.osm.gazetter.striper.readers.WaysReader.Way;
-import me.osm.gazetter.utils.MultipolygonBuilder;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,18 +44,25 @@ public class BuildUtils {
 			
 			if(validationError.getErrorType() == TopologyValidationError.SELF_INTERSECTION) {
 				log.info("Trying to mend polygon for {}. Error is {}", rel.id, validationError.toString());
-				MultiPolygon mended = dropOverlaps(outer, validOptions);
-				
-				if(mended == null || !mended.isValid() || mended.isEmpty()) {
-					log.warn("Can't mend polygon for {}.", rel.id);
-					if(log.isDebugEnabled()) {
-						log.debug(outer.toString());
+
+				try {
+					MultiPolygon mended = dropOverlaps(outer, validOptions);
+
+					if(mended == null || !mended.isValid() || mended.isEmpty()) {
+						log.warn("Can't mend polygon for {}.", rel.id);
+						if(log.isDebugEnabled()) {
+							log.debug(outer.toString());
+						}
+						
+						return null;
 					}
 					
-					return null;
+					outer = mended;
+				}
+				catch (Exception e) {
+					log.warn("Failed to mend polygon for {}. Cause: {}", rel.id, e.getMessage());
 				}
 				
-				outer = mended;
 			}
 			else {
 				log.warn("Polygon for relation {} is invalid. Error is {}", rel.id, validationError.toString());
@@ -86,25 +92,25 @@ public class BuildUtils {
 
 	private static MultiPolygon dropOverlaps(MultiPolygon outer, IsValidOp validOptions) {
 		
-		Geometry result = null;
-		for(int i=0; i < outer.getNumGeometries(); i++) {
-			Geometry geometryN = outer.getGeometryN(i);
+			Geometry result = null;
+			for(int i=0; i < outer.getNumGeometries(); i++) {
+				Geometry geometryN = outer.getGeometryN(i);
+				
+				if(i == 0) {
+					result = geometryN;
+				}
+				else {
+					result = result.union(geometryN);
+				}
+			}
 			
-			if(i == 0) {
-				result = geometryN;
+			if(result instanceof MultiPolygon) {
+				return (MultiPolygon) result;
 			}
-			else {
-				result = result.union(geometryN);
+			
+			if(result instanceof Polygon) {
+				return geometryFactory.createMultiPolygon(new Polygon[]{(Polygon)result});
 			}
-		}
-		
-		if(result instanceof MultiPolygon) {
-			return (MultiPolygon) result;
-		}
-
-		if(result instanceof Polygon) {
-			return geometryFactory.createMultiPolygon(new Polygon[]{(Polygon)result});
-		}
 		
 		return null;
 	}

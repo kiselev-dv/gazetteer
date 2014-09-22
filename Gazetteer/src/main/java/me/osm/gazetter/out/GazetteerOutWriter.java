@@ -7,7 +7,6 @@ import java.io.PrintWriter;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -39,8 +38,20 @@ import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.LineString;
 
+import static me.osm.gazetter.out.GazetteerSchemeConstants.*;
+
 public class GazetteerOutWriter  implements LineHandler  {
 	
+	private static final String GAZETTEER_SCHEME_NEARBY_STREETS = "nearby_streets";
+
+	private static final String GAZETTEER_SCHEME_NEARBY_PLACES = "nearby_places";
+
+	private static final String GAZETTEER_SCHEME_NEAREST_NEIGHBOUR = "nearest_neighbour";
+
+	private static final String GAZETTEER_SCHEME_NEAREST_PLACE = "nearest_place";
+
+	private static final String GAZETTEER_SCHEME_ADDRESS = "address";
+
 	public static Comparator<String> defaultcomparator = new Comparator<String>() {
 		@Override
 		public int compare(String r1, String r2) {
@@ -277,102 +288,109 @@ public class GazetteerOutWriter  implements LineHandler  {
 		
 		String rowId = AddrRowValueExctractorImpl.getUID(jsonObject, addrRow, ftype);
 		
-		result.put("id", rowId);
-		result.put("feature_id", jsonObject.getString("id"));
-		result.put("type", ftype);
-		result.put("timestamp", jsonObject.getString("timestamp"));
-		
-		putName(result, ftype, mapLevels, jsonObject, addrRow);
-		putAltNames(result, ftype, mapLevels, jsonObject, addrRow);
-
-		putNearbyStreets(result, ftype, mapLevels, jsonObject);
-		putNearbyPlaces(result, ftype, mapLevels, jsonObject);
+		result.put(GAZETTEER_SCHEME_ID, rowId);
+		result.put(GAZETTEER_SCHEME_FEATURE_ID, jsonObject.getString("id"));
+		result.put(GAZETTEER_SCHEME_TYPE, ftype);
+		result.put(GAZETTEER_SCHEME_TIMESTAMP, jsonObject.getString("timestamp"));
 		
 		putAddress(result, addrRow);
 		Set<String> langs = putAltAddresses(result, addrRow);
+
+		putName(result, ftype, mapLevels, jsonObject, addrRow);
+		putAltNames(result, ftype, mapLevels, jsonObject, addrRow);
+		putNameTranslations(result, ftype, mapLevels, jsonObject, addrRow, langs);
+
+		putNearbyStreets(result, ftype, mapLevels, jsonObject, langs);
+		putNearbyPlaces(result, ftype, mapLevels, jsonObject, langs);
+		
 		JSONObject refs = new JSONObject();
 		
 		String minLVL = putAddrParts(result, refs, addrRow, mapLevels, langs);
-		result.put("refs", refs);
+		result.put(GAZETTEER_SCHEME_REFS, refs);
 		
 		if(minLVL != null) {
-			result.put("addr_level", minLVL);
+			result.put(GAZETTEER_SCHEME_ADDR_LEVEL, minLVL);
 		}
 		
 		JSONObject properties = jsonObject.optJSONObject("properties");
 		if(properties != null) {
-			result.put("tags", properties);
+			result.put(GAZETTEER_SCHEME_TAGS, properties);
 		}
 		
 		if(FeatureTypes.POI_FTYPE.equals(ftype)) {
-			String poiType = jsonObject.getJSONArray("poiTypes").getString(0);
-			result.put("poi_class", poiType);
-			
-			Feature poiClass = osmDocFacade.getFeature(poiType);
-			List<String> titles = osmDocFacade.listTranslatedTitles(poiClass);
-			
-			result.put("poi_class_names", new JSONArray(titles));
-			
-			String operator = properties.optString("operator");
-			if(StringUtils.isNotEmpty(operator)) {
-				result.put("operator", operator);
-			}
-
-			String brand = properties.optString("brand");
-			if(StringUtils.isNotEmpty(brand)) {
-				result.put("brand", brand);
-			}
-
-			String opening_hours = properties.optString("opening_hours");
-			if(StringUtils.isNotEmpty(opening_hours)) {
-				result.put("opening_hours", opening_hours);
-			}
-
-			String phone = properties.optString("contact:phone");
-			if(StringUtils.isEmpty(phone)) {
-				phone = properties.optString("phone");
-			}
-			if(StringUtils.isNotEmpty(phone)) {
-				result.put("phone", phone);
-			}
-
-			String email = properties.optString("contact:email");
-			if(StringUtils.isEmpty(email)) {
-				phone = properties.optString("email");
-			}
-			if(StringUtils.isNotEmpty(email)) {
-				result.put("email", email);
-			}
-
-			String website = properties.optString("contact:website");
-			if(StringUtils.isEmpty(website)) {
-				phone = properties.optString("website");
-			}
-			if(StringUtils.isNotEmpty(website)) {
-				result.put("website", website);
-			}
-			
-			JSONArray jsonArray = jsonObject.optJSONArray("nearbyAddresses");
-			if(jsonArray != null) {
-				result.put("nearby_addresses", jsonArray);
-			}
+			fillPOI(result, jsonObject, properties);
 		}
 		
 		JSONObject centroid = getCentroid(jsonObject, ftype);
 		if(centroid != null) {
-			result.put("center_point", centroid);
+			result.put(GAZETTEER_SCHEME_CENTER_POINT, centroid);
 		}
 		
 		JSONObject geom = getFullGeometry(jsonObject, ftype); 
 		if(geom != null) {
 			Geometry g = GeoJsonWriter.parseGeometry(geom);
 			if(g != null && g.isValid()) {
-				result.put("full_geometry", geom);
+				result.put(GAZETTEER_SCHEME_FULL_GEOMETRY, geom);
 			}
 		}
 		
-		result.put("md5", DigestUtils.md5Hex(result.toString()));
+		result.put(GAZETTEER_SCHEME_MD5, DigestUtils.md5Hex(result.toString()));
 		
+	}
+
+	private void fillPOI(JSONFeature result, JSONObject jsonObject,
+			JSONObject properties) {
+		String poiType = jsonObject.getJSONArray("poiTypes").getString(0);
+		result.put(GAZETTEER_SCHEME_POI_CLASS, poiType);
+		
+		Feature poiClass = osmDocFacade.getFeature(poiType);
+		List<String> titles = osmDocFacade.listTranslatedTitles(poiClass);
+		
+		result.put(GAZETTEER_SCHEME_POI_CLASS_NAMES, new JSONArray(titles));
+		
+		String operator = properties.optString("operator");
+		if(StringUtils.isNotEmpty(operator)) {
+			result.put(GAZETTEER_SCHEME_OPERATOR, operator);
+		}
+
+		String brand = properties.optString("brand");
+		if(StringUtils.isNotEmpty(brand)) {
+			result.put(GAZETTEER_SCHEME_BRAND, brand);
+		}
+
+		String opening_hours = properties.optString("opening_hours");
+		if(StringUtils.isNotEmpty(opening_hours)) {
+			result.put(GAZETTEER_SCHEME_OPENING_HOURS, opening_hours);
+		}
+
+		String phone = properties.optString("contact:phone");
+		if(StringUtils.isEmpty(phone)) {
+			phone = properties.optString("phone");
+		}
+		if(StringUtils.isNotEmpty(phone)) {
+			result.put(GAZETTEER_SCHEME_PHONE, phone);
+		}
+
+		String email = properties.optString("contact:email");
+		if(StringUtils.isEmpty(email)) {
+			phone = properties.optString("email");
+		}
+		if(StringUtils.isNotEmpty(email)) {
+			result.put(GAZETTEER_SCHEME_EMAIL, email);
+		}
+
+		String website = properties.optString("contact:website");
+		if(StringUtils.isEmpty(website)) {
+			phone = properties.optString("website");
+		}
+		if(StringUtils.isNotEmpty(website)) {
+			result.put(GAZETTEER_SCHEME_WEBSITE, website);
+		}
+		
+		JSONArray jsonArray = jsonObject.optJSONArray("nearbyAddresses");
+		if(jsonArray != null) {
+			result.put(GAZETTEER_SCHEME_NEARBY_ADDRESSES, jsonArray);
+		}
 	}
 
 	private JSONObject getCentroid(JSONObject jsonObject, String ftype) {
@@ -414,8 +432,8 @@ public class GazetteerOutWriter  implements LineHandler  {
 		}
 		
 		if(fullGeometry != null) {
-			String esGeomType = fullGeometry.getString("type").toLowerCase();
-			fullGeometry.put("type", esGeomType);
+			String esGeomType = fullGeometry.getString(GAZETTEER_SCHEME_TYPE).toLowerCase();
+			fullGeometry.put(GAZETTEER_SCHEME_TYPE, esGeomType);
 		}
 		
 		return fullGeometry;
@@ -522,12 +540,18 @@ public class GazetteerOutWriter  implements LineHandler  {
 				
 				result.put(key + "_name", name);
 				
-				Map<String, String> names = AddressesUtils.filterNameTags(admin0.optJSONObject("names"));
+				JSONObject namesHash = admin0.optJSONObject("names");
+				Map<String, String> names = AddressesUtils.filterNameTags(namesHash);
 				names.remove("name");
 				
 				filterNamesByLangs(names, langs);
 				if(!names.isEmpty()) {
 					result.put(key + "_alternate_names", new JSONArray(names.values()));
+				}
+				
+				JSONObject translations = AddressesUtils.getNamesTranslations(namesHash, langs);
+				if(translations != null && translations.length() > 0) {
+					result.put("name_trans", translations);
 				}
 			}
 			
@@ -581,7 +605,7 @@ public class GazetteerOutWriter  implements LineHandler  {
 			
 			if(!altAddresses.isEmpty()) {
 				result.put("alt_addresses", new JSONArray(altAddresses));
-				result.put("alt_addresses_hash", new JSONObject(altAddressesHash));
+				result.put("alt_addresses_trans", new JSONObject(altAddressesHash));
 			}
 		}
 		
@@ -591,25 +615,25 @@ public class GazetteerOutWriter  implements LineHandler  {
 	private void putAddress(JSONObject result, JSONObject addrRow) {
 		String addrText = addrRow.optString("text", null);
 		if(addrText != null) {
-			result.put("address", addrText);
+			result.put(GAZETTEER_SCHEME_ADDRESS, addrText);
 		}
 	}
 
 	private void putNearbyPlaces(JSONObject result, String ftype,
-			Map<String, JSONObject> mapLevels, JSONObject jsonObject) {
+			Map<String, JSONObject> mapLevels, JSONObject jsonObject, Set<String> langs) {
 
 		if(jsonObject.has("nearestCity")) {
 			JSONObject nearestCitySRC = jsonObject.getJSONObject("nearestCity");
 			String placeString = nearestCitySRC.getJSONObject("properties").optString("place");
 			if(StringUtils.isNotBlank(placeString)) {
-				JSONObject place = asIdNameNames(nearestCitySRC);
+				JSONObject place = asIdNameNames(nearestCitySRC, langs);
 				if(place != null) {
 					place.put("place", placeString);
-					if(place.has("id")) {
-						place.put("id", StringUtils.replace(place.getString("id"), 
+					if(place.has(GAZETTEER_SCHEME_ID)) {
+						place.put(GAZETTEER_SCHEME_ID, StringUtils.replace(place.getString(GAZETTEER_SCHEME_ID), 
 								FeatureTypes.PLACE_DELONEY_FTYPE, FeatureTypes.PLACE_POINT_FTYPE));
 					}
-					result.put("nearest_place", place);
+					result.put(GAZETTEER_SCHEME_NEAREST_PLACE, place);
 				}
 			}
 		}
@@ -618,14 +642,14 @@ public class GazetteerOutWriter  implements LineHandler  {
 			JSONObject nearestCitySRC = jsonObject.getJSONObject("nearestNeighbour");
 			String placeString = nearestCitySRC.getJSONObject("properties").optString("place");
 			if(StringUtils.isNotBlank(placeString)) {
-				JSONObject place = asIdNameNames(nearestCitySRC);
+				JSONObject place = asIdNameNames(nearestCitySRC, langs);
 				if(place != null) {
 					place.put("place", placeString);
-					if(place.has("id")) {
-						place.put("id", StringUtils.replace(place.getString("id"), 
+					if(place.has(GAZETTEER_SCHEME_ID)) {
+						place.put(GAZETTEER_SCHEME_ID, StringUtils.replace(place.getString(GAZETTEER_SCHEME_ID), 
 								FeatureTypes.PLACE_DELONEY_FTYPE, FeatureTypes.PLACE_POINT_FTYPE));
 					}
-					result.put("nearest_neighbour", place);
+					result.put(GAZETTEER_SCHEME_NEAREST_NEIGHBOUR, place);
 				}
 			}
 		}
@@ -636,22 +660,22 @@ public class GazetteerOutWriter  implements LineHandler  {
 			for(int i = 0; i < jsonArray.length(); i++) {
 				JSONObject placeSRC = jsonArray.getJSONObject(i);
 				String placeString = placeSRC.getJSONObject("properties").optString("place");
-				JSONObject place = asIdNameNames(placeSRC);
+				JSONObject place = asIdNameNames(placeSRC, langs);
 				if(place != null) {
 					place.put("place", placeString);
-					if(place.has("id")) {
-						place.put("id", StringUtils.replace(place.getString("id"), 
+					if(place.has(GAZETTEER_SCHEME_ID)) {
+						place.put(GAZETTEER_SCHEME_ID, StringUtils.replace(place.getString(GAZETTEER_SCHEME_ID), 
 								FeatureTypes.PLACE_DELONEY_FTYPE, FeatureTypes.PLACE_POINT_FTYPE));
 					}
 					list.add(place);
 				}
 			}
-			result.put("nearby_places", new JSONArray(list));
+			result.put(GAZETTEER_SCHEME_NEARBY_PLACES, new JSONArray(list));
 		}
 	}
 
 	private void putNearbyStreets(JSONObject result, String ftype,
-			Map<String, JSONObject> mapLevels, JSONObject jsonObject) {
+			Map<String, JSONObject> mapLevels, JSONObject jsonObject, Set<String> langs) {
 		if(jsonObject.has("nearbyStreets")) {
 			JSONArray streetsSRC = jsonObject.getJSONArray("nearbyStreets");
 			
@@ -659,40 +683,61 @@ public class GazetteerOutWriter  implements LineHandler  {
 				JSONArray streets = new JSONArray();
 				for(int i = 0; i < streetsSRC.length(); i++) {
 					JSONObject streetSRC = streetsSRC.getJSONObject(i);
-					JSONObject street = asIdNameNames(streetSRC);
+					JSONObject street = asIdNameNames(streetSRC, langs);
 					if(street != null) {
 						JSONObject properties = streetSRC.optJSONObject("properties");
 						street.put("highway", properties.optString("highway"));
 						streets.put(street);
 					}
 				}
-				result.put("nearby_streets", streets);
+				result.put(GAZETTEER_SCHEME_NEARBY_STREETS, streets);
 			}
 		}
 	}
 
-	private JSONObject asIdNameNames(JSONObject streetSRC) {
-		JSONObject street = new JSONObject();
+	private JSONObject asIdNameNames(JSONObject src, Set<String> langs) {
+		JSONObject result = new JSONObject();
 		
-		street.put("id", streetSRC.getString("id"));
+		result.put(GAZETTEER_SCHEME_ID, src.getString("id"));
 		
-		Map<String, String> nameTags = AddressesUtils.filterNameTags(streetSRC.optJSONObject("properties"));
+		JSONObject properties = src.optJSONObject("properties");
+		Map<String, String> nameTags = AddressesUtils.filterNameTags(properties);
 		if(nameTags.containsKey("name")) {
-			street.put("name", nameTags.get("name"));
+			result.put("name", nameTags.get("name"));
 			
 			nameTags.remove("name");
 			if(!nameTags.isEmpty()) {
-				street.put("alt_names", new JSONArray(nameTags.values()));
+				result.put("alt_names", new JSONArray(nameTags.values()));
 			}
 			
-			return street;
+			JSONObject translations = AddressesUtils.getNamesTranslations(properties, langs);
+			if(translations != null && translations.length() > 0) {
+				result.put("name_trans", translations);
+			}
+			
+			return result;
 		}
 		
 		return null;
 	}
 
+	private void putNameTranslations(JSONObject result, String ftype,
+			Map<String, JSONObject> mapLevels, JSONObject jsonObject, JSONObject addrRow, Set<String> langs) {
+		
+		if(!FeatureTypes.ADDR_POINT_FTYPE.equals(ftype))  {
+			
+			JSONObject properties = jsonObject.optJSONObject("properties");
+			JSONObject translations = AddressesUtils.getNamesTranslations(properties, langs);
+			
+			if(translations != null && translations.length() > 0) {
+				result.put("name_trans", translations);
+			}
+		}
+	}
+
 	private void putAltNames(JSONObject result, String ftype,
 			Map<String, JSONObject> mapLevels, JSONObject jsonObject, JSONObject addrRow) {
+		
 		if(!FeatureTypes.ADDR_POINT_FTYPE.equals(ftype))  {
 			JSONObject properties = jsonObject.optJSONObject("properties");
 			Map<String, String> altNames = AddressesUtils.filterNameTags(properties);

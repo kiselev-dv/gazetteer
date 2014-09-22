@@ -3,6 +3,7 @@ package me.osm.gazetter.addresses;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 
 import org.json.JSONObject;
 
@@ -34,5 +35,20 @@ public class AddressesUtils {
 		}
 		
 		return result;
+	}
+	
+	public static JSONObject getNamesTranslations(JSONObject properties,
+			Set<String> langs) {
+		
+		JSONObject translations = new JSONObject(); 
+		
+		Map<String, String> altNames = AddressesUtils.filterNameTags(properties);
+		
+		for(String lang : langs) {
+			String translated = altNames.get("name:" + lang);
+			translations.put("name:" + lang, translated);
+		}
+		
+		return translations;
 	}
 }
