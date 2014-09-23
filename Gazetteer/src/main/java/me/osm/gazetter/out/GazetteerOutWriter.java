@@ -551,7 +551,7 @@ public class GazetteerOutWriter  implements LineHandler  {
 				
 				JSONObject translations = AddressesUtils.getNamesTranslations(namesHash, langs);
 				if(translations != null && translations.length() > 0) {
-					result.put("name_trans", translations);
+					result.put(key + "_name_trans", translations);
 				}
 			}
 			
