@@ -100,11 +100,12 @@ public class Slicer implements BoundariesHandler,
 		
 		if(typesSet.contains("all") || typesSet.contains("boundaries")) {
 			builders.add(new BoundariesBuilder(this, 
-					new BoundariesFallbacker(boundariesFallbackIndex, boundariesFallbackTypes)));
+					BoundariesFallbacker.getInstance(boundariesFallbackIndex, boundariesFallbackTypes)));
 		}
 
 		if(typesSet.contains("all") || typesSet.contains("places")) {
-			builders.add(new PlaceBuilder(this, this));
+			builders.add(new PlaceBuilder(this, this, 
+					BoundariesFallbacker.getInstance(boundariesFallbackIndex, boundariesFallbackTypes)));
 		}
 
 		if(typesSet.contains("all") || typesSet.contains("highways")) {

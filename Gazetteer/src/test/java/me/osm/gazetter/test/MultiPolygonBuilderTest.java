@@ -12,6 +12,8 @@ import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.MultiPolygon;
+import com.vividsolutions.jts.io.ParseException;
+import com.vividsolutions.jts.io.WKTReader;
 
 import static org.junit.Assert.*;
 
@@ -281,6 +283,27 @@ public class MultiPolygonBuilderTest {
 		assertNotNull(mp);
 		System.out.println("islandWithinHoleWithDisjuncOuter: " + mp.toString());
 	}
+	
+	@Test
+	public void realWorldExample1() throws ParseException {
+		
+		List<LineString> outers = new ArrayList<LineString>();
+		List<LineString> inners = new ArrayList<LineString>();
+		
+		WKTReader reader = new WKTReader(f);
+		outers.add((LineString) reader.read("LINESTRING (42.8211884 45.3375219, 42.821406 45.3375338, "
+				+ "	42.821478 45.3375392, 42.8214348 45.3379158, 42.8214215 45.3379422)"));
+		//outers.add((LineString) reader.read("LINESTRING (42.821046 45.3378754, 42.8208881 45.3378474)"));
+		outers.add((LineString) reader.read("LINESTRING (42.8214215 45.3379422, 42.821046 45.3378754, "
+				+ "42.8208881 45.3378474, 42.8206616 45.3378149, 42.8205843 45.3378055, 42.8206528 45.3374546, "
+				+ "42.8208394 45.3374756, 42.8211884 45.3375219)"));
+		
+		MultiPolygon mp = BuildUtils.buildMultyPolygon(new Relation(), outers, inners);
+		
+		assertNotNull(mp);
+		System.out.println("realWorldExample1: " + mp.toString());
+	}
+	
 	
 	
 }

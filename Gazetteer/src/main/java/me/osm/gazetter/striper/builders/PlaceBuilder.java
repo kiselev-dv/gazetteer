@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import me.osm.gazetter.BoundariesFallbacker;
 import me.osm.gazetter.addresses.AddressesUtils;
 import me.osm.gazetter.addresses.NamesMatcher;
 import me.osm.gazetter.addresses.impl.NamesMatcherImpl;
@@ -89,8 +90,8 @@ public class PlaceBuilder extends BoundariesBuilder {
 		return x - DEGREE_OFFSET;
 	}
 
-	public PlaceBuilder(PlacePointHandler slicer, BoundariesHandler handler) {
-		super(handler, null);
+	public PlaceBuilder(PlacePointHandler slicer, BoundariesHandler handler, BoundariesFallbacker fallback) {
+		super(handler, fallback);
 		this.handler = slicer;
 	}
 	

@@ -19,12 +19,16 @@ import me.osm.gazetter.utils.FileUtils.LineHandler;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.LocalDateTime;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.code.externalsorting.ExternalSort;
 import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.io.WKTReader;
 
 public class BoundariesFallbacker {
+	
+	private static final Logger log = LoggerFactory.getLogger(BoundariesFallbacker.class);  
 	
 	private String fallbackPath;
 	private HashSet<String> fallbackTypes;
@@ -35,7 +39,21 @@ public class BoundariesFallbacker {
 	private Map<String, String> cache = null;
 	private File file;
 	
-	public BoundariesFallbacker(String fallbackPath, List<String> storeTypes) {
+	private volatile static BoundariesFallbacker instance = null;
+	
+	public static BoundariesFallbacker getInstance(String fallbackPath, List<String> storeTypes) {
+		if(instance == null) {
+			synchronized (BoundariesFallbacker.class) {
+				if(instance == null) {
+					instance = new BoundariesFallbacker(fallbackPath, storeTypes);
+				}
+			}
+		}
+		
+		return instance;
+	}
+	
+	private BoundariesFallbacker(String fallbackPath, List<String> storeTypes) {
 		
 		this.fallbackPath = StringUtils.stripToNull(fallbackPath);
 		
@@ -55,6 +73,7 @@ public class BoundariesFallbacker {
 			try {
 				file = new File(this.fallbackPath);
 				if(file.exists()) {
+					log.info("Load boundaries from {}", fallbackPath);
 					buildCache();
 				}
 				
@@ -100,10 +119,9 @@ public class BoundariesFallbacker {
 					return (MultiPolygon)new WKTReader().read(wkt);
 				}
 			}
-			
-			
 		}
 		catch (Exception e) {
+			log.debug("Error duiring load geometry from fallback for {}. Error: {}", id, e.getMessage());
 			return null;
 		}
 		
@@ -117,11 +135,13 @@ public class BoundariesFallbacker {
 				String[] split = StringUtils.split(s, '\t');
 				if(split != null && split.length == 3) {
 					String id = split[0]; 
-					String geom = split[1];
+					String geom = split[2];
 					
 					cache.put(id, geom);
 				}
 			}
+			
+			log.info("Loaded {} lines.", cache.size());
 		}
 	}
 
