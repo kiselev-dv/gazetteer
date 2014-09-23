@@ -6,9 +6,12 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map.Entry;
+import java.util.Set;
 
 import me.osm.gazetter.striper.readers.RelationsReader.Relation;
 import me.osm.gazetter.striper.readers.WaysReader.Way;
+import me.osm.gazetter.utils.MultiMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,6 +21,7 @@ import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.MultiPolygon;
+import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
 import com.vividsolutions.jts.io.WKTWriter;
 import com.vividsolutions.jts.operation.polygonize.Polygonizer;
@@ -148,6 +152,34 @@ public class BuildUtils {
 
 	private static MultiPolygon polygonizeLinestrings(final Relation rel, List<LineString> linestrings) {
 		if(!linestrings.isEmpty()) {
+			
+			MultiMap<Point, LineString> point2line = new MultiMap<Point, LineString>(); 
+			
+			for(LineString ls : linestrings) {
+				point2line.put(ls.getStartPoint(), ls);
+				point2line.put(ls.getEndPoint(), ls);
+			}
+			
+			boolean closed = true;
+			for(Entry<Point, Set<LineString>> entry : point2line.entrySet()) {
+				if(entry.getValue().size() < 2 ) {
+					if(!(entry.getValue().size() == 1 && entry.getValue().iterator().next().isClosed())) {
+						log.warn("Not closed ring in multipolygon. Relation {} near {}", 
+								rel.id, entry.getKey().toString());
+						
+						closed = false;
+					}
+				}
+			}
+			if(!closed) {
+				if(log.isDebugEnabled()) {
+					for(LineString ls : linestrings) {
+						log.debug("Not closed ring in {}. Way: {}", rel.id, ls.toString());
+					}
+				}
+				return null;
+			}
+			
 			Polygonizer polygonizer = new Polygonizer();
 			polygonizer.add(linestrings);
 			

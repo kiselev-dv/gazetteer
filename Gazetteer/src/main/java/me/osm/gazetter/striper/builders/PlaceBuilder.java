@@ -90,7 +90,7 @@ public class PlaceBuilder extends BoundariesBuilder {
 	}
 
 	public PlaceBuilder(PlacePointHandler slicer, BoundariesHandler handler) {
-		super(handler);
+		super(handler, null);
 		this.handler = slicer;
 	}
 	

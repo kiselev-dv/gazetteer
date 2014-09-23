@@ -171,8 +171,13 @@ public class GeoJsonWriter {
 	}
 
 	public static void addTimestamp(JSONObject json) {
+		json.put(TIMESTAMP, getNowTimestampString());
+	}
+
+	public static String getNowTimestampString() {
 		LocalDateTime date = LocalDateTime.now();
-		json.put(TIMESTAMP, date.toDateTime(timeZone).toInstant().toString());
+		String timestampString = date.toDateTime(timeZone).toInstant().toString();
+		return timestampString;
 	}
 
 	public static String getMD5(String line) {

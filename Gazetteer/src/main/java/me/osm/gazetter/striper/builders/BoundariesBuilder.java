@@ -13,6 +13,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import me.osm.gazetter.BoundariesFallbacker;
 import me.osm.gazetter.Options;
 import me.osm.gazetter.striper.FeatureTypes;
 import me.osm.gazetter.striper.GeoJsonWriter;
@@ -38,11 +39,13 @@ import com.vividsolutions.jts.geom.Polygon;
 public class BoundariesBuilder extends ABuilder {
 	
 	private static final Logger log = LoggerFactory.getLogger(BoundariesBuilder.class.getName());
-	private static final  GeometryFactory geometryFactory = new GeometryFactory();
+	private static final GeometryFactory geometryFactory = new GeometryFactory();
 	
 	protected BoundariesHandler handler;
+	private BoundariesFallbacker fallback = null;
 	
-	public BoundariesBuilder(BoundariesHandler handler) {
+	public BoundariesBuilder(BoundariesHandler handler, BoundariesFallbacker fallback) {
+		this.fallback = fallback;
 		this.handler = handler;
 	}
 	
@@ -103,8 +106,17 @@ public class BoundariesBuilder extends ABuilder {
 			JSONObject meta = getRelMeta(rel);
 			doneRelation(rel, geometry, meta);
 		}
-		else {
-			log.warn("Failed to build geometry for relation {}.", rel.id);
+		else if (fallback != null) {
+			geometry = fallback.getGeometry("r" + rel.id);
+			if(geometry != null) {
+				log.warn("Load geometry for relation {}.", rel.id);
+				
+				JSONObject meta = getRelMeta(rel);
+				doneRelation(rel, geometry, meta);
+			}
+			else {
+				log.warn("Failed to build geometry for relation {}.", rel.id);
+			}
 		}
 	}
 
@@ -122,6 +134,7 @@ public class BoundariesBuilder extends ABuilder {
 		assert GeoJsonWriter.getFtype(featureWithoutGeometry.toString()).equals(FeatureTypes.ADMIN_BOUNDARY_FTYPE) 
 			: "Failed getFtype for " + featureWithoutGeometry.toString();
 		
+		saveBoundary(featureWithoutGeometry, geometry);
 		handler.handleBoundary(featureWithoutGeometry, geometry);
 	}
 
@@ -261,6 +274,21 @@ public class BoundariesBuilder extends ABuilder {
 				
 				doneWay(line, multiPolygon);
 			}
+			else {
+				
+				MultiPolygon geometry = null;
+				if(fallback != null) {
+					geometry = fallback.getGeometry("w" + line.id);
+				}
+				
+				if(geometry != null) {
+					log.warn("Load fallback geometry for way {}." + line.id);
+					doneWay(line, geometry);
+				}
+				else {
+					log.warn("Failed to build geometry for way {}." + line.id);
+				}
+			}
 		}
 	}
 
@@ -278,6 +306,7 @@ public class BoundariesBuilder extends ABuilder {
 		assert GeoJsonWriter.getFtype(featureWithoutGeometry.toString()).equals(FeatureTypes.ADMIN_BOUNDARY_FTYPE) 
 			: "Failed getFtype for " + featureWithoutGeometry.toString();
 		
+		saveBoundary(featureWithoutGeometry, multiPolygon);
 		handler.handleBoundary(featureWithoutGeometry, multiPolygon);
 	}
 
@@ -375,7 +404,17 @@ public class BoundariesBuilder extends ABuilder {
 			throw new RuntimeException(e);
 		}
 		finally {
+			if(fallback != null) {
+				fallback.close();
+			}
 			handler.freeThreadPool(getThreadPoolUser());
+		}
+	}
+	
+	private void saveBoundary(JSONObject feature,
+			MultiPolygon geometry) {
+		if(fallback != null) {
+			this.fallback.saveBoundary(feature, geometry);
 		}
 	}
 	

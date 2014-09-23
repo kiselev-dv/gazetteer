@@ -33,6 +33,12 @@ import org.slf4j.LoggerFactory;
  */
 public class Main {
 	
+	private static final String BOUNDARIES_FALLBACK_TYPES_PARAM = "--boundaries-fallback-types";
+	private static final String BOUNDARIES_FALLBACK_TYPES_VAL = "boundaries_fallback_types";
+
+	private static final String BOUNDARIES_FALLBACK_PARAM = "--boundaries-fallback-file";
+	private static final String BOUNDARIES_FALLBACK_VAL = "boundaries_fallback_file";
+	
 	private static final String NAMED_POI_BRANCH_OPT = "--named-poi-branch";
 	private static final String NAMED_POI_BRANCH_VAL = "named_poi_branch";
 
@@ -205,7 +211,9 @@ public class Main {
 						types,
 						list(namespace.getList(EXCCLUDE_POI_BRANCH_VAL)),
 						list(namespace.getList(NAMED_POI_BRANCH_VAL)),
-						list(namespace.getList("drop"))
+						list(namespace.getList("drop")),
+						namespace.getString(BOUNDARIES_FALLBACK_VAL),
+						list(namespace.getList(BOUNDARIES_FALLBACK_TYPES_VAL))
 				);
 				
 			}
@@ -365,6 +373,7 @@ public class Main {
         	split.addArgument("compression").required(false).nargs("?").choices("none", "gzip", "bz2")
         		.setConst("none").setDefault("bz2")
         		.help("Use with \"osm_file -\" allow to read compressed stream from STDIN.");
+        	
         }
         
 		//slice
@@ -390,6 +399,12 @@ public class Main {
 
 			slice.addArgument("--drop").nargs("*")
 				.help("List of objects osm ids which will be dropped ex r60189.");
+			
+			slice.addArgument(BOUNDARIES_FALLBACK_PARAM).nargs("?")
+				.help("Path to boundaries fallback file.");
+			
+			slice.addArgument(BOUNDARIES_FALLBACK_TYPES_PARAM).nargs("*")
+				.help("List of boundaries to keep in boundaries fallback file. Eg. boundary:2");
 			
 		}
 

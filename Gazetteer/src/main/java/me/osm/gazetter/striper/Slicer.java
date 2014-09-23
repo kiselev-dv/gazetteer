@@ -16,6 +16,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import me.osm.gazetter.BoundariesFallbacker;
 import me.osm.gazetter.Options;
 import me.osm.gazetter.dao.FileWriteDao;
 import me.osm.gazetter.dao.WriteDao;
@@ -84,7 +85,8 @@ public class Slicer implements BoundariesHandler,
 	}
 	
 	public void run(String poiCatalogPath, List<String> types, List<String> exclude, 
-			List<String> named, List<String> dropList) {
+			List<String> named, List<String> dropList, String boundariesFallbackIndex, 
+			List<String> boundariesFallbackTypes) {
 		
 		long start = new Date().getTime(); 
 		
@@ -97,7 +99,8 @@ public class Slicer implements BoundariesHandler,
 		Set<String> typesSet = new HashSet<String>(types);
 		
 		if(typesSet.contains("all") || typesSet.contains("boundaries")) {
-			builders.add(new BoundariesBuilder(this));
+			builders.add(new BoundariesBuilder(this, 
+					new BoundariesFallbacker(boundariesFallbackIndex, boundariesFallbackTypes)));
 		}
 
 		if(typesSet.contains("all") || typesSet.contains("places")) {
