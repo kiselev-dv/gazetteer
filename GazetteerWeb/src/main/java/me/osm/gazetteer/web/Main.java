@@ -13,6 +13,7 @@ import me.osm.gazetteer.web.postprocessor.AllowOriginPP;
 import me.osm.gazetteer.web.postprocessor.LastModifiedHeaderPostprocessor;
 import me.osm.gazetteer.web.serialization.SerializationProvider;
 
+import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.jboss.netty.handler.codec.http.HttpMethod;
 import org.restexpress.Flags;
@@ -40,10 +41,11 @@ public class Main {
 	}
 	
 	private static volatile RestExpress server;
+	private static Configuration config;
 	
 	public static void main(String[] args) throws Exception {
 		
-		Configuration config = loadEnvironment(args);
+		config = loadEnvironment(args);
 		ESNodeHodel.getClient();
 		
 		RestExpress.setSerializationProvider(new SerializationProvider());
@@ -73,7 +75,8 @@ public class Main {
 					}
 
 					private boolean checkPass(String header) {
-						return DigestUtils.md5Hex(header).equals("21232f297a57a5a743894a0e4a801fc3");
+						return Hex.encodeHexString(DigestUtils.sha(header))
+								.equals(config.getAdminPasswordHash());
 					}
 					
 				})

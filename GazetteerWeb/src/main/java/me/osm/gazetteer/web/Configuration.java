@@ -20,6 +20,8 @@ extends org.restexpress.util.Environment
 	private boolean serveStatic = false;
 	private String root = "";
 	
+	private String adminPasswordHash = "1A7292E6063EFEFD527B98DDB49F0D38906378B3";
+	
 	@Override
 	protected void fillValues(Properties p)
 	{
@@ -29,6 +31,7 @@ extends org.restexpress.util.Environment
 		this.siteXMLFeatureURL = p.getProperty(SITE_FEATURE_URL, "/feature/{id}.html");
 		this.serveStatic = "true".equals(p.getProperty("serve_static", "false"));
 		this.root = p.getProperty("web_root", "");
+		this.adminPasswordHash = p.getProperty("admin_password_sha1", "1A7292E6063EFEFD527B98DDB49F0D38906378B3");
 	}
 
 	public String getDefaultFormat()
@@ -56,6 +59,10 @@ extends org.restexpress.util.Environment
 
 	public String getWebRoot() {
 		return root;
+	}
+
+	public String getAdminPasswordHash() {
+		return adminPasswordHash;
 	}
 	
 }

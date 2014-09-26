@@ -85,7 +85,7 @@ public class FileUtils {
 		try {
 			handleLines(getFileIS(f), handler);
 		} catch (FileNotFoundException e) {
-			throw new RuntimeException(e);
+			throw new RuntimeException("Failed to read file " + f.getName(), e);
 		}
 	}
 
