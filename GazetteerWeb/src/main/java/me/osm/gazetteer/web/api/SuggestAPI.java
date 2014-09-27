@@ -18,8 +18,7 @@ import org.json.JSONObject;
 import org.restexpress.Request;
 import org.restexpress.Response;
 
-public class SearchAPI {
-
+public class SuggestAPI {
 	private static final String[] mainFields = new String[]{"name", "address", "poi_class", "poi_class_names", "operator", "brand"};
 	private static final String[] secondaryFields = new String[]{"parts", "alt_addresses", "alt_names"};
 	private static final String[] tertiaryFields = new String[]{"nearby_streets", "nearest_city", "nearest_neighbour"};
@@ -71,9 +70,9 @@ public class SearchAPI {
 	public static BoolQueryBuilder getSearchQuerry(String querry) {
 		BoolQueryBuilder q = QueryBuilders.boolQuery()
 				.should(buildAddRowQ(querry).boost(20))
-				.should(QueryBuilders.multiMatchQuery(querry, mainFields).boost(15))
-				.should(QueryBuilders.multiMatchQuery(querry, secondaryFields).boost(10))
-				.should(QueryBuilders.multiMatchQuery(querry, tertiaryFields).boost(5));
+				.should(QueryBuilders.multiMatchQuery(querry, mainFields).boost(10))
+				.should(QueryBuilders.multiMatchQuery(querry, secondaryFields).boost(9))
+				.should(QueryBuilders.multiMatchQuery(querry, tertiaryFields).boost(8));
 		return q;
 	}
 
@@ -94,6 +93,4 @@ public class SearchAPI {
 			.should(QueryBuilders.matchQuery("street_name", querry).boost(7))
 			.should(QueryBuilders.matchQuery("housenumber", querry).boost(100));
 	}
-
-	
 }

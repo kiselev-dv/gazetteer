@@ -9,6 +9,7 @@ import me.osm.gazetteer.web.api.InverseGeocodeAPI;
 import me.osm.gazetteer.web.api.SearchAPI;
 import me.osm.gazetteer.web.api.Sitemap;
 import me.osm.gazetteer.web.api.Static;
+import me.osm.gazetteer.web.api.SuggestAPI;
 import me.osm.gazetteer.web.postprocessor.AllowOriginPP;
 import me.osm.gazetteer.web.postprocessor.LastModifiedHeaderPostprocessor;
 import me.osm.gazetteer.web.serialization.SerializationProvider;
@@ -99,13 +100,20 @@ public class Main {
 
 		System.out.println("Define routes with web root: " + root);
 		
-		server.uri(root + "/_search",
+		server.uri(root + "/feature/_search",
 				new SearchAPI())
 				.method(HttpMethod.GET)
 				.name(Constants.FEATURE_URI)
 				.flag(Flags.Auth.PUBLIC_ROUTE)
-				.parameter(Parameters.Cache.MAX_AGE, 3600);
+				.parameter(Parameters.Cache.MAX_AGE, 3600).asMetadata().toString();
 
+		server.uri(root + "/feature/_suggest",
+				new SuggestAPI())
+				.method(HttpMethod.GET)
+				.name(Constants.FEATURE_URI)
+				.flag(Flags.Auth.PUBLIC_ROUTE)
+				.parameter(Parameters.Cache.MAX_AGE, 3600).asMetadata().toString();
+		
 		server.uri(root + "/_inverse",
 				new InverseGeocodeAPI())
 				.method(HttpMethod.GET)
