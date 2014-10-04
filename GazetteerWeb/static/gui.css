@@ -33,3 +33,6 @@
  	float:left;
  }
  
+.underlined {
+	text-decoration: underline;
+}

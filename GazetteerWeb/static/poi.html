@@ -1,0 +1,12 @@
+<script type="text/ng-template"  id="PoiTreeItem.html">
+    <a ng-click="data.expanded = !!!data.expanded" 
+		ng-class="{underlined:(data.groups.length!=0 || data.features.length!=0)}">{{data.title}}</a>
+    <ul ng-show="data.expanded">
+        <li ng-repeat="data in data.groups" ng-include="'PoiTreeItem.html'"></li>
+		<li ng-repeat="feature in data.features">{{feature.title}}</li>
+    </ul>
+</script>
+
+<ul>
+    <li ng-repeat="data in hierarchy.groups" ng-include="'PoiTreeItem.html'"></li>
+</ul>

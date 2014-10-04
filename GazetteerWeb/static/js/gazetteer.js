@@ -260,6 +260,6 @@ function POIController($scope, $http, $location, $routeParams) {
 		'params' : {
 		}
 	}).success(function(data) {
-		
+		$scope.hierarchy = data;
 	});
 }
