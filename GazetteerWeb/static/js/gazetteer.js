@@ -1,3 +1,6 @@
+var HTML_ROOT = '/static';
+var API_ROOT = '';
+
 var app = angular.module('Gazetteer', [ 'ngRoute' ]);
 
 app.config(['$locationProvider', function($locationProvider) {
@@ -7,14 +10,19 @@ app.config(['$locationProvider', function($locationProvider) {
 app.config(function($routeProvider) {
     $routeProvider
     	.when('/search', {
-    		templateUrl: '/static/search.html', 
+    		templateUrl: HTML_ROOT + '/search.html', 
     		controller:'SearchController', 
     		reloadOnSearch: false });
     
     $routeProvider
-	.when('/feature/:id', {
-		templateUrl: '/static/feature.html', 
-		controller:'FeatureController'});
+		.when('/feature/:id', {
+			templateUrl: HTML_ROOT + '/feature.html', 
+			controller:'FeatureController'});
+
+    $routeProvider
+    	.when('/poi', {
+    		templateUrl: HTML_ROOT + '/poi.html', 
+    		controller:'POIController'});
 
     $routeProvider
     	.when('/', {redirectTo: '/search'});
@@ -86,7 +94,7 @@ function SearchController($scope, $http, $location, $routeParams, $rootScope) {
 	$scope.searchForm.submitForm = function() {
 
 		if($scope.searchForm.q) {
-			$http.get('/_search', {
+			$http.get(API_ROOT + '/feature/_search', {
 				'params' : controller.getParams($scope)
 			}).success(function(data) {
 				$scope.searchResult = data;
@@ -107,7 +115,7 @@ function SearchController($scope, $http, $location, $routeParams, $rootScope) {
 	$scope.$watch('selectedRowId', function(rid) {
 		$location.search('id', rid);
 		if(rid) {
-			$http.get('/feature', {
+			$http.get(API_ROOT + '/feature', {
 				'params':{
 					'row': rid,
 					'format': 'json'
@@ -190,7 +198,7 @@ SearchController.prototype.getParams = function($scope) {
 }
 
 function FeatureController($scope, $http, $location, $routeParams) {
-	$http.get('/feature', {
+	$http.get(API_ROOT + '/feature', {
 		'params' : {
 			'id': $routeParams.id,
 			'related': true
@@ -237,7 +245,7 @@ function FeatureController($scope, $http, $location, $routeParams) {
 }
 
 function unique(arr) {
-	var sorted = arr.sort(function (a, b) { return a*1 - b*1; });
+	var sorted = arr.sort(function (a, b) { return a * 1 - b * 1; });
     var ret = [sorted[0]];
     for (var i = 1; i < sorted.length; i++) { 
         if (sorted[i-1] !== sorted[i]) {
@@ -245,4 +253,13 @@ function unique(arr) {
         }
     }
     return ret;
+}
+
+function POIController($scope, $http, $location, $routeParams) {
+	$http.get(API_ROOT + '/osmdoc/hierachy', {
+		'params' : {
+		}
+	}).success(function(data) {
+		
+	});
 }
