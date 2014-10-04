@@ -21,6 +21,7 @@ extends org.restexpress.util.Environment
 	private String root = "";
 	
 	private String adminPasswordHash = "1A7292E6063EFEFD527B98DDB49F0D38906378B3";
+	private String poiCatalogPath;
 	
 	@Override
 	protected void fillValues(Properties p)
@@ -32,6 +33,7 @@ extends org.restexpress.util.Environment
 		this.serveStatic = "true".equals(p.getProperty("serve_static", "false"));
 		this.root = p.getProperty("web_root", "");
 		this.adminPasswordHash = p.getProperty("admin_password_sha1", "1A7292E6063EFEFD527B98DDB49F0D38906378B3");
+		this.poiCatalogPath = p.getProperty("poi_catalog_path", "poi_catalog");
 	}
 
 	public String getDefaultFormat()
@@ -63,6 +65,10 @@ extends org.restexpress.util.Environment
 
 	public String getAdminPasswordHash() {
 		return adminPasswordHash;
+	}
+
+	public String getPoiCatalogPath() {
+		return poiCatalogPath;
 	}
 	
 }

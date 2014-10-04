@@ -70,9 +70,14 @@ public class GazetteerOutWriter  implements LineHandler  {
 	private List<String> localAdminKeys;
 	private List<String> localityKeys;
 	private List<String> neighborhoodKeys;
+
+	private boolean exportAllNames = false;
 	
 	public GazetteerOutWriter(String dataDir, String out, String poiCatalog, 
-			List<String> localAdmin, List<String> locality, List<String> neighborhood) {
+			List<String> localAdmin, List<String> locality, 
+			List<String> neighborhood, boolean exportAllNames) {
+		
+		this.exportAllNames = exportAllNames;
 		
 		localAdminKeys = localAdmin;
 		if(localAdminKeys == null || localAdminKeys.isEmpty()) {
@@ -299,6 +304,9 @@ public class GazetteerOutWriter  implements LineHandler  {
 		putName(result, ftype, mapLevels, jsonObject, addrRow);
 		putAltNames(result, ftype, mapLevels, jsonObject, addrRow);
 		putNameTranslations(result, ftype, mapLevels, jsonObject, addrRow, langs);
+		if(exportAllNames) {
+			result.put("all_names", new JSONObject(AddressesUtils.filterNameTags(jsonObject)));
+		}
 
 		putNearbyStreets(result, ftype, mapLevels, jsonObject, langs);
 		putNearbyPlaces(result, ftype, mapLevels, jsonObject, langs);

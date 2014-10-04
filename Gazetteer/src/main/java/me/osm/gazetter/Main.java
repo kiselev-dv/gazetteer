@@ -249,7 +249,8 @@ public class Main {
 						namespace.getString(POI_CATALOG_VAL),
 						list(namespace.getList("local_admin")),
 						list(namespace.getList("locality")),
-						list(namespace.getList("neighborhood"))).write();
+						list(namespace.getList("neighborhood")),
+						namespace.getBoolean("all_names")).write();
 			}
 			
 		} 
@@ -481,9 +482,15 @@ public class Main {
 			outGazetteer.addArgument(POI_CATALOG_OPT).setDefault("jar")
 				.help("Path to osm-doc catalog xml file. By default internal osm-doc.xml will be used.");
 			
-			outGazetteer.addArgument("--local-admin").help("Addr levels for local administrations.");
-			outGazetteer.addArgument("--locality").help("Addr levels for locality.");
-			outGazetteer.addArgument("--neighborhood").help("Addr levels for neighborhood.");
+			outGazetteer.addArgument("--local-admin").nargs("*")
+				.help("Addr levels for local administrations.");
+			outGazetteer.addArgument("--locality").nargs("*")
+				.help("Addr levels for locality.");
+			outGazetteer.addArgument("--neighborhood").nargs("*")
+				.help("Addr levels for neighborhood.");
+			
+			outGazetteer.addArgument("--all-names").setDefault(false).setConst(true)
+				.help("Add hash with all *name* tags.");
 			
 		}
 		

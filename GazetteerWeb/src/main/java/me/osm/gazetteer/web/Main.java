@@ -6,6 +6,7 @@ import java.io.IOException;
 import me.osm.gazetteer.web.api.FeatureAPI;
 import me.osm.gazetteer.web.api.ImportAPI;
 import me.osm.gazetteer.web.api.InverseGeocodeAPI;
+import me.osm.gazetteer.web.api.OSMDocHierarchyAPI;
 import me.osm.gazetteer.web.api.SearchAPI;
 import me.osm.gazetteer.web.api.Sitemap;
 import me.osm.gazetteer.web.api.Static;
@@ -118,6 +119,12 @@ public class Main {
 				new InverseGeocodeAPI())
 				.method(HttpMethod.GET)
 				.name(Constants.FEATURE_URI)
+				.flag(Flags.Auth.PUBLIC_ROUTE)
+				.parameter(Parameters.Cache.MAX_AGE, 3600);
+
+		server.uri(root + "/osmdoc/hierachy",
+				new OSMDocHierarchyAPI(config.getPoiCatalogPath()))
+				.method(HttpMethod.GET)
 				.flag(Flags.Auth.PUBLIC_ROUTE)
 				.parameter(Parameters.Cache.MAX_AGE, 3600);
 
