@@ -54,6 +54,12 @@
                     "type": "date",
                     "index": "not_analyzed"
                 },
+                "suggest": {
+                	"type" : "completion",
+                	"index_analyzer" :  "suggest_synonyms",
+                    "search_analyzer" : "suggest_synonyms",
+                    "payloads" : true
+                },
                 "name": {
                     "type": "string",
                     "index": "analyzed",

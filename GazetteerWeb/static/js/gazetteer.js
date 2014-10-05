@@ -104,10 +104,7 @@ function SearchController($scope, $http, $location, $routeParams, $rootScope) {
 		return false;
 	};
 	
-	$scope.map = L.map('map').setView([47.398, 18.677], 4);
-	L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
-	    attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
-	}).addTo($scope.map);
+	addMap($scope);
 	
 	$scope.markersMap = {};
 	$scope.markers = [];
@@ -132,7 +129,7 @@ function SearchController($scope, $http, $location, $routeParams, $rootScope) {
 		angular.forEach($scope.markers, function(v, k) {
 			$scope.map.removeLayer(v);
 		});
-		
+	
 		$scope.markersMap = {};
 		$scope.markers = [];
 		
@@ -258,8 +255,22 @@ function unique(arr) {
 function POIController($scope, $http, $location, $routeParams) {
 	$http.get(API_ROOT + '/osmdoc/hierachy', {
 		'params' : {
+			
 		}
 	}).success(function(data) {
 		$scope.hierarchy = data;
 	});
+	
+	$scope.select = function(f) {
+		$scope.selectedClass = f.name;
+	}
+	
+	addMap($scope);
+}
+
+function addMap(scope) {
+	scope.map = L.map('map').setView([47.398, 18.677], 4);
+	L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+	    attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+	}).addTo(scope.map);
 }

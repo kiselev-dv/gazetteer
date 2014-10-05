@@ -14,6 +14,7 @@ import me.osm.gazetteer.web.api.SuggestAPI;
 import me.osm.gazetteer.web.postprocessor.AllowOriginPP;
 import me.osm.gazetteer.web.postprocessor.LastModifiedHeaderPostprocessor;
 import me.osm.gazetteer.web.serialization.SerializationProvider;
+import me.osm.gazetteer.web.utils.OSMDocSinglton;
 
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -101,6 +102,8 @@ public class Main {
 
 		System.out.println("Define routes with web root: " + root);
 		
+		OSMDocSinglton.initialize(config.getPoiCatalogPath());
+		
 		server.uri(root + "/feature/_search",
 				new SearchAPI())
 				.method(HttpMethod.GET)
@@ -123,7 +126,7 @@ public class Main {
 				.parameter(Parameters.Cache.MAX_AGE, 3600);
 
 		server.uri(root + "/osmdoc/hierachy",
-				new OSMDocHierarchyAPI(config.getPoiCatalogPath()))
+				new OSMDocHierarchyAPI())
 				.method(HttpMethod.GET)
 				.flag(Flags.Auth.PUBLIC_ROUTE)
 				.parameter(Parameters.Cache.MAX_AGE, 3600);

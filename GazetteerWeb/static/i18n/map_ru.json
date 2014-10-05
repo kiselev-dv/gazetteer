@@ -1,0 +1,9 @@
+{
+		"map.js.layer.relief": "Рельеф",
+		"map.js.layer.contours": "Изолинии",
+		"map.js.copy.data": "Данные карты",
+		"map.js.copy.contributors": "Участники OpenStreetMap",
+		"map.js.copy.rendering": "Стиль карты",
+		"map.js.button.search": "Поиск",
+		"map.js.input.search.placeholder": "Искать"
+}

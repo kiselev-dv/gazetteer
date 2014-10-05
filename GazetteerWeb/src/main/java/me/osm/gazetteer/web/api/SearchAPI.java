@@ -1,18 +1,24 @@
 package me.osm.gazetteer.web.api;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import me.osm.gazetteer.web.ESNodeHodel;
+import me.osm.gazetteer.web.utils.OSMDocSinglton;
+import me.osm.osmdoc.model.Feature;
 
 import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.index.query.BoolQueryBuilder;
+import org.elasticsearch.index.query.FilterBuilders;
+import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.json.JSONObject;
 import org.restexpress.Request;
@@ -24,48 +30,145 @@ public class SearchAPI {
 	private static final String[] secondaryFields = new String[]{"parts", "alt_addresses", "alt_names"};
 	private static final String[] tertiaryFields = new String[]{"nearby_streets", "nearest_city", "nearest_neighbour"};
 	
+	/**
+	 * Explain search results or not 
+	 * (<code>true<code> for explain)
+	 * default is false
+	 * */
+	public static String EXPLAIN_HEADER = "explain";
+	
+	/**
+	 * Querry string
+	 * */
+	public static String Q_HEADER = "q";
+	
+	/**
+	 * Type of feature. [adrpnt, poipnt etc]
+	 * */
+	public static String TYPE_HEADER = "type";
+
+	/**
+	 * Include or not object full geometry
+	 * (<code>true<code> to include)
+	 * default is false
+	 * */
+	public static String FULL_GEOMETRY_HEADER = "full_geometry";
+
+	/**
+	 * Search inside given BBOX
+	 * west, south, east, north'
+	 * */
+	public static String BBOX_HEADER = "bbox";
+	
+	/**
+	 * Look for poi of exact types
+	 * */
+	public static String POI_CLASS_HEADER = "poiclass";
+
+	/**
+	 * Look for poi of exact types (from hierarchy branch)
+	 * */
+	public static String POI_GROUP_HEADER = "poigroup";
+	
+	
 	public JSONObject read(Request request, Response response) 
 			throws IOException {
 
-		boolean explain = "true".equals(request.getHeader("explain"));
-		String querry = request.getHeader("q");
-		if(querry != null) {
+		boolean explain = "true".equals(request.getHeader(EXPLAIN_HEADER));
+		String querry = request.getHeader(Q_HEADER);
+		
+		BoolQueryBuilder q = null;
 			
-			Set<String> types = new HashSet<String>();
-			List<String> t = request.getHeaders("type");
-			if(t != null) {
-				for(String s : t) {
-					types.addAll(Arrays.asList(StringUtils.split(s, ", []\"\'")));
-				}
-			}
+		Set<String> types = getSet(request, TYPE_HEADER);
+
+		Set<String> poiClass = getSet(request, POI_CLASS_HEADER);
+		addPOIGroups(request, poiClass);
 			
-			BoolQueryBuilder q = getSearchQuerry(querry);
-			
-			if(!types.isEmpty()) {
-				q.must(QueryBuilders.termsQuery("type", types));
-			}
-			
-			Client client = ESNodeHodel.getClient();
-			SearchRequestBuilder searchQ = client.prepareSearch("gazetteer")
-					.setQuery(q)
-					.setExplain(explain);
-			
-			APIUtils.applyPaging(request, searchQ);
-			
-			searchQ.setMinScore(0.001f);
-			
-			SearchResponse searchResponse = searchQ.execute().actionGet();
-			
-			JSONObject answer = APIUtils.encodeSearchResult(searchResponse, 
-					request.getHeader("full_geometry") != null && "true".equals(request.getParameter("full_geometry")),
-					explain);
-			
-			APIUtils.resultPaging(request, answer);
-			
-			return answer;
+		if(querry == null && poiClass.isEmpty()) {
+			return null;
 		}
 		
-		return null;
+		if(querry != null) {
+			q = getSearchQuerry(querry);
+		}
+		else {
+			q = QueryBuilders.boolQuery();
+		}
+
+		if(!types.isEmpty()) {
+			q.must(QueryBuilders.termsQuery("type", types));
+		}
+		
+		if(!poiClass.isEmpty()) {
+			q.must(QueryBuilders.termsQuery("poi_class", poiClass));
+		}
+			
+		QueryBuilder qb = q;
+
+		List<String> bbox = getList(request, BBOX_HEADER);
+		if(!bbox.isEmpty() && bbox.size() == 4) {
+			qb = QueryBuilders.filteredQuery(q, 
+					FilterBuilders.geoBoundingBoxFilter("center_point")
+					.bottomLeft(Double.parseDouble(bbox.get(1)), Double.parseDouble(bbox.get(0)))
+					.topRight(Double.parseDouble(bbox.get(3)), Double.parseDouble(bbox.get(2))));
+		}
+
+		
+		Client client = ESNodeHodel.getClient();
+		SearchRequestBuilder searchRequest = client.prepareSearch("gazetteer")
+				.setQuery(qb)
+				.setExplain(explain);
+
+		
+		APIUtils.applyPaging(request, searchRequest);
+		
+		searchRequest.setMinScore(0.001f);
+		
+		SearchResponse searchResponse = searchRequest.execute().actionGet();
+		
+		boolean fullGeometry = request.getHeader(FULL_GEOMETRY_HEADER) != null 
+		&& "true".equals(request.getParameter(FULL_GEOMETRY_HEADER));
+		
+		JSONObject answer = APIUtils.encodeSearchResult(
+				searchResponse,	fullGeometry, explain);
+		
+		APIUtils.resultPaging(request, answer);
+		
+		return answer;
+		
+	}
+
+	private void addPOIGroups(Request request, Set<String> poiClass) {
+		for(String s : getSet(request, POI_GROUP_HEADER)) {
+			Collection<? extends Feature> hierarcyBranch = OSMDocSinglton.get().getReader().getHierarcyBranch(null, s);
+			if(hierarcyBranch != null) {
+				for(Feature f : hierarcyBranch) {
+					poiClass.add(f.getName());
+				}
+			}
+		}
+	}
+
+	private Set<String> getSet(Request request, String header) {
+		Set<String> types = new HashSet<String>();
+		List<String> t = request.getHeaders(header);
+		if(t != null) {
+			for(String s : t) {
+				types.addAll(Arrays.asList(StringUtils.split(s, ", []\"\'")));
+			}
+		}
+		return types;
+	}
+
+	private List<String> getList(Request request, String header) {
+		List<String> result = new ArrayList<String>();
+		List<String> t = request.getHeaders(header);
+		if(t != null) {
+			for(String s : t) {
+				result.addAll(Arrays.asList(StringUtils.split(s, ", []\"\'")));
+			}
+		}
+		return result;
 	}
 
 	public static BoolQueryBuilder getSearchQuerry(String querry) {
@@ -94,6 +197,5 @@ public class SearchAPI {
 			.should(QueryBuilders.matchQuery("street_name", querry).boost(7))
 			.should(QueryBuilders.matchQuery("housenumber", querry).boost(100));
 	}
-
 	
 }
