@@ -164,8 +164,10 @@ app.directive('ngEnter', function() {
 		};
 		
 		$scope.searchResultsPage = {};
+		$scope.pagesCenter = $scope.map.getCenter();
 
 		$scope.find = function() {
+			$scope.pagesCenter = $scope.map.getCenter();
 			searchAPI.search($scope, 1);
 		};
 		
@@ -365,8 +367,8 @@ app.factory('SearchAPI', ['$http', function($http) {
 					'q':$scope.searchQuerry,
 					'poiclass':$scope.cathegories.features,
 					'poigroup':$scope.cathegories.groups,
-					'lat':$scope.map.getCenter().lat,
-					'lon':$scope.map.getCenter().lng,
+					'lat':$scope.pagesCenter.lat,
+					'lon':$scope.pagesCenter.lng,
 					'mark':('' + $scope.cathegories + $scope.searchQuerry).hashCode(),
 					'page':page
 				}
@@ -386,6 +388,7 @@ app.factory('SearchAPI', ['$http', function($http) {
 						$scope.searchResultsPage = data;
 						$scope.getSRPages();
 						
+						var pointsArray = [];
 						angular.forEach(data.features, function(f){
 							if($scope.id2Feature[f.feature_id] == undefined){
 								$scope.id2Feature[f.feature_id] = f;
@@ -393,9 +396,12 @@ app.factory('SearchAPI', ['$http', function($http) {
 								var m = L.marker(f.center_point);
 								$scope.id2Marker[f.feature_id] = m;
 								m.addTo($scope.map).bindPopup(searchAPIFactory.createPopUP(f));
+								
+								pointsArray.push(f.center_point);
 							}
 						});
 						
+						$scope.map.fitBounds(L.latLngBounds(pointsArray));
 						$scope.pagesMode = true;
 					}
 				}
