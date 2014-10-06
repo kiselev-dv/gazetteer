@@ -76,7 +76,8 @@ app.directive('ngEnter', function() {
 			}
 		};
 		
-		$scope.$watch('cathegories', function(types){
+		$scope.$watch('cathegories', function(types) {
+			$scope.pagesMode = false;
 			searchAPI.listPOI($scope, 1);
 			$scope.filterMap($scope);
 		}, true);
@@ -85,11 +86,15 @@ app.directive('ngEnter', function() {
 		$scope.id2Marker = {};
 		
 		$scope.map.on('viewreset', function(){
-			searchAPI.listPOI($scope, 1);
+			if(!$scope.pagesMode) {
+				searchAPI.listPOI($scope, 1);
+			}
 		});
 		
 		$scope.map.on('moveend', function(){
-			searchAPI.listPOI($scope, 1);
+			if(!$scope.pagesMode) {
+				searchAPI.listPOI($scope, 1);
+			}
 		});
 		
 		$scope.traverseHierarchy = function(h, traverser, groups) {
@@ -161,7 +166,7 @@ app.directive('ngEnter', function() {
 		$scope.searchResultsPage = {};
 
 		$scope.find = function() {
-			searchAPI.search($scope);
+			searchAPI.search($scope, 1);
 		};
 		
 		$scope.formatSearchResultTitle = function(f) {
@@ -177,6 +182,63 @@ app.directive('ngEnter', function() {
 		$scope.formatSearchResultAddress = function(f) {
 			return f.address;
 		};
+		
+		$scope.getSRPages = function() {
+			
+			var r = {};
+			
+			if($scope.searchResultsPage) {
+				
+				var total = $scope.searchResultsPage.hits;
+				var page = $scope.searchResultsPage.page;
+				var pageSize = $scope.searchResultsPage.size;
+				var maxPage = parseInt(total/pageSize);
+				if(total % pageSize == 0) {
+					maxPage += 1;
+				}
+				
+				for(var i = 1; i <= maxPage && i <= 8; i++){
+					r[i] = {
+						'p':i,
+						'active':page == i
+					};
+				}
+				
+				for(var i = page - 1; i <= page + 1; i++){
+					if(i > 0 && i <= maxPage) {
+						r[i] = {
+							'p':i,
+							'active':page == i
+						};
+					}
+				}
+
+				for(var i = maxPage - 2; i <= maxPage; i++){
+					if(i > 0) {
+						r[i] = {
+							'p':i,
+							'active':page == i
+						};
+					}
+				}
+			}
+			var rarr = [];
+			angular.forEach(r, function(v){
+				rarr.push(v);
+			});
+			
+			rarr.sort(function (a, b) { return a.p - b.p; });
+			
+			$scope.srPages = rarr;
+		};
+		
+		$scope.goPage = function(p) {
+			searchAPI.search($scope, p.p);
+		};
+		
+		$scope.selectRow = function(f) {
+			$scope.id2Marker[f.feature_id].openPopup();
+		}
 	}; 
 	
 	MapController.addSelection = function(obj, arr) {
@@ -289,7 +351,7 @@ app.factory('osmdocHierarchyService', ['$http', function($http) {
 app.factory('SearchAPI', ['$http', function($http) {  
 	var searchAPIFactory = {
 		
-		search:function($scope) {
+		search:function($scope, page) {
 			
 			if($scope.cathegories.features.length == 0 
 					&& $scope.cathegories.groups == 0
@@ -305,13 +367,36 @@ app.factory('SearchAPI', ['$http', function($http) {
 					'poigroup':$scope.cathegories.groups,
 					'lat':$scope.map.getCenter().lat,
 					'lon':$scope.map.getCenter().lng,
-					'mark':('' + $scope.cathegories + $scope.searchQuerry).hashCode()
+					'mark':('' + $scope.cathegories + $scope.searchQuerry).hashCode(),
+					'page':page
 				}
 			}).success(function(data) {
 				if(data.result == 'success') {
 					var curentHash = ('' + $scope.cathegories + $scope.searchQuerry).hashCode();
 					if(data.mark == curentHash) {
+						
+						angular.forEach($scope.searchResultsPage.features, function(f){
+							if($scope.id2Feature[f.feature_id] !== undefined){
+								$scope.map.removeLayer($scope.id2Marker[f.feature_id]);
+								delete $scope.id2Feature[f.feature_id];
+								delete $scope.id2Marker[f.feature_id];
+							}
+						});
+
 						$scope.searchResultsPage = data;
+						$scope.getSRPages();
+						
+						angular.forEach(data.features, function(f){
+							if($scope.id2Feature[f.feature_id] == undefined){
+								$scope.id2Feature[f.feature_id] = f;
+								
+								var m = L.marker(f.center_point);
+								$scope.id2Marker[f.feature_id] = m;
+								m.addTo($scope.map).bindPopup(searchAPIFactory.createPopUP(f));
+							}
+						});
+						
+						$scope.pagesMode = true;
 					}
 				}
 			});

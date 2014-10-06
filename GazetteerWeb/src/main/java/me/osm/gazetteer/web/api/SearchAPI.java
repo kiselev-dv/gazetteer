@@ -149,6 +149,8 @@ public class SearchAPI {
 		JSONObject answer = APIUtils.encodeSearchResult(
 				searchResponse,	fullGeometry, explain);
 		
+		answer.put("request", request.getHeader(Q_HEADER));
+		
 		APIUtils.resultPaging(request, answer);
 		
 		return answer;

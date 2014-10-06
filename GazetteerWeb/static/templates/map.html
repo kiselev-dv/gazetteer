@@ -33,12 +33,19 @@
     <div id="page">
     	<div id="splitter">
 			<div id="sidebar" style="width:450px;">
-				<ul id="search-results" ng-show="searchResultsPage.features">
-					<li ng-repeat="f in searchResultsPage.features" class="search-result">
-						<div class="title">{{formatSearchResultTitle(f)}}</div>
-						<div class="address">{{formatSearchResultAddress(f)}}</div>
-					</li>
-				</ul>
+				<div id="search-results" ng-show="searchResultsPage.features">
+					<ul>
+						<li ng-repeat="f in searchResultsPage.features" class="search-result">
+							<div class="title" ng-click="selectRow(f)">{{formatSearchResultTitle(f)}}</div>
+							<div class="address">{{formatSearchResultAddress(f)}}</div>
+						</li>
+					</ul>
+					<div>
+						<span>{{tr($scope, 'map.js.search.result.pages')}}</span>
+						<span class="page-number" ng-class="{current:pn.active}" 
+							ng-repeat="pn in srPages" ng-click="goPage(pn)">{{pn.p}}</span>
+					</div>
+				</div>
 				<ul id="cathegories-tree">
 	    			<li ng-repeat="data in hierarchy.groups" ng-include="'PoiTreeItem.html'"></li>
 				</ul>

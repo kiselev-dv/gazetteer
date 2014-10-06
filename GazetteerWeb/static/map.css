@@ -44,7 +44,7 @@ html, body {
 #serch-input {
 	font-size: 1.2em;
 	width: 40%;
-	background: url("/img/search.svg") no-repeat scroll 98% center rgba(0, 0, 0, 0);
+	//background: url("/img/search.svg") no-repeat scroll 98% center rgba(0, 0, 0, 0);
     height: 32px;
     margin: 8px 3px 3px 3px;
     padding: 0 0 0 5px
@@ -118,13 +118,24 @@ input, textarea, form:active, input:focus {
 }
 #search-results {
 	border-bottom: 3px solid #FF9D1C;
-	list-style: none;
-	padding-left: 0;
 }
 .search-result .address {
 	font-size: 9pt;
 }
+.search-result .title {
+	cursor: pointer;
+}
 .search-result {
-	border-bottom: 1px solid #FF9D1C;
-	padding: 0 5px 0 5px;
+	padding: 0 5px 4px 5px;
+}
+.search-result:HOVER {
+	background-color: #FAFAFA;
+}
+.page-number {
+	cursor: pointer;
+	margin-left: 6px;
+}
+.current {
+	font-weight: bold;
+	color: #FF9D1C;
 }
