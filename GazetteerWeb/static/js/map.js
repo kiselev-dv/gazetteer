@@ -1,6 +1,17 @@
 var HTML_ROOT = '/static';
 var API_ROOT = '';
 
+String.prototype.hashCode = function(){
+	var hash = 0;
+	if (this.length == 0) return hash;
+	for (i = 0; i < this.length; i++) {
+		char = this.charCodeAt(i);
+		hash = ((hash<<5)-hash)+char;
+		hash = hash & hash; // Convert to 32bit integer
+	}
+	return hash;
+}
+
 var app = angular.module('Map', [ 'ngRoute', 'ngCookies', 'ngResource' ]);
 
 app.config(['$locationProvider', function($locationProvider) {
@@ -22,11 +33,26 @@ app.config(function($routeProvider) {
     });
 });
 
+app.directive('ngEnter', function() {
+	return function(scope, element, attrs) {
+		element.bind("keydown keypress", function(event) {
+			if (event.which === 13) {
+				scope.$apply(function() {
+					scope.$eval(attrs.ngEnter);
+				});
+
+				event.preventDefault();
+			}
+		});
+	};
+});
+
 (function( ng, app ) {
 	
 	MapController = function ($scope, $cookies, i18nService, 
 			osmdocHierarchyService, searchAPI) {
 		
+		$scope.name2FClass = {};
 		i18nService.getTranslation($scope, 'ru');
 		osmdocHierarchyService.loadHierarchy($scope, 'ru');
 		
@@ -52,6 +78,7 @@ app.config(function($routeProvider) {
 		
 		$scope.$watch('cathegories', function(types){
 			searchAPI.listPOI($scope, 1);
+			$scope.filterMap($scope);
 		}, true);
 		
 		$scope.id2Feature = {};
@@ -64,6 +91,92 @@ app.config(function($routeProvider) {
 		$scope.map.on('moveend', function(){
 			searchAPI.listPOI($scope, 1);
 		});
+		
+		$scope.traverseHierarchy = function(h, traverser, groups) {
+			angular.forEach(h.features, function(f){
+				traverser.feature(f, groups);
+			});
+			angular.forEach(h.groups, function(g){
+				groups.push(g.name);
+				traverser.group(g);
+				$scope.traverseHierarchy(g, traverser, groups);
+				groups.pop(g.name);
+			});
+		};
+		
+		$scope.expandCathegories = function() {
+			
+			if(!$scope.hierarchy) {
+				return [];
+			}
+			
+			var rhash = {};
+			
+			angular.forEach($scope.cathegories.features, function(f){
+				rhash[f] = 1;
+			});
+			
+			$scope.traverseHierarchy($scope.hierarchy, {
+				feature:function(f, gstack){
+					angular.forEach($scope.cathegories.groups, function(g){
+						if(gstack.indexOf(g) >= 0) {
+							rhash[f.name] = 1;
+						}
+					});
+				},
+				group:function(g){
+					
+				}
+			}, []);
+
+			var res = [];
+			
+			angular.forEach(rhash, function(v, k){
+				res.push(k);
+			});
+			
+			return res;
+		};
+		
+		//For now filter only by cathegory, not by q string
+		$scope.filterMap = function() {
+			var ftypes = $scope.expandCathegories();
+				
+			var remove = [];
+
+			angular.forEach($scope.id2Feature, function(f, id){
+				if(ftypes.indexOf(f.class_name) < 0) {
+					remove.push(id);
+				}
+			});
+
+			angular.forEach(remove, function(id){
+				$scope.map.removeLayer($scope.id2Marker[id]);
+				delete $scope.id2Marker[id];
+				delete $scope.id2Feature[id];
+			});
+				
+		};
+		
+		$scope.searchResultsPage = {};
+
+		$scope.find = function() {
+			searchAPI.search($scope);
+		};
+		
+		$scope.formatSearchResultTitle = function(f) {
+			var title = (f.name || f.poi_class_names[0]);
+			
+			if(f.name) {
+				title += ' (' + f.poi_class_names[0] + ')';
+			}
+			
+			return title;
+		};
+
+		$scope.formatSearchResultAddress = function(f) {
+			return f.address;
+		};
 	}; 
 	
 	MapController.addSelection = function(obj, arr) {
@@ -158,7 +271,16 @@ app.factory('osmdocHierarchyService', ['$http', function($http) {
     				'lang': language
     			}
 	    	}).success(function(data) {
-	                $scope.hierarchy = data;
+	                
+	    		$scope.hierarchy = data;
+	    		$scope.traverseHierarchy($scope.hierarchy, {
+	    			feature:function(f){
+	    				 $scope.name2FClass[f.name] = f;
+	    			},
+	    			group:function(g){
+	    				
+	    			}
+	    		}, []);    
 	        });
         }
     }
@@ -168,12 +290,30 @@ app.factory('SearchAPI', ['$http', function($http) {
 	var searchAPIFactory = {
 		
 		search:function($scope) {
+			
+			if($scope.cathegories.features.length == 0 
+					&& $scope.cathegories.groups == 0
+					&& !$scope.searchQuerry) {
+				
+				return;
+			}
+			
 			$http.get(API_ROOT + '/feature/_search', {
 				'params' : {
-					'q':$scope.searchQuerry
+					'q':$scope.searchQuerry,
+					'poiclass':$scope.cathegories.features,
+					'poigroup':$scope.cathegories.groups,
+					'lat':$scope.map.getCenter().lat,
+					'lon':$scope.map.getCenter().lng,
+					'mark':('' + $scope.cathegories + $scope.searchQuerry).hashCode()
 				}
 			}).success(function(data) {
-				$scope.hierarchy = data;
+				if(data.result == 'success') {
+					var curentHash = ('' + $scope.cathegories + $scope.searchQuerry).hashCode();
+					if(data.mark == curentHash) {
+						$scope.searchResultsPage = data;
+					}
+				}
 			});
 		},
 		
@@ -193,26 +333,29 @@ app.factory('SearchAPI', ['$http', function($http) {
 					'poigroup':$scope.cathegories.groups,
 					'bbox':$scope.map.getBounds().toBBoxString(),
 					'size':50,
-					'page':page
+					'page':page,
+					'mark':('' + $scope.cathegories + $scope.searchQuerry).hashCode()
 				}
 			}).success(function(data) {
 				if(data.result == 'success') {
-					angular.forEach(data.features, function(f){
-						if($scope.id2Feature[f.feature_id] == undefined){
-							$scope.id2Feature[f.feature_id] = f;
-							
-							var m = L.marker(f.center_point);
-							$scope.id2Marker[f.feature_id] = m;
-							m.addTo($scope.map).bindPopup(searchAPIFactory.createPopUP(f));
+					var curentHash = ('' + $scope.cathegories + $scope.searchQuerry).hashCode();
+					if(data.mark == curentHash) {
+						angular.forEach(data.features, function(f){
+							if($scope.id2Feature[f.feature_id] == undefined){
+								$scope.id2Feature[f.feature_id] = f;
+								
+								var m = L.marker(f.center_point);
+								$scope.id2Marker[f.feature_id] = m;
+								m.addTo($scope.map).bindPopup(searchAPIFactory.createPopUP(f));
+							}
+						});
+						
+						//load data paged but no more than 1000 items
+						if(data.page * data.size < data.hits && data.page < 20) {
+							searchAPIFactory.listPOI($scope, data.page + 1);
 						}
-					});
-					
-					//load data paged but no more than 1000 items
-					if(data.page * data.size < data.hits && data.page < 20) {
-						searchAPIFactory.listPOI($scope, data.page + 1);
 					}
 				}
-				
 			});
 		},
 		

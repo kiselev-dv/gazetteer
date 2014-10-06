@@ -9,6 +9,8 @@ import org.restexpress.Request;
 
 public class APIUtils {
 	
+	private static final String MARK_HEADER = "mark";
+
 	private static final int DEFAULT_PAGE_SIZE = 20;
 	
 	private static final String PAGE_PARAM = "page";
@@ -49,6 +51,7 @@ public class APIUtils {
 	
 	public static void applyPaging(Request request,
 			SearchRequestBuilder searchQ) {
+		
 		int pageSize = 20;
 		if(request.getHeader(PAGE_SIZE) != null) {
 			pageSize = Integer.parseInt(request.getHeader(PAGE_SIZE));
@@ -81,6 +84,9 @@ public class APIUtils {
 		answer.put(PAGE_SIZE, pageSize);
 		answer.put("from", (page - 1) * pageSize);
 		answer.put(PAGE_PARAM, page);
+		if(request.getHeader(MARK_HEADER) != null) {
+			answer.put("mark", request.getHeader(MARK_HEADER));
+		}
 	}
 	
 }

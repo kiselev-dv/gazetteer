@@ -22,16 +22,23 @@
 	    	<form id="search-form">
 	    		<input id="serch-input" class="field ui-autocomplete-input ui-widget" 
 	    			type="search" placeholder="{{translation['map.js.input.search.placeholder']}}" 
-	    			autofocus="" autocomplete="off" name="q" ng-model="searchQuerry">
+	    			autofocus="" autocomplete="off" name="q" ng-model="searchQuerry" 
+	    			ng-enter="find();">
 	    		<input type="submit" id="search-button" 
 	    			value="{{translation['map.js.button.search']}}"
-	    			class="button"/> 
+	    			class="button" ng-click="find();"/> 
 			</form>    	 
     	</div>
     </div>
     <div id="page">
     	<div id="splitter">
 			<div id="sidebar" style="width:450px;">
+				<ul id="search-results" ng-show="searchResultsPage.features">
+					<li ng-repeat="f in searchResultsPage.features" class="search-result">
+						<div class="title">{{formatSearchResultTitle(f)}}</div>
+						<div class="address">{{formatSearchResultAddress(f)}}</div>
+					</li>
+				</ul>
 				<ul id="cathegories-tree">
 	    			<li ng-repeat="data in hierarchy.groups" ng-include="'PoiTreeItem.html'"></li>
 				</ul>

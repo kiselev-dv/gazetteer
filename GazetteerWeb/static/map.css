@@ -36,6 +36,7 @@ html, body {
 	position: absolute;
 	right: 0px;
 	background-color: grey;
+	border-left: 3px solid grey;
 }
 #search-form {
 	display: inline;
@@ -114,4 +115,16 @@ input, textarea, form:active, input:focus {
 }
 #cathegories-tree {
 	padding-left: 5px;
+}
+#search-results {
+	border-bottom: 3px solid #FF9D1C;
+	list-style: none;
+	padding-left: 0;
+}
+.search-result .address {
+	font-size: 9pt;
+}
+.search-result {
+	border-bottom: 1px solid #FF9D1C;
+	padding: 0 5px 0 5px;
 }

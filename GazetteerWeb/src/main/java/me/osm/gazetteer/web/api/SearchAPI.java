@@ -20,6 +20,7 @@ import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.FilterBuilders;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.search.sort.SortBuilders;
 import org.json.JSONObject;
 import org.restexpress.Request;
 import org.restexpress.Response;
@@ -70,6 +71,16 @@ public class SearchAPI {
 	 * */
 	public static String POI_GROUP_HEADER = "poigroup";
 	
+	/**
+	 * Latitude of map center
+	 * */
+	public static String LAT_HEADER = "lat";
+
+	/**
+	 * Longitude of map center
+	 * */
+	public static String LON_HEADER = "lon";
+	
 	
 	public JSONObject read(Request request, Response response) 
 			throws IOException {
@@ -118,6 +129,12 @@ public class SearchAPI {
 		SearchRequestBuilder searchRequest = client.prepareSearch("gazetteer")
 				.setQuery(qb)
 				.setExplain(explain);
+		
+		if(request.getHeader(LAT_HEADER) != null && request.getHeader(LON_HEADER) != null) {
+			Double lat = Double.parseDouble(request.getHeader(LAT_HEADER));
+			Double lon = Double.parseDouble(request.getHeader(LON_HEADER));
+			searchRequest.addSort(SortBuilders.geoDistanceSort("center_point").point(lat, lon));
+		}
 
 		
 		APIUtils.applyPaging(request, searchRequest);
