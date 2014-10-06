@@ -6,10 +6,9 @@
 	</a>
     <ul ng-show="data.expanded">
         <li ng-repeat="data in data.groups" ng-include="'PoiTreeItem.html'"></li>
-		<li class="feature" ng-repeat="feature in data.features"
-			ng-click="feature.selected = !!!feature.selected; select(feature, 'features');">
+		<li class="feature" ng-repeat="feature in data.features">
 			<input type="checkbox" ng-model="feature.selected" ng-change="select(feature, 'features');"></input>
-			{{feature.title}}
+			<a ng-click="feature.selected = !!!feature.selected; select(feature, 'features');">{{feature.title}}</a>
 		</li>
     </ul>
 </script>

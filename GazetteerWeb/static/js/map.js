@@ -51,9 +51,19 @@ app.config(function($routeProvider) {
 		};
 		
 		$scope.$watch('cathegories', function(types){
-			searchAPI.listPOI($scope);
+			searchAPI.listPOI($scope, 1);
 		}, true);
 		
+		$scope.id2Feature = {};
+		$scope.id2Marker = {};
+		
+		$scope.map.on('viewreset', function(){
+			searchAPI.listPOI($scope, 1);
+		});
+		
+		$scope.map.on('moveend', function(){
+			searchAPI.listPOI($scope, 1);
+		});
 	}; 
 	
 	MapController.addSelection = function(obj, arr) {
@@ -155,7 +165,8 @@ app.factory('osmdocHierarchyService', ['$http', function($http) {
 }]);
 
 app.factory('SearchAPI', ['$http', function($http) {  
-	return {
+	var searchAPIFactory = {
+		
 		search:function($scope) {
 			$http.get(API_ROOT + '/feature/_search', {
 				'params' : {
@@ -165,19 +176,62 @@ app.factory('SearchAPI', ['$http', function($http) {
 				$scope.hierarchy = data;
 			});
 		},
-		listPOI:function($scope) {
+		
+		listPOI:function($scope, page) {
+			
+			if($scope.cathegories.features.length == 0 
+					&& $scope.cathegories.groups == 0
+					&& !$scope.searchQuerry) {
+				
+				return;
+			}
+			
 			$http.get(API_ROOT + '/feature/_search', {
 				'params' : {
 					'q':$scope.searchQuerry,
 					'poiclass':$scope.cathegories.features,
 					'poigroup':$scope.cathegories.groups,
-					'bbox':$scope.map.getBounds().toBBoxString()
+					'bbox':$scope.map.getBounds().toBBoxString(),
+					'size':50,
+					'page':page
 				}
 			}).success(function(data) {
-				$scope.poi = data;
+				if(data.result == 'success') {
+					angular.forEach(data.features, function(f){
+						if($scope.id2Feature[f.feature_id] == undefined){
+							$scope.id2Feature[f.feature_id] = f;
+							
+							var m = L.marker(f.center_point);
+							$scope.id2Marker[f.feature_id] = m;
+							m.addTo($scope.map).bindPopup(searchAPIFactory.createPopUP(f));
+						}
+					});
+					
+					//load data paged but no more than 1000 items
+					if(data.page * data.size < data.hits && data.page < 20) {
+						searchAPIFactory.listPOI($scope, data.page + 1);
+					}
+				}
+				
 			});
+		},
+		
+		createPopUP: function(f) {
+			var title = (f.name || f.poi_class_names[0]);
+			
+			if(f.name) {
+				title += ' (' + f.poi_class_names[0] + ')';
+			}
+			
+			var r = '<div class="fpopup"><h2>' + title + '</h2>' +
+				'<div>' + f.address + '</div></div>';
+			
+			return r;
 		}
-	}
+		
+	};
+	
+	return searchAPIFactory;
 }]);
 
 app.factory('SuggestAPI', ['$http', function($http) {  
