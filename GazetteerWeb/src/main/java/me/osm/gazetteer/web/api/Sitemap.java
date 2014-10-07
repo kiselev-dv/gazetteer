@@ -7,6 +7,7 @@ import java.util.regex.Pattern;
 import me.osm.gazetteer.web.Configuration;
 import me.osm.gazetteer.web.ESNodeHodel;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.action.count.CountResponse;
 import org.elasticsearch.action.search.SearchRequestBuilder;
@@ -24,9 +25,13 @@ public class Sitemap {
 	private String featureUrlTemplate;
 	
 	Pattern p = Pattern.compile(".*sitemap([0-9]+)\\.xml(\\.gz)?");
+	private String webRoot;
+	private String hostName;
 	
 	public Sitemap(Configuration config) {
 		this.featureUrlTemplate = config.getSiteXMLFeatureURL();
+		this.webRoot = config.getWebRoot();
+		this.hostName = config.getHostName();
 	}
 	
 	public void read(Request req, Response res)	{
@@ -74,9 +79,16 @@ public class Sitemap {
 				  "        xsi:schemaLocation=\"http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd\">\n");
 		
 		for(SearchHit hit : searchResponse.getHits().getHits()) {
+			
+			String id = hit.getId();
+			String[] split = StringUtils.split(id, '-');
+			id= StringUtils.join(ArrayUtils.subarray(split, 0, split.length - 1), '-');
+			
+			String featureURL = StringUtils.replace(featureUrlTemplate, "{id}", id);
+			featureURL = hostName + featureURL;
+			
 			sb.append("    <url>\n");
-			sb.append("        <loc>").append(
-					StringUtils.replace(featureUrlTemplate, "{id}", hit.getId())).append("</loc>");
+			sb.append("        <loc>").append(featureURL).append("</loc>");
 			sb.append("    </url>\n");
 		}
 		
@@ -101,7 +113,7 @@ public class Sitemap {
 		
 		for(int i = 0; i <= count / PAGE_SIZE; i++) {
 			sb.append("    <sitemap>\n");
-			sb.append("        <loc>").append("/sitemap").append(i).append(".xml").append("</loc>");
+			sb.append("        <loc>").append(hostName).append(webRoot).append("/sitemap").append(i).append(".xml").append("</loc>");
 			sb.append("    </sitemap>\n");
 		}
 		

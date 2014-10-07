@@ -22,6 +22,7 @@ extends org.restexpress.util.Environment
 	
 	private String adminPasswordHash = "1A7292E6063EFEFD527B98DDB49F0D38906378B3";
 	private String poiCatalogPath;
+	private String host;
 	
 	@Override
 	protected void fillValues(Properties p)
@@ -32,6 +33,7 @@ extends org.restexpress.util.Environment
 		this.siteXMLFeatureURL = p.getProperty(SITE_FEATURE_URL, "/#!/map?fid={id}");
 		this.serveStatic = "true".equals(p.getProperty("serve_static", "false"));
 		this.root = p.getProperty("web_root", "");
+		this.host = p.getProperty("sitemap_host_root", "");
 		this.adminPasswordHash = p.getProperty("admin_password_sha1", "1A7292E6063EFEFD527B98DDB49F0D38906378B3");
 		this.poiCatalogPath = p.getProperty("poi_catalog_path", "poi_catalog");
 	}
@@ -69,6 +71,10 @@ extends org.restexpress.util.Environment
 
 	public String getPoiCatalogPath() {
 		return poiCatalogPath;
+	}
+
+	public String getHostName() {
+		return host;
 	}
 	
 }
