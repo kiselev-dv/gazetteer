@@ -13,43 +13,44 @@
 #end
 	<div class="addresses" itemprop="address" itemscope itemtype="http://schema.org/PostalAddress">
 	#foreach( $addr in $u.objList($featureJSON, 'addresses') )
-		<div itemprop="name" class="address">$addr.optString('address')</div> 
+		<div itemprop="name" class="address">$u.esc($addr.optString('address'))</div> 
 		<div class="address-details">
 			#if($addr.optString('admin0_name') != '')
 			<a href="$u.link($addr.getJSONObject('refs').optString('admin0'), $fDetailsBase)" 
 				class="addrPart" itemprop="addressCountry" itemscope 
 				itemtype="http://schema.org/Country" >
-					<span itemprop="name">$addr.optString('admin0_name')</span>
+					<span itemprop="name">$u.esc($addr.optString('admin0_name'))</span>
 			</a>
 			#end 
 			#if($addr.optString('admin1_name') != '')
 			<a href="$u.link($addr.getJSONObject('refs').optString('admin1'), $fDetailsBase)" 
-				class="addrPart" itemprop="addressRegion">$addr.optString('admin1_name')</a>
+				class="addrPart" 
+				itemprop="addressRegion">$u.esc($addr.optString('admin1_name'))</a>
 			#end 
 			#if($addr.optString('admin2_name') != '')
 			<a href="$u.link($addr.getJSONObject('refs').optString('admin2'), $fDetailsBase)" 
-				class="addrPart" >$addr.optString('admin2_name')</a>
+				class="addrPart" >$u.esc($addr.optString('admin2_name'))</a>
 			#end 
 			#if($addr.optString('local_admin_name') != '')
 			<a href="$u.link($addr.getJSONObject('refs').optString('local_admin'), $fDetailsBase)" 
-				class="addrPart" >$addr.optString('local_admin_name')</a>
+				class="addrPart" >$u.esc($addr.optString('local_admin_name'))</a>
 			#end 
 			#if($addr.optString('locality_name') != '')
 			<a href="$u.link($addr.getJSONObject('refs').optString('locality'), $fDetailsBase)" 
-				class="addrPart" itemprop="addressLocality" >$addr.optString('locality_name')</a>
+				class="addrPart" itemprop="addressLocality" >$u.esc($addr.optString('locality_name'))</a>
 			#end 
 			#if($addr.optString('neighborhood_name') != '')
 			<a href="$u.link($addr.getJSONObject('refs').optString('neighborhood'), $fDetailsBase)" 
-				class="addrPart" >$addr.optString('neighborhood_name')</a>
+				class="addrPart" >$u.esc($addr.optString('neighborhood_name'))</a>
 			#end
 			#if($addr.optString('street_name') != '' && $addr.optString('housenumber') != '')
 			<span itemprop="streetAddress" > 
 				#if($addr.optString('street_name') != '')
 				<a href="$u.link($addr.getJSONObject('refs').optString('street'), $fDetailsBase)" 
-					class="addrPart" >$addr.optString('street_name')</a>
+					class="addrPart" >$u.esc($addr.optString('street_name'))</a>
 				#end 
 				#if($addr.optString('housenumber') != '')
-				<span class="addrPart">$addr.optString('housenumber')</span>
+				<span class="addrPart">$u.esc($addr.optString('housenumber'))</span>
 				#end
 			</span>
 			#end
@@ -57,7 +58,7 @@
 		
 		#foreach( $alt in $u.objList($addr, 'alt_addresses') )
 		<div itemprop="alternateName" class="address-translation">
-			$alt		
+			$u.esc($alt)		
 		</div>
 		#end
 		
@@ -67,26 +68,26 @@
 	#if($featureJSON.optString('type') == 'poipnt')
 	<div class="poi">
 		<div>Information:</div>
-		<div><span itemprop="name">$featureJSON.optString('name')</span> 
-			(<span>$featureJSON.getJSONArray('poi_class_names').getString(0)</span>)
+		<div><span itemprop="name">$u.esc($featureJSON.optString('name'))</span> 
+			(<span>$u.esc($featureJSON.getJSONArray('poi_class_names').getString(0))</span>)
 		</div>
 		#if ($featureJSON.optString('operator') != '')
-		<div>Operator $featureJSON.optString('operator')</div>
+		<div>Operator $u.esc($featureJSON.optString('operator'))</div>
 		#end
 		#if ($featureJSON.optString('brand') != '')
-		<div>Brand: $featureJSON.optString('brand')</div>
+		<div>Brand: $u.esc($featureJSON.optString('brand'))</div>
 		#end
 		#if ($featureJSON.optString('opening_hours') != '')
-		<div>Work time: $featureJSON.optString('opening_hours')</div>
+		<div>Work time: $u.esc($featureJSON.optString('opening_hours'))</div>
 		#end
 		#if ($featureJSON.optString('phone') != '')
-		<div itemprop="telephone">Phone: $featureJSON.optString('phone')</div>
+		<div itemprop="telephone">Phone: $u.esc($featureJSON.optString('phone'))</div>
 		#end
 		#if ($featureJSON.optString('email') != '')
-		<div itemprop="email">Email: $featureJSON.optString('email')</div>
+		<div itemprop="email">Email: $u.esc($featureJSON.optString('email'))</div>
 		#end
 		#if ($featureJSON.optString('website') != '')
-		<div itemprop="url">Website: $featureJSON.optString('website')</div>
+		<div itemprop="url">Website: $u.esc($featureJSON.optString('website'))</div>
 		#end
 	</div> 
 	#end
@@ -96,11 +97,11 @@
 		<h4>Nearby streets</h4>
 		#foreach($strt in $u.objList($featureJSON, 'nearby_streets'))
 		<div>
-			<a href="$u.link($strt.optString('id'), $fDetailsBase)">$strt.optString('name')</a>
+			<a href="$u.link($strt.optString('id'), $fDetailsBase)">$u.esc($strt.optString('name'))</a>
 			#if ($strt.optJSONArray('alt_names'))
 			<div class="street-alt-names">
 				#foreach ($aname in $u.strList($strt, 'alt_names'))
-				(<span class="street-alt-name" >$aname</span>)
+				(<span class="street-alt-name" >$u.esc($aname)</span>)
 				#end
 			</div>
 			#end
@@ -118,7 +119,7 @@
 			#if ($place.optJSONArray('alt_names'))
 			<div class="place-alt-names">
 				#foreach ($aname in $u.strList($place, 'alt_names'))
-				(<span class="place-alt-name">$aname</span>)
+				(<span class="place-alt-name">$u.esc($aname)</span>)
 				#end
 			</div>
 			#end

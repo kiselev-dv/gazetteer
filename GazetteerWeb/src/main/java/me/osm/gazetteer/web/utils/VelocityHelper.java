@@ -3,6 +3,7 @@ package me.osm.gazetteer.web.utils;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -45,5 +46,7 @@ public class VelocityHelper {
 		return StringUtils.replace(t, "{id}", id);
 	}
 	
-	
+	public String esc(String t) {
+		return StringEscapeUtils.escapeXml(t);
+	}
 }
