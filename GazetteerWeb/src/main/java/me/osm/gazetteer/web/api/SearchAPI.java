@@ -133,6 +133,7 @@ public class SearchAPI {
 		if(request.getHeader(LAT_HEADER) != null && request.getHeader(LON_HEADER) != null) {
 			Double lat = Double.parseDouble(request.getHeader(LAT_HEADER));
 			Double lon = Double.parseDouble(request.getHeader(LON_HEADER));
+			searchRequest.addSort(SortBuilders.scoreSort());
 			searchRequest.addSort(SortBuilders.geoDistanceSort("center_point").point(lat, lon));
 		}
 

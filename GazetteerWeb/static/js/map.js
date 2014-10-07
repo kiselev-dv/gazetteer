@@ -172,13 +172,18 @@ app.directive('ngEnter', function() {
 		};
 		
 		$scope.formatSearchResultTitle = function(f) {
-			var title = (f.name || f.poi_class_names[0]);
 			
-			if(f.name) {
-				title += ' (' + f.poi_class_names[0] + ')';
+			if(f.name || f.poi_class_names) {
+				var title = (f.name || f.poi_class_names[0]);
+				
+				if(f.name && f.poi_class_names) {
+					title += ' (' + f.poi_class_names[0] + ')';
+				}
+				
+				return title;
 			}
 			
-			return title;
+			return '';
 		};
 
 		$scope.formatSearchResultAddress = function(f) {
@@ -451,16 +456,22 @@ app.factory('SearchAPI', ['$http', function($http) {
 		},
 		
 		createPopUP: function(f) {
-			var title = (f.name || f.poi_class_names[0]);
+			var title = '';
 			
-			if(f.name) {
-				title += ' (' + f.poi_class_names[0] + ')';
+			if(f.name || f.poi_class_names) {
+				title = (f.name || f.poi_class_names[0]);
+				
+				if(f.name && f.poi_class_names) {
+					title += ' (' + f.poi_class_names[0] + ')';
+				}
+			}
+
+			if(title) {
+				return '<div class="fpopup"><h2>' + title + '</h2>' +
+				'<div>' + f.address + '</div></div>';
 			}
 			
-			var r = '<div class="fpopup"><h2>' + title + '</h2>' +
-				'<div>' + f.address + '</div></div>';
-			
-			return r;
+			return '<div>' + f.address + '</div>';
 		}
 		
 	};
