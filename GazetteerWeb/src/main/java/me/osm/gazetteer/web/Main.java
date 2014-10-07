@@ -9,6 +9,7 @@ import me.osm.gazetteer.web.api.InverseGeocodeAPI;
 import me.osm.gazetteer.web.api.OSMDocHierarchyAPI;
 import me.osm.gazetteer.web.api.SearchAPI;
 import me.osm.gazetteer.web.api.Sitemap;
+import me.osm.gazetteer.web.api.SnapshotsAPI;
 import me.osm.gazetteer.web.api.Static;
 import me.osm.gazetteer.web.api.SuggestAPI;
 import me.osm.gazetteer.web.postprocessor.AllowOriginPP;
@@ -142,6 +143,12 @@ public class Main {
 				.method(HttpMethod.GET)
 				.flag(Flags.Auth.PUBLIC_ROUTE)
 				.flag(Flags.Cache.DONT_CACHE);
+
+		server.uri(root + "/snapshot/.*",
+				new SnapshotsAPI(config))
+				.method(HttpMethod.GET)
+				.flag(Flags.Auth.PUBLIC_ROUTE)
+				.noSerialization();
 		
 		if(config.isServeStatic()) {
 			server.uri(root + "/static/.*", new Static())

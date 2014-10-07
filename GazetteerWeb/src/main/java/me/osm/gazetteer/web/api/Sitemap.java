@@ -73,13 +73,11 @@ public class Sitemap {
 				  "        xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" \n" + 
 				  "        xsi:schemaLocation=\"http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd\">\n");
 		
-		int i = 0;
 		for(SearchHit hit : searchResponse.getHits().getHits()) {
 			sb.append("    <url>\n");
 			sb.append("        <loc>").append(
 					StringUtils.replace(featureUrlTemplate, "{id}", hit.getId())).append("</loc>");
 			sb.append("    </url>\n");
-			i++;
 		}
 		
 		sb.append("</urlset>");

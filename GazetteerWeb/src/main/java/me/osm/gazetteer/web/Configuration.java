@@ -29,7 +29,7 @@ extends org.restexpress.util.Environment
 		this.name = p.getProperty(NAME_PROPERTY, RestExpress.DEFAULT_NAME);
 		this.port = Integer.parseInt(p.getProperty(PORT_PROPERTY, String.valueOf(RestExpress.DEFAULT_PORT)));
 		this.defaultFormat = p.getProperty(DEFAULT_FORMAT_PROPERTY, Format.JSON);
-		this.siteXMLFeatureURL = p.getProperty(SITE_FEATURE_URL, "/feature/{id}.html");
+		this.siteXMLFeatureURL = p.getProperty(SITE_FEATURE_URL, "/#!/map?fid={id}");
 		this.serveStatic = "true".equals(p.getProperty("serve_static", "false"));
 		this.root = p.getProperty("web_root", "");
 		this.adminPasswordHash = p.getProperty("admin_password_sha1", "1A7292E6063EFEFD527B98DDB49F0D38906378B3");

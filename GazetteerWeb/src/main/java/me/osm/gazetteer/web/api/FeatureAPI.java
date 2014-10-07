@@ -103,8 +103,6 @@ public class FeatureAPI {
 	public JSONObject read(Request request, Response response) 
 			throws IOException {
 		
-		Client client = ESNodeHodel.getClient();
-		
 		String idParam = request.getHeader("id");
 		String row = request.getHeader("row");
 		if(StringUtils.isEmpty(idParam) && StringUtils.isNotEmpty(row)) {
@@ -119,6 +117,18 @@ public class FeatureAPI {
 			else {
 				idParam = request.getHeader("row");
 			}
+		}
+
+		boolean withRelated = "true".equals(request.getHeader("related"));
+		
+		return getFeature(idParam, withRelated);
+	}
+
+	public static JSONObject getFeature(String idParam, boolean withRelated) {
+		Client client = ESNodeHodel.getClient();
+		
+		if(idParam == null) {
+			return null;
 		}
 		
 		QueryBuilder q = QueryBuilders.constantScoreQuery(
@@ -135,7 +145,7 @@ public class FeatureAPI {
 			
 			JSONObject feature = mergeIntoFeature(hits);
 
-			if("true".equals(request.getHeader("related"))) {
+			if(withRelated) {
 				JSONObject related =  getRelated(feature);
 				feature.put("_related", related);
 			}
@@ -146,7 +156,7 @@ public class FeatureAPI {
 		return null;
 	}
 
-	private JSONObject getRelated(JSONObject feature) {
+	private static JSONObject getRelated(JSONObject feature) {
 
 		String id = feature.getString("feature_id");
 		String type = feature.getString("type");
@@ -192,7 +202,7 @@ public class FeatureAPI {
 		return result;
 	}
 
-	private void addHighlitedFields(SearchRequestBuilder querry) {
+	private static void addHighlitedFields(SearchRequestBuilder querry) {
 		querry.addHighlightedField("refs.*");
 		querry.addHighlightedField("nearby_streets.*");
 		querry.addHighlightedField("nearby_places.*");
@@ -201,7 +211,7 @@ public class FeatureAPI {
 		querry.addHighlightedField("nearby_addresses.*");
 	}
 
-	private QueryBuilder buildQ(String id, Collection<String> lowerTypes) {
+	private static QueryBuilder buildQ(String id, Collection<String> lowerTypes) {
 		
 		return QueryBuilders.boolQuery()
 			.should(QueryBuilders.queryString("refs.\\*:\"" + id + "\"").boost(10))
@@ -214,7 +224,7 @@ public class FeatureAPI {
 		
 	}
 
-	private JSONObject mergeIntoFeature(SearchHit[] hits) {
+	private static JSONObject mergeIntoFeature(SearchHit[] hits) {
 		
 		JSONObject result = null;
 		JSONArray addresses = new JSONArray();

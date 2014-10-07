@@ -1,5 +1,3 @@
-var HTML_ROOT = '/static';
-var API_ROOT = '';
 
 String.prototype.hashCode = function(){
 	var hash = 0;
@@ -50,13 +48,31 @@ app.directive('ngEnter', function() {
 (function( ng, app ) {
 	
 	MapController = function ($scope, $cookies, i18nService, 
-			osmdocHierarchyService, searchAPI) {
+			osmdocHierarchyService, searchAPI, featureAPI, $location) {
 		
 		$scope.name2FClass = {};
 		i18nService.getTranslation($scope, 'ru');
 		osmdocHierarchyService.loadHierarchy($scope, 'ru');
 		
 		addMap($scope);
+		
+		
+		$scope.activeFeatureID = null;
+		$scope.$watch(function () {return $location.search();}, 
+				function() {
+					$scope.activeFeatureID = $location.search()['fid'];
+				}
+		);
+		
+		$scope.$watch('activeFeatureID', function(term) {
+			if(term) {
+				$location.search('fid', term);
+				featureAPI.showPopup($scope);
+			}
+			else {
+				$location.search('fid', null);
+			}
+		});
 		
 		$scope.cathegories = {
 			features:[],
@@ -244,7 +260,7 @@ app.directive('ngEnter', function() {
 		};
 		
 		$scope.selectRow = function(f) {
-			$scope.id2Marker[f.feature_id].openPopup();
+			$scope.activeFeatureID = f.feature_id;
 		}
 	}; 
 	
@@ -266,38 +282,50 @@ app.directive('ngEnter', function() {
 	};
 	
 	app.controller('MapController',['$scope', '$cookies', 'i18nService', 
-	     'osmdocHierarchyService', 'SearchAPI', MapController]);
+	     'osmdocHierarchyService', 'SearchAPI', 'featureAPI', '$location', MapController]);
 	
 })(angular, app);
 
-function addMap(scope) {
-	scope.map = L.map('map').setView([42.4564, 18.5347], 15);
+function addMap($scope) {
+	$scope.map = L.map('map').setView([42.4564, 18.5347], 15);
 	
-	var attrString = tr(scope, 'map.js.copy.data') + 
+	var attrString = tr($scope, 'map.js.copy.data') + 
 		' &copy; <a href="http://osm.org">' + 
-		tr(scope, 'map.js.copy.contributors') + '</a>, ' + 
-		tr(scope, 'map.js.copy.rendering') + 
+		tr($scope, 'map.js.copy.contributors') + '</a>, ' + 
+		tr($scope, 'map.js.copy.rendering') + 
 		' <a href=\"http://giscience.uni-hd.de/\" target=\"_blank\">University of Heidelberg</a>';
 	
 	L.tileLayer('http://openmapsurfer.uni-hd.de/tiles/roads/x={x}&y={y}&z={z}', {
 	    attribution: attrString,
 	    maxZoom: 18
-	}).addTo(scope.map);
+	}).addTo($scope.map);
 
 	var overlays = {};
-	overlays[tr(scope, 'map.js.layer.relief')] = 
+	overlays[tr($scope, 'map.js.layer.relief')] = 
 		L.tileLayer('http://openmapsurfer.uni-hd.de/tiles/asterh/x={x}&y={y}&z={z}', {		
 		maxZoom: 18
 	});
 
-	overlays[tr(scope, 'map.js.layer.contours')] = 
+	overlays[tr($scope, 'map.js.layer.contours')] = 
 		L.tileLayer('http://openmapsurfer.uni-hd.de/tiles/asterc/x={x}&y={y}&z={z}', {
 		maxZoom: 18
 	});
 
 	this.layersControl = L.control.layers({}, overlays);
-	this.layersControl.addTo(scope.map);
-	scope.map.addControl(new L.Control.Scale());
+	this.layersControl.addTo($scope.map);
+	$scope.map.addControl(new L.Control.Scale());
+	
+	$scope.map.on('popupopen', function(e) {
+	    var px = $scope.map.project(e.popup._latlng);
+	    px.y -= e.popup._container.clientHeight/2
+	    $scope.map.panTo($scope.map.unproject(px),{animate: false});
+	    
+	    $scope.activeFeatureID = e.popup._source.feature_id;
+	});
+
+	$scope.map.on('popupclose', function(e) {
+		$scope.activeFeatureID = '';
+	});
 }
 
 app.factory('i18nService', ['$resource', function($resource) {  
@@ -387,6 +415,7 @@ app.factory('SearchAPI', ['$http', function($http) {
 								$scope.map.removeLayer($scope.id2Marker[f.feature_id]);
 								delete $scope.id2Feature[f.feature_id];
 								delete $scope.id2Marker[f.feature_id];
+								$scope.activeFeatureID = '';
 							}
 						});
 
@@ -400,7 +429,8 @@ app.factory('SearchAPI', ['$http', function($http) {
 								
 								var m = L.marker(f.center_point);
 								$scope.id2Marker[f.feature_id] = m;
-								m.addTo($scope.map).bindPopup(searchAPIFactory.createPopUP(f));
+								m.feature_id = f.feature_id;
+								m.addTo($scope.map).bindPopup(createPopUP(f));
 								
 								pointsArray.push(f.center_point);
 							}
@@ -442,7 +472,8 @@ app.factory('SearchAPI', ['$http', function($http) {
 								
 								var m = L.marker(f.center_point);
 								$scope.id2Marker[f.feature_id] = m;
-								m.addTo($scope.map).bindPopup(searchAPIFactory.createPopUP(f));
+								m.feature_id = f.feature_id;
+								m.addTo($scope.map).bindPopup(createPopUP(f));
 							}
 						});
 						
@@ -453,30 +484,41 @@ app.factory('SearchAPI', ['$http', function($http) {
 					}
 				}
 			});
-		},
-		
-		createPopUP: function(f) {
-			var title = '';
-			
-			if(f.name || f.poi_class_names) {
-				title = (f.name || f.poi_class_names[0]);
-				
-				if(f.name && f.poi_class_names) {
-					title += ' (' + f.poi_class_names[0] + ')';
-				}
-			}
-
-			if(title) {
-				return '<div class="fpopup"><h2>' + title + '</h2>' +
-				'<div>' + f.address + '</div></div>';
-			}
-			
-			return '<div>' + f.address + '</div>';
 		}
 		
 	};
 	
 	return searchAPIFactory;
+}]);
+
+app.factory('featureAPI', ['$http', function($http) {  
+	return {
+		showPopup:function($scope) {
+
+			if($scope.id2Marker && $scope.activeFeatureID && $scope.id2Marker[$scope.activeFeatureID]) {
+				$scope.id2Marker[$scope.activeFeatureID].openPopup();
+			}
+			else if($scope.activeFeatureID) {
+				$http.get(API_ROOT + '/feature', {
+					'params' : {
+						'id':$scope.activeFeatureID,
+						'related':false
+					}
+				}).success(function(data) {
+					if(!$scope.id2Feature[data.feature_id]) {
+						$scope.id2Feature[data.feature_id] = data;
+						
+						var m = L.marker(data.center_point);
+						$scope.id2Marker[data.feature_id] = m;
+						m.addTo($scope.map).bindPopup(createPopUP(data));
+						m.feature_id = data.feature_id;
+						
+						$scope.id2Marker[data.feature_id].openPopup();
+					}
+				});
+			}
+		}
+	}
 }]);
 
 app.factory('SuggestAPI', ['$http', function($http) {  
@@ -492,3 +534,22 @@ app.factory('SuggestAPI', ['$http', function($http) {
 		}
 	}
 }]);
+
+function createPopUP(f) {
+	var title = '';
+	
+	if(f.name || f.poi_class_names) {
+		title = (f.name || f.poi_class_names[0]);
+		
+		if(f.name && f.poi_class_names) {
+			title += ' (' + f.poi_class_names[0] + ')';
+		}
+	}
+
+	if(title) {
+		return '<div class="fpopup"><h2>' + title + '</h2>' +
+		'<div>' + f.address + '</div></div>';
+	}
+	
+	return '<div>' + f.address + '</div>';
+}
