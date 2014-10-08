@@ -7,12 +7,17 @@ With next goals in mind:
 * Easy to deploy (keep number of external dependencyes as low as possible)
 * Memory friendly (most parts can be easily rewrited, to use file indexes and save ram)
 * Clusterization friendly (build whole process as a number of tasks, which can be performed in multi-thread/multi-node environment)
+ 
+
+Small demo: http://map.osm.me
+
+Data generated with Gazetteer, search api builded with restexpress and elasticsearch (GazetteerWeb).
 
 
 compile with apache maven
 ------------------
 
-    mvn clean compile assembly:single
+    mvn clean compile assembly:single -f Gazetteer/pom.xml
   
 
 usage
