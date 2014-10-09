@@ -203,7 +203,7 @@ app.directive('ngEnter', function() {
 		};
 
 		$scope.formatSearchResultAddress = function(f) {
-			return f.address;
+			return getAddress(f);
 		};
 		
 		$scope.getSRPages = function() {

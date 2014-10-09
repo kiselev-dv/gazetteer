@@ -35,8 +35,8 @@
 			<div id="sidebar" style="width:450px;">
 				<div id="search-results" ng-show="searchResultsPage.features">
 					<ul>
-						<li ng-repeat="f in searchResultsPage.features" class="search-result">
-							<div class="title" ng-click="selectRow(f)">{{formatSearchResultTitle(f)}}</div>
+						<li ng-repeat="f in searchResultsPage.features" class="search-result" ng-click="selectRow(f)">
+							<div class="title" ng-show="f.name || f.poi_class_names">{{formatSearchResultTitle(f)}}</div>
 							<div class="address">{{formatSearchResultAddress(f)}}</div>
 						</li>
 					</ul>
