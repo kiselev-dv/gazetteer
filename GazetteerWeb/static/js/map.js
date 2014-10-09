@@ -430,7 +430,7 @@ app.factory('SearchAPI', ['$http', function($http) {
 								var m = L.marker(f.center_point);
 								$scope.id2Marker[f.feature_id] = m;
 								m.feature_id = f.feature_id;
-								m.addTo($scope.map).bindPopup(createPopUP(f));
+								m.addTo($scope.map).bindPopup(createPopUP(f, $scope));
 								
 								pointsArray.push(f.center_point);
 							}
@@ -473,7 +473,7 @@ app.factory('SearchAPI', ['$http', function($http) {
 								var m = L.marker(f.center_point);
 								$scope.id2Marker[f.feature_id] = m;
 								m.feature_id = f.feature_id;
-								m.addTo($scope.map).bindPopup(createPopUP(f));
+								m.addTo($scope.map).bindPopup(createPopUP(f, $scope));
 							}
 						});
 						
@@ -510,7 +510,7 @@ app.factory('featureAPI', ['$http', function($http) {
 						
 						var m = L.marker(data.center_point);
 						$scope.id2Marker[data.feature_id] = m;
-						m.addTo($scope.map).bindPopup(createPopUP(data));
+						m.addTo($scope.map).bindPopup(createPopUP(data, $scope));
 						m.feature_id = data.feature_id;
 						
 						$scope.id2Marker[data.feature_id].openPopup();
@@ -535,7 +535,7 @@ app.factory('SuggestAPI', ['$http', function($http) {
 	}
 }]);
 
-function createPopUP(f) {
+function createPopUP(f, $scope) {
 	var title = '';
 	
 	if(f.name || f.poi_class_names) {
@@ -548,12 +548,14 @@ function createPopUP(f) {
 
 	var address = getAddress(f);
 	
+	var moreLink = '<a href="' + HTML_ROOT + '/index.html#!/feature?fid=' + $scope.activeFeatureID + '">' + tr($scope, 'map.js.popup.more') + '</a>';
+	
 	if(title) {
 		return '<div class="fpopup"><h2>' + title + '</h2>' +
-		'<div>' + address + '</div></div>';
+		'<div>' + address + '</div>' + moreLink + '</div>';
 	}
 	
-	return '<div>' + address + '</div>';
+	return '<div>' + address + '</div>' + moreLink;
 }
 
 function getAddress(f) {
