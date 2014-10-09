@@ -546,10 +546,59 @@ function createPopUP(f) {
 		}
 	}
 
+	var address = getAddress(f);
+	
 	if(title) {
 		return '<div class="fpopup"><h2>' + title + '</h2>' +
-		'<div>' + f.address + '</div></div>';
+		'<div>' + address + '</div></div>';
 	}
 	
-	return '<div>' + f.address + '</div>';
+	return '<div>' + address + '</div>';
+}
+
+function getAddress(f) {
+	
+	var addrArray = [];
+	
+	a = {};
+	
+	if(f.address) {
+		a = f;
+	}
+	else if(f.addresses) {
+		a = f.addresses[0];
+	}
+	
+	if(a.housenumber) {
+		addrArray.push(a.housenumber);
+	}
+	if(a.street_name) {
+		addrArray.push(a.street_name);
+	}
+	if(a.neighborhood_name) {
+		addrArray.push(a.neighborhood_name);
+	}
+	else if(a.nearest_neighbour) {
+		addrArray.push(a.nearest_neighbour.name);
+	}
+	if(a.locality_name) {
+		addrArray.push(a.locality_name);
+	}
+	else if(a.nearest_place) {
+		addrArray.push(a.nearest_place.name);
+	}
+	if(a.local_admin_name) {
+		addrArray.push(a.local_admin_name);
+	}
+	if(a.admin2_name) {
+		addrArray.push(a.admin2_name);
+	}
+	if(a.admin1_name) {
+		addrArray.push(a.admin1_name);
+	}
+	if(a.admin0_name) {
+		addrArray.push(a.admin0_name);
+	}
+
+	return addrArray.join(', ');
 }
