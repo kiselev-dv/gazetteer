@@ -51,7 +51,7 @@ app.directive('ngEnter', function() {
 			osmdocHierarchyService, searchAPI, featureAPI, $location) {
 		
 		$scope.name2FClass = {};
-		i18nService.getTranslation($scope, 'ru');
+		i18nService.getTranslation($scope, 'ru', true);
 		osmdocHierarchyService.loadHierarchy($scope, 'ru');
 		
 		addMap($scope);
@@ -330,11 +330,11 @@ function addMap($scope) {
 
 app.factory('i18nService', ['$resource', function($resource) {  
     return {
-    	getTranslation:function($scope, language) {
+    	getTranslation:function($scope, language, reload) {
             var path = HTML_ROOT + '/i18n/map_' + language + '.json';
             var ssid = 'map.js_' + language;
             
-            if (sessionStorage) {
+            if (sessionStorage && !reload) {
                 if (sessionStorage.getItem(ssid)) {
                     $scope.translation = JSON.parse(sessionStorage.getItem(ssid));
                 } else {
@@ -403,7 +403,8 @@ app.factory('SearchAPI', ['$http', function($http) {
 					'lat':$scope.pagesCenter.lat,
 					'lon':$scope.pagesCenter.lng,
 					'mark':('' + $scope.cathegories + $scope.searchQuerry).hashCode(),
-					'page':page
+					'page':page,
+					'explain':isExplain()
 				}
 			}).success(function(data) {
 				if(data.result == 'success') {
@@ -423,14 +424,21 @@ app.factory('SearchAPI', ['$http', function($http) {
 						$scope.getSRPages();
 						
 						var pointsArray = [];
-						angular.forEach(data.features, function(f){
+						angular.forEach(data.features, function(f, index){
 							if($scope.id2Feature[f.feature_id] == undefined){
 								$scope.id2Feature[f.feature_id] = f;
 								
 								var m = L.marker(f.center_point);
 								$scope.id2Marker[f.feature_id] = m;
 								m.feature_id = f.feature_id;
-								m.addTo($scope.map).bindPopup(createPopUP(f, $scope));
+								if(isExplain()) {
+									m.addTo($scope.map).bindPopup(createPopUP(f, $scope) 
+											+ '<div class="explanations">' +  
+											data.explanations[index] + '/<div>');
+								}
+								else {
+									m.addTo($scope.map).bindPopup(createPopUP(f, $scope));
+								}
 								
 								pointsArray.push(f.center_point);
 							}
@@ -460,20 +468,28 @@ app.factory('SearchAPI', ['$http', function($http) {
 					'bbox':$scope.map.getBounds().toBBoxString(),
 					'size':50,
 					'page':page,
-					'mark':('' + $scope.cathegories + $scope.searchQuerry).hashCode()
+					'mark':('' + $scope.cathegories + $scope.searchQuerry).hashCode(),
+					'explain':isExplain()
 				}
 			}).success(function(data) {
 				if(data.result == 'success') {
 					var curentHash = ('' + $scope.cathegories + $scope.searchQuerry).hashCode();
 					if(data.mark == curentHash) {
-						angular.forEach(data.features, function(f){
+						angular.forEach(data.features, function(f, index){
 							if($scope.id2Feature[f.feature_id] == undefined){
 								$scope.id2Feature[f.feature_id] = f;
 								
 								var m = L.marker(f.center_point);
 								$scope.id2Marker[f.feature_id] = m;
 								m.feature_id = f.feature_id;
-								m.addTo($scope.map).bindPopup(createPopUP(f, $scope));
+								if(isExplain()) {
+									m.addTo($scope.map).bindPopup(createPopUP(f, $scope) 
+											+ '<div class="explanations">' +  
+											data.explanations[index] + '/<div>')
+								}
+								else {
+									m.addTo($scope.map).bindPopup(createPopUP(f, $scope));
+								}
 							}
 						});
 						
@@ -549,7 +565,7 @@ function createPopUP(f, $scope) {
 	var address = getAddress(f);
 	
 	var moreLink = '<a href="' + HTML_ROOT + '/index.html#!/feature?fid=' + $scope.activeFeatureID + '">' + tr($scope, 'map.js.popup.more') + '</a>';
-	
+
 	if(title) {
 		return '<div class="fpopup"><h2>' + title + '</h2>' +
 		'<div>' + address + '</div>' + moreLink + '</div>';
@@ -603,4 +619,8 @@ function getAddress(f) {
 	}
 
 	return addrArray.join(', ');
+}
+
+function isExplain() {
+	return window.location.href.indexOf('explain') > 0
 }

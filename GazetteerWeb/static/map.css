@@ -139,3 +139,6 @@ input, textarea, form:active, input:focus {
 	font-weight: bold;
 	color: #FF9D1C;
 }
+.explanations {
+	font-size: 4px;
+}

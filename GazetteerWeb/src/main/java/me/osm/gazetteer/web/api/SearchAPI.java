@@ -4,8 +4,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import me.osm.gazetteer.web.ESNodeHodel;
@@ -20,6 +22,8 @@ import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.FilterBuilders;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.index.query.functionscore.ScoreFunctionBuilders;
+import org.elasticsearch.search.sort.SortBuilder;
 import org.elasticsearch.search.sort.SortBuilders;
 import org.json.JSONObject;
 import org.restexpress.Request;
@@ -113,30 +117,41 @@ public class SearchAPI {
 		if(!poiClass.isEmpty()) {
 			q.must(QueryBuilders.termsQuery("poi_class", poiClass));
 		}
-			
+
 		QueryBuilder qb = q;
 
+		if(request.getHeader(LAT_HEADER) != null && request.getHeader(LON_HEADER) != null) {
+			Double lat = Double.parseDouble(request.getHeader(LAT_HEADER));
+			Double lon = Double.parseDouble(request.getHeader(LON_HEADER));
+
+			Map<String, Object> params = new HashMap<String, Object>();
+			params.put("lat", lat);
+			params.put("lon", lon);
+			
+			params.put("radius", 10_000);
+			
+			qb = QueryBuilders.functionScoreQuery(qb).scoreMode("max").boostMode("avg")
+					.add(ScoreFunctionBuilders.scriptFunction("sqrt(radius/doc['center_point'].distance(lat, lon))", params));
+			
+		}
+
+		
 		List<String> bbox = getList(request, BBOX_HEADER);
 		if(!bbox.isEmpty() && bbox.size() == 4) {
-			qb = QueryBuilders.filteredQuery(q, 
+			qb = QueryBuilders.filteredQuery(qb, 
 					FilterBuilders.geoBoundingBoxFilter("center_point")
 					.bottomLeft(Double.parseDouble(bbox.get(1)), Double.parseDouble(bbox.get(0)))
 					.topRight(Double.parseDouble(bbox.get(3)), Double.parseDouble(bbox.get(2))));
 		}
 
 		
+		SortBuilder sort = SortBuilders.scoreSort();
+		
 		Client client = ESNodeHodel.getClient();
 		SearchRequestBuilder searchRequest = client.prepareSearch("gazetteer")
 				.setQuery(qb)
-				.setExplain(explain);
-		
-		if(request.getHeader(LAT_HEADER) != null && request.getHeader(LON_HEADER) != null) {
-			Double lat = Double.parseDouble(request.getHeader(LAT_HEADER));
-			Double lon = Double.parseDouble(request.getHeader(LON_HEADER));
-			searchRequest.addSort(SortBuilders.scoreSort());
-			searchRequest.addSort(SortBuilders.geoDistanceSort("center_point").point(lat, lon));
-		}
-
+				.setExplain(explain)
+				.addSort(sort);
 		
 		APIUtils.applyPaging(request, searchRequest);
 		
