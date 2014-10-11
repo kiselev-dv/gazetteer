@@ -38,20 +38,24 @@
 			#if($addr.optString('locality_name') != '')
 			<a href="$u.link($addr.getJSONObject('refs').optString('locality'), $fDetailsBase)" 
 				class="addrPart" itemprop="addressLocality" >$u.esc($addr.optString('locality_name'))</a>
-			#elseif($addr.optJSONObject('nearest_place') != null)
+			#else
+				#if($addr.optJSONObject('nearest_place'))
 			<a href="$u.link($addr.optJSONObject('nearest_place').optString('id'), $fDetailsBase)" 
 				class="addrPart" itemprop="addressLocality" >
 				$u.esc($addr.optJSONObject('nearest_place').optString('name'))
-			</a>	
+			</a>
+				#end	
 			#end 
 			#if($addr.optString('neighborhood_name') != '')
 			<a href="$u.link($addr.getJSONObject('refs').optString('neighborhood'), $fDetailsBase)" 
 				class="addrPart" >$u.esc($addr.optString('neighborhood_name'))</a>
-			#elseif($addr.optJSONObject('nearest_place') != null)
+			#else
+				#if($addr.optJSONObject('nearest_place'))
 			<a href="$u.link($addr.optJSONObject('nearest_neighborhood').optString('id'), $fDetailsBase)" 
 				class="addrPart" itemprop="addressLocality" >
 				$u.esc($addr.optJSONObject('nearest_neighborhood').optString('name'))
-			</a>	
+			</a>
+				#end	
 			#end
 			#if($addr.optString('street_name') != '' && $addr.optString('housenumber') != '')
 			<span itemprop="streetAddress" > 

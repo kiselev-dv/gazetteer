@@ -1,0 +1,1 @@
+sqrt( radius / (sqrt(pow((doc['center_point'].lon - lon) * cos((lat + doc['center_point'].lat) / 2), 2) + pow((doc['center_point'].lat - lat), 2)) * 6371000))

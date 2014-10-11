@@ -1,0 +1,1 @@
+sqrt(radius/doc['center_point'].distance(lat, lon))

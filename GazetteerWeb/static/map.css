@@ -139,8 +139,12 @@ input, textarea, form:active, input:focus {
 	font-weight: bold;
 	color: #FF9D1C;
 }
-.explanations {
-	font-size: 4px;
+#explanation {
+	font-size: 10px;
+	padding-left: 5px;
+}
+#explanation ul {
+	padding-left: 5px; 
 }
 .geocode-control {
 	background-color: white;

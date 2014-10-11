@@ -1,5 +1,7 @@
 package me.osm.gazetteer.web.api;
 
+import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.search.SearchHit;
@@ -42,7 +44,7 @@ public class APIUtils {
 			result.put("explanations", explanations);
 
 			for(SearchHit hit : searchResponse.getHits().getHits()) {
-				explanations.put(hit.explanation().toHtml());
+				explanations.put(StringEscapeUtils.escapeHtml4(hit.explanation().toString()));
 			}
 		}
 		

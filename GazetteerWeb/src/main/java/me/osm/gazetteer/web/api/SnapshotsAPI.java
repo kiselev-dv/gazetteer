@@ -12,9 +12,6 @@ import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.runtime.RuntimeConstants;
-import org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader;
-import org.elasticsearch.common.netty.buffer.ChannelBuffers;
-import org.elasticsearch.common.network.MulticastChannel.Config;
 import org.json.JSONObject;
 import org.restexpress.Request;
 import org.restexpress.Response;
@@ -25,8 +22,8 @@ public class SnapshotsAPI {
 	private static final VelocityEngine ve;
 	static {
 		ve = new VelocityEngine();
-		ve.setProperty(RuntimeConstants.RESOURCE_LOADER, "classpath");
-		ve.setProperty("classpath.resource.loader.class", ClasspathResourceLoader.class.getName());
+		ve.setProperty(RuntimeConstants.RESOURCE_LOADER, "file");
+		ve.setProperty(RuntimeConstants.FILE_RESOURCE_LOADER_PATH, "config/velocity");
 		ve.init();
 	}
 
@@ -45,7 +42,7 @@ public class SnapshotsAPI {
 			JSONObject feature = FeatureAPI.getFeature(getFeatureId(parameters), false);
 
 			if(feature != null) {
-				Template t = ve.getTemplate("velocity/feature.velocity.html");
+				Template t = ve.getTemplate("feature.velocity.html");
 				VelocityContext vc = new VelocityContext();
 				
 				vc.put("featureJSON", feature);

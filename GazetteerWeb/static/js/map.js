@@ -82,7 +82,7 @@ app.directive('ngEnter', function() {
 		$scope.$watch(function () {return $location.search();}, 
 				function() {
 					$scope.activeFeatureID = $location.search()['fid'];
-					$scope.explain = $location.search()['explain'];
+					$scope.explain = !!($location.search()['explain']);
 				}
 		);
 		
@@ -263,6 +263,7 @@ app.directive('ngEnter', function() {
 		
 		$scope.selectRow = function(f) {
 			$scope.activeFeatureID = f.feature_id;
+			$scope.explanation = f._explanation;
 		}
 	}; 
 	
@@ -442,16 +443,13 @@ app.factory('SearchAPI', ['$http', function($http) {
 								var m = L.marker(f.center_point);
 								$scope.id2Marker[f.feature_id] = m;
 								m.feature_id = f.feature_id;
-								if($scope.explain) {
-									m.addTo($scope.map).bindPopup(createPopUP(f, $scope) 
-											+ '<div class="explanations">' +  
-											data.explanations[index] + '/<div>');
-								}
-								else {
-									m.addTo($scope.map).bindPopup(createPopUP(f, $scope));
-								}
+								m.addTo($scope.map).bindPopup(createPopUP(f, $scope));
 								
 								pointsArray.push(f.center_point);
+								
+								if(data.explanations && data.explanations[index]) {
+									f._explanation = data.explanations[index];
+								}
 							}
 						});
 						
@@ -479,8 +477,7 @@ app.factory('SearchAPI', ['$http', function($http) {
 					'bbox':$scope.map.getBounds().toBBoxString(),
 					'size':50,
 					'page':page,
-					'mark':('' + $scope.cathegories + $scope.searchQuerry).hashCode(),
-					'explain':$scope.explain
+					'mark':('' + $scope.cathegories + $scope.searchQuerry).hashCode()
 				}
 			}).success(function(data) {
 				if(data.result == 'success') {
@@ -493,14 +490,7 @@ app.factory('SearchAPI', ['$http', function($http) {
 								var m = L.marker(f.center_point);
 								$scope.id2Marker[f.feature_id] = m;
 								m.feature_id = f.feature_id;
-								if($scope.explain) {
-									m.addTo($scope.map).bindPopup(createPopUP(f, $scope) 
-											+ '<div class="explanations">' +  
-											data.explanations[index] + '/<div>')
-								}
-								else {
-									m.addTo($scope.map).bindPopup(createPopUP(f, $scope));
-								}
+								m.addTo($scope.map).bindPopup(createPopUP(f, $scope));
 							}
 						});
 						

@@ -132,8 +132,7 @@ public class SearchAPI {
 			
 			qb = QueryBuilders.functionScoreQuery(qb).scoreMode("max").boostMode("avg")
 					.add(ScoreFunctionBuilders.scriptFunction(
-							"sqrt(radius/doc['center_point'].distance(lat, lon))", 
-							params).lang("groovy"));
+							"score_with_distance", "expression", params));
 			
 		}
 

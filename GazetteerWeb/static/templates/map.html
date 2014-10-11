@@ -33,6 +33,7 @@
     <div id="page">
     	<div id="splitter">
 			<div id="sidebar" style="width:450px;">
+				<pre id="explanation" ng-show="explanation">{{explanation}}</pre>
 				<div id="search-results" ng-show="searchResultsPage.features">
 					<ul>
 						<li ng-repeat="f in searchResultsPage.features" class="search-result" ng-click="selectRow(f)">
