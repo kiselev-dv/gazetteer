@@ -151,7 +151,9 @@ public class BoundariesFallbacker {
 			writer.close();
 		}
 		
-		sortAndMerge();
+		if(file != null) {
+			sortAndMerge();
+		}
 	}
 	
 	private class IdTimestampGeometry{

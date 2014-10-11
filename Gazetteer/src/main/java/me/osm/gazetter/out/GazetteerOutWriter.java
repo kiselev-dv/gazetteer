@@ -338,6 +338,12 @@ public class GazetteerOutWriter  implements LineHandler  {
 		if(geom != null) {
 			Geometry g = GeoJsonWriter.parseGeometry(geom);
 			if(g != null && g.isValid()) {
+				
+				if(geom != null) {
+					String esGeomType = geom.getString(GAZETTEER_SCHEME_TYPE).toLowerCase();
+					geom.put(GAZETTEER_SCHEME_TYPE, esGeomType);
+				}
+				
 				result.put(GAZETTEER_SCHEME_FULL_GEOMETRY, geom);
 			}
 		}
@@ -437,11 +443,6 @@ public class GazetteerOutWriter  implements LineHandler  {
 		else {
 			JSONObject meta = jsonObject.getJSONObject(GeoJsonWriter.META);
 			fullGeometry = meta.optJSONObject("fullGeometry");
-		}
-		
-		if(fullGeometry != null) {
-			String esGeomType = fullGeometry.getString(GAZETTEER_SCHEME_TYPE).toLowerCase();
-			fullGeometry.put(GAZETTEER_SCHEME_TYPE, esGeomType);
 		}
 		
 		return fullGeometry;
