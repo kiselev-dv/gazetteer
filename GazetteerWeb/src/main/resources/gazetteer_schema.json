@@ -385,7 +385,7 @@
                 "full_geometry": {
                 	"type": "geo_shape",
                     "tree": "quadtree",
-                    "precision": "100m"
+                    "precision": "1m"
                 },
                 "refs": {
                     "type": "object",

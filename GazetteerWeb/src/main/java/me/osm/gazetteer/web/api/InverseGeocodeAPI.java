@@ -5,8 +5,10 @@ import java.util.List;
 
 import me.osm.gazetteer.web.ESNodeHodel;
 
+import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.Client;
+import org.elasticsearch.common.geo.ShapeRelation;
 import org.elasticsearch.common.geo.builders.ShapeBuilder;
 import org.elasticsearch.index.query.FilterBuilders;
 import org.elasticsearch.index.query.FilteredQueryBuilder;
@@ -30,16 +32,16 @@ public class InverseGeocodeAPI {
 		Client client = ESNodeHodel.getClient();
 		
 		
-		GeoShapeFilterBuilder filter = FilterBuilders.geoIntersectionFilter("location.full_geometry", 
-				ShapeBuilder.newPoint(lon, lat));
+		GeoShapeFilterBuilder filter = FilterBuilders.geoShapeFilter("full_geometry", ShapeBuilder.newPoint(lon, lat), ShapeRelation.INTERSECTS);
 		
 		FilteredQueryBuilder q =
 				QueryBuilders.filteredQuery(
 						QueryBuilders.matchAllQuery(),
 						filter);
 		
-		SearchResponse searchResponse = 
-				client.prepareSearch("gazetteer").setQuery(q).get();
+		SearchRequestBuilder searchRequest = client.prepareSearch("gazetteer").setQuery(q);
+		
+		SearchResponse searchResponse = searchRequest.get();
 				
 		SearchHit[] hits = searchResponse.getHits().getHits();
 		List<JSONObject> boundaries = new ArrayList<JSONObject>();
@@ -50,7 +52,7 @@ public class InverseGeocodeAPI {
 		
 		result.put("boundaries", boundaries);
 		
-		return result;
+ 		return result;
 	}
 
 }

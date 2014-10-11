@@ -48,19 +48,41 @@ app.directive('ngEnter', function() {
 (function( ng, app ) {
 	
 	MapController = function ($scope, $cookies, i18nService, 
-			osmdocHierarchyService, searchAPI, featureAPI, $location) {
+			osmdocHierarchyService, searchAPI, featureAPI, InverseGeocode, $location) {
 		
 		$scope.name2FClass = {};
-		i18nService.getTranslation($scope, 'ru', true);
 		osmdocHierarchyService.loadHierarchy($scope, 'ru');
-		
-		addMap($scope);
-		
+		i18nService.getTranslation($scope, 'ru', true, function(){
+			addMap($scope);
+			
+			$scope.map.on('viewreset', function(){
+				if(!$scope.pagesMode) {
+					searchAPI.listPOI($scope, 1);
+				}
+			});
+			
+			$scope.map.on('moveend', function(){
+				if(!$scope.pagesMode) {
+					searchAPI.listPOI($scope, 1);
+					InverseGeocode.sendRequest($scope);
+				}
+			});
+			
+			$scope.searchResultsPage = {};
+			$scope.pagesCenter = $scope.map.getCenter();
+
+			$scope.find = function() {
+				$scope.pagesCenter = $scope.map.getCenter();
+				searchAPI.search($scope, 1);
+			};
+			
+		});
 		
 		$scope.activeFeatureID = null;
 		$scope.$watch(function () {return $location.search();}, 
 				function() {
 					$scope.activeFeatureID = $location.search()['fid'];
+					$scope.explain = $location.search()['explain'];
 				}
 		);
 		
@@ -100,18 +122,6 @@ app.directive('ngEnter', function() {
 		
 		$scope.id2Feature = {};
 		$scope.id2Marker = {};
-		
-		$scope.map.on('viewreset', function(){
-			if(!$scope.pagesMode) {
-				searchAPI.listPOI($scope, 1);
-			}
-		});
-		
-		$scope.map.on('moveend', function(){
-			if(!$scope.pagesMode) {
-				searchAPI.listPOI($scope, 1);
-			}
-		});
 		
 		$scope.traverseHierarchy = function(h, traverser, groups) {
 			angular.forEach(h.features, function(f){
@@ -177,14 +187,6 @@ app.directive('ngEnter', function() {
 				delete $scope.id2Feature[id];
 			});
 				
-		};
-		
-		$scope.searchResultsPage = {};
-		$scope.pagesCenter = $scope.map.getCenter();
-
-		$scope.find = function() {
-			$scope.pagesCenter = $scope.map.getCenter();
-			searchAPI.search($scope, 1);
 		};
 		
 		$scope.formatSearchResultTitle = function(f) {
@@ -282,7 +284,7 @@ app.directive('ngEnter', function() {
 	};
 	
 	app.controller('MapController',['$scope', '$cookies', 'i18nService', 
-	     'osmdocHierarchyService', 'SearchAPI', 'featureAPI', '$location', MapController]);
+	     'osmdocHierarchyService', 'SearchAPI', 'featureAPI', 'InverseGeocode', '$location', MapController]);
 	
 })(angular, app);
 
@@ -326,26 +328,35 @@ function addMap($scope) {
 	$scope.map.on('popupclose', function(e) {
 		$scope.activeFeatureID = '';
 	});
+	
+	var gc = new LGeocodeControl();
+	$scope.map.addControl(gc);
+	$scope.geocodeControl = gc;
 }
 
 app.factory('i18nService', ['$resource', function($resource) {  
     return {
-    	getTranslation:function($scope, language, reload) {
+    	getTranslation:function($scope, language, reload, callback) {
             var path = HTML_ROOT + '/i18n/map_' + language + '.json';
             var ssid = 'map.js_' + language;
             
             if (sessionStorage && !reload) {
                 if (sessionStorage.getItem(ssid)) {
                     $scope.translation = JSON.parse(sessionStorage.getItem(ssid));
+                    if(callback) {
+                    	callback();
+                    }
                 } else {
                     $resource(path).get(function(data) {
                         $scope.translation = data;
                         sessionStorage.setItem(ssid, JSON.stringify($scope.translation));
+                        callback();
                     });
                 };
             } else {
                 $resource(path).get(function (data) {
                     $scope.translation = data;
+                    callback();
                 });
             }
         }
@@ -404,7 +415,7 @@ app.factory('SearchAPI', ['$http', function($http) {
 					'lon':$scope.pagesCenter.lng,
 					'mark':('' + $scope.cathegories + $scope.searchQuerry).hashCode(),
 					'page':page,
-					'explain':isExplain()
+					'explain':$scope.explain
 				}
 			}).success(function(data) {
 				if(data.result == 'success') {
@@ -431,7 +442,7 @@ app.factory('SearchAPI', ['$http', function($http) {
 								var m = L.marker(f.center_point);
 								$scope.id2Marker[f.feature_id] = m;
 								m.feature_id = f.feature_id;
-								if(isExplain()) {
+								if($scope.explain) {
 									m.addTo($scope.map).bindPopup(createPopUP(f, $scope) 
 											+ '<div class="explanations">' +  
 											data.explanations[index] + '/<div>');
@@ -469,7 +480,7 @@ app.factory('SearchAPI', ['$http', function($http) {
 					'size':50,
 					'page':page,
 					'mark':('' + $scope.cathegories + $scope.searchQuerry).hashCode(),
-					'explain':isExplain()
+					'explain':$scope.explain
 				}
 			}).success(function(data) {
 				if(data.result == 'success') {
@@ -482,7 +493,7 @@ app.factory('SearchAPI', ['$http', function($http) {
 								var m = L.marker(f.center_point);
 								$scope.id2Marker[f.feature_id] = m;
 								m.feature_id = f.feature_id;
-								if(isExplain()) {
+								if($scope.explain) {
 									m.addTo($scope.map).bindPopup(createPopUP(f, $scope) 
 											+ '<div class="explanations">' +  
 											data.explanations[index] + '/<div>')
@@ -533,6 +544,23 @@ app.factory('featureAPI', ['$http', function($http) {
 					}
 				});
 			}
+		}
+	}
+}]);
+
+app.factory('InverseGeocode', ['$http', function($http) {  
+	return {
+		sendRequest:function($scope) {
+			$http.get(API_ROOT + '/_inverse', {
+				'params' : {
+					'lat':$scope.pagesCenter.lat,
+					'lon':$scope.pagesCenter.lng
+				}
+			}).success(function(data) {
+				if(data.geocodeString) {
+					$scope.geocodeString = data.geocodeString;
+				}
+			});
 		}
 	}
 }]);
@@ -621,6 +649,18 @@ function getAddress(f) {
 	return addrArray.join(', ');
 }
 
-function isExplain() {
-	return window.location.href.indexOf('explain') > 0
-}
+var LGeocodeControl = L.Control.extend({
+    options: {
+        position: 'bottomright'
+    },
+
+    onAdd: function (map) {
+        this.container = L.DomUtil.create('div', 'geocode-control');
+        
+        return this.container;
+    },
+    
+    setText: function (text) {
+    	this.container.innerHTML = text;
+    }
+});

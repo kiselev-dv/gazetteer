@@ -63,6 +63,7 @@ public class SnapshotsAPI {
 			}
 		}
 		catch (Exception e) {
+			res.setResponseCode(500);
 			res.setException(e);
 			e.printStackTrace();
 		} 

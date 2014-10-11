@@ -22,7 +22,9 @@ public class VelocityHelper {
 		JSONArray jsonArray = subj.optJSONArray(key);
 		if(jsonArray != null) {
 			for(int i = 0; i < jsonArray.length(); i++) {
-				result.add(jsonArray.getJSONObject(i));
+				Object object = jsonArray.get(i);
+				if(object instanceof JSONObject)
+				result.add((JSONObject)object);
 			}
 		}
 		
