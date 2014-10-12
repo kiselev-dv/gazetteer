@@ -2,6 +2,7 @@ package me.osm.gazetteer.web.api;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -38,8 +39,11 @@ public class InverseGeocodeAPI {
 		
 		double lon = Double.parseDouble(request.getHeader("lon"));
 		double lat = Double.parseDouble(request.getHeader("lat"));
-//		JSONObject highway = getHighway(lon, lat);
-		List<String> parts = new ArrayList<String>();
+		
+		boolean fullGeometry = request.getHeader(SearchAPI.FULL_GEOMETRY_HEADER) != null 
+				&& "true".equals(request.getParameter(SearchAPI.FULL_GEOMETRY_HEADER));
+		
+		LinkedHashMap<String, String> parts = new LinkedHashMap<String, String>();
 
 		JSONObject point = getPoint(lon, lat);
 		
@@ -49,75 +53,82 @@ public class InverseGeocodeAPI {
 			result.put("point", point);
 		}
 		else {
+			JSONObject highway = getHighway(lon, lat);
+			
+			if(highway != null) {
+				fillByPoint(parts, highway);
+				if (!fullGeometry) {
+					highway.remove("full_geometry");
+				}
+				result.put("highway", highway);
+			}
+			
 			Map<String, JSONObject> levels = getBoundaries(lon, lat);
 			
-			fillByBoundaries(request, parts, levels);
+			fillByBoundaries(fullGeometry, parts, levels);
 			result.put("boundaries", new JSONObject(levels));
 		}
 		
-		result.put("text", StringUtils.join(parts, ", "));
+		result.put("text", StringUtils.join(parts.values(), ", "));
+		result.put("parts", new JSONObject(parts));
 		
  		return result;
 	}
 
-	private void fillByPoint(List<String> parts, JSONObject point) {
+	private void fillByPoint(LinkedHashMap<String, String> parts, JSONObject point) {
 		if(point.has("admin0_name")) {
-			parts.add(point.optString("admin0_name"));
+			parts.put("admin0", point.optString("admin0_name"));
 		}
 		if(point.has("admin1_name")) {
-			parts.add(point.optString("admin1_name"));
+			parts.put("admin1", point.optString("admin1_name"));
 		}
 		if(point.has("admin2_name")) {
-			parts.add(point.optString("admin2_name"));
+			parts.put("admin2", point.optString("admin2_name"));
 		}
 		if(point.has("local_admin_name")) {
-			parts.add(point.optString("local_admin_name"));
+			parts.put("local_admin", point.optString("local_admin_name"));
 		}
 		if(point.has("locality_name")) {
-			parts.add(point.optString("locality_name"));
+			parts.put("locality", point.optString("locality_name"));
 		}
 		else if(point.has("nearest_place")) {
-			parts.add(point.getJSONObject("nearest_place").optString("name"));
+			parts.put("locality", point.getJSONObject("nearest_place").optString("name"));
 		}
 		if(point.has("neighborhood_name")) {
-			parts.add(point.optString("neighborhood_name"));
+			parts.put("neighborhood", point.optString("neighborhood_name"));
 		}
 		else if(point.has("nearest_neighborhood")) {
-			parts.add(point.getJSONObject("nearest_neighborhood").optString("name"));
+			parts.put("neighborhood", point.getJSONObject("nearest_neighborhood").optString("name"));
 		}
 		if(point.has("street_name")) {
-			parts.add(point.optString("street_name"));
+			parts.put("street", point.optString("street_name"));
 		}
 		if(point.has("housenumber")) {
-			parts.add(point.optString("housenumber"));
+			parts.put("housenumber", point.optString("housenumber"));
 		}
 	}
 
-	private void fillByBoundaries(Request request, List<String> parts,
+	private void fillByBoundaries(boolean fullGeometry, LinkedHashMap<String, String> parts,
 			Map<String, JSONObject> levels) {
 		
 		if(levels.containsKey("admin0")) {
-			parts.add(levels.get("admin0").optString("name"));
+			parts.put("admin0", levels.get("admin0").optString("name"));
 		}
 		if(levels.containsKey("admin1")) {
-			parts.add(levels.get("admin1").optString("name"));
+			parts.put("admin1", levels.get("admin1").optString("name"));
 		}
 		if(levels.containsKey("admin2")) {
-			parts.add(levels.get("admin2").optString("name"));
+			parts.put("admin2", levels.get("admin2").optString("name"));
 		}
 		if(levels.containsKey("local_admin")) {
-			parts.add(levels.get("local_admin").optString("name"));
+			parts.put("local_admin", levels.get("local_admin").optString("name"));
 		}
 		if(levels.containsKey("locality")) {
-			parts.add(levels.get("locality").optString("name"));
+			parts.put("locality", levels.get("locality").optString("name"));
 		}
 		if(levels.containsKey("neighborhood")) {
-			parts.add(levels.get("neighborhood").optString("name"));
+			parts.put("neighborhood", levels.get("neighborhood").optString("name"));
 		}
-		
-		boolean fullGeometry = request.getHeader(SearchAPI.FULL_GEOMETRY_HEADER) != null 
-				&& "true".equals(request.getParameter(SearchAPI.FULL_GEOMETRY_HEADER));
-		
 		
 		if (!fullGeometry) {
 			for(Entry<String, JSONObject> entry : levels.entrySet()) {
@@ -127,6 +138,27 @@ public class InverseGeocodeAPI {
 	}
 
 	private JSONObject getHighway(double lon, double lat) {
+		Client client = ESNodeHodel.getClient();
+		
+		FilteredQueryBuilder q =
+				QueryBuilders.filteredQuery(
+						QueryBuilders.matchAllQuery(),
+						FilterBuilders.andFilter(
+								FilterBuilders.termFilter("type", "hghway"),
+								FilterBuilders.geoShapeFilter("full_geometry", 
+										ShapeBuilder.newCircleBuilder().center(lon, lat)
+											.radius(25, DistanceUnit.METERS), ShapeRelation.INTERSECTS)
+						));
+		
+		SearchRequestBuilder searchRequest = client.prepareSearch("gazetteer").setQuery(q);
+		searchRequest.setSize(1);
+		SearchResponse searchResponse = searchRequest.get();
+		
+		SearchHit[] hits = searchResponse.getHits().getHits();
+		for(SearchHit hit : hits) {
+			return new JSONObject(hit.getSource());
+		}
+		
 		return null;
 	}
 
