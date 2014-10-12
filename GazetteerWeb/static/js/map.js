@@ -64,8 +64,8 @@ app.directive('ngEnter', function() {
 			$scope.map.on('moveend', function(){
 				if(!$scope.pagesMode) {
 					searchAPI.listPOI($scope, 1);
-					InverseGeocode.sendRequest($scope);
 				}
+				InverseGeocode.sendRequest($scope);
 			});
 			
 			$scope.searchResultsPage = {};
@@ -75,6 +75,18 @@ app.directive('ngEnter', function() {
 				$scope.pagesCenter = $scope.map.getCenter();
 				searchAPI.search($scope, 1);
 			};
+			
+			$scope.map.on('popupopen', function(e) {
+			    var px = $scope.map.project(e.popup._latlng);
+			    px.y -= e.popup._container.clientHeight/2
+			    $scope.map.panTo($scope.map.unproject(px),{animate: false});
+			    
+			    $scope.activeFeatureID = e.popup._source.feature_id;
+			});
+
+			$scope.map.on('popupclose', function(e) {
+				$scope.activeFeatureID = '';
+			});
 			
 		});
 		
@@ -96,6 +108,13 @@ app.directive('ngEnter', function() {
 			}
 		});
 		
+		$scope.geocodeString = '';
+		$scope.$watch('geocodeString', function(term) {
+			if($scope.geocodeControl) {
+				$scope.geocodeControl.setText(term);
+			}
+		});
+
 		$scope.cathegories = {
 			features:[],
 			groups:[]
@@ -265,6 +284,7 @@ app.directive('ngEnter', function() {
 			$scope.activeFeatureID = f.feature_id;
 			$scope.explanation = f._explanation;
 		}
+		
 	}; 
 	
 	MapController.addSelection = function(obj, arr) {
@@ -318,21 +338,11 @@ function addMap($scope) {
 	this.layersControl.addTo($scope.map);
 	$scope.map.addControl(new L.Control.Scale());
 	
-	$scope.map.on('popupopen', function(e) {
-	    var px = $scope.map.project(e.popup._latlng);
-	    px.y -= e.popup._container.clientHeight/2
-	    $scope.map.panTo($scope.map.unproject(px),{animate: false});
-	    
-	    $scope.activeFeatureID = e.popup._source.feature_id;
-	});
-
-	$scope.map.on('popupclose', function(e) {
-		$scope.activeFeatureID = '';
-	});
-	
 	var gc = new LGeocodeControl();
 	$scope.map.addControl(gc);
 	$scope.geocodeControl = gc;
+	
+	$scope.map.addControl(new LViewPointControl());
 }
 
 app.factory('i18nService', ['$resource', function($resource) {  
@@ -547,8 +557,8 @@ app.factory('InverseGeocode', ['$http', function($http) {
 					'lon':$scope.pagesCenter.lng
 				}
 			}).success(function(data) {
-				if(data.geocodeString) {
-					$scope.geocodeString = data.geocodeString;
+				if(data.text) {
+					$scope.geocodeString = data.text;
 				}
 			});
 		}
@@ -647,10 +657,31 @@ var LGeocodeControl = L.Control.extend({
     onAdd: function (map) {
         this.container = L.DomUtil.create('div', 'geocode-control');
         
+        this.text = L.DomUtil.create('div', 'geocode-text');
+        this.container.appendChild(this.text);
+
         return this.container;
     },
     
     setText: function (text) {
-    	this.container.innerHTML = text;
+    	this.text.innerHTML = text;
     }
+});
+
+var LViewPointControl = L.Control.extend({
+	options: {
+		position: 'topleft'
+	},
+	
+	onAdd: function (map) {
+		this.container = L.DomUtil.create('div', 'viewpoint-control');
+		
+		this.dot = L.DomUtil.create('div', 'view-dot');
+		map._controlCorners.topleft.appendChild(this.dot);
+		map._controlCorners.topleft.style.width='50%';
+		map._controlCorners.topleft.style.height='50%';
+        this.dot.innerHTML = '<img src="' + HTML_ROOT + '/img/dot.png"></img>';
+		
+		return this.container;
+	}
 });
