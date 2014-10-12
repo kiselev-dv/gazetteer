@@ -551,10 +551,11 @@ app.factory('featureAPI', ['$http', function($http) {
 app.factory('InverseGeocode', ['$http', function($http) {  
 	return {
 		sendRequest:function($scope) {
+			var c = $scope.map.getCenter();
 			$http.get(API_ROOT + '/_inverse', {
 				'params' : {
-					'lat':$scope.pagesCenter.lat,
-					'lon':$scope.pagesCenter.lng
+					'lat':c.lat,
+					'lon':c.lng
 				}
 			}).success(function(data) {
 				if(data.text) {
