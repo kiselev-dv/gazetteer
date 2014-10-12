@@ -146,12 +146,17 @@ input, textarea, form:active, input:focus {
 #explanation ul {
 	padding-left: 5px; 
 }
-.geocode-text {
+.geocode-control {
 	background-color: white;
+}
+.geocode-text {
 	padding: 0 5px 0 5px;
 }
 .view-dot {
 	position: absolute;
 	bottom: 0;
 	right: 0;
+}
+.geocode-dot-switch {
+	cursor: pointer;
 }

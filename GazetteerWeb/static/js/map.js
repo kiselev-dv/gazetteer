@@ -342,7 +342,6 @@ function addMap($scope) {
 	$scope.map.addControl(gc);
 	$scope.geocodeControl = gc;
 	
-	$scope.map.addControl(new LViewPointControl());
 }
 
 app.factory('i18nService', ['$resource', function($resource) {  
@@ -658,31 +657,42 @@ var LGeocodeControl = L.Control.extend({
     onAdd: function (map) {
         this.container = L.DomUtil.create('div', 'geocode-control');
         
-        this.text = L.DomUtil.create('div', 'geocode-text');
+        this.dot = L.DomUtil.create('div', 'view-dot');
+        map._controlCorners.topleft.appendChild(this.dot);
+        map._controlCorners.topleft.style.width='50%';
+        map._controlCorners.topleft.style.height='50%';
+
+        this.dotSwitch = L.DomUtil.create('span', 'geocode-dot-switch');
+        this.text = L.DomUtil.create('span', 'geocode-text');
+        this.container.appendChild(this.dotSwitch);
         this.container.appendChild(this.text);
+        
+        var gcontrol = this;
+        this.dotSwitch.innerHTML = '(<img src="' + HTML_ROOT + '/img/dot.png"></img>)';
+        this.dotSwitch.onclick = function() {
+        	if(gcontrol.dotShown) {
+        		gcontrol.hideDot();
+        	}
+        	else {
+        		gcontrol.showDot();
+        	}
+        }
 
         return this.container;
     },
     
     setText: function (text) {
     	this.text.innerHTML = text;
-    }
-});
+    },
 
-var LViewPointControl = L.Control.extend({
-	options: {
-		position: 'topleft'
-	},
-	
-	onAdd: function (map) {
-		this.container = L.DomUtil.create('div', 'viewpoint-control');
-		
-		this.dot = L.DomUtil.create('div', 'view-dot');
-		map._controlCorners.topleft.appendChild(this.dot);
-		map._controlCorners.topleft.style.width='50%';
-		map._controlCorners.topleft.style.height='50%';
-        this.dot.innerHTML = '<img src="' + HTML_ROOT + '/img/dot.png"></img>';
-		
-		return this.container;
-	}
+    showDot: function () {
+    	this.dotShown = true;
+    	this.dot.innerHTML = '<img src="' + HTML_ROOT + '/img/dot.png"></img>';
+    },
+    
+    hideDot: function () {
+    	this.dotShown = false;
+    	this.dot.innerHTML = '';
+    }
+    
 });
