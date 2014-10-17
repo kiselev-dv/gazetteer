@@ -23,6 +23,7 @@ import me.osm.gazetter.striper.GeoJsonWriter;
 import me.osm.gazetter.striper.JSONFeature;
 import me.osm.gazetter.utils.FileUtils;
 import me.osm.gazetter.utils.FileUtils.LineHandler;
+import me.osm.gazetter.utils.JSONHash;
 import me.osm.gazetter.utils.LocatePoint;
 import me.osm.osmdoc.model.Feature;
 import me.osm.osmdoc.read.OSMDocFacade;
@@ -42,6 +43,9 @@ import static me.osm.gazetter.out.GazetteerSchemeConstants.*;
 
 public class GazetteerOutWriter  implements LineHandler  {
 	
+	private static final Set<String> hashIgnoreFields = new HashSet<String>(
+			Arrays.asList(new String[]{GAZETTEER_SCHEME_TIMESTAMP}));
+
 	private static final String GAZETTEER_SCHEME_NEARBY_STREETS = "nearby_streets";
 
 	private static final String GAZETTEER_SCHEME_NEARBY_PLACES = "nearby_places";
@@ -348,8 +352,9 @@ public class GazetteerOutWriter  implements LineHandler  {
 			}
 		}
 		
-		result.put(GAZETTEER_SCHEME_MD5, DigestUtils.md5Hex(result.toString()));
-		
+		result.put(GAZETTEER_SCHEME_MD5, DigestUtils.md5Hex(JSONHash.asCanonicalString(
+				result, hashIgnoreFields)
+		));
 	}
 
 	private void fillPOI(JSONFeature result, JSONObject jsonObject,
