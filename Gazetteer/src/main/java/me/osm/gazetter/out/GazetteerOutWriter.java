@@ -761,17 +761,9 @@ public class GazetteerOutWriter  implements LineHandler  {
 	private void putName(JSONObject result, String ftype,
 			Map<String, JSONObject> mapLevels, JSONObject jsonObject, JSONObject addrRow) {
 		
-		if(FeatureTypes.ADDR_POINT_FTYPE.equals(ftype)) {
-			String hn = mapLevels.get("hn") != null ? mapLevels.get("hn").getString("name") : null;
-			if(StringUtils.isNotEmpty(hn)) {
-				result.put("name", hn);
-			}
-		}
-		else {
-			JSONObject properties = jsonObject.optJSONObject("properties");
-			if(properties != null && properties.has("name")) {
-				result.put("name", properties.getString("name"));
-			}
+		JSONObject properties = jsonObject.optJSONObject("properties");
+		if(properties != null && properties.has("name")) {
+			result.put("name", properties.getString("name"));
 		}
 		
 	}

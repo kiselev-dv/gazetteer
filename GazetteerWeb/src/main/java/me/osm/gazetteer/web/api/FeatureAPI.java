@@ -38,20 +38,28 @@ public class FeatureAPI {
 	private static Map<String, Set<String>> typesMap = new HashMap<String, Set<String>>();
 	static {
 		
-		typesMap.put(FeatureTypes.ADDR_POINT_FTYPE, new HashSet<String>(Arrays.asList(new String[]{
+		typesMap.put("adr", new HashSet<String>(Arrays.asList(new String[]{
 				FeatureTypes.POI_FTYPE, FeatureTypes.HIGHWAY_FEATURE_TYPE	
 		})));
 
-		typesMap.put(FeatureTypes.POI_FTYPE, new HashSet<String>(Arrays.asList(new String[]{
+		typesMap.put("poi", new HashSet<String>(Arrays.asList(new String[]{
 				FeatureTypes.ADDR_POINT_FTYPE, FeatureTypes.HIGHWAY_FEATURE_TYPE	
 		})));
 
-		typesMap.put(FeatureTypes.HIGHWAY_FEATURE_TYPE, new HashSet<String>(Arrays.asList(new String[]{
+		typesMap.put("highway", new HashSet<String>(Arrays.asList(new String[]{
 				FeatureTypes.ADDR_POINT_FTYPE, FeatureTypes.POI_FTYPE	
 		})));
 
-		typesMap.put(FeatureTypes.PLACE_POINT_FTYPE, new HashSet<String>(Arrays.asList(new String[]{
+		typesMap.put("place", new HashSet<String>(Arrays.asList(new String[]{
 				FeatureTypes.HIGHWAY_FEATURE_TYPE	
+		})));
+
+		typesMap.put("region", new HashSet<String>(Arrays.asList(new String[]{
+				FeatureTypes.PLACE_BOUNDARY_FTYPE, FeatureTypes.PLACE_POINT_FTYPE 	
+		})));
+
+		typesMap.put("country", new HashSet<String>(Arrays.asList(new String[]{
+				FeatureTypes.ADMIN_BOUNDARY_FTYPE	
 		})));
 	}
 
@@ -121,7 +129,14 @@ public class FeatureAPI {
 
 		boolean withRelated = "true".equals(request.getHeader("related"));
 		
-		return getFeature(idParam, withRelated);
+		JSONObject feature = getFeature(idParam, withRelated);
+		
+		if(feature != null) {
+			return feature;
+		}
+		
+		response.setResponseCode(404);
+		return null;
 	}
 
 	public static JSONObject getFeature(String idParam, boolean withRelated) {
@@ -131,13 +146,12 @@ public class FeatureAPI {
 			return null;
 		}
 		
-		QueryBuilder q = QueryBuilders.constantScoreQuery(
-				FilterBuilders.termsFilter("feature_id", idParam));
+		QueryBuilder q = QueryBuilders.filteredQuery(QueryBuilders.matchAllQuery(), 
+				FilterBuilders.orFilter(FilterBuilders.termsFilter("feature_id", idParam), FilterBuilders.termsFilter("id", idParam)) );
 		
-		SearchResponse searchResponse = client.prepareSearch("gazetteer").setTypes(Importer.TYPE_NAME)
-			.setSize(100)
-			.setQuery(q)
-			.execute().actionGet();
+		SearchResponse searchResponse = client.prepareSearch("gazetteer")
+			.setSize(10)
+			.setQuery(q).get();
 		
 		SearchHit[] hits = searchResponse.getHits().getHits();
 		
@@ -147,7 +161,9 @@ public class FeatureAPI {
 
 			if(withRelated) {
 				JSONObject related =  getRelated(feature);
-				feature.put("_related", related);
+				if(related != null) {
+					feature.put("_related", related);
+				}
 			}
 			
 			return feature;
@@ -159,8 +175,13 @@ public class FeatureAPI {
 	private static JSONObject getRelated(JSONObject feature) {
 
 		String id = feature.getString("feature_id");
-		String type = feature.getString("type");
+		String type = getTypeVerbose(feature);
+		
 		Set<String> lowerTypes = typesMap.get(type);
+		
+		if(lowerTypes == null || lowerTypes.isEmpty()) {
+			return null;
+		}
 		
 		Client client = ESNodeHodel.getClient();
 		
@@ -200,6 +221,58 @@ public class FeatureAPI {
 		}
 		
 		return result;
+	}
+
+	private static String getTypeVerbose(JSONObject feature) {
+		
+		String typeGeneral = feature.getString("type");
+		
+		if(typeGeneral.equals(FeatureTypes.POI_FTYPE)) {
+			return "poi";
+		}
+
+		if(typeGeneral.equals(FeatureTypes.ADDR_POINT_FTYPE)) {
+			return "adr";
+		}
+
+		if(typeGeneral.equals(FeatureTypes.HIGHWAY_FEATURE_TYPE)) {
+			return "highway";
+		}
+
+		if(typeGeneral.equals(FeatureTypes.PLACE_BOUNDARY_FTYPE) || typeGeneral.equals(FeatureTypes.PLACE_POINT_FTYPE)) {
+			return "place";
+		}
+
+		if(typeGeneral.equals(FeatureTypes.ADMIN_BOUNDARY_FTYPE)) {
+			JSONArray addresses = feature.optJSONArray("addresses");
+
+			if(addresses.length() > 0) {
+				JSONObject addr = addresses.optJSONObject(0);
+				
+				if(addr.has("place_name")) {
+					return "place";
+				}
+
+				if(addr.has("local_admin_name")) {
+					return "region";
+				}
+
+				if(addr.has("admin2_name")) {
+					return "region";
+				}
+
+				if(addr.has("admin1_name")) {
+					return "region";
+				}
+
+				if(addr.has("admin0_name")) {
+					return "country";
+				}
+				
+			}
+		}
+		
+		return null;
 	}
 
 	private static void addHighlitedFields(SearchRequestBuilder querry) {

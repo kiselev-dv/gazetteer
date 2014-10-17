@@ -1,7 +1,5 @@
 package me.osm.gazetter.out;
 
-import groovy.ui.SystemOutputInterceptor;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -9,12 +7,11 @@ import java.util.Date;
 import java.util.Map.Entry;
 import java.util.TreeMap;
 
-import org.apache.commons.lang3.StringUtils;
-import org.json.JSONObject;
-
 import me.osm.gazetter.striper.GeoJsonWriter;
 import me.osm.gazetter.utils.FileUtils;
 import me.osm.gazetter.utils.FileUtils.LineHandler;
+
+import org.apache.commons.lang3.StringUtils;
 
 public class Diff {
 	
@@ -97,6 +94,9 @@ public class Diff {
 				
 				out.println("-" + id);
 			}
+			
+			out.flush();
+			out.close();
 			
 		} catch (IOException e) {
 			throw new RuntimeException(e);

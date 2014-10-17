@@ -12,6 +12,7 @@ import java.util.List;
 import me.osm.gazetter.addresses.AddrLevelsSorting;
 import me.osm.gazetter.join.Joiner;
 import me.osm.gazetter.out.CSVOutWriter;
+import me.osm.gazetter.out.Diff;
 import me.osm.gazetter.out.GazetteerOutWriter;
 import me.osm.gazetter.sortupdate.SortUpdate;
 import me.osm.gazetter.split.Split;
@@ -79,6 +80,7 @@ public class Main {
 	private static Subparser outCSV;
 	private static Subparser outGazetteer;
 	private static Subparser man;
+	private static Subparser diff;
 
 	/**
 	 * Command line command description
@@ -148,6 +150,13 @@ public class Main {
 	    	public String longName() {return name().toLowerCase().replace('_', '-');}
 	    	@Override
 	    	public String help() {return "Write data out in json format with gazetter/pelias format.";}
+	    },
+
+	    DIFF {
+	    	@Override
+	    	public String longName() {return name().toLowerCase().replace('_', '-');}
+	    	@Override
+	    	public String help() {return "Write difference between two gazetteer json files";}
 	    };
 
 	};
@@ -252,6 +261,13 @@ public class Main {
 						list(namespace.getList("neighborhood")),
 						namespace.getBoolean("all_names")).write();
 			}
+
+			if(namespace.get(COMMAND).equals(Command.DIFF)) {
+				
+				List<String> in = list(namespace.getList("files"));
+				
+				new Diff(in.get(0), in.get(1), namespace.getString("out_file")).run();
+			}
 			
 		} 
 		catch (ArgumentParserException e) {
@@ -295,6 +311,9 @@ public class Main {
 		
 		System.out.print("\n\n\nOUT GAZETTEER\n\n");
 		outGazetteer.printHelp();
+
+		System.out.print("\n\n\nDIFF\n\n");
+		diff.printHelp();
 	}
 
 	/**
@@ -491,6 +510,18 @@ public class Main {
 			
 			outGazetteer.addArgument("--all-names").setDefault(false).setConst(true)
 				.help("Add hash with all *name* tags.");
+			
+		}
+		
+		//diff
+		{
+			Command command = Command.DIFF;
+			diff = subparsers.addParser(command.longName())
+					.setDefault(COMMAND, command)
+					.help(command.help());
+			
+			diff.addArgument("--out-file").setDefault("-");
+			diff.addArgument("--files").nargs(2);
 			
 		}
 		

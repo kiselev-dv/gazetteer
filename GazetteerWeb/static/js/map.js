@@ -24,6 +24,11 @@ app.config(function($routeProvider) {
     		reloadOnSearch: false });
 
     $routeProvider
+		.when('/feature/:id', {
+			templateUrl: HTML_ROOT + '/templates/feature.html', 
+			controller:'FeatureController'});
+
+    $routeProvider
     	.when('/', {redirectTo: '/map'});
     
     $routeProvider.otherwise({
@@ -531,15 +536,31 @@ app.factory('featureAPI', ['$http', function($http) {
 						'related':false
 					}
 				}).success(function(data) {
-					if(!$scope.id2Feature[data.feature_id]) {
-						$scope.id2Feature[data.feature_id] = data;
-						
-						var m = L.marker(data.center_point);
-						$scope.id2Marker[data.feature_id] = m;
-						m.addTo($scope.map).bindPopup(createPopUP(data, $scope));
-						m.feature_id = data.feature_id;
-						
-						$scope.id2Marker[data.feature_id].openPopup();
+					
+					if(data && data.feature_id) {
+						check($scope, data);
+					}
+					
+					function check($scope, data) {
+						if ($scope.map) {
+							ready($scope, data);
+						}
+						else {
+							window.setTimeout(function(){check($scope, data);}, 1000);
+						}
+					}
+					
+					function ready($scope, data) {
+						if(!$scope.id2Feature[data.feature_id]) {
+							$scope.id2Feature[data.feature_id] = data;
+							
+							var m = L.marker(data.center_point);
+							$scope.id2Marker[data.feature_id] = m;
+							m.addTo($scope.map).bindPopup(createPopUP(data, $scope));
+							m.feature_id = data.feature_id;
+							
+							$scope.id2Marker[data.feature_id].openPopup();
+						}
 					}
 				});
 			}
@@ -696,3 +717,61 @@ var LGeocodeControl = L.Control.extend({
     }
     
 });
+
+function FeatureController($scope, $http, $location, $routeParams) {
+	$http.get(API_ROOT + '/feature', {
+		'params' : {
+			'id': $routeParams.id,
+			'related': true
+		}
+	}).success(function(data) {
+		$scope.feature = data;
+		if($scope.feature._related) {
+			
+			$scope.related = {};
+			
+			for(var k in data._related) {
+				for(var i in data._related[k]) {
+					var f = data._related[k][i];
+					var key = k;
+					if(f._hitFields) {
+						for(var hfi in f._hitFields) {
+							var hf = f._hitFields[hfi];
+							if(hf.indexOf('refs') >= 0) {
+								key += 'ref';
+							}
+						}
+					}
+					if(!$scope.related[key]){
+						$scope.related[key] = [];
+					}
+					$scope.related[key].push(f);
+				}
+			}
+			
+			$scope.feature._related = undefined;
+		}
+	});
+	
+	$scope.frmtSrchRes = function(f) {
+		if (f.type == 'adrpnt') {
+			return f.address;
+		}
+		if (f.type == 'poipnt') {
+			return f.poi_class_names[0] + ' ' + (f.name || '') + ' (' + f.address + ')';
+		}
+		return f.name;
+	};
+	
+}
+
+function unique(arr) {
+	var sorted = arr.sort(function (a, b) { return a * 1 - b * 1; });
+    var ret = [sorted[0]];
+    for (var i = 1; i < sorted.length; i++) { 
+        if (sorted[i-1] !== sorted[i]) {
+            ret.push(sorted[i]);
+        }
+    }
+    return ret;
+}

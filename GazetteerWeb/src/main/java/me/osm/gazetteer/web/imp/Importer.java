@@ -9,6 +9,7 @@ import java.io.InputStreamReader;
 import java.util.zip.GZIPInputStream;
 
 import me.osm.gazetteer.web.ESNodeHodel;
+import me.osm.gazetteer.web.FeatureTypes;
 
 import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream;
 import org.apache.commons.io.IOUtils;
@@ -39,8 +40,19 @@ public class Importer {
 	
 	private long counter = 0;
 
+	private boolean buildingsGeometry;
+
 	public Importer(String filePath) {
 		this.filePath = filePath;
+		client = ESNodeHodel.getClient();
+		bulkRequest = client.prepareBulk();
+	}
+
+	public Importer(String source, boolean buildingsGeometry) {
+		
+		this.buildingsGeometry = buildingsGeometry;
+		
+		this.filePath = source;
 		client = ESNodeHodel.getClient();
 		bulkRequest = client.prepareBulk();
 	}
@@ -82,7 +94,7 @@ public class Importer {
 	private void addSynonyms(JSONObject indexSettings) {
 		
 	}
-
+	
 	public void run() {
 
 		IndicesExistsResponse response = new IndicesExistsRequestBuilder(
@@ -127,8 +139,12 @@ public class Importer {
 				bulkRequest = client.prepareBulk();
 			}
 			
+			if(!buildingsGeometry) {
+				line = filterFullGeometry(line);
+			}
+			
 			IndexRequestBuilder ind = new IndexRequestBuilder(client)
-			.setSource(line).setIndex("gazetteer").setType(TYPE_NAME);
+				.setSource(line).setIndex("gazetteer").setType(TYPE_NAME);
 			bulkRequest.add(ind.request());
 			
 			counter++;
@@ -144,6 +160,17 @@ public class Importer {
 				bulkRequest = client.prepareBulk();
 			}
 		}
+	}
+
+	private String filterFullGeometry(String line) {
+		JSONObject jsonObject = new JSONObject(line);
+		
+		if(jsonObject.getString("type").equals(FeatureTypes.ADDR_POINT_FTYPE) || 
+				jsonObject.getString("type").equals(FeatureTypes.POI_FTYPE)) {
+			jsonObject.remove("full_geometry");
+		}
+		
+		return jsonObject.toString();
 	}
 
 }

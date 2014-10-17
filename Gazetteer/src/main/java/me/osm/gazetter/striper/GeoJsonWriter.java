@@ -194,7 +194,7 @@ public class GeoJsonWriter {
 	}
 
 	public static Date getTimestamp(String line) {
-		int indexOf = line.indexOf("md5");
+		int indexOf = line.indexOf(TIMESTAMP_PATTERN);
 		if(indexOf >= 0) {
 			int begin = indexOf + TIMESTAMP_PATTERN.length();
 			int end = line.indexOf("\"", begin);
