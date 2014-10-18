@@ -56,13 +56,6 @@ public class GazetteerOutWriter  implements LineHandler  {
 
 	private static final String GAZETTEER_SCHEME_ADDRESS = "address";
 
-	public static Comparator<String> defaultcomparator = new Comparator<String>() {
-		@Override
-		public int compare(String r1, String r2) {
-			return r1.compareTo(r2);
-		}
-	};
-
 	private String dataDir;
 	
 	private Map<String, PrintWriter> writers = new HashMap<>();
@@ -105,6 +98,7 @@ public class GazetteerOutWriter  implements LineHandler  {
 			writers.put(FeatureTypes.ADDR_POINT_FTYPE, new PrintWriter(getFile4Ftype(FeatureTypes.ADDR_POINT_FTYPE), "UTF8"));
 			writers.put(FeatureTypes.HIGHWAY_FEATURE_TYPE, new PrintWriter(getFile4Ftype(FeatureTypes.HIGHWAY_FEATURE_TYPE), "UTF8"));
 			writers.put(FeatureTypes.PLACE_POINT_FTYPE, new PrintWriter(getFile4Ftype(FeatureTypes.PLACE_POINT_FTYPE), "UTF8"));
+			writers.put(FeatureTypes.PLACE_BOUNDARY_FTYPE, new PrintWriter(getFile4Ftype(FeatureTypes.PLACE_BOUNDARY_FTYPE), "UTF8"));
 			writers.put(FeatureTypes.ADMIN_BOUNDARY_FTYPE, new PrintWriter(getFile4Ftype(FeatureTypes.ADMIN_BOUNDARY_FTYPE), "UTF8"));
 
 			if("-".equals(out)) {
@@ -174,6 +168,7 @@ public class GazetteerOutWriter  implements LineHandler  {
 				FeatureTypes.ADDR_POINT_FTYPE,
 				FeatureTypes.HIGHWAY_FEATURE_TYPE,
 				FeatureTypes.PLACE_POINT_FTYPE,
+				FeatureTypes.PLACE_BOUNDARY_FTYPE,
 				FeatureTypes.POI_FTYPE,
 				FeatureTypes.ADMIN_BOUNDARY_FTYPE	
 				)) {
@@ -181,9 +176,18 @@ public class GazetteerOutWriter  implements LineHandler  {
 			File sorted = new File(this.dataDir + "/" + type + ".gjson.sorted");
 			sort(getFile4Ftype(type), sorted);
 			FileUtils.handleLines(sorted, new LineHandler() {
+				
+				private String lastId = null;
+				
 				@Override
 				public void handle(String s) {
-					out.println(s);					
+					if(s != null) {
+						String id = GeoJsonWriter.getId(s);
+						if(!id.equals(lastId)) {
+							out.println(s);					
+						}
+						lastId = id;
+					}
 				}
 			});
 			sorted.delete();
@@ -196,7 +200,7 @@ public class GazetteerOutWriter  implements LineHandler  {
 		public int compare(String paramT1, String paramT2) {
 			String id1 = GeoJsonWriter.getId(paramT1);
 			String id2 = GeoJsonWriter.getId(paramT2);
-
+			
 			return id1.compareTo(id2);
 		}
 

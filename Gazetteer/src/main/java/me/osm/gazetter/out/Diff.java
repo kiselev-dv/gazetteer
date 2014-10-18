@@ -4,7 +4,9 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.TreeMap;
 
 import me.osm.gazetter.striper.GeoJsonWriter;
@@ -53,6 +55,8 @@ public class Diff {
 				
 			});
 
+			final Set<String> olds = new HashSet<String>();
+			
 			FileUtils.handleLines(new File(this.newPath), new LineHandler() {
 				
 				@Override
@@ -67,18 +71,15 @@ public class Diff {
 					
 					Object[] row = map.get(id);
 					if(row == null) {
-						out.println("+" + id);
+						out.println("+ " + s);
 					}
 					else {
-						if(((String)row[0]).equals(md5)) {
-							out.println("=" + id);
-						}
-						else {
+						if (!((String)row[0]).equals(md5)) {
 							if(((Date)row[1]).before(timestamp)) {
-								out.println("A" + id);
+								out.println("N " + s);
 							}
 							else {
-								out.println("B" + id);
+								olds.add(id);
 							}
 						}
 					}
@@ -89,10 +90,23 @@ public class Diff {
 				
 			});
 			
-			for(Entry<String, Object[]> entry : map.entrySet()) {
-				String id = entry.getKey();
-				
-				out.println("-" + id);
+			if(!map.isEmpty() || !olds.isEmpty()) {
+				FileUtils.handleLines(new File(this.oldPath), new LineHandler() {
+
+					@Override
+					public void handle(String s) {
+						String id = GeoJsonWriter.getId(s);
+						
+						if(map.containsKey(id)) {
+							out.println("- " + s);
+						}
+						
+						else if(olds.contains(id)) {
+							out.println("O " + s);
+						}
+					}
+					
+				});
 			}
 			
 			out.flush();

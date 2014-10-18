@@ -263,10 +263,8 @@ public class Main {
 			}
 
 			if(namespace.get(COMMAND).equals(Command.DIFF)) {
-				
-				List<String> in = list(namespace.getList("files"));
-				
-				new Diff(in.get(0), in.get(1), namespace.getString("out_file")).run();
+				new Diff(namespace.getString("old"), namespace.getString("new"), 
+						namespace.getString("out_file")).run();
 			}
 			
 		} 
@@ -521,8 +519,8 @@ public class Main {
 					.help(command.help());
 			
 			diff.addArgument("--out-file").setDefault("-");
-			diff.addArgument("--files").nargs(2);
-			
+			diff.addArgument("--old").required(true);
+			diff.addArgument("--new").required(true);
 		}
 		
 		return parser;
