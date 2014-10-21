@@ -24,6 +24,9 @@ import me.osm.gazetter.striper.FeatureTypes;
 import me.osm.gazetter.striper.GeoJsonWriter;
 import me.osm.gazetter.utils.FileUtils;
 import me.osm.gazetter.utils.FileUtils.LineHandler;
+import me.osm.osmdoc.read.DOCFileReader;
+import me.osm.osmdoc.read.DOCFolderReader;
+import me.osm.osmdoc.read.DOCReader;
 import me.osm.osmdoc.read.OSMDocFacade;
 
 import org.apache.commons.lang3.StringUtils;
@@ -64,6 +67,7 @@ public class CSVOutWriter implements LineHandler {
 	private Set<String> allSupportedKeys = new HashSet<String>(featureEXT.getSupportedKeys());
 
 	private OSMDocFacade osmDocFacade;
+	private DOCReader reader;
 	
 	private CSVOutLineHandler outLineHandler = null;
 
@@ -136,7 +140,15 @@ public class CSVOutWriter implements LineHandler {
 			throw new RuntimeException(e);
 		}
 		
-		osmDocFacade = new OSMDocFacade(poiCatalog, null);
+		if(poiCatalog.endsWith(".xml") || poiCatalog.equals("jar")) {
+			reader = new DOCFileReader(poiCatalog);
+		}
+		else {
+			reader = new DOCFolderReader(poiCatalog);
+		}
+		
+		osmDocFacade = new OSMDocFacade(reader, null);
+		
 		poiEXT = new PoiValueExctractorImpl(osmDocFacade);
 		
 		outLineHandler = Options.get().getCsvOutLineHandler();

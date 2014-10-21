@@ -20,6 +20,9 @@ import me.osm.gazetter.striper.readers.RelationsReader.Relation.RelationMember;
 import me.osm.gazetter.striper.readers.RelationsReader.Relation.RelationMember.ReferenceType;
 import me.osm.gazetter.striper.readers.WaysReader.Way;
 import me.osm.osmdoc.model.Feature;
+import me.osm.osmdoc.read.DOCFileReader;
+import me.osm.osmdoc.read.DOCFolderReader;
+import me.osm.osmdoc.read.DOCReader;
 import me.osm.osmdoc.read.OSMDocFacade;
 import me.osm.osmdoc.read.TagsDecisionTree;
 
@@ -46,9 +49,20 @@ public class PoisBuilder extends ABuilder {
 
 	private Set<String> named;
 	
+	private DOCReader reader;
+	
 	public PoisBuilder(PoisHandler handler, String catalogFolder, List<String> exclude, List<String> named) {
 		this.handler = handler;
-		OSMDocFacade osmDocFacade = new OSMDocFacade(catalogFolder, exclude);
+		
+		if(catalogFolder.endsWith(".xml") || catalogFolder.equals("jar")) {
+			reader = new DOCFileReader(catalogFolder);
+		}
+		else {
+			reader = new DOCFolderReader(catalogFolder);
+		}
+		
+		OSMDocFacade osmDocFacade = new OSMDocFacade(reader, exclude);
+		
 		this.tagsFilter = osmDocFacade.getPoiClassificator();
 		
 		this.named = new HashSet<>();

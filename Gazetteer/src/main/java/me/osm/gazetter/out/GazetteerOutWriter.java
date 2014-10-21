@@ -26,6 +26,8 @@ import me.osm.gazetter.utils.FileUtils.LineHandler;
 import me.osm.gazetter.utils.JSONHash;
 import me.osm.gazetter.utils.LocatePoint;
 import me.osm.osmdoc.model.Feature;
+import me.osm.osmdoc.read.DOCFileReader;
+import me.osm.osmdoc.read.DOCFolderReader;
 import me.osm.osmdoc.read.OSMDocFacade;
 
 import org.apache.commons.codec.digest.DigestUtils;
@@ -112,7 +114,13 @@ public class GazetteerOutWriter  implements LineHandler  {
 			throw new RuntimeException(e);
 		}
 		
-		osmDocFacade = new OSMDocFacade(poiCatalog, null);
+		if(poiCatalog.endsWith(".xml") || poiCatalog.equals("jar")) {
+			osmDocFacade = new OSMDocFacade(new DOCFileReader(poiCatalog), null);
+		}
+		else {
+			osmDocFacade = new OSMDocFacade(new DOCFolderReader(poiCatalog), null);
+		}
+		
 	}
 
 	private File getFile4Ftype(String ftype) {
@@ -367,7 +375,7 @@ public class GazetteerOutWriter  implements LineHandler  {
 		result.put(GAZETTEER_SCHEME_POI_CLASS, poiType);
 		
 		Feature poiClass = osmDocFacade.getFeature(poiType);
-		List<String> titles = osmDocFacade.listTranslatedTitles(poiClass);
+		List<String> titles = osmDocFacade.listPoiClassNames(poiClass);
 		
 		result.put(GAZETTEER_SCHEME_POI_CLASS_NAMES, new JSONArray(titles));
 		

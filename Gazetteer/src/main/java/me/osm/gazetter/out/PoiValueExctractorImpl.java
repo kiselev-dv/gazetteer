@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -64,7 +65,7 @@ public class PoiValueExctractorImpl extends FeatureValueExctractorImpl {
 					return poiClass;
 				}
 				else {
-					return osmDocFacade.getTranslatedTitle(fClass, lang);
+					return osmDocFacade.getTranslatedTitle(fClass, Locale.forLanguageTag(lang));
 				}
 				
 			//tags, tags_ru
@@ -79,7 +80,7 @@ public class PoiValueExctractorImpl extends FeatureValueExctractorImpl {
 					
 					String tagKeyName = tagKey;
 					if(lang != null) {
-						tagKeyName = osmDocFacade.getTranslatedTitle(fClass, td, lang);
+						tagKeyName = osmDocFacade.getTranslatedTitle(fClass, td, Locale.forLanguageTag(lang));
 					}
 					
 					String valueString = Objects.toString(properties.opt(tagKey), "");
@@ -97,7 +98,8 @@ public class PoiValueExctractorImpl extends FeatureValueExctractorImpl {
 						
 						for(Val valuePattern : td.getVal()) {
 							if(valuePattern.getValue().equals(valueString)) {
-								valueName = osmDocFacade.getTranslatedTitle(fClass, valuePattern, lang);
+								valueName = osmDocFacade.getTranslatedTitle(fClass, valuePattern, 
+										Locale.forLanguageTag(lang));
 							}
 						}
 						
