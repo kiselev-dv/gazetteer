@@ -375,9 +375,18 @@ public class GazetteerOutWriter  implements LineHandler  {
 		result.put(GAZETTEER_SCHEME_POI_CLASS, poiType);
 		
 		Feature poiClass = osmDocFacade.getFeature(poiType);
-		List<String> titles = osmDocFacade.listPoiClassNames(poiClass);
 		
+		List<String> titles = osmDocFacade.listPoiClassNames(poiClass);
 		result.put(GAZETTEER_SCHEME_POI_CLASS_NAMES, new JSONArray(titles));
+		
+		Set<String> moreTagsKeys = osmDocFacade.getMoreTagsKeys(poiClass);
+		Map<String, String> moreTags = new HashMap<String, String>();
+		for(String mtk : moreTagsKeys) {
+			if(properties.has(mtk)) {
+				moreTags.put(mtk, properties.getString(mtk));
+			}
+		}
+		result.put("more_tags", moreTags);
 		
 		String operator = properties.optString("operator");
 		if(StringUtils.isNotEmpty(operator)) {
