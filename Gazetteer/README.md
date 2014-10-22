@@ -1,7 +1,7 @@
 gazetteer
 =========
 
-Takes osm file and create html/json output for every feature with crossreferences. 
+Takes osm file and create json/csv output for every feature with crossreferences. 
 
 With next goals in mind:
 * Easy to deploy (keep number of external dependencyes as low as possible)
@@ -9,16 +9,49 @@ With next goals in mind:
 * Clusterization friendly (build whole process as a number of tasks, which can be performed in multi-thread/multi-node environment)
  
 
-Small demo: http://map.osm.me
-
-Data generated with Gazetteer, search api builded with restexpress and elasticsearch (GazetteerWeb).
-
-
 compile with apache maven
 ------------------
 
+    Install kiselev-dv/osm-doc-java first
+    (mvn compile install -f osm-doc-java/pom.xml)
+    
     mvn clean compile assembly:single -f Gazetteer/pom.xml
+    
   
+how it works
+------------
+
+Data processed in two steps:
+
+First, parse OSM file, find addresses (objects with addr:housenumber), administrative boundaries, places of interest and so on. This stage takes a lots of memory to keep references from ways and relations to nodes, but you can save some RAM by splitting this task in independant subtasks. 
+
+For example you can process only boundaries and highways as a first task, after that process addresses and POIs.
+
+At this stage data will be sliced into stripes of 0.1 degree wide.
+
+Second, spatialy join points and polygons in each stripe generated with step 1 independantly.
+
+So tipical workflow looks like:
+
+	#Do some preparations: split whole OSM file into 3 files with nodes, ways, and relations.
+    java -jar gazetteer.jar split country.osm
+    
+    #Parse data and stripe it
+    java -jar gazetteer.jar slice all
+    
+    #or you can split the task to save memory
+    #java -jar gazetteer.jar slice boundaries places
+    #java -jar gazetteer.jar slice highways
+    #java -jar gazetteer.jar slice addresses pois
+
+	#Do spatial join
+	java -jar gazetteer.jar join
+	
+	#Write data in json
+	java -jar gazetteer.jar out-gazetteer
+	
+	#or in csv
+	java -jar gazetteer.jar out-csv --columns id, address
 
 usage
 -----
@@ -166,557 +199,186 @@ optional arguments:
 Results
 -----------------------------------
 
-After join you get number of stripe####.gjson files in your data directory.
-
-Each file contains one feature per line encoded as json (geo json compatible)
-
-Address point feature example 
+Example of generated JSON. see https://github.com/kiselev-dv/gazetteer/blob/develop/GazetteerWeb/src/main/resources/gazetteer_schema.json for full schema notation.
 
 ```javascript
 	
-    {
-        //feature id
-        "id": "adrpnt-4277082304-w48588743",
-        
-        //feature type
-        "ftype": "adrpnt",
-        
-        //creation timestamp
-        "timestamp": "2014-03-29T20:56:19.024Z",
-        
-        //streets in ~500m radius
-        "nearbyStreets": [{
-            
-            //with their ids
-            "id": "hghway-0017959611-w48374817",
-            
-            //and tags
-            "properties": {
-                "highway": "tertiary",
-                "name": "улица Ленина",
-                "cladr:suffix": "Улица",
-                "cladr:name": "Ленина",
-                "cladr:code": "74000013000001300",
-                "maxspeed": "40"
-            }
-        }, {
-            "id": "hghway-0486126173-w48380791",
-            "properties": {
-                "highway": "tertiary",
-                "name": "улица 40 лет Октября",
-                "cladr:suffix": "Улица",
-                "cladr:name": "40 лет Октября",
-                "cladr:code": "74000013000000100",
-                "maxspeed": "40"
-            }
-        }],
-        
-        //original tags of object
-        "properties": {
-            "addr:street2": "улица 40 лет Октября",
-            "addr:postcode": "456770",
-            "building": "yes",
-            "addr:housenumber2": "4",
-            "addr:country": "RU",
-            "addr:region": "Челябинская область",
-            "addr:street": "улица Ленина",
-            "addr:city": "Снежинск",
-            "addr:housenumber": "2"
-        },
-        
-        //nearest city (it doesn't matter that city boundary actualy contains addr point)
-        "nearestCity": {
-            "id": "plcdln-1311766246-n292885144",
-            "properties": {
-                "name:en": "Snezhinsk",
-                "name:ru": "Снежинск",
-                "old_name:en": "Chelyabinsk-70",
-                "addr:district": "Снежинский городской округ",
-                "name:de": "Sneschinsk",
-                "is_in": "Chelyabinsk Oblast, Russia",
-                "old_name": "Челябинск-70",
-                "okato:user": "75545",
-                "official_status": "ru:город",
-                "addr:country": "RU",
-                "int_name": "Snezhinsk",
-                "name": "Снежинск",
-                "wikipedia": "ru:Снежинск",
-                "contact:website": "http://www.snzadm.ru",
-                "addr:region": "Челябинская область",
-                "place": "town",
-                "note": "see wikipedia ru:ЗАТО en:ZATO",
-                "population": "49116"
-            }
-        },
-        
-        //geojson compatible
-        "type": "Feature",
-        
-        //addresses array
-        "addresses": [{
-        
-            //each address contains full text representation (maybe I'll add some more)
-            //with shor notation
-            "text": "улица Ленина, 2, Снежинск, Снежинск, Снежинский городской округ",
-            
-            //address by parts. parts have same sortinag as full text representation
-            "parts": [{
-            
-                // This levels are generated based on centroid in boundaries join
-                // In later versions I'll add links to originally joined boundaries
-                // Like I do it for pois. (See below)
-                
-                //level of address part
-                "lvl": "street",
-                
-                //id of object which represent this level (if was found)
-                "lnk": "hghway-0017959611-w48374817",
-                
-                //all *name* tags of linked object
-                "names": {
-                    "name": "улица Ленина",
-                    "cladr:name": "Ленина"
-                },
-                
-                //name which will be used in full text address
-                "name": "улица Ленина",
-                
-                //this parameter is corresponds to average size of objects
-                //locaed on this level. (Streets are bigger then buildings 
-                //which are represented by housenumber)
-                "lvl-size": 10
-            }, {
-                "lvl": "hn",
-                "names": {},
-                "lnk": "adrpnt-4277082304-w48588743",
-                "name": "2",
-                "lvl-size": 20
-            }, {
-                "lvl": "place:city",
-                "name": "Снежинск",
-                "lvl-size": 70
-            }, {
-                "lvl": "place:town",
-                "names": {
-                    "old_name:ru": "Челябинск-70",
-                    "name:en": "Snezhinsk",
-                    "name:ru": "Снежинск",
-                    "old_name:en": "Chelyabinsk-70",
-                    "name": "Снежинск",
-                    "name:de": "Sneschinsk",
-                    "old_name": "Челябинск-70"
-                },
-                "lnk": "plcbnd-2057926048-w48374808",
-                "name": "Снежинск",
-                "lvl-size": 70
-            }, {
-                "lvl": "boundary:6",
-                "names": {
-                    "name": "Снежинский городской округ"
-                },
-                "lnk": "admbnd-3802341234-r1793195",
-                "name": "Снежинский городской округ",
-                "lvl-size": 90
-            }],
-            
-            //address scheme which was used. In this example:
-            //addr:housenumber + addr:street and
-            //addr2:housenumber + addr2:street
-            //it addr:hn2
-            //addr:hn2-1 (-1) means that this is the first part
-            //coded by addr:housenumber + addr:street
-            "addr-scheme": "addr:hn2-1"
-        }, {
-            "text": "улица 40 лет Октября, 4, Снежинск, Снежинский городской округ",
-            "parts": [{
-                "lvl": "street",
-                "lnk": "hghway-0486126173-w48380791",
-                "names": {
-                    "name": "улица 40 лет Октября",
-                    "cladr:name": "40 лет Октября"
-                },
-                "name": "улица 40 лет Октября",
-                "lvl-size": 10
-            }, {
-                "lvl": "hn",
-                "names": {},
-                "lnk": "adrpnt-4277082304-w48588743",
-                "name": "4",
-                "lvl-size": 20
-            }, {
-                "lvl": "place:town",
-                "names": {
-                    "old_name:ru": "Челябинск-70",
-                    "name:en": "Snezhinsk",
-                    "name:ru": "Снежинск",
-                    "old_name:en": "Chelyabinsk-70",
-                    "name": "Снежинск",
-                    "name:de": "Sneschinsk",
-                    "old_name": "Челябинск-70"
-                },
-                "lnk": "plcbnd-2057926048-w48374808",
-                "name": "Снежинск",
-                "lvl-size": 70
-            }, {
-                "lvl": "boundary:6",
-                "names": {
-                    "name": "Снежинский городской округ"
-                },
-                "lnk": "admbnd-3802341234-r1793195",
-                "name": "Снежинский городской округ",
-                "lvl-size": 90
-            }],
-            "addr-scheme": "addr:hn2-2"
-        }],
-        
-        
-        //Information about original osm object
-        "metainfo": {
-            
-            //id
-            "id": 48588743,
-            
-            //type: node, way, relation
-            "type": "way",
-            
-            //original geometry (for addresses I work with centroids)
-            //so this'is the original polygon geometry
-            "fullGeometry": {
-                "type": "Polygon",
-                "coordinates": [
-                    [
-                        [60.7429887, 56.0856019],
-                        [60.7432874, 56.0855888],
-                        [60.7431985, 56.0849593],
-                        [60.7427618, 56.0849785],
-                        [60.7427794, 56.0851026],
-                        [60.7429173, 56.0850966],
-                        [60.7429887, 56.0856019]
-                    ]
-                ]
-            }
-        },
-        
-        //feature geometry for most objects - point
-        //for highways - Linestring
-        //for boundaries - slices of polygon
-        "geometry": {
-            "type": "Point",
-            "coordinates": [60.74305285, 56.08524968]
-        }
-    }
-
-```
-
-POI point feature example 
-
-```javascript
-	
-
-    {
-        //id
-        "id": "poipnt-2949498088-n631427811",
-        
-        //type
-        "ftype": "poipnt",
-        
-        //creation timestamp
-        "timestamp": "2014-03-29T20:56:19.868Z",
-        
-        //type accordingly to osm doc catalog (see osm.ru poi catalog and osm-doc repository)
-        "poiTypes": ["clothes"],
-        
-        //boundaries which contains this feature
-        "boundaries": {
-        
-            //with joined lvels
-            "text": "Снежинск, Снежинский городской округ",
-            
-            //near the same as for addresses in address feature type
-            "parts": [{
-                "lvl": "place:town",
-                "names": {
-                    "old_name:ru": "Челябинск-70",
-                    "name:en": "Snezhinsk",
-                    "name:ru": "Снежинск",
-                    "old_name:en": "Chelyabinsk-70",
-                    "name": "Снежинск",
-                    "name:de": "Sneschinsk",
-                    "old_name": "Челябинск-70"
-                },
-                "lnk": "plcbnd-2057926048-w48374808",
-                "name": "Снежинск",
-                "lvl-size": 70
-            }, {
-                "lvl": "boundary:6",
-                "names": {
-                    "name": "Снежинский городской округ"
-                },
-                "lnk": "admbnd-3802341234-r1793195",
-                "name": "Снежинский городской округ",
-                "lvl-size": 90
-            }]
-        },
-        
-        //addresses whic was joined for this poi
-        
-        // may contains
-        // JSONObject sameSource: Same source - it's when we have poi tags and addr tags on a same geometry
-        
-        // JSONObject nearest: Nearest addr point
-        
-        // Set<JSONObject> contains: Poi contains addr points or geometry with addr tags contains poi
-        
-        // Set<JSONObject> shareBuildingWay
-        // Represent situation when poi point is a part of bulding way (poi is on entrance) 
-		// and other entrances have their own addresses 
-		
-		// Set<JSONObject> nearestShareBuildingWay
-		// Near the same as shareBuildingWay but poi point is inside building
-		// and different entrances have different addresses.
-		// In some regions poi address will have address 
-		// with all shared entrances house numbers range like
-		// hn4-hn9, SomeStreet
-		// Say hello to Kaliningrad (Kenigsberg).
-		
-        "joinedAddresses": {
-            "nearestShareBuildingWay": [],
-            "shareBuildingWay": [],
-            "contains": [{
-                //each link contains
-                //id
-                "id": "adrpnt-1345428882-w48588763",
-                
-                //original properties of addr source obj
-                "properties": {
-                    "addr:street2": "бульвар Циолковского",
-                    "addr:postcode": "456770",
-                    "building": "yes",
-                    "addr:housenumber2": "9",
-                    "addr:country": "RU",
-                    "addr:region": "Челябинская область",
-                    "addr:street": "улица Васильева",
-                    "addr:city": "Снежинск",
-                    "addr:housenumber": "18"
-                },
-                
-                //copy of addresses of addrpnt feature
-                "addresses": [{
-                    "text": "улица Васильева, 18, Снежинск, Снежинск, Снежинский городской округ",
-                    "parts": [{
-                        "lvl": "street",
-                        "lnk": "hghway-0030406789-w48368876",
-                        "names": {
-                            "name": "улица Васильева",
-                            "cladr:name": "Васильева"
-                        },
-                        "name": "улица Васильева",
-                        "lvl-size": 10
-                    }, {
-                        "lvl": "hn",
-                        "names": {},
-                        "lnk": "adrpnt-1345428882-w48588763",
-                        "name": "18",
-                        "lvl-size": 20
-                    }, {
-                        "lvl": "place:city",
-                        "name": "Снежинск",
-                        "lvl-size": 70
-                    }, {
-                        "lvl": "place:town",
-                        "names": {
-                            "old_name:ru": "Челябинск-70",
-                            "name:en": "Snezhinsk",
-                            "name:ru": "Снежинск",
-                            "old_name:en": "Chelyabinsk-70",
-                            "name": "Снежинск",
-                            "name:de": "Sneschinsk",
-                            "old_name": "Челябинск-70"
-                        },
-                        "lnk": "plcbnd-2057926048-w48374808",
-                        "name": "Снежинск",
-                        "lvl-size": 70
-                    }, {
-                        "lvl": "boundary:6",
-                        "names": {
-                            "name": "Снежинский городской округ"
-                        },
-                        "lnk": "admbnd-3802341234-r1793195",
-                        "name": "Снежинский городской округ",
-                        "lvl-size": 90
-                    }],
-                    "addr-scheme": "addr:hn2-1"
-                }, {
-                    "text": "бульвар Циолковского, 9, Снежинск, Снежинский городской округ",
-                    "parts": [{
-                        "lvl": "street",
-                        "lnk": "hghway-0112649536-w48504343",
-                        "names": {
-                            "name": "бульвар Циолковского",
-                            "cladr:name": "Циолковского"
-                        },
-                        "name": "бульвар Циолковского",
-                        "lvl-size": 10
-                    }, {
-                        "lvl": "hn",
-                        "names": {},
-                        "lnk": "adrpnt-1345428882-w48588763",
-                        "name": "9",
-                        "lvl-size": 20
-                    }, {
-                        "lvl": "place:town",
-                        "names": {
-                            "old_name:ru": "Челябинск-70",
-                            "name:en": "Snezhinsk",
-                            "name:ru": "Снежинск",
-                            "old_name:en": "Chelyabinsk-70",
-                            "name": "Снежинск",
-                            "name:de": "Sneschinsk",
-                            "old_name": "Челябинск-70"
-                        },
-                        "lnk": "plcbnd-2057926048-w48374808",
-                        "name": "Снежинск",
-                        "lvl-size": 70
-                    }, {
-                        "lvl": "boundary:6",
-                        "names": {
-                            "name": "Снежинский городской округ"
-                        },
-                        "lnk": "admbnd-3802341234-r1793195",
-                        "name": "Снежинский городской округ",
-                        "lvl-size": 90
-                    }],
-                    "addr-scheme": "addr:hn2-2"
-                }],
-                "ftype": "adrpnt"
-            }],
-            
-            //our addres feature founded twice (ascontains and as nearest)
-            "nearest": {
-                "id": "adrpnt-1345428882-w48588763",
-                "properties": {
-                    "addr:street2": "бульвар Циолковского",
-                    "addr:postcode": "456770",
-                    "building": "yes",
-                    "addr:housenumber2": "9",
-                    "addr:country": "RU",
-                    "addr:region": "Челябинская область",
-                    "addr:street": "улица Васильева",
-                    "addr:city": "Снежинск",
-                    "addr:housenumber": "18"
-                },
-                "addresses": [{
-                    "text": "улица Васильева, 18, Снежинск, Снежинск, Снежинский городской округ",
-                    "parts": [{
-                        "lvl": "street",
-                        "lnk": "hghway-0030406789-w48368876",
-                        "names": {
-                            "name": "улица Васильева",
-                            "cladr:name": "Васильева"
-                        },
-                        "name": "улица Васильева",
-                        "lvl-size": 10
-                    }, {
-                        "lvl": "hn",
-                        "names": {},
-                        "lnk": "adrpnt-1345428882-w48588763",
-                        "name": "18",
-                        "lvl-size": 20
-                    }, {
-                        "lvl": "place:city",
-                        "name": "Снежинск",
-                        "lvl-size": 70
-                    }, {
-                        "lvl": "place:town",
-                        "names": {
-                            "old_name:ru": "Челябинск-70",
-                            "name:en": "Snezhinsk",
-                            "name:ru": "Снежинск",
-                            "old_name:en": "Chelyabinsk-70",
-                            "name": "Снежинск",
-                            "name:de": "Sneschinsk",
-                            "old_name": "Челябинск-70"
-                        },
-                        "lnk": "plcbnd-2057926048-w48374808",
-                        "name": "Снежинск",
-                        "lvl-size": 70
-                    }, {
-                        "lvl": "boundary:6",
-                        "names": {
-                            "name": "Снежинский городской округ"
-                        },
-                        "lnk": "admbnd-3802341234-r1793195",
-                        "name": "Снежинский городской округ",
-                        "lvl-size": 90
-                    }],
-                    "addr-scheme": "addr:hn2-1"
-                }, {
-                    "text": "бульвар Циолковского, 9, Снежинск, Снежинский городской округ",
-                    "parts": [{
-                        "lvl": "street",
-                        "lnk": "hghway-0112649536-w48504343",
-                        "names": {
-                            "name": "бульвар Циолковского",
-                            "cladr:name": "Циолковского"
-                        },
-                        "name": "бульвар Циолковского",
-                        "lvl-size": 10
-                    }, {
-                        "lvl": "hn",
-                        "names": {},
-                        "lnk": "adrpnt-1345428882-w48588763",
-                        "name": "9",
-                        "lvl-size": 20
-                    }, {
-                        "lvl": "place:town",
-                        "names": {
-                            "old_name:ru": "Челябинск-70",
-                            "name:en": "Snezhinsk",
-                            "name:ru": "Снежинск",
-                            "old_name:en": "Chelyabinsk-70",
-                            "name": "Снежинск",
-                            "name:de": "Sneschinsk",
-                            "old_name": "Челябинск-70"
-                        },
-                        "lnk": "plcbnd-2057926048-w48374808",
-                        "name": "Снежинск",
-                        "lvl-size": 70
-                    }, {
-                        "lvl": "boundary:6",
-                        "names": {
-                            "name": "Снежинский городской округ"
-                        },
-                        "lnk": "admbnd-3802341234-r1793195",
-                        "name": "Снежинский городской округ",
-                        "lvl-size": 90
-                    }],
-                    "addr-scheme": "addr:hn2-2"
-                }],
-                "ftype": "adrpnt"
-            }
-        },
-        
-        //original poi properties
-        "properties": {
-            "shop": "clothes",
-            "name": "Радужный"
-        },
-        
-        //geojson compatibility
-        "type": "Feature",
-        
-        //osm information
-        "metainfo": {
-            "id": 631427811,
-            "type": "node"
-        },
-        
-        //centroid geometry
-        "geometry": {
-            "type": "Point",
-            "coordinates": [60.737858, 56.0873401]
-        }
-    }
+{
+    "id": "adrpnt-1839827750-w162863755-regular",
+    "timestamp": "2014-10-22T00:11:07.059Z",
+    "addr_level": "housenumber",
+    "address": "21, Орјенског Батаљона Orjenskog Bataljona, Herceg Novi, Општина Херцег-Нови, Crna Gora",
+    "admin0_alternate_names": ["Montenegro", "Crna Gora"],
+    "admin0_name": "Crna Gora",
+    "center_point": {
+        "lon": 18.53050815,
+        "lat": 42.4561645
+    },
+    "feature_id": "adrpnt-1839827750-w162863755",
+    "full_geometry": {
+        "type": "polygon",
+        "coordinates": [
+            [
+                [18.5305918, 42.4560824],
+                [18.5306252, 42.4561411],
+                [18.5306462, 42.456178],
+                [18.5304245, 42.4562466],
+                [18.5303701, 42.456151],
+                [18.5305918, 42.4560824]
+            ]
+        ]
+    },
+    "housenumber": "21",
+    "local_admin_alternate_names": ["Herceg-Novi municipality"],
+    "local_admin_name": "Општина Херцег-Нови",
+    "locality_name": "Herceg Novi",
+    "md5": "e0d9d0ad86334a7ce0800483f6005362",
+    "nearby_places": [{
+        "id": "plcpnt-3536850913-n428757227",
+        "alt_names": ["Нивице", "Њивице"],
+        "name": "Njivice",
+        "place": "village"
+    }, {
+        "id": "plcpnt-1759978530-n123858919",
+        "alt_names": ["Херцег-Новий", "Херцег-Нови", "Herceg Novi", "Херцег Нови"],
+        "name": "Herceg Novi",
+        "place": "town"
+    }, {
+        "id": "plcpnt-4095942822-n1609034696",
+        "alt_names": ["Musići", "Musici"],
+        "name": "Musići",
+        "place": "village"
+    }, {
+        "id": "plcpnt-2619445936-n1609034725",
+        "alt_names": ["Tušupi", "Tusupi"],
+        "name": "Tušupi",
+        "place": "village"
+    }, {
+        "id": "plcpnt-3258578329-n1609034718",
+        "alt_names": ["Sušići", "Susici", "Сушићи"],
+        "name": "Sušići",
+        "place": "hamlet"
+    }],
+    "nearby_streets": [{
+        "id": "hghway-3335219380-w162127428",
+        "highway": "residential",
+        "name": "ulica Sveta Bubala"
+    }, {
+        "id": "hghway-1424522199-w162094657",
+        "highway": "steps",
+        "name": "stepenište Ive Andrića"
+    }, {
+        "id": "hghway-4231035552-w162094674",
+        "highway": "service",
+        "name": "stepenište Ive Andrića"
+    }, {
+        "id": "hghway-0204807266-w130291268",
+        "highway": "tertiary",
+        "alt_names": ["Njegoseva", "Његошева"],
+        "name": "Njegoševa"
+    }, {
+        "id": "hghway-3379516457-w131095794",
+        "highway": "residential",
+        "name": "ulica Sveta Bubala"
+    }, {
+        "id": "hghway-4000856859-w145925692",
+        "highway": "pedestrian",
+        "alt_names": ["Šetalište 5 Danica", "Шеталиште 5 Даница"],
+        "name": "Šetalište 5 Danica"
+    }, {
+        "id": "hghway-2842308655-w236080190",
+        "highway": "residential",
+        "name": "Orjenskog Bataljona"
+    }, {
+        "id": "hghway-2686937743-w206548094",
+        "highway": "footway",
+        "name": "Bajer"
+    }, {
+        "id": "hghway-2880677165-w260584337",
+        "highway": "primary",
+        "alt_names": ["dr. Jovana Bijelića"],
+        "name": "Jadranska magistrala"
+    }, {
+        "id": "hghway-3403856111-w236080193",
+        "highway": "residential",
+        "name": "S. Bajkovica"
+    }, {
+        "id": "hghway-1953859762-w93079367",
+        "highway": "residential",
+        "name": "Banjalučka"
+    }, {
+        "id": "hghway-3784076610-w57784221",
+        "highway": "residential",
+        "name": "13 jul"
+    }, {
+        "id": "hghway-1474381128-w236080191",
+        "highway": "residential",
+        "name": "Nikole Ljubibratića"
+    }, {
+        "id": "hghway-0844733397-w163212760",
+        "highway": "residential",
+        "name": "13 jul"
+    }, {
+        "id": "hghway-1818332359-w145925799",
+        "highway": "pedestrian",
+        "name": "trg Maršala Tita"
+    }, {
+        "id": "hghway-3391963727-w146176811",
+        "highway": "residential",
+        "name": "ulica Nikole Ljubibratić"
+    }, {
+        "id": "hghway-4050397079-w178207546",
+        "highway": "residential",
+        "name": "Nikole Ljubibratića"
+    }, {
+        "id": "hghway-2716506431-w145925686",
+        "highway": "pedestrian",
+        "alt_names": ["Šetalište 5 Danica", "Шеталиште 5 Даница"],
+        "name": "Šetalište 5 Danica"
+    }, {
+        "id": "hghway-1538871895-w162094665",
+        "highway": "steps",
+        "name": "stepenište Danica Tomaševiča"
+    }, {
+        "id": "hghway-2369893582-w163556919",
+        "highway": "path",
+        "name": "Bajer"
+    }, {
+        "id": "hghway-2769092750-w146037850",
+        "highway": "primary",
+        "name": "Jadranska magistrala"
+    }, {
+        "id": "hghway-1687252834-w93079365",
+        "highway": "residential",
+        "name": "Orjenskog Bataljona"
+    }, {
+        "id": "hghway-2512493090-w178374583",
+        "highway": "residential",
+        "name": "put Partizanskih Majki"
+    }, {
+        "id": "hghway-3713242290-w146176809",
+        "highway": "residential",
+        "name": "put Partizanski Majki"
+    }],
+    "nearest_place": {
+        "id": "plcpnt-3505656293-n1752275615",
+        "alt_names": ["Marići", "Marici"],
+        "name": "Marići",
+        "place": "hamlet"
+    },
+    "refs": {
+        "local_admin": "admbnd-3282782267-r2187901",
+        "admin0": "admbnd-1757125981-r53296",
+        "locality": "plcbnd-3053943461-w186964570"
+    },
+    "street_name": "Орјенског Батаљона Orjenskog Bataljona",
+    "tags": {
+        "building": "yes",
+        "addr:street": "Орјенског Батаљона Orjenskog Bataljona",
+        "addr:housenumber": "21"
+    },
+    "type": "adrpnt"
+}
 
 
 ```
