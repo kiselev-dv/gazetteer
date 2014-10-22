@@ -28,6 +28,7 @@ public class ImportAPI {
 		if(StringUtils.isNotEmpty(source)) {
 			new Importer(source, buildingsGeometry).run();
 			result.put("import", true);
+			result.put("buildings_geometry", buildingsGeometry);
 		}
 		
 		return result;
