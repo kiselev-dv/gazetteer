@@ -13,7 +13,7 @@ Project based on RestExpress and Elasticsearch and supports clusterization
 
 compile and run
 -------
-
+```
   #build
   mvn package
   
@@ -24,3 +24,5 @@ compile and run
   
   #run
   java -jar $GAZETTEER_HOME/gazetteer-web.jar
+
+```
