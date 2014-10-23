@@ -70,7 +70,16 @@ app.directive('ngEnter', function() {
 				if(!$scope.pagesMode) {
 					searchAPI.listPOI($scope, 1);
 				}
-				InverseGeocode.sendRequest($scope);
+				
+				if($scope.geocodeControl.active) {
+					InverseGeocode.sendRequest($scope);
+				}
+			});
+			
+			$scope.$watch(function () {return $scope.geocodeControl.active}, function(active) {
+				if(active) {
+					InverseGeocode.sendRequest($scope);
+				}
 			});
 			
 			$scope.searchResultsPage = {};
@@ -341,11 +350,13 @@ function addMap($scope) {
 
 	this.layersControl = L.control.layers({}, overlays);
 	this.layersControl.addTo($scope.map);
-	$scope.map.addControl(new L.Control.Scale());
 	
 	var gc = new LGeocodeControl();
 	$scope.map.addControl(gc);
 	$scope.geocodeControl = gc;
+	$scope.geocodeControl.attach(function(){
+		$scope.$digest();
+	});
 	
 }
 
@@ -672,7 +683,7 @@ function getAddress(f) {
 
 var LGeocodeControl = L.Control.extend({
     options: {
-        position: 'bottomright'
+        position: 'bottomleft'
     },
 
     onAdd: function (map) {
@@ -685,21 +696,34 @@ var LGeocodeControl = L.Control.extend({
 
         this.dotSwitch = L.DomUtil.create('span', 'geocode-dot-switch');
         this.text = L.DomUtil.create('span', 'geocode-text');
-        this.container.appendChild(this.dotSwitch);
+        this.text.style.display='none';
         this.container.appendChild(this.text);
+        this.container.appendChild(this.dotSwitch);
         
         var gcontrol = this;
-        this.dotSwitch.innerHTML = '(<img src="' + HTML_ROOT + '/img/dot.png"></img>)';
+        this.dotSwitch.innerHTML = '<img src="' + HTML_ROOT + '/img/geocode.png"></img>';
         this.dotSwitch.onclick = function() {
         	if(gcontrol.dotShown) {
         		gcontrol.hideDot();
+        		if(gcontrol.changeStateCallback) {
+        			gcontrol.changeStateCallback(false);
+        		}
         	}
         	else {
         		gcontrol.showDot();
+        		if(gcontrol.changeStateCallback) {
+        			gcontrol.changeStateCallback(true);
+        		}
         	}
         }
+        
+        this.active = false;
 
         return this.container;
+    },
+    
+    attach: function(changeStateCallback) {
+    	this.changeStateCallback = changeStateCallback;
     },
     
     setText: function (text) {
@@ -709,11 +733,15 @@ var LGeocodeControl = L.Control.extend({
     showDot: function () {
     	this.dotShown = true;
     	this.dot.innerHTML = '<img src="' + HTML_ROOT + '/img/dot.png"></img>';
+    	this.text.style.display='';
+    	this.active = true;
     },
     
     hideDot: function () {
     	this.dotShown = false;
     	this.dot.innerHTML = '';
+    	this.text.style.display='none';
+    	this.active = false;
     }
     
 });

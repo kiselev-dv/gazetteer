@@ -44,7 +44,7 @@ html, body {
 #serch-input {
 	font-size: 1.2em;
 	width: 40%;
-	//background: url("/img/search.svg") no-repeat scroll 98% center rgba(0, 0, 0, 0);
+	background: url("/static/img/magnifier12.png") no-repeat scroll 98% center rgba(0, 0, 0, 0);
     height: 32px;
     margin: 8px 3px 3px 3px;
     padding: 0 0 0 5px
@@ -159,4 +159,12 @@ input, textarea, form:active, input:focus {
 }
 .geocode-dot-switch {
 	cursor: pointer;
+}
+.geocode-control {
+	border-radius: 4px;
+}
+.geocode-dot-switch img {
+	cursor: pointer;
+	margin: 2px;
+	vertical-align: middle;
 }
