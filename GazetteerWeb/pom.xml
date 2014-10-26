@@ -54,9 +54,9 @@
 			<version>1.7.6</version>
 		</dependency>
 		<dependency>
-			<groupId>osm-doc</groupId>
-			<artifactId>osm-doc</artifactId>
-			<version>0.5.3</version>
+			<groupId>me.osm.osm-doc</groupId>
+			<artifactId>osm-doc-java</artifactId>
+			<version>0.6</version>
 		</dependency>
 		<dependency>
 			<groupId>org.elasticsearch</groupId>
