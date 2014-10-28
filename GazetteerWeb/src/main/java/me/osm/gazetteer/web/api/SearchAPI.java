@@ -95,9 +95,9 @@ public class SearchAPI {
 		BoolQueryBuilder q = null;
 			
 		Set<String> types = getSet(request, TYPE_HEADER);
-
+		String hname = request.getHeader("hierarchy");
 		Set<String> poiClass = getSet(request, POI_CLASS_HEADER);
-		addPOIGroups(request, poiClass);
+		addPOIGroups(request, poiClass, hname);
 			
 		if(querry == null && poiClass.isEmpty()) {
 			return null;
@@ -174,9 +174,9 @@ public class SearchAPI {
 		
 	}
 
-	private void addPOIGroups(Request request, Set<String> poiClass) {
+	private void addPOIGroups(Request request, Set<String> poiClass, String hname) {
 		for(String s : getSet(request, POI_GROUP_HEADER)) {
-			Collection<? extends Feature> hierarcyBranch = OSMDocSinglton.get().getReader().getHierarcyBranch(null, s);
+			Collection<? extends Feature> hierarcyBranch = OSMDocSinglton.get().getReader().getHierarcyBranch(hname, s);
 			if(hierarcyBranch != null) {
 				for(Feature f : hierarcyBranch) {
 					poiClass.add(f.getName());
