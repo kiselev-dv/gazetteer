@@ -90,7 +90,7 @@ public class SearchAPI {
 			throws IOException {
 
 		boolean explain = "true".equals(request.getHeader(EXPLAIN_HEADER));
-		String querry = request.getHeader(Q_HEADER);
+		String querry = StringUtils.stripToNull(request.getHeader(Q_HEADER));
 		
 		BoolQueryBuilder q = null;
 			
