@@ -371,21 +371,21 @@ public class GazetteerOutWriter  implements LineHandler  {
 
 	private void fillPOI(JSONFeature result, JSONObject jsonObject,
 			JSONObject properties) {
+		
+		//TODO: Add multiple classes support
 		String poiType = jsonObject.getJSONArray("poiTypes").getString(0);
 		result.put(GAZETTEER_SCHEME_POI_CLASS, poiType);
 		
 		Feature poiClass = osmDocFacade.getFeature(poiType);
 		
+		if(poiClass == null) {
+			return;
+		}
+		
 		List<String> titles = osmDocFacade.listPoiClassNames(poiClass);
 		result.put(GAZETTEER_SCHEME_POI_CLASS_NAMES, new JSONArray(titles));
 		
-		Set<String> moreTagsKeys = osmDocFacade.getMoreTagsKeys(poiClass);
-		Map<String, String> moreTags = new HashMap<String, String>();
-		for(String mtk : moreTagsKeys) {
-			if(properties.has(mtk)) {
-				moreTags.put(mtk, properties.getString(mtk));
-			}
-		}
+		JSONObject moreTags = osmDocFacade.parseMoreTags(poiClass, properties, null);
 		result.put("more_tags", moreTags);
 		
 		String operator = properties.optString("operator");
