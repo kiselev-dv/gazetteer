@@ -157,6 +157,13 @@ public class Main {
 	    	public String longName() {return name().toLowerCase().replace('_', '-');}
 	    	@Override
 	    	public String help() {return "Write difference between two gazetteer json files";}
+	    },
+
+	    MATCH_FLAP {
+	    	@Override
+	    	public String longName() {return name().toLowerCase().replace('_', '-');}
+	    	@Override
+	    	public String help() {return "Match features with flap objects.";}
 	    };
 
 	};
@@ -266,6 +273,10 @@ public class Main {
 				new Diff(namespace.getString("old"), namespace.getString("new"), 
 						namespace.getString("out_file")).run();
 			}
+			
+			if(namespace.get(COMMAND).equals(Command.MATCH_FLAP)) {
+				
+			} 
 			
 		} 
 		catch (ArgumentParserException e) {
