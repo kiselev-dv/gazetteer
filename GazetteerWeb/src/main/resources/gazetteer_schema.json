@@ -334,7 +334,7 @@
                     "type": "string",
                     "index": "not_analyzed"
                 },
-                "poi_class_names": {
+                "poi_keywords": {
                     "type": "string",
                     "index": "analyzed",
                     "index_analyzer": "suggest_synonyms",

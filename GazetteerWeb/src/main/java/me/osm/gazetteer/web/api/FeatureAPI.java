@@ -75,7 +75,7 @@ public class FeatureAPI {
 		"nearest_neighbour",
 		"tags",
         "poi_class",
-        "poi_class_names",
+        "poi_keywords",
         "operator",
         "brand",
         "opening_hours",

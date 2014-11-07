@@ -38,7 +38,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 	"refs", 
 	"tags", 
 	"poi_class", 
-	"poi_class_names", 
+	"poi_keywords", 
 	"operator", 
 	"brand", 
 	"opening_hours", 

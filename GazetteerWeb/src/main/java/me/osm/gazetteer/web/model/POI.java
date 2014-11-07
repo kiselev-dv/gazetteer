@@ -10,7 +10,7 @@ public interface POI {
 	public String getPoiClass();
 	public void setPoiClass(String poiClass);
 	
-	@JsonProperty("poi_class_names")
+	@JsonProperty("poi_keywords")
 	public List<String> getPoiClassNames();
 	public void setPoiClassNames(List<String> poiClassNames);
 	

@@ -21,7 +21,7 @@ public class GazetteerSchemeConstants {
 
 	public static final String GAZETTEER_SCHEME_OPERATOR = "operator";
 
-	public static final String GAZETTEER_SCHEME_POI_CLASS_NAMES = "poi_class_names";
+	public static final String GAZETTEER_SCHEME_POI_KEYWORDS = "poi_keywords";
 
 	public static final String GAZETTEER_SCHEME_POI_CLASS = "poi_class";
 

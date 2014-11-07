@@ -11,6 +11,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -372,20 +373,30 @@ public class GazetteerOutWriter  implements LineHandler  {
 	private void fillPOI(JSONFeature result, JSONObject jsonObject,
 			JSONObject properties) {
 		
+		JSONArray typesArray = jsonObject.getJSONArray("poiTypes");
+
 		//TODO: Add multiple classes support
-		String poiType = jsonObject.getJSONArray("poiTypes").getString(0);
-		result.put(GAZETTEER_SCHEME_POI_CLASS, poiType);
+		result.put(GAZETTEER_SCHEME_POI_CLASS, typesArray);
 		
-		Feature poiClass = osmDocFacade.getFeature(poiType);
+		List<Feature> poiClassess = new ArrayList<Feature>();
+		for(int i = 0; i < typesArray.length(); i++) {
+			Feature poiClass = osmDocFacade.getFeature(typesArray.getString(i));
+			if(poiClass != null) {
+				poiClassess.add(poiClass);
+			}
+		} 
 		
-		if(poiClass == null) {
+		if(poiClassess.isEmpty()) {
 			return;
 		}
 		
-		List<String> titles = osmDocFacade.listPoiClassNames(poiClass);
-		result.put(GAZETTEER_SCHEME_POI_CLASS_NAMES, new JSONArray(titles));
+		LinkedHashSet<String> keywords = new LinkedHashSet<String>(); 
+		for(Feature f : poiClassess) {
+			osmDocFacade.listPoiClassNames(f);
+		}
+		result.put(GAZETTEER_SCHEME_POI_KEYWORDS, new JSONArray(keywords));
 		
-		JSONObject moreTags = osmDocFacade.parseMoreTags(poiClass, properties, null);
+		JSONObject moreTags = osmDocFacade.parseMoreTags(poiClassess, properties, null);
 		result.put("more_tags", moreTags);
 		
 		String operator = properties.optString("operator");

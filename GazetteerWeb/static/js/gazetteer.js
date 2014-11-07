@@ -179,7 +179,7 @@ function SearchController($scope, $http, $location, $routeParams, $rootScope) {
 			return f.address;
 		}
 		if (f.type == 'poipnt') {
-			return f.poi_class_names[0] + ' ' + (f.name || '') + ' (' + f.address + ')';
+			return f.poi_keywords[0] + ' ' + (f.name || '') + ' (' + f.address + ')';
 		}
 		return f.name;
 	};
@@ -234,7 +234,7 @@ function FeatureController($scope, $http, $location, $routeParams) {
 			return f.address;
 		}
 		if (f.type == 'poipnt') {
-			return f.poi_class_names[0] + ' ' + (f.name || '') + ' (' + f.address + ')';
+			return f.poi_keywords[0] + ' ' + (f.name || '') + ' (' + f.address + ')';
 		}
 		return f.name;
 	};

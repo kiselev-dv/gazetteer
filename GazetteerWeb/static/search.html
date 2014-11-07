@@ -50,7 +50,7 @@
 			<div><a href="#!/feature/{{feature.feature_id || feature.id}}">Details</a></div>
 			
 			<div ng-show="feature.type == 'poipnt'">
-				<h4><span>{{feature.name}}</span> (<span>{{feature.poi_class_names[0]}}</span>)</h4>
+				<h4><span>{{feature.name}}</span> (<span>{{feature.poi_keywords[0]}}</span>)</h4>
 				<div ng-show="feature.operator">Operator {{feature.operator}}</div>
 				<div ng-show="feature.brand">Brand: {{feature.brand}}</div>
 				<div ng-show="feature.opening_hours">Work time: {{feature.opening_hours}}</div>

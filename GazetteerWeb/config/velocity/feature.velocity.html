@@ -83,7 +83,7 @@
 	<div class="poi">
 		<div>Information:</div>
 		<div><span itemprop="name">$u.esc($featureJSON.optString('name'))</span> 
-			(<span>$u.esc($featureJSON.getJSONArray('poi_class_names').getString(0))</span>)
+			(<span>$u.esc($featureJSON.getJSONArray('poi_keywords').getString(0))</span>)
 		</div>
 		#if ($featureJSON.optString('operator') != '')
 		<div>Operator $u.esc($featureJSON.optString('operator'))</div>
