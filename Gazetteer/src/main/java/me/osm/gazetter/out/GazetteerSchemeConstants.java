@@ -9,18 +9,6 @@ public class GazetteerSchemeConstants {
 
 	public static final String GAZETTEER_SCHEME_NEARBY_ADDRESSES = "nearby_addresses";
 
-	public static final String GAZETTEER_SCHEME_WEBSITE = "website";
-
-	public static final String GAZETTEER_SCHEME_EMAIL = "email";
-
-	public static final String GAZETTEER_SCHEME_PHONE = "phone";
-
-	public static final String GAZETTEER_SCHEME_OPENING_HOURS = "opening_hours";
-
-	public static final String GAZETTEER_SCHEME_BRAND = "brand";
-
-	public static final String GAZETTEER_SCHEME_OPERATOR = "operator";
-
 	public static final String GAZETTEER_SCHEME_POI_KEYWORDS = "poi_keywords";
 
 	public static final String GAZETTEER_SCHEME_POI_CLASS = "poi_class";
@@ -38,5 +26,5 @@ public class GazetteerSchemeConstants {
 	public static final String GAZETTEER_SCHEME_FEATURE_ID = "feature_id";
 
 	public static final String GAZETTEER_SCHEME_ID = "id";
-
+	
 }

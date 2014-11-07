@@ -399,45 +399,6 @@ public class GazetteerOutWriter  implements LineHandler  {
 		JSONObject moreTags = osmDocFacade.parseMoreTags(poiClassess, properties, null);
 		result.put("more_tags", moreTags);
 		
-		String operator = properties.optString("operator");
-		if(StringUtils.isNotEmpty(operator)) {
-			result.put(GAZETTEER_SCHEME_OPERATOR, operator);
-		}
-
-		String brand = properties.optString("brand");
-		if(StringUtils.isNotEmpty(brand)) {
-			result.put(GAZETTEER_SCHEME_BRAND, brand);
-		}
-
-		String opening_hours = properties.optString("opening_hours");
-		if(StringUtils.isNotEmpty(opening_hours)) {
-			result.put(GAZETTEER_SCHEME_OPENING_HOURS, opening_hours);
-		}
-
-		String phone = properties.optString("contact:phone");
-		if(StringUtils.isEmpty(phone)) {
-			phone = properties.optString("phone");
-		}
-		if(StringUtils.isNotEmpty(phone)) {
-			result.put(GAZETTEER_SCHEME_PHONE, phone);
-		}
-
-		String email = properties.optString("contact:email");
-		if(StringUtils.isEmpty(email)) {
-			phone = properties.optString("email");
-		}
-		if(StringUtils.isNotEmpty(email)) {
-			result.put(GAZETTEER_SCHEME_EMAIL, email);
-		}
-
-		String website = properties.optString("contact:website");
-		if(StringUtils.isEmpty(website)) {
-			phone = properties.optString("website");
-		}
-		if(StringUtils.isNotEmpty(website)) {
-			result.put(GAZETTEER_SCHEME_WEBSITE, website);
-		}
-		
 		JSONArray jsonArray = jsonObject.optJSONArray("nearbyAddresses");
 		if(jsonArray != null) {
 			result.put(GAZETTEER_SCHEME_NEARBY_ADDRESSES, jsonArray);

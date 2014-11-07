@@ -340,40 +340,6 @@
                     "index_analyzer": "suggest_synonyms",
                     "search_analyzer": "standard"
                 },
-                "operator": {
-                    "type": "string",
-                    "index": "analyzed",
-                    "index_analyzer": "suggest_synonyms",
-                    "search_analyzer": "standard"
-                },
-                "brand": {
-                    "type": "string",
-                    "index": "analyzed",
-                    "index_analyzer": "suggest_synonyms",
-                    "search_analyzer": "standard"
-                },
-                "opening_hours": {
-                    "type": "string",
-                    "index": "not_analyzed"
-                },
-                "phone": {
-                    "type": "string",
-                    "index": "analyzed",
-                    "index_analyzer": "suggest_synonyms",
-                    "search_analyzer": "standard"
-                },
-                "email": {
-                    "type": "string",
-                    "index": "analyzed",
-                    "index_analyzer": "suggest_synonyms",
-                    "search_analyzer": "standard"
-                },
-                "website": {
-                    "type": "string",
-                    "index": "analyzed",
-                    "index_analyzer": "suggest_synonyms",
-                    "search_analyzer": "standard"
-                },
                 "nearby_addresses": {
                 	"type": "string",
                     "index": "not_analyzed"

@@ -85,23 +85,20 @@
 		<div><span itemprop="name">$u.esc($featureJSON.optString('name'))</span> 
 			(<span>$u.esc($featureJSON.getJSONArray('poi_keywords').getString(0))</span>)
 		</div>
-		#if ($featureJSON.optString('operator') != '')
-		<div>Operator $u.esc($featureJSON.optString('operator'))</div>
+		#if ($featureJSON.getJSONObject('more_tags').optString('operator') != '')
+		<div>Operator $u.esc($featureJSON.getJSONObject('more_tags').optString('operator'))</div>
 		#end
-		#if ($featureJSON.optString('brand') != '')
-		<div>Brand: $u.esc($featureJSON.optString('brand'))</div>
+		#if ($featureJSON.getJSONObject('more_tags').optString('brand') != '')
+		<div>Brand: $u.esc($featureJSON.getJSONObject('more_tags').optString('brand'))</div>
 		#end
-		#if ($featureJSON.optString('opening_hours') != '')
-		<div>Work time: $u.esc($featureJSON.optString('opening_hours'))</div>
+		#if ($featureJSON.getJSONObject('more_tags').optString('contact:phone') != '')
+		<div itemprop="telephone">Phone: $u.esc($featureJSON.getJSONObject('more_tags').optString('contact:phone'))</div>
 		#end
-		#if ($featureJSON.optString('phone') != '')
-		<div itemprop="telephone">Phone: $u.esc($featureJSON.optString('phone'))</div>
+		#if ($featureJSON.getJSONObject('more_tags').optString('contact:email') != '')
+		<div itemprop="email">Email: $u.esc($featureJSON.getJSONObject('more_tags').optString('contact:email'))</div>
 		#end
-		#if ($featureJSON.optString('email') != '')
-		<div itemprop="email">Email: $u.esc($featureJSON.optString('email'))</div>
-		#end
-		#if ($featureJSON.optString('website') != '')
-		<div itemprop="url">Website: $u.esc($featureJSON.optString('website'))</div>
+		#if ($featureJSON.getJSONObject('more_tags').optString('contact:website') != '')
+		<div itemprop="url">Website: $u.esc($featureJSON.getJSONObject('more_tags').optString('contact:website'))</div>
 		#end
 	</div> 
 	#end

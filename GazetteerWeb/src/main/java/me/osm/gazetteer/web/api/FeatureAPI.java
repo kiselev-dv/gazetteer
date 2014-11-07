@@ -76,12 +76,7 @@ public class FeatureAPI {
 		"tags",
         "poi_class",
         "poi_keywords",
-        "operator",
-        "brand",
-        "opening_hours",
-        "phone",
-        "email",
-        "website",
+        "more_tags",
         "center_point"
 	};
 
