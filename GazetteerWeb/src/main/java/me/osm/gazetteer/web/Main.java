@@ -132,6 +132,18 @@ public class Main {
 				.flag(Flags.Auth.PUBLIC_ROUTE)
 				.parameter(Parameters.Cache.MAX_AGE, 3600);
 
+		server.uri(root + "/osmdoc/:feature",
+				new OSMDocAPI())
+				.method(HttpMethod.GET)
+				.flag(Flags.Auth.PUBLIC_ROUTE)
+				.parameter(Parameters.Cache.MAX_AGE, 3600);
+
+		server.uri(root + "/osmdoc/_translate",
+				new OSMDocAPI())
+				.method(HttpMethod.GET)
+				.flag(Flags.Auth.PUBLIC_ROUTE)
+				.parameter(Parameters.Cache.MAX_AGE, 3600);
+
 		server.uri(root + "/_import",
 				new ImportAPI())
 				.method(HttpMethod.GET)
