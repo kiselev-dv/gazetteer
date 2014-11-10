@@ -33,10 +33,6 @@ import org.restexpress.Response;
 
 public class SearchAPI {
 
-	private static final String[] mainFields = new String[]{"name", "address", "poi_class", "poi_keywords", "operator", "brand"};
-	private static final String[] secondaryFields = new String[]{"parts", "alt_addresses", "alt_names"};
-	private static final String[] tertiaryFields = new String[]{"nearby_streets", "nearest_city", "nearest_neighbour"};
-	
 	/**
 	 * Explain search results or not 
 	 * (<code>true<code> for explain)
