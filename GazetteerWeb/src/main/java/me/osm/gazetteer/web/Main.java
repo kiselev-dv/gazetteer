@@ -6,7 +6,7 @@ import java.io.IOException;
 import me.osm.gazetteer.web.api.FeatureAPI;
 import me.osm.gazetteer.web.api.ImportAPI;
 import me.osm.gazetteer.web.api.InverseGeocodeAPI;
-import me.osm.gazetteer.web.api.OSMDocHierarchyAPI;
+import me.osm.gazetteer.web.api.OSMDocAPI;
 import me.osm.gazetteer.web.api.SearchAPI;
 import me.osm.gazetteer.web.api.Sitemap;
 import me.osm.gazetteer.web.api.SnapshotsAPI;
@@ -127,7 +127,7 @@ public class Main {
 				.parameter(Parameters.Cache.MAX_AGE, 3600);
 
 		server.uri(root + "/osmdoc/hierachy",
-				new OSMDocHierarchyAPI())
+				new OSMDocAPI())
 				.method(HttpMethod.GET)
 				.flag(Flags.Auth.PUBLIC_ROUTE)
 				.parameter(Parameters.Cache.MAX_AGE, 3600);

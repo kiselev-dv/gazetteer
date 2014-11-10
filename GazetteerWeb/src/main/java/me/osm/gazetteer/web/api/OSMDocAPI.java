@@ -9,7 +9,7 @@ import org.json.JSONObject;
 import org.restexpress.Request;
 import org.restexpress.Response;
 
-public class OSMDocHierarchyAPI {
+public class OSMDocAPI {
 	
 	public JSONObject read(Request request, Response response) {
 		
