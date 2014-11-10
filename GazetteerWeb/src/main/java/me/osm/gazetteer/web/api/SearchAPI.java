@@ -18,7 +18,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.Client;
+import org.elasticsearch.common.geo.GeoPoint;
 import org.elasticsearch.index.query.BoolQueryBuilder;
+import org.elasticsearch.index.query.DisMaxQueryBuilder;
 import org.elasticsearch.index.query.FilterBuilders;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -124,18 +126,11 @@ public class SearchAPI {
 			Double lat = Double.parseDouble(request.getHeader(LAT_HEADER));
 			Double lon = Double.parseDouble(request.getHeader(LON_HEADER));
 
-			Map<String, Object> params = new HashMap<String, Object>();
-			params.put("lat", lat);
-			params.put("lon", lon);
-			
-			params.put("radius", 10_000);
-			
-			qb = QueryBuilders.functionScoreQuery(qb).scoreMode("max").boostMode("avg")
-					.add(ScoreFunctionBuilders.scriptFunction(
-							"score_with_distance", "expression", params));
+			qb = QueryBuilders.functionScoreQuery(q, 
+					ScoreFunctionBuilders.gaussDecayFunction("center_point", 
+							new GeoPoint(lat, lon), "2000km")).scoreMode("max").boostMode("sum");
 			
 		}
-
 		
 		List<String> bbox = getList(request, BBOX_HEADER);
 		if(!bbox.isEmpty() && bbox.size() == 4) {
@@ -155,8 +150,6 @@ public class SearchAPI {
 				.addSort(sort);
 		
 		APIUtils.applyPaging(request, searchRequest);
-		
-		searchRequest.setMinScore(0.001f);
 		
 		SearchResponse searchResponse = searchRequest.execute().actionGet();
 		
@@ -208,30 +201,53 @@ public class SearchAPI {
 	}
 
 	public static BoolQueryBuilder getSearchQuerry(String querry) {
-		BoolQueryBuilder q = QueryBuilders.boolQuery()
-				.should(buildAddRowQ(querry).boost(20))
-				.should(QueryBuilders.multiMatchQuery(querry, mainFields).boost(15))
-				.should(QueryBuilders.multiMatchQuery(querry, secondaryFields).boost(10))
-				.should(QueryBuilders.multiMatchQuery(querry, tertiaryFields).boost(5));
-		return q;
+		
+		return QueryBuilders.boolQuery()
+			.should(dismax(
+					cscore("admin0_name", querry, 10.1f), 
+					cscore("admin0_alternate_names", querry, 9.1f)))
+			.should(dismax(
+					cscore("admin1_name", querry, 10.2f), 
+					cscore("admin1_alternate_names", querry, 9.2f)))
+			.should(dismax(
+					cscore("admin2_name", querry, 10.3f), 
+					cscore("admin2_alternate_names", querry, 9.3f)))
+			.should(dismax(
+					cscore("local_admin_name", querry, 10.4f), 
+					cscore("local_admin_alternate_names", querry, 9.4f)))
+			.should(dismax(
+					cscore("locality_name", querry, 10.5f), 
+					cscore("locality_alternate_names", querry, 9.5f),
+					cscore("nearest_place.name", querry, 8.5f)))
+			.should(dismax(
+					cscore("neighborhood_name", querry, 10.6f), 
+					cscore("neighborhood_alternate_names", querry, 9.6f),
+					cscore("nearest_neighbour.name", querry, 8.6f)))
+			.should(dismax(
+					cscore("street_name", querry, 10.7f), 
+					cscore("street_alternate_names", querry, 9.7f), 
+					cscore("nearby_streets.name", querry, 7.7f)))
+			.should(cscore("housenumber", querry, 10.8f))
+			.should(QueryBuilders.termQuery("type", "adrpnt"))
+			//Boost pois by name and keywords
+			.should(
+					QueryBuilders.filteredQuery(
+							dismax(cscore("name", querry, 10.8f), cscore("keywords", querry, 10.8f)), 
+							FilterBuilders.termFilter("type", "poipnt")));
+		
 	}
 
-	public static BoolQueryBuilder buildAddRowQ(String querry) {
-		return QueryBuilders.boolQuery()
-			.should(QueryBuilders.matchQuery("admin0_name", querry).boost(1))
-			.should(QueryBuilders.matchQuery("admin0_alternate_names", querry).boost(0.1f))
-			.should(QueryBuilders.matchQuery("admin1_name", querry).boost(2))
-			.should(QueryBuilders.matchQuery("admin1_alternate_names", querry).boost(0.2f))
-			.should(QueryBuilders.matchQuery("admin2_name", querry).boost(3))
-			.should(QueryBuilders.matchQuery("admin2_alternate_names", querry).boost(0.3f))
-			.should(QueryBuilders.matchQuery("local_admin_name", querry).boost(4))
-			.should(QueryBuilders.matchQuery("local_admin_alternate_names", querry).boost(0.4f))
-			.should(QueryBuilders.matchQuery("locality_name", querry).boost(5))
-			.should(QueryBuilders.matchQuery("locality_alternate_names", querry).boost(0.4f))
-			.should(QueryBuilders.matchQuery("neighborhood_name", querry).boost(6))
-			.should(QueryBuilders.matchQuery("neighborhood_alternate_names", querry).boost(0.6f))
-			.should(QueryBuilders.matchQuery("street_name", querry).boost(7))
-			.should(QueryBuilders.matchQuery("housenumber", querry).boost(100));
+	private static QueryBuilder dismax(QueryBuilder... querryes) {
+		DisMaxQueryBuilder dm = QueryBuilders.disMaxQuery();
+		for(QueryBuilder q : querryes) {
+			dm.add(q);
+		}
+		return dm;
 	}
-	
+
+	private static QueryBuilder cscore(String field, String querry, float score) {
+		
+		return QueryBuilders.constantScoreQuery(QueryBuilders.matchQuery(field, querry)).boost(score);
+	}
+
 }
