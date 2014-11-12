@@ -126,22 +126,18 @@ public class Main {
 				.flag(Flags.Auth.PUBLIC_ROUTE)
 				.parameter(Parameters.Cache.MAX_AGE, 3600);
 
-		server.uri(root + "/osmdoc/hierachy",
+		server.uri(root + "/osmdoc/hierarchy/{lang}/{id}",
 				new OSMDocAPI())
 				.method(HttpMethod.GET)
 				.flag(Flags.Auth.PUBLIC_ROUTE)
+				.parameter("handler", "hierarchy")
 				.parameter(Parameters.Cache.MAX_AGE, 3600);
 
-		server.uri(root + "/osmdoc/:feature",
+		server.uri(root + "/osmdoc/poi-class/{lang}/{id}",
 				new OSMDocAPI())
 				.method(HttpMethod.GET)
 				.flag(Flags.Auth.PUBLIC_ROUTE)
-				.parameter(Parameters.Cache.MAX_AGE, 3600);
-
-		server.uri(root + "/osmdoc/_translate",
-				new OSMDocAPI())
-				.method(HttpMethod.GET)
-				.flag(Flags.Auth.PUBLIC_ROUTE)
+				.parameter("handler", "poi-class")
 				.parameter(Parameters.Cache.MAX_AGE, 3600);
 
 		server.uri(root + "/_import",

@@ -1,10 +1,13 @@
 package me.osm.gazetteer.web.api;
 
+import java.util.Map;
+
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.SearchHitField;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.restexpress.Request;
@@ -32,9 +35,13 @@ public class APIUtils {
 		for(SearchHit hit : searchResponse.getHits().getHits()) {
 			JSONObject feature = new JSONObject(hit.getSource());
 			
+			Map<String, SearchHitField> fields = hit.getFields();
+			
 			if(!fullGeometry) {
 				feature.remove("full_geometry");
 			}
+			
+			feature.put("matched_fields", new JSONArray(fields.keySet()));
 			
 			features.put(feature);
 		}

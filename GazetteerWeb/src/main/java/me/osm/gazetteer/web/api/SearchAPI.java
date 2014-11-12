@@ -113,35 +113,44 @@ public class SearchAPI {
 		if(!poiClass.isEmpty()) {
 			q.must(QueryBuilders.termsQuery("poi_class", poiClass));
 		}
-
+		
 		QueryBuilder qb = q;
 
 		if(request.getHeader(LAT_HEADER) != null && request.getHeader(LON_HEADER) != null) {
-			Double lat = Double.parseDouble(request.getHeader(LAT_HEADER));
-			Double lon = Double.parseDouble(request.getHeader(LON_HEADER));
-
-			qb = QueryBuilders.functionScoreQuery(q, 
-					ScoreFunctionBuilders.gaussDecayFunction("center_point", 
-							new GeoPoint(lat, lon), "2000km")).scoreMode("max").boostMode("sum");
-			
+			qb = addDistanceScore(request, qb);
 		}
 		
 		List<String> bbox = getList(request, BBOX_HEADER);
 		if(!bbox.isEmpty() && bbox.size() == 4) {
-			qb = QueryBuilders.filteredQuery(qb, 
-					FilterBuilders.geoBoundingBoxFilter("center_point")
-					.bottomLeft(Double.parseDouble(bbox.get(1)), Double.parseDouble(bbox.get(0)))
-					.topRight(Double.parseDouble(bbox.get(3)), Double.parseDouble(bbox.get(2))));
+			qb = addBBOXRestriction(qb, bbox);
 		}
 
-		
-		SortBuilder sort = SortBuilders.scoreSort();
-		
 		Client client = ESNodeHodel.getClient();
 		SearchRequestBuilder searchRequest = client.prepareSearch("gazetteer")
 				.setQuery(qb)
-				.setExplain(explain)
-				.addSort(sort);
+				.setExplain(explain);
+		
+		searchRequest.addField("admin0_name");
+		searchRequest.addField("admin0_alternate_names");
+		searchRequest.addField("admin1_alternate_names");
+		searchRequest.addField("admin2_alternate_names");
+		searchRequest.addField("local_admin_name");
+		searchRequest.addField("local_admin_alternate_names");
+		searchRequest.addField("locality_name");
+		searchRequest.addField("locality_alternate_names");
+		searchRequest.addField("nearest_place.name");
+		searchRequest.addField("neighborhood_name");
+		searchRequest.addField("neighborhood_alternate_names");
+		searchRequest.addField("nearest_neighbour.name");
+		searchRequest.addField("street_name");
+		searchRequest.addField("street_alternate_names");
+		searchRequest.addField("nearby_streets.name");
+		searchRequest.addField("housenumber");
+		searchRequest.addField("name");
+		searchRequest.addField("keywords");
+		searchRequest.addField("type");
+		
+		searchRequest.setFetchSource(true);
 		
 		APIUtils.applyPaging(request, searchRequest);
 		
@@ -159,6 +168,25 @@ public class SearchAPI {
 		
 		return answer;
 		
+	}
+
+	private QueryBuilder addBBOXRestriction(QueryBuilder qb, List<String> bbox) {
+		qb = QueryBuilders.filteredQuery(qb, 
+				FilterBuilders.geoBoundingBoxFilter("center_point")
+				.bottomLeft(Double.parseDouble(bbox.get(1)), Double.parseDouble(bbox.get(0)))
+				.topRight(Double.parseDouble(bbox.get(3)), Double.parseDouble(bbox.get(2))));
+		return qb;
+	}
+
+	private QueryBuilder addDistanceScore(Request request, QueryBuilder q) {
+		QueryBuilder qb;
+		Double lat = Double.parseDouble(request.getHeader(LAT_HEADER));
+		Double lon = Double.parseDouble(request.getHeader(LON_HEADER));
+
+		qb = QueryBuilders.functionScoreQuery(q, 
+				ScoreFunctionBuilders.gaussDecayFunction("center_point", 
+						new GeoPoint(lat, lon), "2000km")).scoreMode("max").boostMode("sum");
+		return qb;
 	}
 
 	private void addPOIGroups(Request request, Set<String> poiClass, String hname) {
