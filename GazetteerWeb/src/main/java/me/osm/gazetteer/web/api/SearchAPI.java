@@ -13,6 +13,7 @@ import me.osm.gazetteer.web.utils.OSMDocSinglton;
 import me.osm.osmdoc.model.Feature;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.lucene.search.Explanation;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.Client;
@@ -23,6 +24,7 @@ import org.elasticsearch.index.query.FilterBuilders;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.functionscore.ScoreFunctionBuilders;
+import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.sort.SortBuilder;
 import org.elasticsearch.search.sort.SortBuilders;
 import org.json.JSONObject;
@@ -82,6 +84,9 @@ public class SearchAPI {
 	public static String LON_HEADER = "lon";
 	
 	
+	private static volatile double queryNorm = 1;
+	
+	
 	public JSONObject read(Request request, Response response) 
 			throws IOException {
 
@@ -89,6 +94,7 @@ public class SearchAPI {
 		String querry = StringUtils.stripToNull(request.getHeader(Q_HEADER));
 		
 		BoolQueryBuilder q = null;
+		float minScore = 0.0f;
 			
 		Set<String> types = getSet(request, TYPE_HEADER);
 		String hname = request.getHeader("hierarchy");
@@ -101,6 +107,7 @@ public class SearchAPI {
 		
 		if(querry != null) {
 			q = getSearchQuerry(querry);
+			minScore = 0.01f;
 		}
 		else {
 			q = QueryBuilders.boolQuery();
@@ -118,11 +125,13 @@ public class SearchAPI {
 
 		if(request.getHeader(LAT_HEADER) != null && request.getHeader(LON_HEADER) != null) {
 			qb = addDistanceScore(request, qb);
+			minScore += 1;
 		}
 		
 		List<String> bbox = getList(request, BBOX_HEADER);
 		if(!bbox.isEmpty() && bbox.size() == 4) {
 			qb = addBBOXRestriction(qb, bbox);
+			minScore = 0.0f;
 		}
 
 		Client client = ESNodeHodel.getClient();
@@ -130,27 +139,8 @@ public class SearchAPI {
 				.setQuery(qb)
 				.setExplain(explain);
 		
-		searchRequest.addField("admin0_name");
-		searchRequest.addField("admin0_alternate_names");
-		searchRequest.addField("admin1_alternate_names");
-		searchRequest.addField("admin2_alternate_names");
-		searchRequest.addField("local_admin_name");
-		searchRequest.addField("local_admin_alternate_names");
-		searchRequest.addField("locality_name");
-		searchRequest.addField("locality_alternate_names");
-		searchRequest.addField("nearest_place.name");
-		searchRequest.addField("neighborhood_name");
-		searchRequest.addField("neighborhood_alternate_names");
-		searchRequest.addField("nearest_neighbour.name");
-		searchRequest.addField("street_name");
-		searchRequest.addField("street_alternate_names");
-		searchRequest.addField("nearby_streets.name");
-		searchRequest.addField("housenumber");
-		searchRequest.addField("name");
-		searchRequest.addField("keywords");
-		searchRequest.addField("type");
-		
 		searchRequest.setFetchSource(true);
+		searchRequest.setMinScore(minScore);
 		
 		APIUtils.applyPaging(request, searchRequest);
 		
@@ -179,13 +169,17 @@ public class SearchAPI {
 	}
 
 	private QueryBuilder addDistanceScore(Request request, QueryBuilder q) {
-		QueryBuilder qb;
 		Double lat = Double.parseDouble(request.getHeader(LAT_HEADER));
 		Double lon = Double.parseDouble(request.getHeader(LON_HEADER));
 
-		qb = QueryBuilders.functionScoreQuery(q, 
+		return addDistanceScore(q, lat, lon);
+	}
+
+	private static QueryBuilder addDistanceScore(QueryBuilder q, Double lat, Double lon) {
+		QueryBuilder qb = QueryBuilders.functionScoreQuery(q, 
 				ScoreFunctionBuilders.gaussDecayFunction("center_point", 
-						new GeoPoint(lat, lon), "2000km")).scoreMode("max").boostMode("sum");
+						new GeoPoint(lat, lon), "20000km"))
+						.scoreMode("max").boostMode("sum").boost(1);
 		return qb;
 	}
 
@@ -257,6 +251,40 @@ public class SearchAPI {
 							dismax(cscore("name", querry, 10.8f), cscore("keywords", querry, 10.8f)), 
 							FilterBuilders.termFilter("type", "poipnt")));
 		
+	}
+	
+	public static void updateQuerryNorm () {
+		BoolQueryBuilder q = getSearchQuerry("1");
+		Client client = ESNodeHodel.getClient();
+		SearchRequestBuilder searchRequest = client.prepareSearch("gazetteer")
+				.setQuery(addDistanceScore(q, new Double(0.0), new Double(0.0)))
+				.setSize(1)
+				.setExplain(true);
+		
+		SearchResponse answer = searchRequest.execute().actionGet();
+		SearchHit hit = answer.getHits().iterator().next();
+		Explanation explanation = hit.getExplanation();
+		queryNorm = getQueryNorm(explanation);
+	}
+	
+	public static double getQueryNorm() {
+		return queryNorm;
+	}
+
+	private static double getQueryNorm(Explanation explanation) {
+		if("queryNorm".equals(explanation.getDescription())) {
+			return explanation.getValue();
+		}
+		else if(explanation.getDetails() != null){
+			for(Explanation e : explanation.getDetails()) {
+				double d = getQueryNorm(e);
+				if(d != 1.0) {
+					return d;
+				}
+			}
+		}
+		
+		return 1.0;
 	}
 
 	private static QueryBuilder dismax(QueryBuilder... querryes) {

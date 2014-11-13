@@ -1,6 +1,7 @@
 package me.osm.gazetteer.web.api;
 
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -20,7 +21,7 @@ public class APIUtils {
 	
 	private static final String PAGE_PARAM = "page";
 	private static final String PAGE_SIZE = "size";
-
+	
 	public static JSONObject encodeSearchResult(SearchResponse searchResponse, 
 			boolean fullGeometry, boolean explain) {
 		
@@ -35,13 +36,11 @@ public class APIUtils {
 		for(SearchHit hit : searchResponse.getHits().getHits()) {
 			JSONObject feature = new JSONObject(hit.getSource());
 			
-			Map<String, SearchHitField> fields = hit.getFields();
-			
 			if(!fullGeometry) {
 				feature.remove("full_geometry");
 			}
 			
-			feature.put("matched_fields", new JSONArray(fields.keySet()));
+			feature.put("_hit_score", hit.getScore());
 			
 			features.put(feature);
 		}
