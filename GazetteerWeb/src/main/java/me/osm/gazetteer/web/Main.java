@@ -88,7 +88,7 @@ public class Main {
 
 		defineRoutes(config, server);
 		
-		SearchAPI.updateQuerryNorm();
+		SearchAPI.updateQueryNorm();
 		
 		RoutesMetadataPlugin routesMetadataPlugin = new RoutesMetadataPlugin();
 		routesMetadataPlugin.register(server);

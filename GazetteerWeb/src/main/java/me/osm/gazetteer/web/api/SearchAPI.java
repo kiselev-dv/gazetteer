@@ -253,7 +253,7 @@ public class SearchAPI {
 		
 	}
 	
-	public static void updateQuerryNorm () {
+	public static void updateQueryNorm () {
 		BoolQueryBuilder q = getSearchQuerry("1");
 		Client client = ESNodeHodel.getClient();
 		SearchRequestBuilder searchRequest = client.prepareSearch("gazetteer")
