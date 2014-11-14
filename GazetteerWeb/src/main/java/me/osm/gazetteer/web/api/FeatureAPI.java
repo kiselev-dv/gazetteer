@@ -39,7 +39,7 @@ public class FeatureAPI {
 	static {
 		
 		typesMap.put("adr", new HashSet<String>(Arrays.asList(new String[]{
-				FeatureTypes.POI_FTYPE, FeatureTypes.HIGHWAY_FEATURE_TYPE	
+				FeatureTypes.POI_FTYPE	
 		})));
 
 		typesMap.put("poi", new HashSet<String>(Arrays.asList(new String[]{
