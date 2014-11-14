@@ -46,6 +46,8 @@ import static me.osm.gazetter.out.GazetteerSchemeConstants.*;
 
 public class GazetteerOutWriter  implements LineHandler  {
 	
+	private static final String POI_ADDR_MATCH_GAZETTEER_SCHEME = "poi_addr_match";
+
 	private static final Set<String> hashIgnoreFields = new HashSet<String>(
 			Arrays.asList(new String[]{GAZETTEER_SCHEME_TIMESTAMP}));
 
@@ -146,7 +148,7 @@ public class GazetteerOutWriter  implements LineHandler  {
 							Map<String, JSONObject> mapLevels = mapLevels(boundaries);
 							JSONFeature row = new JSONFeature();
 							
-							fillObject(row, FeatureTypes.ADMIN_BOUNDARY_FTYPE, boundaries, mapLevels, jsonObject);
+							fillObject(row, FeatureTypes.ADMIN_BOUNDARY_FTYPE, boundaries, mapLevels, jsonObject, null);
 							
 							writeNext(row, FeatureTypes.ADMIN_BOUNDARY_FTYPE);
 							
@@ -252,7 +254,7 @@ public class GazetteerOutWriter  implements LineHandler  {
 						JSONObject addrRow = addresses.getJSONObject(ri);
 						Map<String, JSONObject> mapLevels = mapLevels(addrRow);
 						
-						fillObject(row, ftype, addrRow, mapLevels, jsonObject);
+						fillObject(row, ftype, addrRow, mapLevels, jsonObject, null);
 						
 						writeNext(row, ftype);
 					}
@@ -268,7 +270,7 @@ public class GazetteerOutWriter  implements LineHandler  {
 						JSONObject bs = boundaries.getJSONObject(i);
 						Map<String, JSONObject> mapLevels = mapLevels(bs);
 
-						fillObject(row, ftype, bs, mapLevels, jsonObject);
+						fillObject(row, ftype, bs, mapLevels, jsonObject, null);
 						
 						writeNext(row, ftype);
 					}
@@ -281,20 +283,21 @@ public class GazetteerOutWriter  implements LineHandler  {
 					JSONFeature row = new JSONFeature();
 					Map<String, JSONObject> mapLevels = mapLevels(boundaries);
 					
-					fillObject(row, ftype, boundaries, mapLevels, jsonObject);
+					fillObject(row, ftype, boundaries, mapLevels, jsonObject, null);
 					
 					writeNext(row, ftype);
 					
 				}
 			}
 			else if(FeatureTypes.POI_FTYPE.equals(ftype)) {
-				List<JSONObject> addresses = getPoiAddresses(jsonObject);
+				List<JSONObject> addresses = new ArrayList<JSONObject>();
+				String poiAddrMatch = fillPoiAddresses(jsonObject, addresses);
 				if(addresses != null) {
 					for(JSONObject addrRow : addresses) {
 						JSONFeature row = new JSONFeature();
 						Map<String, JSONObject> mapLevels = mapLevels(addrRow);
 						
-						fillObject(row, ftype, addrRow, mapLevels, jsonObject);
+						fillObject(row, ftype, addrRow, mapLevels, jsonObject, poiAddrMatch);
 						
 						writeNext(row, ftype);
 					}
@@ -306,7 +309,7 @@ public class GazetteerOutWriter  implements LineHandler  {
 	}
 	
 	private void fillObject(JSONFeature result, String ftype, JSONObject addrRow,
-			Map<String, JSONObject> mapLevels, JSONObject jsonObject) {
+			Map<String, JSONObject> mapLevels, JSONObject jsonObject, String poiAddrMatch) {
 		
 		String rowId = AddrRowValueExctractorImpl.getUID(jsonObject, addrRow, ftype);
 		
@@ -344,6 +347,9 @@ public class GazetteerOutWriter  implements LineHandler  {
 		
 		if(FeatureTypes.POI_FTYPE.equals(ftype)) {
 			fillPOI(result, jsonObject, properties);
+			if(poiAddrMatch != null) {
+				result.put(POI_ADDR_MATCH_GAZETTEER_SCHEME, poiAddrMatch);
+			}
 		}
 		
 		JSONObject centroid = getCentroid(jsonObject, ftype);
@@ -389,11 +395,9 @@ public class GazetteerOutWriter  implements LineHandler  {
 		if(poiClassess.isEmpty()) {
 			return;
 		}
-		
+	
+		//TODO Keywords
 		LinkedHashSet<String> keywords = new LinkedHashSet<String>(); 
-		for(Feature f : poiClassess) {
-			osmDocFacade.listPoiClassNames(f);
-		}
 		result.put(GAZETTEER_SCHEME_POI_KEYWORDS, new JSONArray(keywords));
 		
 		JSONObject moreTags = osmDocFacade.parseMoreTags(poiClassess, properties, null);
@@ -766,40 +770,39 @@ public class GazetteerOutWriter  implements LineHandler  {
 		
 	}
 
-	private List<JSONObject> getPoiAddresses(JSONObject poi) {
+	private String fillPoiAddresses(JSONObject poi, List<JSONObject> result) {
 		
-		List<JSONObject> result = new ArrayList<>();
 		JSONObject joinedAddresses = poi.optJSONObject("joinedAddresses");
 		if(joinedAddresses != null) {
 			
 			//"sameSource"
 			if(getAddressesFromObj(result, joinedAddresses, "sameSource")) {
-				return result;
+				return "sameSource";
 			}
 			
 			//"contains"
 			if(getAddressesFromCollection(result, joinedAddresses, "contains")) {
-				return result;
+				return "contains";
 			}
 
 			//"shareBuildingWay"
 			if(getAddressesFromCollection(result, joinedAddresses, "shareBuildingWay")) {
-				return result;
+				return "shareBuildingWay";
 			}
 
 			//"nearestShareBuildingWay"
 			if(getAddressesFromCollection(result, joinedAddresses, "nearestShareBuildingWay")) {
-				return result;
+				return "nearestShareBuildingWay";
 			}
 
 			//"nearest"
 			if(getAddressesFromObj(result, joinedAddresses, "nearest")) {
-				return result;
+				return "nearest";
 			}
 			
 		}
 		
-		return result;
+		return null;
 	}
 
 	private boolean getAddressesFromObj(List<JSONObject> result,
