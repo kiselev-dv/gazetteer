@@ -46,7 +46,6 @@ import static me.osm.gazetter.out.GazetteerSchemeConstants.*;
 
 public class GazetteerOutWriter  implements LineHandler  {
 	
-	private static final String POI_ADDR_MATCH_GAZETTEER_SCHEME = "poi_addr_match";
 
 	private static final Set<String> hashIgnoreFields = new HashSet<String>(
 			Arrays.asList(new String[]{GAZETTEER_SCHEME_TIMESTAMP}));
@@ -60,6 +59,7 @@ public class GazetteerOutWriter  implements LineHandler  {
 	private static final String GAZETTEER_SCHEME_NEAREST_PLACE = "nearest_place";
 
 	private static final String GAZETTEER_SCHEME_ADDRESS = "address";
+	private static final String GAZETTEER_SCHEME_POI_ADDR_MATCH = "poi_addr_match";
 
 	private String dataDir;
 	
@@ -348,7 +348,7 @@ public class GazetteerOutWriter  implements LineHandler  {
 		if(FeatureTypes.POI_FTYPE.equals(ftype)) {
 			fillPOI(result, jsonObject, properties);
 			if(poiAddrMatch != null) {
-				result.put(POI_ADDR_MATCH_GAZETTEER_SCHEME, poiAddrMatch);
+				result.put(GAZETTEER_SCHEME_POI_ADDR_MATCH, poiAddrMatch);
 			}
 		}
 		
