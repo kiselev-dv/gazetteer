@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>me.osm.Gazetteer</groupId>
 	<artifactId>GazetteerWeb</artifactId>
-	<version>0.1-SNAPSHOT</version>
+	<version>0.2</version>
 	<packaging>jar</packaging>
 
 	<properties>
@@ -56,7 +56,7 @@
 		<dependency>
 			<groupId>me.osm.osm-doc</groupId>
 			<artifactId>osm-doc-java</artifactId>
-			<version>0.7-SNAPSHOT</version>
+			<version>0.7</version>
 		</dependency>
 		<dependency>
 			<groupId>org.elasticsearch</groupId>
@@ -142,7 +142,7 @@
 	<repositories>
 		<repository>
 			<id>osm-doc-mvn-repo</id>
-			<url>https://raw.githubusercontent.com/kiselev-dv/osm-doc/mvn-repo/</url>
+			<url>https://raw.githubusercontent.com/kiselev-dv/mvn-repository/</url>
 			<snapshots>
 				<enabled>true</enabled>
 				<updatePolicy>always</updatePolicy>
