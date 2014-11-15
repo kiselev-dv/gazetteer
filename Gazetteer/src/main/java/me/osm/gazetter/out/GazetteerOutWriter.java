@@ -30,6 +30,7 @@ import me.osm.osmdoc.model.Feature;
 import me.osm.osmdoc.read.DOCFileReader;
 import me.osm.osmdoc.read.DOCFolderReader;
 import me.osm.osmdoc.read.OSMDocFacade;
+import me.osm.osmdoc.read.tagvalueparsers.TagsStatisticCollector;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -60,6 +61,10 @@ public class GazetteerOutWriter  implements LineHandler  {
 
 	private static final String GAZETTEER_SCHEME_ADDRESS = "address";
 	private static final String GAZETTEER_SCHEME_POI_ADDR_MATCH = "poi_addr_match";
+	private static final String GAZETTEER_SCHEME_POI_TYPE_NAMES = "poi_type_translated";
+	
+	private static final TagsStatisticCollector tagStatistics = new TagsStatisticCollector();
+
 
 	private String dataDir;
 	
@@ -292,7 +297,7 @@ public class GazetteerOutWriter  implements LineHandler  {
 			else if(FeatureTypes.POI_FTYPE.equals(ftype)) {
 				List<JSONObject> addresses = new ArrayList<JSONObject>();
 				String poiAddrMatch = fillPoiAddresses(jsonObject, addresses);
-				if(addresses != null) {
+				if(!addresses.isEmpty()) {
 					for(JSONObject addrRow : addresses) {
 						JSONFeature row = new JSONFeature();
 						Map<String, JSONObject> mapLevels = mapLevels(addrRow);
@@ -346,10 +351,7 @@ public class GazetteerOutWriter  implements LineHandler  {
 		}
 		
 		if(FeatureTypes.POI_FTYPE.equals(ftype)) {
-			fillPOI(result, jsonObject, properties);
-			if(poiAddrMatch != null) {
-				result.put(GAZETTEER_SCHEME_POI_ADDR_MATCH, poiAddrMatch);
-			}
+			fillPOI(result, jsonObject, properties, poiAddrMatch, refs);
 		}
 		
 		JSONObject centroid = getCentroid(jsonObject, ftype);
@@ -377,11 +379,10 @@ public class GazetteerOutWriter  implements LineHandler  {
 	}
 
 	private void fillPOI(JSONFeature result, JSONObject jsonObject,
-			JSONObject properties) {
+			JSONObject properties, String poiAddrMatch, JSONObject refs) {
 		
 		JSONArray typesArray = jsonObject.getJSONArray("poiTypes");
 
-		//TODO: Add multiple classes support
 		result.put(GAZETTEER_SCHEME_POI_CLASS, typesArray);
 		
 		List<Feature> poiClassess = new ArrayList<Feature>();
@@ -396,17 +397,37 @@ public class GazetteerOutWriter  implements LineHandler  {
 			return;
 		}
 	
+		result.put(GAZETTEER_SCHEME_POI_TYPE_NAMES, 
+				new JSONArray(osmDocFacade.listPoiClassNames(poiClassess)));
+
+		JSONArray poiAddrRefs = new JSONArray();
+		
+		if(poiAddrMatch != null) {
+			result.put(GAZETTEER_SCHEME_POI_ADDR_MATCH, poiAddrMatch);
+			Object matchedAddresses = jsonObject.getJSONObject("joinedAddresses").opt(poiAddrMatch);
+			
+			if(matchedAddresses instanceof JSONObject) {
+				poiAddrRefs.put(((JSONObject)matchedAddresses).getString("id"));
+			}
+			else if(matchedAddresses instanceof JSONArray) {
+				JSONArray maa = (JSONArray) matchedAddresses;
+				for(int i=0; i<maa.length();i++) {
+					poiAddrRefs.put(maa.getJSONObject(i).getString("id"));
+				}
+			}
+		}
+		
+		refs.put("poi_addresses", poiAddrRefs);
+		
+		JSONObject moreTags = osmDocFacade.parseMoreTags(poiClassess, properties, tagStatistics);
+		result.put("more_tags", moreTags);
+
 		//TODO Keywords
-		LinkedHashSet<String> keywords = new LinkedHashSet<String>(); 
+		LinkedHashSet<String> keywords = new LinkedHashSet<String>();
+		osmDocFacade.collectKeywords(poiClassess, moreTags, keywords);
 		result.put(GAZETTEER_SCHEME_POI_KEYWORDS, new JSONArray(keywords));
 		
-		JSONObject moreTags = osmDocFacade.parseMoreTags(poiClassess, properties, null);
-		result.put("more_tags", moreTags);
 		
-		JSONArray jsonArray = jsonObject.optJSONArray("nearbyAddresses");
-		if(jsonArray != null) {
-			result.put(GAZETTEER_SCHEME_NEARBY_ADDRESSES, jsonArray);
-		}
 	}
 
 	private JSONObject getCentroid(JSONObject jsonObject, String ftype) {
