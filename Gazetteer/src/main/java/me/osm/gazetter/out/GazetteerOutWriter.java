@@ -426,8 +426,6 @@ public class GazetteerOutWriter  implements LineHandler  {
 		LinkedHashSet<String> keywords = new LinkedHashSet<String>();
 		osmDocFacade.collectKeywords(poiClassess, moreTags, keywords);
 		result.put(GAZETTEER_SCHEME_POI_KEYWORDS, new JSONArray(keywords));
-		
-		
 	}
 
 	private JSONObject getCentroid(JSONObject jsonObject, String ftype) {
