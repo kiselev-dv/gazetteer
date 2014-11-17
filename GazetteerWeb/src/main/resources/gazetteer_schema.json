@@ -387,6 +387,10 @@
                         "street": {
                         	"type": "string",
                         	"index": "not_analyzed"
+                        },
+                        "poi_addresses": {
+                        	"type": "string",
+                        	"index": "not_analyzed"
                         }
                     }
                 }

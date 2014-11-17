@@ -17,7 +17,7 @@ public class ImportAPI {
 		
 		String source = request.getHeader("source");
 		boolean drop = "true".equals(request.getHeader("drop"));
-		boolean buildingsGeometry = "true".equals(request.getHeader("buildings_geometry"));
+		boolean buildingsGeometry = !"false".equals(request.getHeader("buildings_geometry"));
 		
 		if(drop) {
 			new DeleteIndexRequestBuilder(ESNodeHodel.getClient().admin().indices(), "gazetteer").get();

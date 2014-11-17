@@ -88,7 +88,7 @@ public class Main {
 
 		defineRoutes(config, server);
 		
-		SearchAPI.updateQueryNorm();
+		//SearchAPI.updateQueryNorm();
 		
 		RoutesMetadataPlugin routesMetadataPlugin = new RoutesMetadataPlugin();
 		routesMetadataPlugin.register(server);
@@ -112,14 +112,21 @@ public class Main {
 				.method(HttpMethod.GET)
 				.name(Constants.FEATURE_URI)
 				.flag(Flags.Auth.PUBLIC_ROUTE)
-				.parameter(Parameters.Cache.MAX_AGE, 3600).asMetadata().toString();
+				.parameter(Parameters.Cache.MAX_AGE, 3600);
+
+		server.uri(root + "/feature/{id}/{_related}",
+				new FeatureAPI())
+					.method(HttpMethod.GET)
+					.name(Constants.FEATURE_URI)
+					.flag(Flags.Auth.PUBLIC_ROUTE)
+					.parameter(Parameters.Cache.MAX_AGE, 3600);
 
 		server.uri(root + "/feature/_suggest",
 				new SuggestAPI())
 				.method(HttpMethod.GET)
 				.name(Constants.FEATURE_URI)
 				.flag(Flags.Auth.PUBLIC_ROUTE)
-				.parameter(Parameters.Cache.MAX_AGE, 3600).asMetadata().toString();
+				.parameter(Parameters.Cache.MAX_AGE, 3600);
 		
 		server.uri(root + "/_inverse",
 				new InverseGeocodeAPI())
@@ -145,13 +152,6 @@ public class Main {
 		server.uri(root + "/_import",
 				new ImportAPI())
 				.method(HttpMethod.GET)
-				.flag(Flags.Cache.DONT_CACHE);
-
-		server.uri(root + "/feature",
-				new FeatureAPI())
-				.alias(root + "/feature/{id}.{format}")
-				.method(HttpMethod.GET)
-				.flag(Flags.Auth.PUBLIC_ROUTE)
 				.flag(Flags.Cache.DONT_CACHE);
 
 		server.uri(root + "/snapshot/.*",

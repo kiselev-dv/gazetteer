@@ -101,7 +101,7 @@ public class SearchAPI {
 		Set<String> poiClass = getSet(request, POI_CLASS_HEADER);
 		addPOIGroups(request, poiClass, hname);
 			
-		if(querry == null && poiClass.isEmpty()) {
+		if(querry == null && poiClass.isEmpty() && types.isEmpty()) {
 			return null;
 		}
 		
@@ -133,14 +133,15 @@ public class SearchAPI {
 			qb = addBBOXRestriction(qb, bbox);
 			minScore = 0.0f;
 		}
-
+		
 		Client client = ESNodeHodel.getClient();
 		SearchRequestBuilder searchRequest = client.prepareSearch("gazetteer")
 				.setQuery(qb)
+				.addSort(SortBuilders.scoreSort())
 				.setExplain(explain);
 		
 		searchRequest.setFetchSource(true);
-		searchRequest.setMinScore(minScore);
+		//searchRequest.setMinScore(minScore);
 		
 		APIUtils.applyPaging(request, searchRequest);
 		
@@ -177,8 +178,8 @@ public class SearchAPI {
 
 	private static QueryBuilder addDistanceScore(QueryBuilder q, Double lat, Double lon) {
 		QueryBuilder qb = QueryBuilders.functionScoreQuery(q, 
-				ScoreFunctionBuilders.gaussDecayFunction("center_point", 
-						new GeoPoint(lat, lon), "20000km"))
+				ScoreFunctionBuilders.linearDecayFunction("center_point", 
+						new GeoPoint(lat, lon), "2000km"))
 						.scoreMode("max").boostMode("sum").boost(1);
 		return qb;
 	}
