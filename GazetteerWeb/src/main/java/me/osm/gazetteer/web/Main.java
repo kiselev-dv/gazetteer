@@ -116,6 +116,7 @@ public class Main {
 
 		server.uri(root + "/feature/{id}/{_related}",
 				new FeatureAPI())
+					.alias(root + "/feature/{id}")
 					.method(HttpMethod.GET)
 					.name(Constants.FEATURE_URI)
 					.flag(Flags.Auth.PUBLIC_ROUTE)
