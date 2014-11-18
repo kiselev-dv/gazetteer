@@ -129,8 +129,10 @@ public class Main {
 				.flag(Flags.Auth.PUBLIC_ROUTE)
 				.parameter(Parameters.Cache.MAX_AGE, 3600);
 		
-		server.uri(root + "/_inverse",
+		server.uri(root + "/feature/latlon/{lat}/{lon}/{_related}",
 				new InverseGeocodeAPI())
+				.alias(root + "/feature/latlon/{lat}/{lon}")
+				.alias(root + "/_inverse")
 				.method(HttpMethod.GET)
 				.name(Constants.FEATURE_URI)
 				.flag(Flags.Auth.PUBLIC_ROUTE)
