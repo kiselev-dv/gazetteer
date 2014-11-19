@@ -179,8 +179,8 @@ public class SearchAPI {
 	private static QueryBuilder addDistanceScore(QueryBuilder q, Double lat, Double lon) {
 		QueryBuilder qb = QueryBuilders.functionScoreQuery(q, 
 				ScoreFunctionBuilders.linearDecayFunction("center_point", 
-						new GeoPoint(lat, lon), "2000km"))
-						.scoreMode("max").boostMode("sum").boost(1);
+						new GeoPoint(lat, lon), "200km"))
+							.scoreMode("max").boostMode("sum").boost(0.01f);
 		return qb;
 	}
 
@@ -245,12 +245,21 @@ public class SearchAPI {
 					cscore("street_alternate_names", querry, 9.7f), 
 					cscore("nearby_streets.name", querry, 7.7f)))
 			.should(cscore("housenumber", querry, 10.8f))
-			.should(QueryBuilders.termQuery("type", "adrpnt"))
+			.should(QueryBuilders.constantScoreQuery(QueryBuilders.termQuery("type", "adrpnt")).boost(5))
 			//Boost pois by name and keywords
 			.should(
-					QueryBuilders.filteredQuery(
-							dismax(cscore("name", querry, 10.8f), cscore("keywords", querry, 10.8f)), 
-							FilterBuilders.termFilter("type", "poipnt")));
+				QueryBuilders.filteredQuery(QueryBuilders.boolQuery()
+					.should(cscore("name", querry, 10.8f))
+					.should(cscore("keywords", querry, 10.8f)) 
+					.should(cscore("poi_type_translated", querry, 10.8f)), 
+				FilterBuilders.termFilter("type", "poipnt"))
+			)
+			.should(
+				QueryBuilders.filteredQuery(QueryBuilders.boolQuery()
+					.should(cscore("name", querry, 10.8f))
+					.should(cscore("alt_names", querry, 10.8f)), 
+				FilterBuilders.termsFilter("type", "hghway", "admbnd"))
+			);	
 		
 	}
 	
