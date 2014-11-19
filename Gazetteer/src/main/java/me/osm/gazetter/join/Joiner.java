@@ -65,7 +65,7 @@ public class Joiner {
 		
 		@Override
 		public boolean accept(File dir, String name) {
-			return name.startsWith("stripe");
+			return name.matches("stripe\\d+\\.gjson(\\.gz)?");
 		}
 	
 	}
