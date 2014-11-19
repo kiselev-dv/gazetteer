@@ -18,6 +18,7 @@ import me.osm.gazetter.sortupdate.SortUpdate;
 import me.osm.gazetter.split.Split;
 import me.osm.gazetter.striper.Slicer;
 import net.sourceforge.argparse4j.ArgumentParsers;
+import net.sourceforge.argparse4j.impl.Arguments;
 import net.sourceforge.argparse4j.inf.ArgumentParser;
 import net.sourceforge.argparse4j.inf.ArgumentParserException;
 import net.sourceforge.argparse4j.inf.Namespace;
@@ -370,8 +371,9 @@ public class Main {
 		
 		parser.addArgument("--threads").required(false).help("set number of threads avaible");
 		
-		parser.addArgument(NO_COMPRESS_OPT).required(false)
-			.help("Do not cmpress tepmlorary stored data").setDefault(true).setConst(false).nargs("?");
+		parser.addArgument(NO_COMPRESS_OPT).required(false).action(Arguments.storeFalse())
+			.help("Do not cmpress tepmlorary stored data")
+			.setDefault(Boolean.TRUE);
 		
         parser.addArgument(DATA_DIR_OPT).required(false).
                 help("Use folder as data storage.").setDefault("data");
