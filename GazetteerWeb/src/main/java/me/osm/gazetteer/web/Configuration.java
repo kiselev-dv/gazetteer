@@ -23,6 +23,7 @@ extends org.restexpress.util.Environment
 	private String adminPasswordHash = "1A7292E6063EFEFD527B98DDB49F0D38906378B3";
 	private String poiCatalogPath;
 	private String host;
+	private boolean distanceScore;
 	
 	@Override
 	protected void fillValues(Properties p)
@@ -36,6 +37,7 @@ extends org.restexpress.util.Environment
 		this.host = p.getProperty("sitemap_host_root", "");
 		this.adminPasswordHash = p.getProperty("admin_password_sha1", "1A7292E6063EFEFD527B98DDB49F0D38906378B3");
 		this.poiCatalogPath = p.getProperty("poi_catalog_path", "poi_catalog");
+		this.distanceScore = "true".equals(p.getProperty("distance_score", "false"));
 	}
 
 	public String getDefaultFormat()
@@ -75,6 +77,10 @@ extends org.restexpress.util.Environment
 
 	public String getHostName() {
 		return host;
+	}
+
+	public boolean doDistanceScore() {
+		return distanceScore;
 	}
 	
 }

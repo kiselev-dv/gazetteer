@@ -40,6 +40,8 @@ public class InverseGeocodeAPI {
 		double lon = Double.parseDouble(request.getHeader("lon"));
 		double lat = Double.parseDouble(request.getHeader("lat"));
 		
+		boolean related = request.getHeader("related") != null;
+		
 		boolean fullGeometry = request.getHeader(SearchAPI.FULL_GEOMETRY_HEADER) != null 
 				&& "true".equals(request.getParameter(SearchAPI.FULL_GEOMETRY_HEADER));
 		

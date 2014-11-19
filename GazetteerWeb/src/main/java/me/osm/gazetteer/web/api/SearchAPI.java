@@ -38,24 +38,24 @@ public class SearchAPI {
 	 * (<code>true<code> for explain)
 	 * default is false
 	 * */
-	public static String EXPLAIN_HEADER = "explain";
+	public static final String EXPLAIN_HEADER = "explain";
 	
 	/**
 	 * Querry string
 	 * */
-	public static String Q_HEADER = "q";
+	public static final String Q_HEADER = "q";
 	
 	/**
 	 * Type of feature. [adrpnt, poipnt etc]
 	 * */
-	public static String TYPE_HEADER = "type";
+	public static final String TYPE_HEADER = "type";
 
 	/**
 	 * Include or not object full geometry
 	 * (<code>true<code> to include)
 	 * default is false
 	 * */
-	public static String FULL_GEOMETRY_HEADER = "full_geometry";
+	public static final String FULL_GEOMETRY_HEADER = "full_geometry";
 
 	/**
 	 * Search inside given BBOX
@@ -66,26 +66,27 @@ public class SearchAPI {
 	/**
 	 * Look for poi of exact types
 	 * */
-	public static String POI_CLASS_HEADER = "poiclass";
+	public static final String POI_CLASS_HEADER = "poiclass";
 
 	/**
 	 * Look for poi of exact types (from hierarchy branch)
 	 * */
-	public static String POI_GROUP_HEADER = "poigroup";
+	public static final String POI_GROUP_HEADER = "poigroup";
 	
 	/**
 	 * Latitude of map center
 	 * */
-	public static String LAT_HEADER = "lat";
+	public static final String LAT_HEADER = "lat";
 
 	/**
 	 * Longitude of map center
 	 * */
-	public static String LON_HEADER = "lon";
+	public static final String LON_HEADER = "lon";
+	
 	
 	
 	private static volatile double queryNorm = 1;
-	
+	private static volatile boolean distanceScore = false;
 	
 	public JSONObject read(Request request, Response response) 
 			throws IOException {
@@ -123,7 +124,7 @@ public class SearchAPI {
 		
 		QueryBuilder qb = q;
 
-		if(request.getHeader(LAT_HEADER) != null && request.getHeader(LON_HEADER) != null) {
+		if(request.getHeader(LAT_HEADER) != null && request.getHeader(LON_HEADER) != null && distanceScore) {
 			qb = addDistanceScore(request, qb);
 			minScore += 1;
 		}
@@ -180,7 +181,7 @@ public class SearchAPI {
 		QueryBuilder qb = QueryBuilders.functionScoreQuery(q, 
 				ScoreFunctionBuilders.linearDecayFunction("center_point", 
 						new GeoPoint(lat, lon), "200km"))
-							.scoreMode("max").boostMode("sum").boost(0.01f);
+							.scoreMode("max").boostMode("sum");
 		return qb;
 	}
 
@@ -308,6 +309,10 @@ public class SearchAPI {
 	private static QueryBuilder cscore(String field, String querry, float score) {
 		
 		return QueryBuilders.constantScoreQuery(QueryBuilders.matchQuery(field, querry)).boost(score);
+	}
+	
+	public static void setDistanceScoring(boolean value) {
+		distanceScore = value;
 	}
 
 }
