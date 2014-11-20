@@ -18,6 +18,7 @@ import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.geo.GeoPoint;
+import org.elasticsearch.common.lucene.search.function.CombineFunction;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.DisMaxQueryBuilder;
 import org.elasticsearch.index.query.FilterBuilders;
@@ -108,6 +109,7 @@ public class SearchAPI {
 		
 		if(querry != null) {
 			q = getSearchQuerry(querry);
+			q.boost(100);
 			minScore = 0.01f;
 		}
 		else {
@@ -180,8 +182,8 @@ public class SearchAPI {
 	private static QueryBuilder addDistanceScore(QueryBuilder q, Double lat, Double lon) {
 		QueryBuilder qb = QueryBuilders.functionScoreQuery(q, 
 				ScoreFunctionBuilders.linearDecayFunction("center_point", 
-						new GeoPoint(lat, lon), "200km"))
-							.scoreMode("max").boostMode("sum");
+						new GeoPoint(lat, lon), "200km")).boostMode(CombineFunction.SUM)
+							.scoreMode("max");
 		return qb;
 	}
 
