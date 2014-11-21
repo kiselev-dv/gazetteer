@@ -238,7 +238,8 @@ public class Main {
 			if(namespace.get(COMMAND).equals(Command.JOIN)) {
 				
 				new Joiner(new HashSet(list(namespace.getList("check_boundaries"))))
-					.run(namespace.getString(DATA_DIR_VAL), namespace.getString(JOIN_COMMON_VAL));
+					.run(namespace.getString(DATA_DIR_VAL), 
+							namespace.getString(JOIN_COMMON_VAL));
 				
 			}
 

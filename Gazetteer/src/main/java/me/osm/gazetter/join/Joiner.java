@@ -41,7 +41,7 @@ import com.google.code.externalsorting.ExternalSort;
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.index.quadtree.Quadtree;
 
-public class Joiner {
+public class Joiner implements JoinFailuresHandler{
 	
 	private AddrJointHandler addrPointFormatter = new AddrPointFormatter();
 	
@@ -106,6 +106,8 @@ public class Joiner {
 	}
 
 	private static final AdmLvlComparator ADM_LVL_COMPARATOR = new AdmLvlComparator();
+
+	private final List<File> fails = Collections.synchronizedList(new ArrayList<File>());;
 	
 	private void joinBoundaries(String stripesFolder, List<JSONObject> common) throws Exception {
 		
@@ -278,8 +280,9 @@ public class Joiner {
 		File folder = new File(stripesFolder);
 		File[] stripesFiles = folder.listFiles(STRIPE_FILE_FN_FILTER);
 		stripesCounter = new AtomicInteger(stripesFiles.length); 
+		fails.clear();
 		for(File stripeF : stripesFiles) {
-			executorService.execute(new JoinSliceTask(addrPointFormatter, stripeF, common, filter, this));
+			executorService.execute(new JoinSliceTask(addrPointFormatter, stripeF, common, filter, this, this));
 		}
 		
 		executorService.shutdown();
@@ -290,6 +293,12 @@ public class Joiner {
 			
 		} catch (InterruptedException e) {
 			throw new RuntimeException("Executor service shutdown failed.", e);
+		}
+		
+		log.info("Rerun join for {} files. In one thread", fails.size());
+		
+		for(File stripeF : fails) {
+			new JoinSliceTask(addrPointFormatter, stripeF, common, filter, this, this).run();
 		}
 	}
 
@@ -341,6 +350,11 @@ public class Joiner {
 			return lvls;
 		}
 		
+	}
+
+	@Override
+	public void failed(File f) {
+		fails.add(f);
 	}
 	
 }

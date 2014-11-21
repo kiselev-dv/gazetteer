@@ -26,6 +26,7 @@ import me.osm.gazetter.addresses.NamesMatcher;
 import me.osm.gazetter.addresses.sorters.CityStreetHNComparator;
 import me.osm.gazetter.addresses.sorters.HNStreetCityComparator;
 import me.osm.gazetter.addresses.sorters.StreetHNCityComparator;
+import me.osm.gazetter.join.MemorySupervizor.InsufficientMemoryException;
 import me.osm.gazetter.join.PoiAddrJoinBuilder.BestFitAddresses;
 import me.osm.gazetter.striper.FeatureTypes;
 import me.osm.gazetter.striper.GeoJsonWriter;
@@ -119,10 +120,13 @@ public class JoinSliceTask implements Runnable {
 	private PrintWriter printWriter = null;
 
 	private File outFile;
+
+	private JoinFailuresHandler failureHandler;
 	
 	public JoinSliceTask(AddrJointHandler handler, File src, 
-			List<JSONObject> common, Set<String> filter, Joiner joiner) {
-		
+			List<JSONObject> common, Set<String> filter, Joiner joiner, 
+			JoinFailuresHandler failureHandler) {
+		this.failureHandler = failureHandler;
 		this.src = src;
 		this.outFile = new File(src.getParent() + "/" + 
 				src.getName().replace(".gjson", "") + ".1.gjson" 
@@ -173,6 +177,8 @@ public class JoinSliceTask implements Runnable {
 		try {
 			long total = new Date().getTime();
 			
+			MemorySupervizor.checkMemory();
+			
 			long s = new Date().getTime();
 			readFeatures();
 			
@@ -193,6 +199,8 @@ public class JoinSliceTask implements Runnable {
 			
 			s = debug("sort boundaries", s);
 			
+			MemorySupervizor.checkMemory();
+			
 			for(JSONObject street : streets) {
 				JSONArray ca = street.getJSONObject(GeoJsonWriter.GEOMETRY).getJSONArray(GeoJsonWriter.COORDINATES);
 				for(int i =0; i < ca.length(); i++) {
@@ -201,6 +209,8 @@ public class JoinSliceTask implements Runnable {
 					streetsPointsIndex.insert(new Envelope(coordinate), new Object[]{coordinate, street});
 				}
 			}
+			
+			MemorySupervizor.checkMemory();
 			
 			s = debug("fill streetsPointsIndex", s);
 			
@@ -232,6 +242,8 @@ public class JoinSliceTask implements Runnable {
 				addrPnt2Builng.put(obj.getLong("nodeId"), obj);
 			}
 			
+			MemorySupervizor.checkMemory();
+			
 			join();
 			
 			write();
@@ -245,9 +257,17 @@ public class JoinSliceTask implements Runnable {
 			
 			log.trace("total " + DurationFormatUtils.formatDurationHMS(new Date().getTime() - total));
 		}
-		catch (Exception e) {
+		catch (InsufficientMemoryException e) {
+			if(failureHandler != null) {
+				failureHandler.failed(this.src);
+			}
+		}
+		catch (Throwable t) {
 			log.error("Join failed. File: {}.", this.src);
-			throw new RuntimeException("Failed to join " + this.src, e);
+			
+			if(failureHandler != null) {
+				failureHandler.failed(this.src);
+			}
 		}
 		
 	}

@@ -16,7 +16,7 @@ public class JoinAndUpdateTask implements Runnable {
 	public JoinAndUpdateTask(AddrJointHandler addrPointFormatter, File stripeF,
 			List<JSONObject> common, Set<String> filter, Joiner joiner) {
 		
-		joinTask = new JoinSliceTask(addrPointFormatter, stripeF, common, filter, joiner);
+		joinTask = new JoinSliceTask(addrPointFormatter, stripeF, common, filter, joiner, null);
 		updateTask = new SortAndUpdateTask(stripeF);
 	}
 
