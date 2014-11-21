@@ -23,8 +23,6 @@ import org.slf4j.LoggerFactory;
  * */
 public class Split implements LineHandler {
 	
-	private String input;
-	
 	private static final Logger log = LoggerFactory.getLogger(Split.class);
 	
 	private static final String HEADER = "<?xml version='1.0' encoding='UTF-8'?>";
@@ -34,7 +32,6 @@ public class Split implements LineHandler {
 	private PrintWriter relPW;
 
 	public Split (File destFolder, String input, String compression) {
-		this.input = input;
 		try {
 			if(input.equals("-")) {
 				if("gzip".equals(compression)) {

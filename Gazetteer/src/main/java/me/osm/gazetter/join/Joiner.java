@@ -81,10 +81,15 @@ public class Joiner implements JoinFailuresHandler{
 			binxFile = FileUtils
 					.withGz(new File(stripesFolder + "/binx.gjson"));
 
-			List<String> bndrs = FileUtils.readLines(binxFile);
-			Collections.sort(bndrs, ADM_LVL_COMPARATOR);
-			FileUtils.writeLines(binxFile, bndrs);
-			bndrs = null;
+			if(binxFile.exists()) {
+				List<String> bndrs = FileUtils.readLines(binxFile);
+				Collections.sort(bndrs, ADM_LVL_COMPARATOR);
+				FileUtils.writeLines(binxFile, bndrs);
+				bndrs = null;
+			}
+			else {
+				log.trace("Skip boundaries index sorting");
+			}
 
 			joinStripes(stripesFolder, common);
 
@@ -94,7 +99,12 @@ public class Joiner implements JoinFailuresHandler{
 							- start));
 			start = new Date().getTime();
 
-			joinBoundaries(stripesFolder, common);
+			if(binxFile.exists()) {
+				joinBoundaries(stripesFolder, common);
+			}
+			else {
+				log.trace("Skip boundaries index join");
+			}
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
@@ -287,7 +297,7 @@ public class Joiner implements JoinFailuresHandler{
 		
 		executorService.shutdown();
 		try {
-			while(!executorService.awaitTermination(1, TimeUnit.MINUTES)) {
+			while(!executorService.awaitTermination(5, TimeUnit.SECONDS)) {
 				//still waiting
 			}
 			
@@ -295,10 +305,16 @@ public class Joiner implements JoinFailuresHandler{
 			throw new RuntimeException("Executor service shutdown failed.", e);
 		}
 		
-		log.info("Rerun join for {} files. In one thread", fails.size());
+		log.info("Rerun join for {} from {} files. In one thread.", fails.size(), stripesFiles.length);
 		
-		for(File stripeF : fails) {
+		ArrayList<File> oneThread = new ArrayList<File>(fails);
+		fails.clear();
+		for(File stripeF : oneThread ) {
 			new JoinSliceTask(addrPointFormatter, stripeF, common, filter, this, this).run();
+		}
+		
+		if(!fails.isEmpty()) {
+			log.error("Failed to join: {}", fails);
 		}
 	}
 

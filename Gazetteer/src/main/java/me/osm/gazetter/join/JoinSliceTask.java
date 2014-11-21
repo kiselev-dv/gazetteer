@@ -65,11 +65,12 @@ public class JoinSliceTask implements Runnable {
 	
 	private File src;
 	
+	// data and indexes 
 	private final List<JSONObject> addrPoints = new ArrayList<>();
 	
-	private final SpatialIndex addrPointsIndex = new STRtree();
-	private final SpatialIndex streetsPointsIndex = new STRtree();
-	private final SpatialIndex placesPointsIndex = new STRtree();
+	private SpatialIndex addrPointsIndex = new STRtree();
+	private SpatialIndex streetsPointsIndex = new STRtree();
+	private SpatialIndex placesPointsIndex = new STRtree();
 	
 	private final List<JSONObject> boundaries = new ArrayList<>();
 	private final List<JSONObject> places = new ArrayList<>();
@@ -105,13 +106,13 @@ public class JoinSliceTask implements Runnable {
 	private Map<JSONObject, List<JSONObject>> poi2bndries;
 	private Map<String, JSONObject> addrPnt2AsStreet; 
 
-	//dependancies
+	// dependancies --------------------------------------------------------------------------------
 	private final PoiAddrJoinBuilder poiAddrJoinBuilder = new PoiAddrJoinBuilder();
 	private final AddressesParser addressesParser = Options.get().getAddressesParser();
 	private final NamesMatcher namesMatcher = Options.get().getNamesMatcher();
 	private final AddrLevelsComparator addrLevelComparator;
 	
-	
+	// misc
 	private static final GeometryFactory factory = new GeometryFactory();
 		
 	private AtomicInteger stripesCounter;
@@ -126,6 +127,7 @@ public class JoinSliceTask implements Runnable {
 	public JoinSliceTask(AddrJointHandler handler, File src, 
 			List<JSONObject> common, Set<String> filter, Joiner joiner, 
 			JoinFailuresHandler failureHandler) {
+		
 		this.failureHandler = failureHandler;
 		this.src = src;
 		this.outFile = new File(src.getParent() + "/" + 
@@ -199,8 +201,6 @@ public class JoinSliceTask implements Runnable {
 			
 			s = debug("sort boundaries", s);
 			
-			MemorySupervizor.checkMemory();
-			
 			for(JSONObject street : streets) {
 				JSONArray ca = street.getJSONObject(GeoJsonWriter.GEOMETRY).getJSONArray(GeoJsonWriter.COORDINATES);
 				for(int i =0; i < ca.length(); i++) {
@@ -209,8 +209,6 @@ public class JoinSliceTask implements Runnable {
 					streetsPointsIndex.insert(new Envelope(coordinate), new Object[]{coordinate, street});
 				}
 			}
-			
-			MemorySupervizor.checkMemory();
 			
 			s = debug("fill streetsPointsIndex", s);
 			
@@ -258,18 +256,61 @@ public class JoinSliceTask implements Runnable {
 			log.trace("total " + DurationFormatUtils.formatDurationHMS(new Date().getTime() - total));
 		}
 		catch (InsufficientMemoryException e) {
+			log.trace("Join delayed. File: {}.", this.src);
 			if(failureHandler != null) {
 				failureHandler.failed(this.src);
 			}
 		}
 		catch (Throwable t) {
-			log.error("Join failed. File: {}.", this.src);
+			log.error("Join failed. File: {}. Error: {}", this.src, t.getMessage());
 			
 			if(failureHandler != null) {
 				failureHandler.failed(this.src);
 			}
 		}
+		finally {
+			clean();
+		}
 		
+	}
+
+	private void clean() {
+		addrPoints.clear();
+		addrPointsIndex = null;
+		streetsPointsIndex = null;
+		placesPointsIndex = null;
+		
+		boundaries.clear();
+		places.clear();
+		placesVoronoi.clear();
+		neighboursVoronoi.clear();
+		streets.clear();
+		junctions.clear();
+		associatedStreets.clear();
+		
+		poi2bdng = null;
+		addr2bdng = null;
+
+		pois = null;
+		poisIndex = null;
+
+		addr2streets = null; 
+		addr2bndries = null; 
+		place2bndries = null; 
+		
+		street2bndries = null; 
+		
+		addr2PlaceVoronoy = null; 
+		addr2NeighbourVoronoy = null; 
+		
+		street2Junctions = null; 
+		
+		poiPnt2Builng = null;
+		addrPnt2Builng = null;
+		
+		poi2bndries = null;
+		addrPnt2AsStreet = null; 
+
 	}
 
 	private long debug(String msg, long s) {
@@ -394,7 +435,7 @@ public class JoinSliceTask implements Runnable {
 					
 				case FeatureTypes.HIGHWAY_FEATURE_TYPE:
 					streets.add(new JSONFeature(line));
-					break;
+					break; 
 					
 				case FeatureTypes.POI_FTYPE:
 					pois.add(new JSONFeature(line));
@@ -425,7 +466,7 @@ public class JoinSliceTask implements Runnable {
 		});
 	}
 	
-	private void join() {
+	private void join() throws InsufficientMemoryException {
 		
 		long s = new Date().getTime();
 		
@@ -455,6 +496,8 @@ public class JoinSliceTask implements Runnable {
 			highwaysJoin(boundary, polygon, street2bndries, streetsPointsIndex);
 			
 		}
+		
+		MemorySupervizor.checkMemory();
 		
 		s = debug("join [addr2bndries, place2bndries, poi2bndries, street2bndries]", s);
 		

@@ -2,26 +2,30 @@ package me.osm.gazetter.join;
 
 public class MemorySupervizor {
 	
-	private static final float treshold = 0.05f;
+	private static final int MB = 1048576;
 	
 	public static final class InsufficientMemoryException extends Exception {
+
+		private static final long serialVersionUID = -8081720083932767145L;
 		
 	}
 
 	public static synchronized void checkMemory() throws InsufficientMemoryException {
-		Runtime runtime = Runtime.getRuntime();
-		
-		long maxMemory = runtime.maxMemory();
-		long freeMemory = runtime.freeMemory();
-		
-		if(freeMemory < maxMemory * treshold) {
-			runtime.gc();
-			freeMemory = runtime.freeMemory();
+
+		if(getAvaibleRAMMeg() < 250) {
+			Runtime.getRuntime().gc();
 			
-			if(freeMemory < maxMemory * treshold) {
+			if(getAvaibleRAMMeg() < 250) {
 				throw new InsufficientMemoryException();
 			}
 		}
+	}
+
+	public static long getAvaibleRAMMeg() {
+		Runtime runtime = Runtime.getRuntime();
+		long used = (runtime.totalMemory() - runtime.freeMemory()) / MB;
+		
+		return runtime.maxMemory() / MB - used;
 	}
 
 }
