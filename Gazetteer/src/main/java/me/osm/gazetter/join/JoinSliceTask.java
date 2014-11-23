@@ -406,64 +406,86 @@ public class JoinSliceTask implements Runnable {
 		addrPnt2AsStreet = new HashMap<>(associatedStreets.size() * 10);
 	}
 
-	private void readFeatures() throws IOException {
-		FileUtils.handleLines(src, new LineHandler() {
-			
-			@Override
-			public void handle(String line) {
-				String ftype = GeoJsonWriter.getFtype(line);
+	private void readFeatures() throws IOException, InsufficientMemoryException {
+		try {
+			FileUtils.handleLines(src, new LineHandler() {
 				
-				switch(ftype) {
+				private int counter = 0;
 				
-				//Not an error, two cases with same behaviour. 
-				case FeatureTypes.ADMIN_BOUNDARY_FTYPE:
-				case FeatureTypes.PLACE_BOUNDARY_FTYPE:
-					boundaries.add(new JSONFeature(line));
-					break;
-
-				case FeatureTypes.ADDR_POINT_FTYPE:
-					addrPoints.add(new JSONFeature(line));
-					break;
+				@Override
+				public void handle(String line) {
+					String ftype = GeoJsonWriter.getFtype(line);
+					counter++;
 					
-				case FeatureTypes.NEIGHBOUR_DELONEY_FTYPE: 
-					neighboursVoronoi.add(new JSONFeature(line));
-					break;
+					if(counter % 10000 == 0) {
+						try {
+							MemorySupervizor.checkMemory();
+						}
+						catch (InsufficientMemoryException e) {
+							throw new RuntimeException(e);
+						}
+					}
 					
-				case FeatureTypes.PLACE_DELONEY_FTYPE:
-					placesVoronoi.add(new JSONFeature(line));
-					break;
+					switch(ftype) {
 					
-				case FeatureTypes.HIGHWAY_FEATURE_TYPE:
-					streets.add(new JSONFeature(line));
-					break; 
-					
-				case FeatureTypes.POI_FTYPE:
-					pois.add(new JSONFeature(line));
-					break;
-					
-				case FeatureTypes.JUNCTION_FTYPE:
-					junctions.add(new JSONFeature(line));
-					break;
-					
-				case FeatureTypes.POI_2_BUILDING:
-					poi2bdng.add(new JSONFeature(line));
-					break;
-					
-				case FeatureTypes.ADDR_NODE_2_BUILDING:
-					addr2bdng.add(new JSONFeature(line));
-					break;
-
-				case FeatureTypes.PLACE_POINT_FTYPE:
-					places.add(new JSONFeature(line));
-					break;
-
-				case FeatureTypes.ASSOCIATED_STREET:
-					associatedStreets.add(new JSONFeature(line));
-					break;
+					//Not an error, two cases with same behaviour. 
+					case FeatureTypes.ADMIN_BOUNDARY_FTYPE:
+					case FeatureTypes.PLACE_BOUNDARY_FTYPE:
+						boundaries.add(new JSONFeature(line));
+						break;
+						
+					case FeatureTypes.ADDR_POINT_FTYPE:
+						addrPoints.add(new JSONFeature(line));
+						break;
+						
+					case FeatureTypes.NEIGHBOUR_DELONEY_FTYPE: 
+						neighboursVoronoi.add(new JSONFeature(line));
+						break;
+						
+					case FeatureTypes.PLACE_DELONEY_FTYPE:
+						placesVoronoi.add(new JSONFeature(line));
+						break;
+						
+					case FeatureTypes.HIGHWAY_FEATURE_TYPE:
+						streets.add(new JSONFeature(line));
+						break; 
+						
+					case FeatureTypes.POI_FTYPE:
+						pois.add(new JSONFeature(line));
+						break;
+						
+					case FeatureTypes.JUNCTION_FTYPE:
+						junctions.add(new JSONFeature(line));
+						break;
+						
+					case FeatureTypes.POI_2_BUILDING:
+						poi2bdng.add(new JSONFeature(line));
+						break;
+						
+					case FeatureTypes.ADDR_NODE_2_BUILDING:
+						addr2bdng.add(new JSONFeature(line));
+						break;
+						
+					case FeatureTypes.PLACE_POINT_FTYPE:
+						places.add(new JSONFeature(line));
+						break;
+						
+					case FeatureTypes.ASSOCIATED_STREET:
+						associatedStreets.add(new JSONFeature(line));
+						break;
+					}
 				}
+				
+			});
+		}
+		catch (Exception e) {
+			if(e.getCause() instanceof InsufficientMemoryException) {
+				throw (InsufficientMemoryException)e.getCause();
 			}
-			
-		});
+			else {
+				throw e;
+			} 
+		}
 	}
 	
 	private void join() throws InsufficientMemoryException {

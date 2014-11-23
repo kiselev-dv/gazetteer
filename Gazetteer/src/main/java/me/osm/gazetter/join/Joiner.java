@@ -19,6 +19,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -285,14 +287,20 @@ public class Joiner implements JoinFailuresHandler{
 	}
 
 	private void joinStripes(String stripesFolder, List<JSONObject> common) {
-		ExecutorService executorService = Executors.newFixedThreadPool(Options.get().getNumberOfThreads());
+		
+		//ExecutorService executorService = Executors.newFixedThreadPool(Options.get().getNumberOfThreads());
+		int threads = Options.get().getNumberOfThreads();
+		
+		LinkedBlockingQueue<Runnable> queue = new LinkedBlockingQueue<Runnable>(threads);
+		ExecutorService executorService = new ThreadPoolExecutor(threads, threads, 0L, 
+				TimeUnit.MILLISECONDS, queue);
 		
 		File folder = new File(stripesFolder);
 		File[] stripesFiles = folder.listFiles(STRIPE_FILE_FN_FILTER);
 		stripesCounter = new AtomicInteger(stripesFiles.length); 
 		fails.clear();
 		for(File stripeF : stripesFiles) {
-			executorService.execute(new JoinSliceTask(addrPointFormatter, stripeF, common, filter, this, this));
+			tryToExecute(common, threads, queue, executorService, stripeF);
 		}
 		
 		executorService.shutdown();
@@ -315,6 +323,26 @@ public class Joiner implements JoinFailuresHandler{
 		
 		if(!fails.isEmpty()) {
 			log.error("Failed to join: {}", fails);
+		}
+	}
+
+	private void tryToExecute(List<JSONObject> common, int threads,
+			LinkedBlockingQueue<Runnable> queue,
+			ExecutorService executorService, File stripeF) {
+		
+		long avaibleRAMMeg = MemorySupervizor.getAvaibleRAMMeg();
+		if(queue.size() < threads && avaibleRAMMeg > 500) {
+			log.trace("Send {} to execution queue. Free mem: {}meg", stripeF, avaibleRAMMeg);
+			executorService.execute(new JoinSliceTask(addrPointFormatter, stripeF, common, filter, this, this));
+		}
+		else {
+			try {
+				Thread.sleep(5000);
+			}
+			catch (InterruptedException e) {
+				throw new RuntimeException(e);
+			}
+			tryToExecute(common, threads, queue, executorService, stripeF);
 		}
 	}
 
