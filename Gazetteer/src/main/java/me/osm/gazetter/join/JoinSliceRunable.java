@@ -54,9 +54,9 @@ import com.vividsolutions.jts.index.quadtree.Quadtree;
 import com.vividsolutions.jts.index.strtree.STRtree;
 import com.vividsolutions.jts.operation.buffer.BufferOp;
 
-public class JoinSliceTask implements Runnable {
+public class JoinSliceRunable implements Runnable {
 	
-	private static final Logger log = LoggerFactory.getLogger(JoinSliceTask.class);
+	private static final Logger log = LoggerFactory.getLogger(JoinSliceRunable.class);
 	
 	private static final int MB = 1024*1024;
 	
@@ -124,8 +124,8 @@ public class JoinSliceTask implements Runnable {
 
 	private JoinFailuresHandler failureHandler;
 	
-	public JoinSliceTask(AddrJointHandler handler, File src, 
-			List<JSONObject> common, Set<String> filter, Joiner joiner, 
+	public JoinSliceRunable(AddrJointHandler handler, File src, 
+			List<JSONObject> common, Set<String> filter, JoinExecutor joiner, 
 			JoinFailuresHandler failureHandler) {
 		
 		this.failureHandler = failureHandler;

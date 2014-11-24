@@ -10,7 +10,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import me.osm.gazetter.addresses.AddrLevelsSorting;
-import me.osm.gazetter.join.Joiner;
+import me.osm.gazetter.join.JoinExecutor;
 import me.osm.gazetter.out.CSVOutWriter;
 import me.osm.gazetter.out.Diff;
 import me.osm.gazetter.out.GazetteerOutWriter;
@@ -237,7 +237,7 @@ public class Main {
 
 			if(namespace.get(COMMAND).equals(Command.JOIN)) {
 				
-				new Joiner(new HashSet(list(namespace.getList("check_boundaries"))))
+				new JoinExecutor(new HashSet(list(namespace.getList("check_boundaries"))))
 					.run(namespace.getString(DATA_DIR_VAL), 
 							namespace.getString(JOIN_COMMON_VAL));
 				

@@ -18,7 +18,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import me.osm.gazetter.addresses.AddressesUtils;
-import me.osm.gazetter.join.Joiner;
+import me.osm.gazetter.join.JoinExecutor;
 import me.osm.gazetter.striper.FeatureTypes;
 import me.osm.gazetter.striper.GeoJsonWriter;
 import me.osm.gazetter.striper.JSONFeature;
@@ -138,7 +138,7 @@ public class GazetteerOutWriter  implements LineHandler  {
 	public void write() {
 		File folder = new File(dataDir);
 		try {
-			for(File stripeF : folder.listFiles(Joiner.STRIPE_FILE_FN_FILTER)) {
+			for(File stripeF : folder.listFiles(JoinExecutor.STRIPE_FILE_FN_FILTER)) {
 				FileUtils.handleLines(stripeF, this);
 			}
 			

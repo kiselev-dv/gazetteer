@@ -10,13 +10,13 @@ import org.json.JSONObject;
 
 public class JoinAndUpdateTask implements Runnable {
 	
-	private JoinSliceTask joinTask;
+	private JoinSliceRunable joinTask;
 	private SortAndUpdateTask updateTask;
 
 	public JoinAndUpdateTask(AddrJointHandler addrPointFormatter, File stripeF,
-			List<JSONObject> common, Set<String> filter, Joiner joiner) {
+			List<JSONObject> common, Set<String> filter, JoinExecutor joiner) {
 		
-		joinTask = new JoinSliceTask(addrPointFormatter, stripeF, common, filter, joiner, null);
+		joinTask = new JoinSliceRunable(addrPointFormatter, stripeF, common, filter, joiner, null);
 		updateTask = new SortAndUpdateTask(stripeF);
 	}
 

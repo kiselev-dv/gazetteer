@@ -10,7 +10,7 @@ import java.util.HashSet;
 
 import me.osm.gazetter.join.AddrJointHandler;
 import me.osm.gazetter.join.AddrPointFormatter;
-import me.osm.gazetter.join.JoinSliceTask;
+import me.osm.gazetter.join.JoinSliceRunable;
 
 import org.json.JSONObject;
 
@@ -33,7 +33,7 @@ public class JoinSliceTest {
 			System.setProperty(org.slf4j.impl.SimpleLogger.DEFAULT_LOG_LEVEL_KEY, "TRACE");
 			new File("/opt/osm/test.gjson").delete();
 			
-			JoinSliceTask task = new JoinSliceTask(addrPointFormatter, new File("/opt/osm/data/stripe0931.gjson"), 
+			JoinSliceRunable task = new JoinSliceRunable(addrPointFormatter, new File("/opt/osm/data/stripe0931.gjson"), 
 					new ArrayList<JSONObject>(), new HashSet<String>(), null, null){
 				
 				@Override
