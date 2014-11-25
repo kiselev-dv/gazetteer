@@ -476,7 +476,7 @@ public class Main {
 						+ "to name still generate additional row. \n"
 						+ "(You can filter it later with simple distinct check).");
 			
-			join.addArgument("handlers").nargs("*");
+			join.addArgument("--handlers").nargs("*");
 			
 		}
 

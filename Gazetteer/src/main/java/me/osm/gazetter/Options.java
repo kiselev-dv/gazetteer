@@ -6,8 +6,9 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import me.osm.gazetter.addresses.AddrLevelsComparator;
@@ -39,6 +40,11 @@ public class Options {
 
 		private static final long serialVersionUID = -2739610432163207207L;
 		
+	}
+	
+	private static final Map<String, JoinOutHandler> predefinedJoinOutHandlers = new HashMap<String, JoinOutHandler>();
+	static {
+		predefinedJoinOutHandlers.put(PrintJoinOutHandler.NAME, new PrintJoinOutHandler());
 	}
 	
 	private static volatile Options instance;
@@ -233,32 +239,36 @@ public class Options {
 				List<List<String>> groups = new ArrayList<List<String>>();
 				
 				for(String sh : handlers) {
-					if(sh.endsWith(".groovy")) {
+					if(sh.endsWith(".groovy") || predefinedJoinOutHandlers.keySet().contains(sh)) {
 						groups.add(new ArrayList<String>());
 					}
 					
 					groups.get(groups.size() - 1).add(sh);
 				}
 				
-				GroovyClassLoader gcl = new GroovyClassLoader(Options.class.getClassLoader());
-				try
-				{
 					for(List<String> handlerDef : groups) {
 						String handlerPath = handlerDef.remove(0);
-						Class<?> clazz = gcl.parseClass(new File(handlerPath));
-						Object aScript = clazz.newInstance();
-						
-						
-						if (aScript instanceof JoinOutHandler) {
-							JoinOutHandler joinOutHandler = ((JoinOutHandler)aScript).newInstacne(handlerDef);
-							joinHandlers.add(joinOutHandler);
+						if(handlerPath.endsWith(".groovy")) {
+							GroovyClassLoader gcl = new GroovyClassLoader(Options.class.getClassLoader());
+							try
+							{
+								Class<?> clazz = gcl.parseClass(new File(handlerPath));
+								Object aScript = clazz.newInstance();
+								
+								if (aScript instanceof JoinOutHandler) {
+									JoinOutHandler joinOutHandler = ((JoinOutHandler)aScript).newInstacne(handlerDef);
+									joinHandlers.add(joinOutHandler);
+								}
+							}
+							finally {
+								gcl.close();
+							}
+						}
+						else if (predefinedJoinOutHandlers.containsKey(handlerPath)){
+							joinHandlers.add(predefinedJoinOutHandlers.get(handlerPath).newInstacne(handlerDef));
 						}
 					}
 					
-				}
-				finally {
-					gcl.close();
-				}
 			}
 		}
 		catch (Exception e) {
@@ -266,7 +276,8 @@ public class Options {
 		}
 		
 		if(joinHandlers.isEmpty()) {
-			joinHandlers.add(new PrintJoinOutHandler().newInstacne(new ArrayList<String>()));
+			joinHandlers.add(predefinedJoinOutHandlers.get(
+					PrintJoinOutHandler.NAME).newInstacne(new ArrayList<String>()));
 		}
 	}
 	

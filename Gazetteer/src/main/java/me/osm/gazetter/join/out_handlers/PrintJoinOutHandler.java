@@ -9,6 +9,8 @@ import me.osm.gazetter.utils.FileUtils;
 import org.json.JSONObject;
 
 public class PrintJoinOutHandler implements JoinOutHandler {
+	
+	public static final String NAME = "print-out";
 
 	private PrintWriter writer = new PrintWriter(System.out);
 	
