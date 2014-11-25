@@ -1,13 +1,21 @@
 package me.osm.gazetter.striper;
 
+import static me.osm.gazetter.out.GazetteerSchemeConstants.GAZETTEER_SCHEME_MD5;
+import static me.osm.gazetter.out.GazetteerSchemeConstants.GAZETTEER_SCHEME_TIMESTAMP;
+
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 
 import me.osm.gazetter.utils.HilbertCurveHasher;
+import me.osm.gazetter.utils.JSONHash;
 
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
@@ -318,6 +326,15 @@ public class GeoJsonWriter {
 		}
 		
 		return null;
+	}
+
+	private static final Set<String> hashIgnoreFields = new HashSet<String>(
+			Arrays.asList(new String[]{GAZETTEER_SCHEME_TIMESTAMP}));
+	
+	public static void addMD5(JSONObject poi) {
+		poi.put(GAZETTEER_SCHEME_MD5, DigestUtils.md5Hex(JSONHash.asCanonicalString(
+				poi, hashIgnoreFields)
+		));
 	}
 	
 }

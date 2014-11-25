@@ -1,9 +1,13 @@
 package me.osm.gazetter.join;
 
+import static me.osm.gazetter.out.GazetteerSchemeConstants.GAZETTEER_SCHEME_MD5;
+import static me.osm.gazetter.out.GazetteerSchemeConstants.GAZETTEER_SCHEME_TIMESTAMP;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -27,6 +31,7 @@ import me.osm.gazetter.addresses.sorters.CityStreetHNComparator;
 import me.osm.gazetter.addresses.sorters.HNStreetCityComparator;
 import me.osm.gazetter.addresses.sorters.StreetHNCityComparator;
 import me.osm.gazetter.join.PoiAddrJoinBuilder.BestFitAddresses;
+import me.osm.gazetter.join.out_handlers.JoinOutHandler;
 import me.osm.gazetter.join.util.JoinFailuresHandler;
 import me.osm.gazetter.join.util.MemorySupervizor;
 import me.osm.gazetter.join.util.MemorySupervizor.InsufficientMemoryException;
@@ -34,8 +39,10 @@ import me.osm.gazetter.striper.FeatureTypes;
 import me.osm.gazetter.striper.GeoJsonWriter;
 import me.osm.gazetter.striper.JSONFeature;
 import me.osm.gazetter.utils.FileUtils;
+import me.osm.gazetter.utils.JSONHash;
 import me.osm.gazetter.utils.FileUtils.LineHandler;
 
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DurationFormatUtils;
 import org.json.JSONArray;
@@ -120,9 +127,9 @@ public class JoinSliceRunable implements Runnable {
 	private AtomicInteger stripesCounter;
 
 	private Set<String> necesaryBoundaries;
-	private PrintWriter printWriter = null;
+	//private PrintWriter printWriter = null;
 
-	private File outFile;
+	//private File outFile;
 
 	private JoinFailuresHandler failureHandler;
 	
@@ -132,9 +139,6 @@ public class JoinSliceRunable implements Runnable {
 		
 		this.failureHandler = failureHandler;
 		this.src = src;
-		this.outFile = new File(src.getParent() + "/" + 
-				src.getName().replace(".gjson", "") + ".1.gjson" 
-				+ (Options.get().isCompress() ? ".gz" : ""));
 		this.handler = handler;
 		this.common = common;
 		this.necesaryBoundaries = filter;
@@ -154,11 +158,6 @@ public class JoinSliceRunable implements Runnable {
 			addrLevelComparator = new StreetHNCityComparator();
 		}
 		
-		try {
-			printWriter = getOutWriter();
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
 	}
 	
 	private static final ByIdComparator BY_ID_COMPARATOR = new ByIdComparator();
@@ -247,9 +246,10 @@ public class JoinSliceRunable implements Runnable {
 			join();
 			
 			write();
-			
-			this.src.delete();
-			this.outFile.renameTo(src);
+
+			for(JoinOutHandler h : Options.get().getJoinOutHandlers()) {
+				h.stripeDone(this.src.getName());
+			}
 			
 			if(log.isTraceEnabled() && this.stripesCounter != null) {
 				log.info("Done. {} left", this.stripesCounter.decrementAndGet());
@@ -667,7 +667,6 @@ public class JoinSliceRunable implements Runnable {
 				poi.put("nearbyAddresses", getIds(addrPnts));
 			}
 			
-			
 			List<JSONObject> boundaries = nullSafeList(poi2bndries.get(poi));
 			
 			if(necesaryBoundaries.isEmpty() || checkNecesaryBoundaries(boundaries)) {
@@ -676,14 +675,22 @@ public class JoinSliceRunable implements Runnable {
 			}
 			
 			GeoJsonWriter.addTimestamp(poi);
-			printWriter.println(poi.toString());
+			GeoJsonWriter.addMD5(poi);
 			
-			free(poi);
+			handleOut(poi);
+			
 			iterator.remove();
 		}
 		
 		poi2bndries = null;
 		poisIndex = null;
+	}
+
+	
+	private void handleOut(JSONObject poi) {
+		for(JoinOutHandler handler : Options.get().getJoinOutHandlers()) {
+			handler.handle(poi, this.src.getName());
+		}
 	}
 
 	private Collection<String> getIds(List<JSONObject> addrPnts) {
@@ -797,17 +804,10 @@ public class JoinSliceRunable implements Runnable {
 				
 				
 				GeoJsonWriter.addTimestamp(adr);
-				String geoJSONString = new JSONFeature(adr).toString();
+				GeoJsonWriter.addMD5(adr);
 				
-				assert GeoJsonWriter.getId(geoJSONString).equals(adr.optString("id")) 
-					: "Failed getId for " + geoJSONString;
-
-				assert GeoJsonWriter.getFtype(geoJSONString).equals(FeatureTypes.ADDR_POINT_FTYPE) 
-					: "Failed getFtype for " + geoJSONString;
+				handleOut(adr);
 				
-				printWriter.println(geoJSONString);
-				
-				free(adr);
 				iterator.remove();
 			}
 			addr2bdng = null;
@@ -821,9 +821,9 @@ public class JoinSliceRunable implements Runnable {
 			for(JSONObject street : street2bndries.keySet()) {
 				if(street.has("boundaries")) {
 					GeoJsonWriter.addTimestamp(street);
-					String geoJSONString = street.toString();
+					GeoJsonWriter.addMD5(street);
 					
-					printWriter.println(geoJSONString);
+					handleOut(street);
 				}
 			}
 			
@@ -831,7 +831,8 @@ public class JoinSliceRunable implements Runnable {
 			
 			for(JSONObject jun : junctions) {
 				GeoJsonWriter.addTimestamp(jun);
-				printWriter.println(jun.toString());
+				GeoJsonWriter.addMD5(jun);
+				handleOut(jun);
 			}
 			
 			s = debug("write out junctions", s);
@@ -852,9 +853,9 @@ public class JoinSliceRunable implements Runnable {
 	
 					place.put("boundaries", addressesParser.boundariesAsArray(entry.getKey(), boundaries));
 					GeoJsonWriter.addTimestamp(place);
+					GeoJsonWriter.addMD5(place);
 					
-					String geoJSONString = new JSONFeature(place).toString();
-					printWriter.println(geoJSONString);
+					handleOut(place);
 				}
 			}
 			
@@ -862,53 +863,33 @@ public class JoinSliceRunable implements Runnable {
 			
 			for(JSONObject boundary : boundaries) {
 				GeoJsonWriter.addTimestamp(boundary);
-				printWriter.println(boundary.toString());
+				GeoJsonWriter.addMD5(boundary);
+				handleOut(boundary);
 			}
 			
 			s = debug("write out boundaries", s);
 
 			for(JSONObject obj : placesVoronoi) {
 				GeoJsonWriter.addTimestamp(obj);
-				printWriter.println(obj.toString());
+				GeoJsonWriter.addMD5(obj);
+				handleOut(obj);
 			}
 			
 			s = debug("write out placesVoronoi", s);
 
 			for(JSONObject obj : neighboursVoronoi) {
 				GeoJsonWriter.addTimestamp(obj);
-				printWriter.println(obj.toString());
+				GeoJsonWriter.addMD5(obj);
+				handleOut(obj);
 			}
 			
 			s = debug("write out neighboursVoronoi", s);
-			
-			printWriter.flush();
 		}
 		catch (Exception e) {
 			throw new RuntimeException("Failed to write joined stripe. File: " + this.src, e);
 		}
-		finally {
-			if(printWriter != null) {
-				printWriter.close();
-			}
-		}
 	}
 
-	private void free(JSONObject adr) {
-		Set<String> keys = new HashSet<String>(adr.keySet());
-		for(String name : keys) {
-			adr.remove(name);
-		}
-	}
-
-	protected PrintWriter getOutWriter() throws IOException {
-		return FileUtils.getPrintwriter(this.outFile, false);
-		
-		//old way with append to file and sort/update
-		//It's not efficient / anyway I can write out all features which
-		//I want to keep.
-		//return new PrintWriter(new FileOutputStream(src, true));
-	}
-	
 	private void joinJunctionsWithStreets() {
 		for(JSONObject junction : junctions) {
 			JSONArray hwIds = junction.optJSONArray("ways");

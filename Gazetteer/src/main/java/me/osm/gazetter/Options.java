@@ -5,6 +5,8 @@ import groovy.lang.GroovyClassLoader;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -226,17 +228,32 @@ public class Options {
 	public void setJoinHandlers(List<String> handlers) {
 		try {
 			if (handlers == null || handlers.isEmpty()) {
+				
+				List<List<String>> groups = new ArrayList<List<String>>();
+				
+				for(String sh : handlers) {
+					if(sh.endsWith(".groovy")) {
+						groups.add(new ArrayList<String>());
+					}
+					
+					groups.get(groups.size() - 1).add(sh);
+				}
+				
 				GroovyClassLoader gcl = new GroovyClassLoader(Options.class.getClassLoader());
 				try
 				{
-					
-					for(String sh : handlers) {
-						Class<?> clazz = gcl.parseClass(new File(sh));
+					for(List<String> handlerDef : groups) {
+						String handlerPath = handlerDef.remove(0);
+						Class<?> clazz = gcl.parseClass(new File(handlerPath));
 						Object aScript = clazz.newInstance();
+						
+						
 						if (aScript instanceof JoinOutHandler) {
-							joinHandlers.add(((JoinOutHandler)aScript).newInstacne());
+							JoinOutHandler joinOutHandler = ((JoinOutHandler)aScript).newInstacne(handlerDef);
+							joinHandlers.add(joinOutHandler);
 						}
 					}
+					
 				}
 				finally {
 					gcl.close();
@@ -246,6 +263,10 @@ public class Options {
 		catch (Exception e) {
 			throw new RuntimeException(e);
 		}
+	}
+	
+	public Collection<JoinOutHandler> getJoinOutHandlers() {
+		return joinHandlers;
 	}
 	
 }

@@ -48,9 +48,6 @@ import static me.osm.gazetter.out.GazetteerSchemeConstants.*;
 public class GazetteerOutWriter  implements LineHandler  {
 	
 
-	private static final Set<String> hashIgnoreFields = new HashSet<String>(
-			Arrays.asList(new String[]{GAZETTEER_SCHEME_TIMESTAMP}));
-
 	private static final String GAZETTEER_SCHEME_NEARBY_STREETS = "nearby_streets";
 
 	private static final String GAZETTEER_SCHEME_NEARBY_PLACES = "nearby_places";
@@ -373,9 +370,6 @@ public class GazetteerOutWriter  implements LineHandler  {
 			}
 		}
 		
-		result.put(GAZETTEER_SCHEME_MD5, DigestUtils.md5Hex(JSONHash.asCanonicalString(
-				result, hashIgnoreFields)
-		));
 	}
 
 	private void fillPOI(JSONFeature result, JSONObject jsonObject,

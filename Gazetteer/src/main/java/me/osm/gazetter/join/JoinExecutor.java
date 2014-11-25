@@ -15,6 +15,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import me.osm.gazetter.Options;
+import me.osm.gazetter.join.out_handlers.JoinOutHandler;
 import me.osm.gazetter.join.util.JoinFailuresHandler;
 import me.osm.gazetter.join.util.MemorySupervizor;
 
@@ -78,6 +79,10 @@ public class JoinExecutor implements JoinFailuresHandler{
 				"Join boundaries done in {}",
 				DurationFormatUtils.formatDurationHMS(new Date().getTime()
 						- start));
+		
+		for(JoinOutHandler h : Options.get().getJoinOutHandlers()) {
+			h.allDone();
+		}
 	}
 
 	private final List<File> fails = Collections.synchronizedList(new ArrayList<File>());;
