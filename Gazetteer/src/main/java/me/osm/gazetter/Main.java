@@ -237,6 +237,9 @@ public class Main {
 
 			if(namespace.get(COMMAND).equals(Command.JOIN)) {
 				
+				List<String> handlers = list(namespace.getList("handlers"));
+				Options.get().setJoinHandlers(handlers);
+				
 				new JoinExecutor(new HashSet(list(namespace.getList("check_boundaries"))))
 					.run(namespace.getString(DATA_DIR_VAL), 
 							namespace.getString(JOIN_COMMON_VAL));
@@ -472,6 +475,8 @@ public class Main {
 						+ "If one of [name:uk name:ru name:en] is equals \n"
 						+ "to name still generate additional row. \n"
 						+ "(You can filter it later with simple distinct check).");
+			
+			join.addArgument("handlers").nargs("*");
 			
 		}
 

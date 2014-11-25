@@ -15,6 +15,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import me.osm.gazetter.Options;
+import me.osm.gazetter.join.util.JoinFailuresHandler;
+import me.osm.gazetter.join.util.MemorySupervizor;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.time.DurationFormatUtils;

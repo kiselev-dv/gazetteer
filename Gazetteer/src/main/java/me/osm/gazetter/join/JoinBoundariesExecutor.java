@@ -21,6 +21,7 @@ import java.util.concurrent.TimeUnit;
 
 import me.osm.gazetter.Options;
 import me.osm.gazetter.addresses.AddressesParser;
+import me.osm.gazetter.join.util.BoundaryCortage;
 import me.osm.gazetter.striper.GeoJsonWriter;
 import me.osm.gazetter.striper.JSONFeature;
 import me.osm.gazetter.utils.FileUtils;

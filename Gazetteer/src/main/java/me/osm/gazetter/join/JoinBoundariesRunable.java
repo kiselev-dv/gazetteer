@@ -3,6 +3,8 @@ package me.osm.gazetter.join;
 import java.util.List;
 import java.util.Map;
 
+import me.osm.gazetter.join.util.BoundaryCortage;
+
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.index.quadtree.Quadtree;
 

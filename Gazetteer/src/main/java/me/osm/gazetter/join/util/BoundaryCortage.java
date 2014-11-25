@@ -1,4 +1,4 @@
-package me.osm.gazetter.join;
+package me.osm.gazetter.join.util;
 
 import me.osm.gazetter.striper.GeoJsonWriter;
 
