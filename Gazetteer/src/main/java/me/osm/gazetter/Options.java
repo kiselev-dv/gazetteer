@@ -24,6 +24,7 @@ import me.osm.gazetter.addresses.sorters.CityStreetHNComparator;
 import me.osm.gazetter.addresses.sorters.HNStreetCityComparator;
 import me.osm.gazetter.addresses.sorters.StreetHNCityComparator;
 import me.osm.gazetter.join.out_handlers.JoinOutHandler;
+import me.osm.gazetter.join.out_handlers.PrintJoinOutHandler;
 import me.osm.gazetter.out.CSVOutLineHandler;
 
 import org.apache.commons.lang3.StringUtils;
@@ -262,6 +263,10 @@ public class Options {
 		}
 		catch (Exception e) {
 			throw new RuntimeException(e);
+		}
+		
+		if(joinHandlers.isEmpty()) {
+			joinHandlers.add(new PrintJoinOutHandler().newInstacne(new ArrayList<String>()));
 		}
 	}
 	
