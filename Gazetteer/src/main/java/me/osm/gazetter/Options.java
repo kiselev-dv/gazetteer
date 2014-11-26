@@ -234,7 +234,7 @@ public class Options {
 
 	public void setJoinHandlers(List<String> handlers) {
 		try {
-			if (handlers == null || handlers.isEmpty()) {
+			if (handlers != null && !handlers.isEmpty()) {
 				
 				List<List<String>> groups = new ArrayList<List<String>>();
 				
@@ -246,29 +246,28 @@ public class Options {
 					groups.get(groups.size() - 1).add(sh);
 				}
 				
-					for(List<String> handlerDef : groups) {
-						String handlerPath = handlerDef.remove(0);
-						if(handlerPath.endsWith(".groovy")) {
-							GroovyClassLoader gcl = new GroovyClassLoader(Options.class.getClassLoader());
-							try
-							{
-								Class<?> clazz = gcl.parseClass(new File(handlerPath));
-								Object aScript = clazz.newInstance();
-								
-								if (aScript instanceof JoinOutHandler) {
-									JoinOutHandler joinOutHandler = ((JoinOutHandler)aScript).newInstacne(handlerDef);
-									joinHandlers.add(joinOutHandler);
-								}
-							}
-							finally {
-								gcl.close();
+				for(List<String> handlerDef : groups) {
+					String handlerPath = handlerDef.remove(0);
+					if(handlerPath.endsWith(".groovy")) {
+						GroovyClassLoader gcl = new GroovyClassLoader(Options.class.getClassLoader());
+						try
+						{
+							Class<?> clazz = gcl.parseClass(new File(handlerPath));
+							Object aScript = clazz.newInstance();
+							
+							if (aScript instanceof JoinOutHandler) {
+								JoinOutHandler joinOutHandler = ((JoinOutHandler)aScript).newInstance(handlerDef);
+								joinHandlers.add(joinOutHandler);
 							}
 						}
-						else if (predefinedJoinOutHandlers.containsKey(handlerPath)){
-							joinHandlers.add(predefinedJoinOutHandlers.get(handlerPath).newInstacne(handlerDef));
+						finally {
+							gcl.close();
 						}
 					}
-					
+					else if (predefinedJoinOutHandlers.containsKey(handlerPath)){
+						joinHandlers.add(predefinedJoinOutHandlers.get(handlerPath).newInstance(handlerDef));
+					}
+				}
 			}
 		}
 		catch (Exception e) {
@@ -277,7 +276,7 @@ public class Options {
 		
 		if(joinHandlers.isEmpty()) {
 			joinHandlers.add(predefinedJoinOutHandlers.get(
-					PrintJoinOutHandler.NAME).newInstacne(new ArrayList<String>()));
+					PrintJoinOutHandler.NAME).newInstance(new ArrayList<String>()));
 		}
 	}
 	

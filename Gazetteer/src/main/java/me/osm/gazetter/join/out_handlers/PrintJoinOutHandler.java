@@ -15,7 +15,7 @@ public class PrintJoinOutHandler implements JoinOutHandler {
 	private PrintWriter writer = new PrintWriter(System.out);
 	
 	@Override
-	public JoinOutHandler newInstacne(List<String> options) {
+	public JoinOutHandler newInstance(List<String> options) {
 		try {
 			if(!options.isEmpty()) {
 				writer = FileUtils.getPrintwriter(new File(options.get(0)), false);

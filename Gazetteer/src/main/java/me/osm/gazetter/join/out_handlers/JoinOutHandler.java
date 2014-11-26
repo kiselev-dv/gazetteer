@@ -6,7 +6,7 @@ import org.json.JSONObject;
 
 public interface JoinOutHandler {
 
-	public JoinOutHandler newInstacne(List<String> options);
+	public JoinOutHandler newInstance(List<String> options);
 	
 	public void handle(JSONObject object, String stripe);
 	public void stripeDone(String stripe);
