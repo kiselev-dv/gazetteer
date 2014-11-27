@@ -69,6 +69,8 @@ public class JoinSliceRunable implements Runnable {
 	
 	private static final int MB = 1024*1024;
 	
+	private boolean intern = false;
+	
 	private static final double STREET_BUFFER_DISTANCE = 1.0 / 111195.0 * 500;
 	private static final double POI_BUFFER_DISTANCE = 1.0 / 111195.0 * 100;
 	
@@ -433,47 +435,47 @@ public class JoinSliceRunable implements Runnable {
 					//Not an error, two cases with same behaviour. 
 					case FeatureTypes.ADMIN_BOUNDARY_FTYPE:
 					case FeatureTypes.PLACE_BOUNDARY_FTYPE:
-						boundaries.add(new JSONFeature(line));
+						boundaries.add(new JSONFeature(line, intern));
 						break;
 						
 					case FeatureTypes.ADDR_POINT_FTYPE:
-						addrPoints.add(new JSONFeature(line));
+						addrPoints.add(new JSONFeature(line, intern));
 						break;
 						
 					case FeatureTypes.NEIGHBOUR_DELONEY_FTYPE: 
-						neighboursVoronoi.add(new JSONFeature(line));
+						neighboursVoronoi.add(new JSONFeature(line, intern));
 						break;
 						
 					case FeatureTypes.PLACE_DELONEY_FTYPE:
-						placesVoronoi.add(new JSONFeature(line));
+						placesVoronoi.add(new JSONFeature(line, intern));
 						break;
 						
 					case FeatureTypes.HIGHWAY_FEATURE_TYPE:
-						streets.add(new JSONFeature(line));
+						streets.add(new JSONFeature(line, intern));
 						break; 
 						
 					case FeatureTypes.POI_FTYPE:
-						pois.add(new JSONFeature(line));
+						pois.add(new JSONFeature(line, intern));
 						break;
 						
 					case FeatureTypes.JUNCTION_FTYPE:
-						junctions.add(new JSONFeature(line));
+						junctions.add(new JSONFeature(line, intern));
 						break;
 						
 					case FeatureTypes.POI_2_BUILDING:
-						poi2bdng.add(new JSONFeature(line));
+						poi2bdng.add(new JSONFeature(line, intern));
 						break;
 						
 					case FeatureTypes.ADDR_NODE_2_BUILDING:
-						addr2bdng.add(new JSONFeature(line));
+						addr2bdng.add(new JSONFeature(line, intern));
 						break;
 						
 					case FeatureTypes.PLACE_POINT_FTYPE:
-						places.add(new JSONFeature(line));
+						places.add(new JSONFeature(line, intern));
 						break;
 						
 					case FeatureTypes.ASSOCIATED_STREET:
-						associatedStreets.add(new JSONFeature(line));
+						associatedStreets.add(new JSONFeature(line, intern));
 						break;
 					}
 				}

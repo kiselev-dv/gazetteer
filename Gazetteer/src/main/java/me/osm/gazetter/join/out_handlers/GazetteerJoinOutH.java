@@ -4,13 +4,14 @@ import java.io.File;
 import java.io.PrintWriter;
 import java.util.List;
 
+import me.osm.gazetter.striper.GeoJsonWriter;
 import me.osm.gazetter.utils.FileUtils;
 
 import org.json.JSONObject;
 
-public class PrintJoinOutHandler implements JoinOutHandler {
+public class GazetteerJoinOutH implements JoinOutHandler {
 	
-	public static final String NAME = "out-raw";
+	public static final String NAME = "out-json";
 
 	private PrintWriter writer = new PrintWriter(System.out);
 	
@@ -29,8 +30,8 @@ public class PrintJoinOutHandler implements JoinOutHandler {
 	}
 
 	@Override
-	public synchronized void handle(JSONObject object, String stripe) {
-		writer.println(object.toString());
+	public void handle(JSONObject object, String stripe) {
+		//writer.println(object.optString("type"));
 	}
 
 	@Override

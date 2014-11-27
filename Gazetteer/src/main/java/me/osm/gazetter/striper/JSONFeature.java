@@ -8,9 +8,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
+import org.json.JSONTokener;
 
 public final class JSONFeature extends JSONObject {
 	
@@ -23,6 +24,117 @@ public final class JSONFeature extends JSONObject {
 	
 	public JSONFeature(String line) {
 		super(line);
+	}
+
+	public JSONFeature(String line, boolean intern) {
+		this(new InternJSONTokener(line, intern), intern);
+	}
+	
+	private static class InternJSONTokener extends JSONTokener  {
+
+		private boolean intern = true;
+		
+		public InternJSONTokener(String s, boolean intern) {
+			super(s);
+			this.intern = intern;
+		}
+
+		public InternJSONTokener(String s) {
+			super(s);
+		}
+		
+		@Override
+		public Object nextValue() throws JSONException {
+			char c = this.nextClean();
+	        String string;
+
+	        switch (c) {
+	            case '"':
+	            case '\'':
+	            	String st = this.nextString(c);
+	            	if(intern) {
+	            		return st.intern();
+	            	}
+	                return st;
+	            case '{':
+	                this.back();
+	                return new JSONFeature(this, intern);
+	            case '[':
+	                this.back();
+	                return new JSONArray(this);
+	        }
+
+	        /*
+	         * Handle unquoted text. This could be the values true, false, or
+	         * null, or it can be a number. An implementation (such as this one)
+	         * is allowed to also accept non-standard forms.
+	         *
+	         * Accumulate characters until we reach the end of the text or a
+	         * formatting character.
+	         */
+
+	        StringBuffer sb = new StringBuffer();
+	        while (c >= ' ' && ",:]}/\\\"[{;=#".indexOf(c) < 0) {
+	            sb.append(c);
+	            c = this.next();
+	        }
+	        this.back();
+
+	        string = sb.toString().trim();
+	        if ("".equals(string)) {
+	            throw this.syntaxError("Missing value");
+	        }
+	        return JSONObject.stringToValue(string);
+		}
+		
+	}
+	
+	/*Copypaste from JSONObject but add intern*/
+	public JSONFeature(JSONTokener x, boolean intern) throws JSONException {
+		this();
+        char c;
+        String key;
+
+        if (x.nextClean() != '{') {
+            throw x.syntaxError("A JSONObject text must begin with '{'");
+        }
+        for (;;) {
+            c = x.nextClean();
+            switch (c) {
+            case 0:
+                throw x.syntaxError("A JSONObject text must end with '}'");
+            case '}':
+                return;
+            default:
+                x.back();
+                key = x.nextValue().toString();
+                if(intern) {
+                	key = key.intern();
+                }
+            }
+
+            // The key is followed by ':'.
+            c = x.nextClean();
+            if (c != ':') {
+                throw x.syntaxError("Expected a ':' after a key");
+            }
+            this.putOnce(key, x.nextValue());
+
+            // Pairs are separated by ','.
+            switch (x.nextClean()) {
+            case ';':
+            case ',':
+                if (x.nextClean() == '}') {
+                    return;
+                }
+                x.back();
+                break;
+            case '}':
+                return;
+            default:
+                throw x.syntaxError("Expected a ',' or '}'");
+            }
+        }
 	}
 	
 	@Override
