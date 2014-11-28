@@ -156,7 +156,7 @@
 	<repositories>
 		<repository>
 			<id>osm-doc-mvn-repo</id>
-			<url>http://raw.githubusercontent.com/kiselev-dv/mvn-repository/master/releases</url>
+			<url>http://raw.githubusercontent.com/kiselev-dv/mvn-repository/master/releases/</url>
 			<snapshots>
 				<enabled>true</enabled>
 				<updatePolicy>always</updatePolicy>
