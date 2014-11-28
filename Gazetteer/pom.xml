@@ -151,13 +151,12 @@
 		<connection>scm:git:https://github.com/kiselev-dv/gazetteer.git</connection>
 		<developerConnection>scm:git:https://github.com/kiselev-dv/gazetteer.git</developerConnection>
 		<url>https://github.com/kiselev-dv/gazetteer</url>
-		<tag>Gazetteer-0.7</tag>
 	</scm>
 
 	<repositories>
 		<repository>
 			<id>osm-doc-mvn-repo</id>
-			<url>https://raw.githubusercontent.com/kiselev-dv/osm-doc/mvn-repo/</url>
+			<url>http://raw.githubusercontent.com/kiselev-dv/mvn-repository/master/releases</url>
 			<snapshots>
 				<enabled>true</enabled>
 				<updatePolicy>always</updatePolicy>
