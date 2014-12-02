@@ -21,6 +21,7 @@ import java.util.concurrent.TimeUnit;
 
 import me.osm.gazetter.Options;
 import me.osm.gazetter.addresses.AddressesParser;
+import me.osm.gazetter.join.out_handlers.JoinOutHandler;
 import me.osm.gazetter.join.util.BoundaryCortage;
 import me.osm.gazetter.striper.GeoJsonWriter;
 import me.osm.gazetter.striper.JSONFeature;
@@ -170,9 +171,6 @@ public class JoinBoundariesExecutor {
 			});
 		}
 		
-		File binxnew = new File(stripesFolder + "/binx-updated.gjson" + (Options.get().isCompress() ? ".gz" : ""));
-		final PrintWriter writer = FileUtils.getPrintwriter(binxnew, false);
-		
 		FileUtils.handleLines(binxFile, new LineHandler() {
 
 			@Override
@@ -203,7 +201,7 @@ public class JoinBoundariesExecutor {
 				if(filter == null || filter.isEmpty() || check(obj, uppers, filter)) {
 					obj.put("boundaries", addressesParser.boundariesAsArray(obj, uppers));
 					
-					writer.println(obj.toString());
+					handleOut(obj);
 				}
 				
 			}
@@ -240,11 +238,7 @@ public class JoinBoundariesExecutor {
 			
 		});
 		
-		writer.flush();
-		writer.close();
-       
 		binxFile.delete();
-		binxnew.renameTo(new File(stripesFolder + "/binx.gjson" + (Options.get().isCompress() ? ".gz" : "")));
 	}
 	
 	private void fillHierarchy(List<BoundaryCortage> ups, List<BoundaryCortage> dwns) {
@@ -271,5 +265,11 @@ public class JoinBoundariesExecutor {
 			throw new RuntimeException(e);
 		}
 		
+	}
+	
+	private void handleOut(JSONObject obj) {
+		for(JoinOutHandler handler : Options.get().getJoinOutHandlers()) {
+			handler.handle(obj, "binx.gjson");
+		}
 	}
 }

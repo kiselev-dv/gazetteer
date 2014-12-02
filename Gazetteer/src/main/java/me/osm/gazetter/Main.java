@@ -239,6 +239,7 @@ public class Main {
 				
 				List<String> handlers = list(namespace.getList("handlers"));
 				Options.get().setJoinHandlers(handlers);
+//				Options.get().setPOICatalogPath(namespace.getString(POI_CATALOG_VAL));
 				
 				new JoinExecutor(new HashSet(list(namespace.getList("check_boundaries"))))
 					.run(namespace.getString(DATA_DIR_VAL), 
@@ -476,6 +477,10 @@ public class Main {
 						+ "to name still generate additional row. \n"
 						+ "(You can filter it later with simple distinct check).");
 			
+//			join.addArgument(POI_CATALOG_OPT).setDefault("jar")
+//				.help("Path to osm-doc catalog xml file. By default internal osm-doc.xml "
+//						+ "from osm-doc-java.jar will be used.");
+			
 			join.addArgument("--handlers").nargs("*");
 			
 		}
@@ -488,47 +493,47 @@ public class Main {
 					.help(command.help());
 		}
 
-		//out-csv
-		{
-			Command command = Command.OUT_CSV;
-			outCSV = subparsers.addParser(command.longName())
-        			.setDefault(COMMAND, command)
-					.help(command.help());
-			
-			outCSV.addArgument("--columns").nargs("+");
-			outCSV.addArgument("--types").nargs("+").choices(CSVOutWriter.ARG_TO_TYPE.keySet());
-			outCSV.addArgument("--out-file").setDefault("-");
-			
-			outCSV.addArgument(POI_CATALOG_OPT).setDefault("jar")
-				.help("Path to osm-doc catalog xml file. By default internal osm-doc.xml will be used.");
-			
-			outCSV.addArgument("--line-handler").help("Path to custom groovy line handler.");
-			
-		}
-
-		//out-gazetteer
-		{
-			Command command = Command.OUT_GAZETTEER;
-			outGazetteer = subparsers.addParser(command.longName())
-					.setDefault(COMMAND, command)
-					.help(command.help());
-			
-			outGazetteer.addArgument("--out-file").setDefault("-");
-			
-			outGazetteer.addArgument(POI_CATALOG_OPT).setDefault("jar")
-				.help("Path to osm-doc catalog xml file. By default internal osm-doc.xml will be used.");
-			
-			outGazetteer.addArgument("--local-admin").nargs("*")
-				.help("Addr levels for local administrations.");
-			outGazetteer.addArgument("--locality").nargs("*")
-				.help("Addr levels for locality.");
-			outGazetteer.addArgument("--neighborhood").nargs("*")
-				.help("Addr levels for neighborhood.");
-			
-			outGazetteer.addArgument("--all-names").setDefault(false).setConst(true)
-				.help("Add hash with all *name* tags.");
-			
-		}
+//		//out-csv
+//		{
+//			Command command = Command.OUT_CSV;
+//			outCSV = subparsers.addParser(command.longName())
+//        			.setDefault(COMMAND, command)
+//					.help(command.help());
+//			
+//			outCSV.addArgument("--columns").nargs("+");
+//			outCSV.addArgument("--types").nargs("+").choices(CSVOutWriter.ARG_TO_TYPE.keySet());
+//			outCSV.addArgument("--out-file").setDefault("-");
+//			
+//			outCSV.addArgument(POI_CATALOG_OPT).setDefault("jar")
+//				.help("Path to osm-doc catalog xml file. By default internal osm-doc.xml will be used.");
+//			
+//			outCSV.addArgument("--line-handler").help("Path to custom groovy line handler.");
+//			
+//		}
+//
+//		//out-gazetteer
+//		{
+//			Command command = Command.OUT_GAZETTEER;
+//			outGazetteer = subparsers.addParser(command.longName())
+//					.setDefault(COMMAND, command)
+//					.help(command.help());
+//			
+//			outGazetteer.addArgument("--out-file").setDefault("-");
+//			
+//			outGazetteer.addArgument(POI_CATALOG_OPT).setDefault("jar")
+//				.help("Path to osm-doc catalog xml file. By default internal osm-doc.xml will be used.");
+//			
+//			outGazetteer.addArgument("--local-admin").nargs("*")
+//				.help("Addr levels for local administrations.");
+//			outGazetteer.addArgument("--locality").nargs("*")
+//				.help("Addr levels for locality.");
+//			outGazetteer.addArgument("--neighborhood").nargs("*")
+//				.help("Addr levels for neighborhood.");
+//			
+//			outGazetteer.addArgument("--all-names").setDefault(false).setConst(true)
+//				.help("Add hash with all *name* tags.");
+//			
+//		}
 		
 		//diff
 		{

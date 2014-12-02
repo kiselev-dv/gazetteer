@@ -28,6 +28,9 @@ import me.osm.gazetter.join.out_handlers.JoinOutHandler;
 import me.osm.gazetter.join.out_handlers.JsonJoinOutH;
 import me.osm.gazetter.join.out_handlers.PrintJoinOutHandler;
 import me.osm.gazetter.out.CSVOutLineHandler;
+import me.osm.osmdoc.read.DOCFileReader;
+import me.osm.osmdoc.read.DOCFolderReader;
+import me.osm.osmdoc.read.OSMDocFacade;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -58,7 +61,6 @@ public class Options {
 	private int nThreads = Runtime.getRuntime().availableProcessors();
 	private boolean compress = true;
 	private List<JoinOutHandler> joinHandlers = new ArrayList<>();
-	
 
 	private Options() {
 		sorting = AddrLevelsSorting.HN_STREET_CITY;
@@ -285,5 +287,4 @@ public class Options {
 	public Collection<JoinOutHandler> getJoinOutHandlers() {
 		return joinHandlers;
 	}
-	
 }

@@ -14,16 +14,23 @@ public abstract class SingleWriterJOHBase implements JoinOutHandler {
 	
 	@Override
 	public JoinOutHandler newInstance(List<String> options) {
+
+		if(!options.isEmpty()) {
+			initializeWriter(options.get(0));
+		}
+		
+		return this;
+	}
+
+	protected void initializeWriter(String string) {
 		try {
-			if(!options.isEmpty()) {
-				writer = FileUtils.getPrintwriter(new File(options.get(0)), false);
+			if(string != null && !string.equals("-")) {
+				writer = FileUtils.getPrintwriter(new File(string), false);
 			}
 		}
 		catch(Exception e) {
 			throw new RuntimeException(e);
 		}
-		
-		return this;
 	}
 	
 	protected void println(String s) {
@@ -41,6 +48,10 @@ public abstract class SingleWriterJOHBase implements JoinOutHandler {
 	public void allDone() {
 		writer.flush();
 		writer.close();
+	}
+	
+	public void flush() {
+		writer.flush();
 	}
 
 
