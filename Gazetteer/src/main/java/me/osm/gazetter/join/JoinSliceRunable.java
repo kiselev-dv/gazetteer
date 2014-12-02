@@ -1,7 +1,7 @@
 package me.osm.gazetter.join;
 
-import static me.osm.gazetter.out.GazetteerSchemeConstants.GAZETTEER_SCHEME_MD5;
-import static me.osm.gazetter.out.GazetteerSchemeConstants.GAZETTEER_SCHEME_TIMESTAMP;
+import static me.osm.gazetter.join.out_handlers.GazetteerSchemeConstants.GAZETTEER_SCHEME_MD5;
+import static me.osm.gazetter.join.out_handlers.GazetteerSchemeConstants.GAZETTEER_SCHEME_TIMESTAMP;
 
 import java.io.File;
 import java.io.IOException;
@@ -886,7 +886,7 @@ public class JoinSliceRunable implements Runnable {
 			s = debug("write out neighboursVoronoi", s);
 		}
 		catch (Exception e) {
-			throw new RuntimeException("Failed to write joined stripe. File: " + this.src, e);
+			throw new RuntimeException(e);
 		}
 	}
 

@@ -1,13 +1,27 @@
-package me.osm.gazetter.out;
+package me.osm.gazetter.join.out_handlers;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
-import java.nio.charset.Charset;
+import static me.osm.gazetter.join.out_handlers.GazetteerSchemeConstants.GAZETTEER_SCHEME_ADDRESS;
+import static me.osm.gazetter.join.out_handlers.GazetteerSchemeConstants.GAZETTEER_SCHEME_ADDR_LEVEL;
+import static me.osm.gazetter.join.out_handlers.GazetteerSchemeConstants.GAZETTEER_SCHEME_CENTER_POINT;
+import static me.osm.gazetter.join.out_handlers.GazetteerSchemeConstants.GAZETTEER_SCHEME_FEATURE_ID;
+import static me.osm.gazetter.join.out_handlers.GazetteerSchemeConstants.GAZETTEER_SCHEME_FULL_GEOMETRY;
+import static me.osm.gazetter.join.out_handlers.GazetteerSchemeConstants.GAZETTEER_SCHEME_ID;
+import static me.osm.gazetter.join.out_handlers.GazetteerSchemeConstants.GAZETTEER_SCHEME_NEARBY_PLACES;
+import static me.osm.gazetter.join.out_handlers.GazetteerSchemeConstants.GAZETTEER_SCHEME_NEARBY_STREETS;
+import static me.osm.gazetter.join.out_handlers.GazetteerSchemeConstants.GAZETTEER_SCHEME_NEAREST_NEIGHBOUR;
+import static me.osm.gazetter.join.out_handlers.GazetteerSchemeConstants.GAZETTEER_SCHEME_NEAREST_PLACE;
+import static me.osm.gazetter.join.out_handlers.GazetteerSchemeConstants.GAZETTEER_SCHEME_POI_ADDR_MATCH;
+import static me.osm.gazetter.join.out_handlers.GazetteerSchemeConstants.GAZETTEER_SCHEME_POI_CLASS;
+import static me.osm.gazetter.join.out_handlers.GazetteerSchemeConstants.GAZETTEER_SCHEME_POI_KEYWORDS;
+import static me.osm.gazetter.join.out_handlers.GazetteerSchemeConstants.GAZETTEER_SCHEME_POI_TYPE_NAMES;
+import static me.osm.gazetter.join.out_handlers.GazetteerSchemeConstants.GAZETTEER_SCHEME_REFS;
+import static me.osm.gazetter.join.out_handlers.GazetteerSchemeConstants.GAZETTEER_SCHEME_TAGS;
+import static me.osm.gazetter.join.out_handlers.GazetteerSchemeConstants.GAZETTEER_SCHEME_TIMESTAMP;
+import static me.osm.gazetter.join.out_handlers.GazetteerSchemeConstants.GAZETTEER_SCHEME_TYPE;
+
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Comparator;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -18,57 +32,37 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import me.osm.gazetter.addresses.AddressesUtils;
-import me.osm.gazetter.join.JoinExecutor;
+import me.osm.gazetter.out.AddrRowValueExctractorImpl;
 import me.osm.gazetter.striper.FeatureTypes;
 import me.osm.gazetter.striper.GeoJsonWriter;
 import me.osm.gazetter.striper.JSONFeature;
-import me.osm.gazetter.utils.FileUtils;
-import me.osm.gazetter.utils.FileUtils.LineHandler;
-import me.osm.gazetter.utils.JSONHash;
 import me.osm.gazetter.utils.LocatePoint;
 import me.osm.osmdoc.model.Feature;
 import me.osm.osmdoc.read.DOCFileReader;
 import me.osm.osmdoc.read.DOCFolderReader;
+import me.osm.osmdoc.read.DOCReader;
 import me.osm.osmdoc.read.OSMDocFacade;
 import me.osm.osmdoc.read.tagvalueparsers.TagsStatisticCollector;
+import net.sourceforge.argparse4j.ArgumentParsers;
+import net.sourceforge.argparse4j.inf.ArgumentParser;
+import net.sourceforge.argparse4j.inf.ArgumentParserException;
+import net.sourceforge.argparse4j.inf.Namespace;
 
-import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.google.code.externalsorting.ExternalSort;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.LineString;
 
-import static me.osm.gazetter.out.GazetteerSchemeConstants.*;
-
-public class GazetteerOutWriter  implements LineHandler  {
-	
-
-	private static final String GAZETTEER_SCHEME_NEARBY_STREETS = "nearby_streets";
-
-	private static final String GAZETTEER_SCHEME_NEARBY_PLACES = "nearby_places";
-
-	private static final String GAZETTEER_SCHEME_NEAREST_NEIGHBOUR = "nearest_neighbour";
-
-	private static final String GAZETTEER_SCHEME_NEAREST_PLACE = "nearest_place";
-
-	private static final String GAZETTEER_SCHEME_ADDRESS = "address";
-	private static final String GAZETTEER_SCHEME_POI_ADDR_MATCH = "poi_addr_match";
-	private static final String GAZETTEER_SCHEME_POI_TYPE_NAMES = "poi_type_translated";
+public class GazetteerOutWriter extends AddressPerRowJOHBase  {
 	
 	private static final TagsStatisticCollector tagStatistics = new TagsStatisticCollector();
 
+	public static final String NAME = "out-gazetteer";
 
-	private String dataDir;
-	
-	private Map<String, PrintWriter> writers = new HashMap<>();
-	
-	private PrintWriter out;
-	
 	private OSMDocFacade osmDocFacade;
 	
 	private List<String> localAdminKeys;
@@ -76,243 +70,125 @@ public class GazetteerOutWriter  implements LineHandler  {
 	private List<String> neighborhoodKeys;
 
 	private boolean exportAllNames = false;
+
+	private DOCReader reader;
 	
-	public GazetteerOutWriter(String dataDir, String out, String poiCatalog, 
-			List<String> localAdmin, List<String> locality, 
-			List<String> neighborhood, boolean exportAllNames) {
+	@Override
+	public JoinOutHandler newInstance(List<String> options) {
 		
-		this.exportAllNames = exportAllNames;
+		HandlerOptions paresdOpts = HandlerOptions.parse(options, 
+				Arrays.asList("out", "export_all_names", "local_admin", "locality", "neighborhood", "poi_catalog"));
 		
-		localAdminKeys = localAdmin;
+		this.exportAllNames = "true".equals(paresdOpts.getString("export_all_names", "true"));
+		
+		localAdminKeys = list(paresdOpts.getList("local_admin"));
 		if(localAdminKeys == null || localAdminKeys.isEmpty()) {
 			localAdminKeys = Arrays.asList("boundary:6");
 		}
-
-		localityKeys = locality;
+		
+		localityKeys = list(paresdOpts.getList("locality"));
 		if(localityKeys == null || localityKeys.isEmpty()) {
 			localityKeys = Arrays.asList("place:city", "place:town", "place:village", "place:hamlet", "boundary:8");
 		}
-
-		neighborhoodKeys = neighborhood;
+		
+		neighborhoodKeys = list(paresdOpts.getList("neighborhood"));
 		if(neighborhoodKeys == null || neighborhoodKeys.isEmpty()) {
 			neighborhoodKeys = Arrays.asList("place:town", "place:village", "place:hamlet", "place:neighbour", "boundary:9", "boundary:10");
 		}
 		
-		this.dataDir = dataDir;
+		String poiCatalogPath = paresdOpts.getString("poi_catalog", "jar");
 		
-		try {
-			writers.put(FeatureTypes.POI_FTYPE, new PrintWriter(getFile4Ftype(FeatureTypes.POI_FTYPE), "UTF8"));
-			writers.put(FeatureTypes.ADDR_POINT_FTYPE, new PrintWriter(getFile4Ftype(FeatureTypes.ADDR_POINT_FTYPE), "UTF8"));
-			writers.put(FeatureTypes.HIGHWAY_FEATURE_TYPE, new PrintWriter(getFile4Ftype(FeatureTypes.HIGHWAY_FEATURE_TYPE), "UTF8"));
-			writers.put(FeatureTypes.PLACE_POINT_FTYPE, new PrintWriter(getFile4Ftype(FeatureTypes.PLACE_POINT_FTYPE), "UTF8"));
-			writers.put(FeatureTypes.PLACE_BOUNDARY_FTYPE, new PrintWriter(getFile4Ftype(FeatureTypes.PLACE_BOUNDARY_FTYPE), "UTF8"));
-			writers.put(FeatureTypes.ADMIN_BOUNDARY_FTYPE, new PrintWriter(getFile4Ftype(FeatureTypes.ADMIN_BOUNDARY_FTYPE), "UTF8"));
-
-			if("-".equals(out)) {
-				this.out = new PrintWriter(new OutputStreamWriter(System.out, "UTF8"));
-			}
-			else {
-				this.out = FileUtils.getPrintwriter(new File(out), false);
-			}
-		}
-		catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-		
-		if(poiCatalog.endsWith(".xml") || poiCatalog.equals("jar")) {
-			osmDocFacade = new OSMDocFacade(new DOCFileReader(poiCatalog), null);
+		if(poiCatalogPath.endsWith(".xml") || poiCatalogPath.equals("jar")) {
+			reader = new DOCFileReader(poiCatalogPath);
 		}
 		else {
-			osmDocFacade = new OSMDocFacade(new DOCFolderReader(poiCatalog), null);
+			reader = new DOCFolderReader(poiCatalogPath);
 		}
 		
-	}
-
-	private File getFile4Ftype(String ftype) {
-		return new File(this.dataDir + "/" + ftype + ".gjson.tmp");
-	}
-
-	public void write() {
-		File folder = new File(dataDir);
-		try {
-			for(File stripeF : folder.listFiles(JoinExecutor.STRIPE_FILE_FN_FILTER)) {
-				FileUtils.handleLines(stripeF, this);
-			}
-			
-			FileUtils.handleLines(FileUtils.withGz(new File(dataDir + "/binx.gjson")), new LineHandler() {
-				
-				@Override
-				public void handle(String s) {
-					if(s != null) {
-						JSONObject jsonObject = new JSONObject(s);
-						JSONObject boundaries = jsonObject.optJSONObject("boundaries");
-						if(boundaries != null) {
-							Map<String, JSONObject> mapLevels = mapLevels(boundaries);
-							JSONFeature row = new JSONFeature();
-							
-							fillObject(row, FeatureTypes.ADMIN_BOUNDARY_FTYPE, boundaries, mapLevels, jsonObject, null);
-							
-							writeNext(row, FeatureTypes.ADMIN_BOUNDARY_FTYPE);
-							
-						}
-					}
-				}
-				
-			});
-			
-			for(PrintWriter w : writers.values()) {
-				w.flush();
-				w.close();
-			}
-			
-			out();
-			
-			out.flush();
-			out.close();		
+		osmDocFacade = new OSMDocFacade(reader, null);
+		
+		if(paresdOpts.has(null)) {
+			initializeWriter(paresdOpts.getString(null, null));
 		}
-		catch (Exception e) {
-			throw new RuntimeException(e);
+		else {
+			initializeWriter(paresdOpts.getString("out", null));
 		}
+		
+		return this;
 	}
-
-
-	private void out() throws IOException {
-		for(String type : Arrays.asList(
-				FeatureTypes.ADDR_POINT_FTYPE,
-				FeatureTypes.HIGHWAY_FEATURE_TYPE,
-				FeatureTypes.PLACE_POINT_FTYPE,
-				FeatureTypes.PLACE_BOUNDARY_FTYPE,
-				FeatureTypes.POI_FTYPE,
-				FeatureTypes.ADMIN_BOUNDARY_FTYPE	
-				)) {
-			
-			File sorted = new File(this.dataDir + "/" + type + ".gjson.sorted");
-			sort(getFile4Ftype(type), sorted);
-			FileUtils.handleLines(sorted, new LineHandler() {
-				
-				private String lastId = null;
-				
-				@Override
-				public void handle(String s) {
-					if(s != null) {
-						String id = GeoJsonWriter.getId(s);
-						if(!id.equals(lastId)) {
-							out.println(s);					
-						}
-						lastId = id;
-					}
-				}
-			});
-			sorted.delete();
-		}		
-	}
-
-	Comparator<String> featuresComparator = new Comparator<String>() {
-
-		@Override
-		public int compare(String paramT1, String paramT2) {
-			String id1 = GeoJsonWriter.getId(paramT1);
-			String id2 = GeoJsonWriter.getId(paramT2);
-			
-			return id1.compareTo(id2);
-		}
-
-	};
-	
-	private void sort(File in, File out) throws IOException {
-            List<File> l = ExternalSort.sortInBatch(in, featuresComparator,
-                    100, Charset.defaultCharset(), new File(dataDir), true, 0,
-                    false);
-
-           ExternalSort.mergeSortedFiles(l, out, featuresComparator, Charset.defaultCharset(),
-                    true, false, false);
-                    
-           in.delete();    
-	}
-
-	private Set<String> types = new HashSet<String>(Arrays.asList(
-			FeatureTypes.POI_FTYPE,
-			FeatureTypes.ADDR_POINT_FTYPE,
-			FeatureTypes.HIGHWAY_FEATURE_TYPE,
-			FeatureTypes.PLACE_POINT_FTYPE));
 	
 	@Override
-	public void handle(String line) {
-		if(line == null) {
+	protected void handlePoiPointAddrRow(JSONObject object, JSONObject address,
+			String stripe) {
+		
+		// skip pois with empty addresses
+		if(address == null) {
 			return;
 		}
 		
-		String ftype = GeoJsonWriter.getFtype(line);
+		JSONFeature result = new JSONFeature();
+		fillObject(result, address, object);
+		fillPOI(result, object, address.getString("poiAddrMatch"));
 		
-		if(types.contains(ftype) && !FeatureTypes.ADMIN_BOUNDARY_FTYPE.equals(ftype)) {
-
-			JSONObject jsonObject = new JSONObject(line);
-
-			if(FeatureTypes.ADDR_POINT_FTYPE.equals(ftype)) {
-				JSONArray addresses = jsonObject.optJSONArray("addresses");
-				if(addresses != null) {
-					for(int ri = 0; ri < addresses.length(); ri++ ) {
-						JSONFeature row = new JSONFeature();
-						JSONObject addrRow = addresses.getJSONObject(ri);
-						Map<String, JSONObject> mapLevels = mapLevels(addrRow);
-						
-						fillObject(row, ftype, addrRow, mapLevels, jsonObject, null);
-						
-						writeNext(row, ftype);
-					}
-				}
-			}
-			else if(FeatureTypes.HIGHWAY_FEATURE_TYPE.equals(ftype)) {
-				JSONArray boundaries = jsonObject.optJSONArray("boundaries");
-				if(boundaries != null) {
-					for(int i = 0; i < boundaries.length(); i++) {
-
-						JSONFeature row = new JSONFeature();
-						
-						JSONObject bs = boundaries.getJSONObject(i);
-						Map<String, JSONObject> mapLevels = mapLevels(bs);
-
-						fillObject(row, ftype, bs, mapLevels, jsonObject, null);
-						
-						writeNext(row, ftype);
-					}
-				}
-			}
-			else if(FeatureTypes.PLACE_POINT_FTYPE.equals(ftype)) {
-				JSONObject boundaries = jsonObject.optJSONObject("boundaries");
-				if(boundaries != null) {
-
-					JSONFeature row = new JSONFeature();
-					Map<String, JSONObject> mapLevels = mapLevels(boundaries);
-					
-					fillObject(row, ftype, boundaries, mapLevels, jsonObject, null);
-					
-					writeNext(row, ftype);
-					
-				}
-			}
-			else if(FeatureTypes.POI_FTYPE.equals(ftype)) {
-				List<JSONObject> addresses = new ArrayList<JSONObject>();
-				String poiAddrMatch = fillPoiAddresses(jsonObject, addresses);
-				if(!addresses.isEmpty()) {
-					for(JSONObject addrRow : addresses) {
-						JSONFeature row = new JSONFeature();
-						Map<String, JSONObject> mapLevels = mapLevels(addrRow);
-						
-						fillObject(row, ftype, addrRow, mapLevels, jsonObject, poiAddrMatch);
-						
-						writeNext(row, ftype);
-					}
-				}
-			}
-			
-		}
-		
+		println(result.toString());
+		flush();
 	}
 	
-	private void fillObject(JSONFeature result, String ftype, JSONObject addrRow,
-			Map<String, JSONObject> mapLevels, JSONObject jsonObject, String poiAddrMatch) {
+	@Override
+	protected void handleAddrNodeAddrRow(JSONObject object, JSONObject address,
+			String stripe) {
 		
+		JSONFeature result = new JSONFeature();
+		fillObject(result, address, object);
+		println(result.toString());
+		flush();
+	}
+	
+	@Override
+	protected void handleHighwayAddrRow(JSONObject object, JSONObject address,
+			String stripe) {
+		
+		JSONFeature result = new JSONFeature();
+		fillObject(result, address, object);
+		println(result.toString());
+		flush();
+	}
+	
+	@Override
+	protected void handlePlaceBoundaryAddrRow(JSONObject object, JSONObject address,
+			String stripe) {
+		
+		if(address == null) {
+			return;
+		}
+		
+		JSONFeature result = new JSONFeature();
+		fillObject(result, address, object);
+		println(result.toString());
+		flush();
+	}
+	
+	@Override
+	protected void handlePlacePointAddrRow(JSONObject object,
+			JSONObject address, String stripe) {
+		JSONFeature result = new JSONFeature();
+		fillObject(result, address, object);
+		println(result.toString());
+		flush();
+	}
+	
+	@Override
+	protected void handleAdminBoundaryAddrRow(JSONObject object,
+			JSONObject address, String stripe) {
+		JSONFeature result = new JSONFeature();
+		fillObject(result, address, object);
+		println(result.toString());
+		flush();
+	}
+	
+	protected void fillObject(JSONFeature result, JSONObject addrRow, JSONObject jsonObject) {
+		
+		String ftype = jsonObject.getString("ftype");
 		String rowId = AddrRowValueExctractorImpl.getUID(jsonObject, addrRow, ftype);
 		
 		result.put(GAZETTEER_SCHEME_ID, rowId);
@@ -322,6 +198,8 @@ public class GazetteerOutWriter  implements LineHandler  {
 		
 		putAddress(result, addrRow);
 		Set<String> langs = putAltAddresses(result, addrRow);
+		
+		Map<String, JSONObject> mapLevels = mapLevels(addrRow);
 
 		putName(result, ftype, mapLevels, jsonObject, addrRow);
 		putAltNames(result, ftype, mapLevels, jsonObject, addrRow);
@@ -347,10 +225,6 @@ public class GazetteerOutWriter  implements LineHandler  {
 			result.put(GAZETTEER_SCHEME_TAGS, properties);
 		}
 		
-		if(FeatureTypes.POI_FTYPE.equals(ftype)) {
-			fillPOI(result, jsonObject, properties, poiAddrMatch, refs);
-		}
-		
 		JSONObject centroid = getCentroid(jsonObject, ftype);
 		if(centroid != null) {
 			result.put(GAZETTEER_SCHEME_CENTER_POINT, centroid);
@@ -372,10 +246,11 @@ public class GazetteerOutWriter  implements LineHandler  {
 		
 	}
 
-	private void fillPOI(JSONFeature result, JSONObject jsonObject,
-			JSONObject properties, String poiAddrMatch, JSONObject refs) {
+	protected void fillPOI(JSONFeature result, JSONObject jsonObject,
+			String poiAddrMatch) {
 		
 		JSONArray typesArray = jsonObject.getJSONArray("poiTypes");
+		JSONObject tags = jsonObject.getJSONObject("properties");
 
 		result.put(GAZETTEER_SCHEME_POI_CLASS, typesArray);
 		
@@ -398,22 +273,25 @@ public class GazetteerOutWriter  implements LineHandler  {
 		
 		if(poiAddrMatch != null) {
 			result.put(GAZETTEER_SCHEME_POI_ADDR_MATCH, poiAddrMatch);
-			Object matchedAddresses = jsonObject.getJSONObject("joinedAddresses").opt(poiAddrMatch);
 			
-			if(matchedAddresses instanceof JSONObject) {
-				poiAddrRefs.put(((JSONObject)matchedAddresses).getString("id"));
-			}
-			else if(matchedAddresses instanceof JSONArray) {
-				JSONArray maa = (JSONArray) matchedAddresses;
-				for(int i=0; i<maa.length();i++) {
-					poiAddrRefs.put(maa.getJSONObject(i).getString("id"));
+			if(!"boundaries".equals(poiAddrMatch)) {
+				Object matchedAddresses = jsonObject.getJSONObject("joinedAddresses").opt(poiAddrMatch);
+				
+				if(matchedAddresses instanceof JSONObject) {
+					poiAddrRefs.put(((JSONObject)matchedAddresses).getString("id"));
+				}
+				else if(matchedAddresses instanceof JSONArray) {
+					JSONArray maa = (JSONArray) matchedAddresses;
+					for(int i=0; i<maa.length();i++) {
+						poiAddrRefs.put(maa.getJSONObject(i).getString("id"));
+					}
 				}
 			}
 		}
 		
-		refs.put("poi_addresses", poiAddrRefs);
+		result.getJSONObject("refs").put("poi_addresses", poiAddrRefs);
 		
-		JSONObject moreTags = osmDocFacade.parseMoreTags(poiClassess, properties, tagStatistics);
+		JSONObject moreTags = osmDocFacade.parseMoreTags(poiClassess, tags, tagStatistics);
 		result.put("more_tags", moreTags);
 
 		//TODO Keywords
@@ -422,7 +300,7 @@ public class GazetteerOutWriter  implements LineHandler  {
 		result.put(GAZETTEER_SCHEME_POI_KEYWORDS, new JSONArray(keywords));
 	}
 
-	private JSONObject getCentroid(JSONObject jsonObject, String ftype) {
+	protected JSONObject getCentroid(JSONObject jsonObject, String ftype) {
 		
 		JSONObject result = new JSONObject();
 		if(FeatureTypes.HIGHWAY_FEATURE_TYPE.equals(ftype)) {
@@ -446,7 +324,7 @@ public class GazetteerOutWriter  implements LineHandler  {
 		return result;
 	}
 
-	private JSONObject getFullGeometry(JSONObject jsonObject, String ftype) {
+	protected JSONObject getFullGeometry(JSONObject jsonObject, String ftype) {
 		JSONObject fullGeometry = null;
 		
 		if(FeatureTypes.PLACE_POINT_FTYPE.equals(ftype)) {
@@ -463,11 +341,15 @@ public class GazetteerOutWriter  implements LineHandler  {
 		return fullGeometry;
 	}
 
-	private String putAddrParts(JSONObject result, JSONObject refs,
+	protected String putAddrParts(JSONObject result, JSONObject refs,
 			JSONObject addrRow, Map<String, JSONObject> mapLevels, 
 			Set<String> langs) {
 		
 		String minLvl = null;
+		
+		if(mapLevels == null) {
+			return null;
+		}
 		
 		JSONObject admin0 = mapLevels.get("boundary:2");
 		putAddrLevel(result, refs, langs, admin0, "admin0");
@@ -523,7 +405,7 @@ public class GazetteerOutWriter  implements LineHandler  {
 		return minLvl;
 	}
 
-	private JSONObject getNotNull(Map<String, JSONObject> mapLevels,
+	protected JSONObject getNotNull(Map<String, JSONObject> mapLevels,
 			List<String> levels, JSONObject upper) {
 		
 		for(String lvl : levels) {
@@ -545,7 +427,7 @@ public class GazetteerOutWriter  implements LineHandler  {
 		return null;
 	}
 
-	private String getAddrPartId(JSONObject upper) {
+	protected String getAddrPartId(JSONObject upper) {
 		String upperId = upper.optString("lnk");
 
 		if(StringUtils.stripToNull(upperId) == null) {
@@ -555,7 +437,7 @@ public class GazetteerOutWriter  implements LineHandler  {
 		return upperId;
 	}
 
-	private void putAddrLevel(JSONObject result, JSONObject refs,
+	protected void putAddrLevel(JSONObject result, JSONObject refs,
 			Set<String> langs, JSONObject admin0, String key) {
 		if(admin0 != null) {
 			
@@ -586,7 +468,7 @@ public class GazetteerOutWriter  implements LineHandler  {
 		}
 	}
 
-	private void filterNamesByLangs(Map<String, String> names, Set<String> langs) {
+	protected void filterNamesByLangs(Map<String, String> names, Set<String> langs) {
 		if(names != null) {
 			Iterator<Entry<String, String>> iterator = names.entrySet().iterator();
 			while (iterator.hasNext()) {
@@ -605,45 +487,50 @@ public class GazetteerOutWriter  implements LineHandler  {
 		}
 	}
 
-	private Set<String> putAltAddresses(JSONObject result, JSONObject addrRow) {
-
-		Set<String> langsSet = new HashSet<String>();
-		JSONArray langs = addrRow.optJSONArray("langs");
+	protected Set<String> putAltAddresses(JSONObject result, JSONObject addrRow) {
 		
-		if(langs != null && langs.length() > 0) {
+		Set<String> langsSet = new HashSet<String>();
+		
+		if(addrRow != null) {
+			JSONArray langs = addrRow.optJSONArray("langs");
 			
-			List<String> altAddresses = new ArrayList<String>();
-			Map<String, String> altAddressesHash = new HashMap<String, String>();
-
-			for(int i = 0; i < langs.length(); i++) {
-				String lang = langs.optString(i);
-				if(StringUtils.isNotBlank(lang)) {
-					langsSet.add(lang);
-					String altText = addrRow.optString("text:" + lang);
-					if(StringUtils.isNotBlank(altText)) {
-						altAddresses.add(altText);
-						altAddressesHash.put(lang, altText);
+			if(langs != null && langs.length() > 0) {
+				
+				List<String> altAddresses = new ArrayList<String>();
+				Map<String, String> altAddressesHash = new HashMap<String, String>();
+				
+				for(int i = 0; i < langs.length(); i++) {
+					String lang = langs.optString(i);
+					if(StringUtils.isNotBlank(lang)) {
+						langsSet.add(lang);
+						String altText = addrRow.optString("text:" + lang);
+						if(StringUtils.isNotBlank(altText)) {
+							altAddresses.add(altText);
+							altAddressesHash.put(lang, altText);
+						}
 					}
 				}
-			}
-			
-			if(!altAddresses.isEmpty()) {
-				result.put("alt_addresses", new JSONArray(altAddresses));
-				result.put("alt_addresses_trans", new JSONObject(altAddressesHash));
+				
+				if(!altAddresses.isEmpty()) {
+					result.put("alt_addresses", new JSONArray(altAddresses));
+					result.put("alt_addresses_trans", new JSONObject(altAddressesHash));
+				}
 			}
 		}
 		
 		return langsSet;
 	}
 
-	private void putAddress(JSONObject result, JSONObject addrRow) {
-		String addrText = addrRow.optString("text", null);
-		if(addrText != null) {
-			result.put(GAZETTEER_SCHEME_ADDRESS, addrText);
+	protected void putAddress(JSONObject result, JSONObject addrRow) {
+		if(addrRow != null) {
+			String addrText = addrRow.optString("text", null);
+			if(addrText != null) {
+				result.put(GAZETTEER_SCHEME_ADDRESS, addrText);
+			}
 		}
 	}
 
-	private void putNearbyPlaces(JSONObject result, String ftype,
+	protected void putNearbyPlaces(JSONObject result, String ftype,
 			Map<String, JSONObject> mapLevels, JSONObject jsonObject, Set<String> langs) {
 
 		if(jsonObject.has("nearestCity")) {
@@ -698,7 +585,7 @@ public class GazetteerOutWriter  implements LineHandler  {
 		}
 	}
 
-	private void putNearbyStreets(JSONObject result, String ftype,
+	protected void putNearbyStreets(JSONObject result, String ftype,
 			Map<String, JSONObject> mapLevels, JSONObject jsonObject, Set<String> langs) {
 		if(jsonObject.has("nearbyStreets")) {
 			JSONArray streetsSRC = jsonObject.getJSONArray("nearbyStreets");
@@ -719,7 +606,7 @@ public class GazetteerOutWriter  implements LineHandler  {
 		}
 	}
 
-	private JSONObject asIdNameNames(JSONObject src, Set<String> langs) {
+	protected JSONObject asIdNameNames(JSONObject src, Set<String> langs) {
 		JSONObject result = new JSONObject();
 		
 		result.put(GAZETTEER_SCHEME_ID, src.getString("id"));
@@ -745,7 +632,7 @@ public class GazetteerOutWriter  implements LineHandler  {
 		return null;
 	}
 
-	private void putNameTranslations(JSONObject result, String ftype,
+	protected void putNameTranslations(JSONObject result, String ftype,
 			Map<String, JSONObject> mapLevels, JSONObject jsonObject, JSONObject addrRow, Set<String> langs) {
 		
 		if(!FeatureTypes.ADDR_POINT_FTYPE.equals(ftype))  {
@@ -759,7 +646,7 @@ public class GazetteerOutWriter  implements LineHandler  {
 		}
 	}
 
-	private void putAltNames(JSONObject result, String ftype,
+	protected void putAltNames(JSONObject result, String ftype,
 			Map<String, JSONObject> mapLevels, JSONObject jsonObject, JSONObject addrRow) {
 		
 		if(!FeatureTypes.ADDR_POINT_FTYPE.equals(ftype))  {
@@ -773,7 +660,7 @@ public class GazetteerOutWriter  implements LineHandler  {
 		}
 	}
 
-	private void putName(JSONObject result, String ftype,
+	protected void putName(JSONObject result, String ftype,
 			Map<String, JSONObject> mapLevels, JSONObject jsonObject, JSONObject addrRow) {
 		
 		JSONObject properties = jsonObject.optJSONObject("properties");
@@ -783,90 +670,13 @@ public class GazetteerOutWriter  implements LineHandler  {
 		
 	}
 
-	private String fillPoiAddresses(JSONObject poi, List<JSONObject> result) {
-		
-		JSONObject joinedAddresses = poi.optJSONObject("joinedAddresses");
-		if(joinedAddresses != null) {
-			
-			//"sameSource"
-			if(getAddressesFromObj(result, joinedAddresses, "sameSource")) {
-				return "sameSource";
-			}
-			
-			//"contains"
-			if(getAddressesFromCollection(result, joinedAddresses, "contains")) {
-				return "contains";
-			}
 
-			//"shareBuildingWay"
-			if(getAddressesFromCollection(result, joinedAddresses, "shareBuildingWay")) {
-				return "shareBuildingWay";
-			}
-
-			//"nearestShareBuildingWay"
-			if(getAddressesFromCollection(result, joinedAddresses, "nearestShareBuildingWay")) {
-				return "nearestShareBuildingWay";
-			}
-
-			//"nearest"
-			if(getAddressesFromObj(result, joinedAddresses, "nearest")) {
-				return "nearest";
-			}
-			
-		}
-		
-		return null;
-	}
-
-	private boolean getAddressesFromObj(List<JSONObject> result,
-			JSONObject joinedAddresses, String key) {
-		
-		boolean founded = false;
-		
-		JSONObject ss = joinedAddresses.optJSONObject(key);
-		if(ss != null) {
-			JSONArray addresses = ss.optJSONArray("addresses");
-			if(addresses != null) {
-				for(int i = 0; i < addresses.length(); i++) {
-					result.add(addresses.getJSONObject(i));
-				}
-				founded = true;
-			}
-		}
-		
-		return founded;
-	}
-
-	private boolean getAddressesFromCollection(List<JSONObject> result,
-			JSONObject joinedAddresses, String key) {
-		
-		boolean founded = false;
-		
-		JSONArray contains = joinedAddresses.optJSONArray("contains");
-		if(contains != null && contains.length() > 0) {
-			
-			for(int ci = 0; ci < contains.length(); ci++) {
-				JSONObject co = contains.getJSONObject(ci);
-				JSONArray addresses = co.optJSONArray("addresses");
-				if(addresses != null) {
-					for(int i = 0; i < addresses.length(); i++) {
-						result.add(addresses.getJSONObject(i));
-						founded = true;
-					}
-				}
-			}
-			
-		}
-		
-		return founded;
-	}
-
-	private void writeNext(JSONObject row, String ftype) {
-		writers.get(ftype).println(row.toString());
-	}
-
-	private Map<String, JSONObject> mapLevels(JSONObject addrRow) {
+	protected Map<String, JSONObject> mapLevels(JSONObject addrRow) {
 		try {
+			if(addrRow == null) {
+				return null;
+			}
+
 			Map<String, JSONObject> result = new HashMap<String, JSONObject>();
 			
 			JSONArray parts = addrRow.getJSONArray("parts"); 
@@ -880,5 +690,13 @@ public class GazetteerOutWriter  implements LineHandler  {
 		catch (JSONException e) {
 			return null;
 		}
+	}
+	
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	private static List<String> list( List list) {
+		if(list == null) {
+			return Collections.emptyList();
+		}
+		return list;
 	}
 }

@@ -1,7 +1,7 @@
 package me.osm.gazetter.striper;
 
-import static me.osm.gazetter.out.GazetteerSchemeConstants.GAZETTEER_SCHEME_MD5;
-import static me.osm.gazetter.out.GazetteerSchemeConstants.GAZETTEER_SCHEME_TIMESTAMP;
+import static me.osm.gazetter.join.out_handlers.GazetteerSchemeConstants.GAZETTEER_SCHEME_MD5;
+import static me.osm.gazetter.join.out_handlers.GazetteerSchemeConstants.GAZETTEER_SCHEME_TIMESTAMP;
 
 import java.util.ArrayList;
 import java.util.Arrays;

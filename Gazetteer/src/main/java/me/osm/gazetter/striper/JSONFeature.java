@@ -121,4 +121,11 @@ public final class JSONFeature extends JSONObject {
 		return super.equals(obj);
 	}
 
+	@SuppressWarnings("unchecked")
+	public static void merge(JSONObject result, JSONObject forMerge) {
+		for(String key : (Collection<String>)forMerge.keySet()) {
+			result.put(key, forMerge.get(key));
+		}
+	}
+
 }

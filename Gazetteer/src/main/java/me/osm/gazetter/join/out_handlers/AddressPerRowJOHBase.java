@@ -52,7 +52,7 @@ public abstract class AddressPerRowJOHBase extends SingleWriterJOHBase {
 		}
 
 		if(FeatureTypes.PLACE_BOUNDARY_FTYPE.equals(ftype)) {
-			handleBoundaryAddrRow(object, address, stripe);
+			handlePlaceBoundaryAddrRow(object, address, stripe);
 		}
 		
 		if(FeatureTypes.HIGHWAY_FEATURE_TYPE.equals(ftype)) {
@@ -100,7 +100,7 @@ public abstract class AddressPerRowJOHBase extends SingleWriterJOHBase {
 	/**
 	 * Override to process Highways
 	 * */
-	protected void handleBoundaryAddrRow(JSONObject object,
+	protected void handlePlaceBoundaryAddrRow(JSONObject object,
 			JSONObject address, String stripe) {
 		
 	}
