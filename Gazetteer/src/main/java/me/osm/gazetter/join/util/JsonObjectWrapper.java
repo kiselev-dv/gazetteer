@@ -1,4 +1,4 @@
-package me.osm.gazetter.join;
+package me.osm.gazetter.join.util;
 
 import org.json.JSONObject;
 

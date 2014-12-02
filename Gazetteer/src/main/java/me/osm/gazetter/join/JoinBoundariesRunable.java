@@ -3,16 +3,18 @@ package me.osm.gazetter.join;
 import java.util.List;
 import java.util.Map;
 
+import me.osm.gazetter.join.util.BoundaryCortage;
+
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.index.quadtree.Quadtree;
 
-public class JoinBoundariesTask implements Runnable {
+public class JoinBoundariesRunable implements Runnable {
 
 	private BoundaryCortage up;
 	private Quadtree index;
 	private Map<BoundaryCortage, BoundaryCortage> bhierarchy;
 
-	public JoinBoundariesTask(BoundaryCortage up, Quadtree qt,
+	public JoinBoundariesRunable(BoundaryCortage up, Quadtree qt,
 			Map<BoundaryCortage, BoundaryCortage> bhierarchy) {
 		
 		this.up = up;

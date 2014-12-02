@@ -19,7 +19,7 @@ import java.util.Set;
 import java.util.StringTokenizer;
 
 import me.osm.gazetter.Options;
-import me.osm.gazetter.join.Joiner;
+import me.osm.gazetter.join.JoinExecutor;
 import me.osm.gazetter.striper.FeatureTypes;
 import me.osm.gazetter.striper.GeoJsonWriter;
 import me.osm.gazetter.utils.FileUtils;
@@ -218,7 +218,7 @@ public class CSVOutWriter implements LineHandler {
 			boolean containsBoundaries = types.remove(FeatureTypes.ADMIN_BOUNDARY_FTYPE);
 			
 			if(!types.isEmpty()) {
-				for(File stripeF : folder.listFiles(Joiner.STRIPE_FILE_FN_FILTER)) {
+				for(File stripeF : folder.listFiles(JoinExecutor.STRIPE_FILE_FN_FILTER)) {
 					FileUtils.handleLines(stripeF, this);
 				}
 			}

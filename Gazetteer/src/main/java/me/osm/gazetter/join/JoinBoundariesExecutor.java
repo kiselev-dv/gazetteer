@@ -2,8 +2,6 @@ package me.osm.gazetter.join;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FilenameFilter;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.nio.charset.Charset;
@@ -19,22 +17,19 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import me.osm.gazetter.Options;
 import me.osm.gazetter.addresses.AddressesParser;
+import me.osm.gazetter.join.out_handlers.JoinOutHandler;
+import me.osm.gazetter.join.util.BoundaryCortage;
 import me.osm.gazetter.striper.GeoJsonWriter;
 import me.osm.gazetter.striper.JSONFeature;
 import me.osm.gazetter.utils.FileUtils;
 import me.osm.gazetter.utils.FileUtils.LineHandler;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DurationFormatUtils;
-import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,15 +38,10 @@ import com.google.code.externalsorting.ExternalSort;
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.index.quadtree.Quadtree;
 
-public class Joiner implements JoinFailuresHandler{
+public class JoinBoundariesExecutor {
 	
-	private AddrJointHandler addrPointFormatter = new AddrPointFormatter();
+	private static final Logger log = LoggerFactory.getLogger(JoinBoundariesExecutor.class);
 	
-	private static final Logger log = LoggerFactory.getLogger(Joiner.class.getName());
-	
-	private AtomicInteger stripesCounter;
-	
-	private Set<String> filter;
 	private File binxFile;
 	
 	private Map<BoundaryCortage, BoundaryCortage> bhierarchy = 
@@ -59,30 +49,37 @@ public class Joiner implements JoinFailuresHandler{
 	
 	private AddressesParser addressesParser;
 	
-	public Joiner(Set<String> filter) {
-		this.filter = filter;
-	}
+	private static final AdmLvlComparator ADM_LVL_COMPARATOR = new AdmLvlComparator();
 	
-	public static class StripeFilenameFilter implements FilenameFilter {
+	private static class AdmLvlComparator implements Comparator<String> {
+
+		private Set<Integer> lvls = new HashSet<>();
 		
 		@Override
-		public boolean accept(File dir, String name) {
-			return name.matches("stripe\\d+\\.gjson(\\.gz)?");
+		public int compare(String arg0, String arg1) {
+			int i1 = Integer.parseInt(GeoJsonWriter.getAdmLevel(arg0));
+			int i2 = Integer.parseInt(GeoJsonWriter.getAdmLevel(arg1));
+			
+			lvls.add(i1);
+			lvls.add(i2);
+			
+			return Integer.compare(i1, i2);
 		}
-	
+
+		public Set<Integer> getLvls() {
+			return lvls;
+		}
+		
 	}
 	
-	public static final StripeFilenameFilter STRIPE_FILE_FN_FILTER = new StripeFilenameFilter();
-
-	public void run(String stripesFolder, String coomonPartFile) {
+	public void run(String stripesFolder, List<JSONObject> common, Set<String> filter) {
 
 		long start = (new Date()).getTime();
 
 		try {
-			List<JSONObject> common = getCommonPart(coomonPartFile);
 			binxFile = FileUtils
 					.withGz(new File(stripesFolder + "/binx.gjson"));
-
+			
 			if(binxFile.exists()) {
 				List<String> bndrs = FileUtils.readLines(binxFile);
 				Collections.sort(bndrs, ADM_LVL_COMPARATOR);
@@ -93,20 +90,14 @@ public class Joiner implements JoinFailuresHandler{
 				log.trace("Skip boundaries index sorting");
 			}
 
-			joinStripes(stripesFolder, common);
-
-			log.info(
-					"Join stripes done in {}",
-					DurationFormatUtils.formatDurationHMS(new Date().getTime()
-							- start));
-			start = new Date().getTime();
 
 			if(binxFile.exists()) {
-				joinBoundaries(stripesFolder, common);
+				joinBoundaries(stripesFolder, common, filter);
 			}
 			else {
 				log.trace("Skip boundaries index join");
 			}
+			
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
@@ -116,12 +107,9 @@ public class Joiner implements JoinFailuresHandler{
 				DurationFormatUtils.formatDurationHMS(new Date().getTime()
 						- start));
 	}
-
-	private static final AdmLvlComparator ADM_LVL_COMPARATOR = new AdmLvlComparator();
-
-	private final List<File> fails = Collections.synchronizedList(new ArrayList<File>());;
 	
-	private void joinBoundaries(String stripesFolder, List<JSONObject> common) throws Exception {
+	private void joinBoundaries(String stripesFolder, List<JSONObject> common, 
+			final Set<String> filter) throws Exception {
 		
 		addressesParser = Options.get().getAddressesParser();
 		
@@ -183,9 +171,6 @@ public class Joiner implements JoinFailuresHandler{
 			});
 		}
 		
-		File binxnew = new File(stripesFolder + "/binx-updated.gjson" + (Options.get().isCompress() ? ".gz" : ""));
-		final PrintWriter writer = FileUtils.getPrintwriter(binxnew, false);
-		
 		FileUtils.handleLines(binxFile, new LineHandler() {
 
 			@Override
@@ -216,7 +201,7 @@ public class Joiner implements JoinFailuresHandler{
 				if(filter == null || filter.isEmpty() || check(obj, uppers, filter)) {
 					obj.put("boundaries", addressesParser.boundariesAsArray(obj, uppers));
 					
-					writer.println(obj.toString());
+					handleOut(obj);
 				}
 				
 			}
@@ -253,11 +238,7 @@ public class Joiner implements JoinFailuresHandler{
 			
 		});
 		
-		writer.flush();
-		writer.close();
-       
 		binxFile.delete();
-		binxnew.renameTo(new File(stripesFolder + "/binx.gjson" + (Options.get().isCompress() ? ".gz" : "")));
 	}
 	
 	private void fillHierarchy(List<BoundaryCortage> ups, List<BoundaryCortage> dwns) {
@@ -270,7 +251,7 @@ public class Joiner implements JoinFailuresHandler{
 		ExecutorService es = Executors.newFixedThreadPool(Options.get().getNumberOfThreads());
 		
 		for(BoundaryCortage up : ups) {
-			es.execute(new JoinBoundariesTask(up, qt, bhierarchy));
+			es.execute(new JoinBoundariesRunable(up, qt, bhierarchy));
 		}
 		
 		es.shutdown();
@@ -285,120 +266,10 @@ public class Joiner implements JoinFailuresHandler{
 		}
 		
 	}
-
-	private void joinStripes(String stripesFolder, List<JSONObject> common) {
-		
-		//ExecutorService executorService = Executors.newFixedThreadPool(Options.get().getNumberOfThreads());
-		int threads = Options.get().getNumberOfThreads();
-		
-		LinkedBlockingQueue<Runnable> queue = new LinkedBlockingQueue<Runnable>(threads);
-		ExecutorService executorService = new ThreadPoolExecutor(threads, threads, 0L, 
-				TimeUnit.MILLISECONDS, queue);
-		
-		File folder = new File(stripesFolder);
-		File[] stripesFiles = folder.listFiles(STRIPE_FILE_FN_FILTER);
-		stripesCounter = new AtomicInteger(stripesFiles.length); 
-		fails.clear();
-		for(File stripeF : stripesFiles) {
-			tryToExecute(common, threads, queue, executorService, stripeF);
-		}
-		
-		executorService.shutdown();
-		try {
-			while(!executorService.awaitTermination(5, TimeUnit.SECONDS)) {
-				//still waiting
-			}
-			
-		} catch (InterruptedException e) {
-			throw new RuntimeException("Executor service shutdown failed.", e);
-		}
-		
-		log.info("Rerun join for {} from {} files. In one thread.", fails.size(), stripesFiles.length);
-		
-		ArrayList<File> oneThread = new ArrayList<File>(fails);
-		fails.clear();
-		for(File stripeF : oneThread ) {
-			new JoinSliceTask(addrPointFormatter, stripeF, common, filter, this, this).run();
-		}
-		
-		if(!fails.isEmpty()) {
-			log.error("Failed to join: {}", fails);
-		}
-	}
-
-	private void tryToExecute(List<JSONObject> common, int threads,
-			LinkedBlockingQueue<Runnable> queue,
-			ExecutorService executorService, File stripeF) {
-		
-		long avaibleRAMMeg = MemorySupervizor.getAvaibleRAMMeg();
-		if(queue.size() < threads && avaibleRAMMeg > 500) {
-			log.trace("Send {} to execution queue. Free mem: {}meg", stripeF, avaibleRAMMeg);
-			executorService.execute(new JoinSliceTask(addrPointFormatter, stripeF, common, filter, this, this));
-		}
-		else {
-			try {
-				Thread.sleep(5000);
-			}
-			catch (InterruptedException e) {
-				throw new RuntimeException(e);
-			}
-			tryToExecute(common, threads, queue, executorService, stripeF);
-		}
-	}
-
-	public static List<JSONObject> getCommonPart(String coomonPartFile) {
-		List<JSONObject> common = new ArrayList<>();
-		
-		if(coomonPartFile != null) {
-			
-			File cpf = new File(coomonPartFile);
-			
-			if(cpf.exists()) {
-				try {
-					
-					JSONArray commonArray = new JSONArray(IOUtils.toString(new FileInputStream(cpf)));
-					for(int i = 0; i < commonArray.length(); i++) {
-						common.add(commonArray.getJSONObject(i));
-					}
-					
-				} catch (Exception e) {
-					throw new RuntimeException("Failed to read coomon part.", e);
-				}
-			}
-		}
-		
-		return common;
-	}
-
-
-	public AtomicInteger getStripesCounter() {
-		return stripesCounter;
-	}
 	
-	private static class AdmLvlComparator implements Comparator<String> {
-
-		private Set<Integer> lvls = new HashSet<>();
-		
-		@Override
-		public int compare(String arg0, String arg1) {
-			int i1 = Integer.parseInt(GeoJsonWriter.getAdmLevel(arg0));
-			int i2 = Integer.parseInt(GeoJsonWriter.getAdmLevel(arg1));
-			
-			lvls.add(i1);
-			lvls.add(i2);
-			
-			return Integer.compare(i1, i2);
+	private void handleOut(JSONObject obj) {
+		for(JoinOutHandler handler : Options.get().getJoinOutHandlers()) {
+			handler.handle(obj, "binx.gjson");
 		}
-
-		public Set<Integer> getLvls() {
-			return lvls;
-		}
-		
 	}
-
-	@Override
-	public void failed(File f) {
-		fails.add(f);
-	}
-	
 }

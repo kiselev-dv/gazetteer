@@ -3,7 +3,12 @@ package me.osm.gazetter;
 import groovy.lang.GroovyClassLoader;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import me.osm.gazetter.addresses.AddrLevelsComparator;
@@ -19,6 +24,9 @@ import me.osm.gazetter.addresses.impl.NamesMatcherImpl;
 import me.osm.gazetter.addresses.sorters.CityStreetHNComparator;
 import me.osm.gazetter.addresses.sorters.HNStreetCityComparator;
 import me.osm.gazetter.addresses.sorters.StreetHNCityComparator;
+import me.osm.gazetter.join.out_handlers.GazetteerOutWriter;
+import me.osm.gazetter.join.out_handlers.JoinOutHandler;
+import me.osm.gazetter.join.out_handlers.PrintJoinOutHandler;
 import me.osm.gazetter.out.CSVOutLineHandler;
 
 import org.apache.commons.lang3.StringUtils;
@@ -35,6 +43,12 @@ public class Options {
 		
 	}
 	
+	private static final Map<String, JoinOutHandler> predefinedJoinOutHandlers = new HashMap<String, JoinOutHandler>();
+	static {
+		predefinedJoinOutHandlers.put(PrintJoinOutHandler.NAME, new PrintJoinOutHandler());
+		predefinedJoinOutHandlers.put(GazetteerOutWriter.NAME, new GazetteerOutWriter());
+	}
+	
 	private static volatile Options instance;
 	private final AddrLevelsSorting sorting;
 	private final AddressesParser addressesParser;
@@ -43,7 +57,7 @@ public class Options {
 	private CSVOutLineHandler csvOutLineHandler = null;
 	private int nThreads = Runtime.getRuntime().availableProcessors();
 	private boolean compress = true;
-	
+	private List<JoinOutHandler> joinHandlers = new ArrayList<>();
 
 	private Options() {
 		sorting = AddrLevelsSorting.HN_STREET_CITY;
@@ -218,5 +232,56 @@ public class Options {
 	public boolean isCompress() {
 		return compress;
 	}
+
+	public void setJoinHandlers(List<String> handlers) {
+		try {
+			if (handlers != null && !handlers.isEmpty()) {
+				
+				List<List<String>> groups = new ArrayList<List<String>>();
+				
+				for(String sh : handlers) {
+					if(sh.endsWith(".groovy") || predefinedJoinOutHandlers.keySet().contains(sh)) {
+						groups.add(new ArrayList<String>());
+					}
+					
+					groups.get(groups.size() - 1).add(sh);
+				}
+				
+				for(List<String> handlerDef : groups) {
+					String handlerPath = handlerDef.remove(0);
+					if(handlerPath.endsWith(".groovy")) {
+						GroovyClassLoader gcl = new GroovyClassLoader(Options.class.getClassLoader());
+						try
+						{
+							Class<?> clazz = gcl.parseClass(new File(handlerPath));
+							Object aScript = clazz.newInstance();
+							
+							if (aScript instanceof JoinOutHandler) {
+								JoinOutHandler joinOutHandler = ((JoinOutHandler)aScript).newInstance(handlerDef);
+								joinHandlers.add(joinOutHandler);
+							}
+						}
+						finally {
+							gcl.close();
+						}
+					}
+					else if (predefinedJoinOutHandlers.containsKey(handlerPath)){
+						joinHandlers.add(predefinedJoinOutHandlers.get(handlerPath).newInstance(handlerDef));
+					}
+				}
+			}
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+		
+		if(joinHandlers.isEmpty()) {
+			joinHandlers.add(predefinedJoinOutHandlers.get(
+					GazetteerOutWriter.NAME).newInstance(new ArrayList<String>()));
+		}
+	}
 	
+	public Collection<JoinOutHandler> getJoinOutHandlers() {
+		return joinHandlers;
+	}
 }
