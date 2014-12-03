@@ -27,6 +27,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -36,18 +37,17 @@ import me.osm.gazetter.out.AddrRowValueExctractorImpl;
 import me.osm.gazetter.striper.FeatureTypes;
 import me.osm.gazetter.striper.GeoJsonWriter;
 import me.osm.gazetter.striper.JSONFeature;
+import me.osm.gazetter.utils.JSONHash;
 import me.osm.gazetter.utils.LocatePoint;
+import me.osm.osmdoc.localization.L10n;
 import me.osm.osmdoc.model.Feature;
 import me.osm.osmdoc.read.DOCFileReader;
 import me.osm.osmdoc.read.DOCFolderReader;
 import me.osm.osmdoc.read.DOCReader;
 import me.osm.osmdoc.read.OSMDocFacade;
 import me.osm.osmdoc.read.tagvalueparsers.TagsStatisticCollector;
-import net.sourceforge.argparse4j.ArgumentParsers;
-import net.sourceforge.argparse4j.inf.ArgumentParser;
-import net.sourceforge.argparse4j.inf.ArgumentParserException;
-import net.sourceforge.argparse4j.inf.Namespace;
 
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -59,6 +59,18 @@ import com.vividsolutions.jts.geom.LineString;
 
 public class GazetteerOutWriter extends AddressPerRowJOHBase  {
 	
+	private static final String TRANSLATE_POI_TYPES_OPTION = "translate_poi_types";
+
+	private static final List<String> OPTIONS = Arrays.asList(
+			"out", "local_admin", "locality", 
+			"neighborhood", "poi_catalog", 
+			TRANSLATE_POI_TYPES_OPTION, 
+			"fill_addresses", "export_all_names", 
+			"full_geometry",
+			"usage");
+
+	//private static final String FILL_NAMES_TRANSLATIONS = "export_all_names";
+
 	private static final TagsStatisticCollector tagStatistics = new TagsStatisticCollector();
 
 	public static final String NAME = "out-gazetteer";
@@ -70,31 +82,38 @@ public class GazetteerOutWriter extends AddressPerRowJOHBase  {
 	private List<String> neighborhoodKeys;
 
 	private boolean exportAllNames = false;
+	private boolean translatePOITypes = false;
+	private boolean fullGeometry = true;
 
 	private DOCReader reader;
+
+	private Set<String> fillAddrOpts = null;
 	
 	@Override
 	public JoinOutHandler newInstance(List<String> options) {
 		
-		HandlerOptions paresdOpts = HandlerOptions.parse(options, 
-				Arrays.asList("out", "export_all_names", "local_admin", "locality", "neighborhood", "poi_catalog"));
+		HandlerOptions paresdOpts = HandlerOptions.parse(options, OPTIONS);
 		
-		this.exportAllNames = "true".equals(paresdOpts.getString("export_all_names", "true"));
-		
-		localAdminKeys = list(paresdOpts.getList("local_admin"));
-		if(localAdminKeys == null || localAdminKeys.isEmpty()) {
-			localAdminKeys = Arrays.asList("boundary:6");
+		if(paresdOpts.has("usage")) {
+			printUsage();
+			System.exit(0);
 		}
 		
-		localityKeys = list(paresdOpts.getList("locality"));
-		if(localityKeys == null || localityKeys.isEmpty()) {
-			localityKeys = Arrays.asList("place:city", "place:town", "place:village", "place:hamlet", "boundary:8");
-		}
+		translatePOITypes = paresdOpts.getFlag(TRANSLATE_POI_TYPES_OPTION, true, false);
 		
-		neighborhoodKeys = list(paresdOpts.getList("neighborhood"));
-		if(neighborhoodKeys == null || neighborhoodKeys.isEmpty()) {
-			neighborhoodKeys = Arrays.asList("place:town", "place:village", "place:hamlet", "place:neighbour", "boundary:9", "boundary:10");
-		}
+		fillAddrOpts = new HashSet<String>(paresdOpts.getList("fill_addresses", 
+				Arrays.asList("ref", "levels", "nearest", "obj", "trans", "alt_names")));
+		
+		exportAllNames = paresdOpts.getFlag("export_all_names", true, false);
+		fullGeometry = paresdOpts.getFlag("full_geometry", true, true);
+		
+		localAdminKeys = paresdOpts.getList("local_admin", Arrays.asList("boundary:6"));
+		
+		localityKeys = paresdOpts.getList("locality", 
+				Arrays.asList("place:city", "place:town", "place:village", "place:hamlet", "boundary:8"));
+		
+		neighborhoodKeys = paresdOpts.getList("locality", 
+				Arrays.asList("place:town", "place:village", "place:hamlet", "place:neighbour", "boundary:9", "boundary:10"));
 		
 		String poiCatalogPath = paresdOpts.getString("poi_catalog", "jar");
 		
@@ -117,6 +136,78 @@ public class GazetteerOutWriter extends AddressPerRowJOHBase  {
 		return this;
 	}
 	
+	protected void printUsage() {
+		StringBuilder usage = new StringBuilder();
+		usage.append("Usage: join --handlers ").append(NAME).append("[out_file]");
+		
+		int i = 0;
+		for(String opt : OPTIONS) {
+			usage.append(" ").append("[").append(opt).append("[=<val>]]");
+			if(i%3 == 0 && i > 0) {
+				usage.append("\n\t");
+			}
+			i++;
+		}
+		
+		usage.append("\n");
+		usage.append("\n");
+		
+		usage.append("\tout=<file | - > - File where to store results. Use - for stdout. ")
+			.append("Files with .gz or .bz2 extensions will be compressed.");
+		usage.append("\n");
+		usage.append("\n");
+		
+		usage.append("\tlocal_admin=boundary:1 boundary:2 place:town - Boundary levels, which will be matched as local_admin addr level.");
+		usage.append("\n");
+		usage.append("\n");
+		
+		usage.append("\tlocality=... Same as local_admin. Boundary levels, which will be matched as locality addr level.");
+		usage.append("\n");
+		usage.append("\n");
+
+		usage.append("\tneighborhood=... Same as local_admin. Boundary levels, which will be matched as neighborhood addr level.");
+		usage.append("\n");
+		usage.append("\n");
+
+		usage.append("\tpoi_catalog=<jar | path> Path to file .xml or folder with osm-doc poi classificator.");
+		usage.append("\n");
+		usage.append("\n");
+
+		usage.append("\ttranslate_poi_types [=true|false] Export or not poi types translations. False if missed.");
+		usage.append("\n");
+		usage.append("\n");
+
+		usage.append("\texport_all_names [=true|false] Export or not all object tags with 'name' in key name. False if missed.");
+		usage.append("\n");
+		usage.append("\n");
+
+		usage.append("\tfull_geometry [=true|false] Export objects' full geometry. True if missed.");
+		usage.append("\n");
+		usage.append("\n");
+
+		usage.append("\tfill_addresses=[ref] [levels] [nearest] [obj] [trans] [alt_names] Which parts of addresses to fill.");
+		usage.append("\n");
+		usage.append("\t\tref - add ref object with ids of mathced objects for each addr level as ref.level");
+		usage.append("\n");
+		usage.append("\t\tlevels - Match addresses to levels or not.");
+		usage.append("\n");
+		usage.append("\t\tnearest - Export nearest and nearby places neighbours and streets.");
+		usage.append("\n");
+		usage.append("\t\tobj - Export original address row object.");
+		usage.append("\n");
+		usage.append("\t\ttrans - Translate or not names for addr parts.");
+		usage.append("\n");
+		usage.append("\t\talt_names - Export addr parts alternative names.");
+		usage.append("\n");
+
+		usage.append("\n");
+		usage.append("\tusage Print this message and exit.");
+		usage.append("\n");
+		
+		
+		System.out.println(usage.toString());
+	}
+
 	@Override
 	protected void handlePoiPointAddrRow(JSONObject object, JSONObject address,
 			String stripe) {
@@ -186,6 +277,9 @@ public class GazetteerOutWriter extends AddressPerRowJOHBase  {
 		flush();
 	}
 	
+	/**
+	 * Fill fields, common for all kind of objects
+	 * */
 	protected void fillObject(JSONFeature result, JSONObject addrRow, JSONObject jsonObject) {
 		
 		String ftype = jsonObject.getString("ftype");
@@ -196,28 +290,40 @@ public class GazetteerOutWriter extends AddressPerRowJOHBase  {
 		result.put(GAZETTEER_SCHEME_TYPE, ftype);
 		result.put(GAZETTEER_SCHEME_TIMESTAMP, jsonObject.getString("timestamp"));
 		
-		putAddress(result, addrRow);
-		Set<String> langs = putAltAddresses(result, addrRow);
+		if(fillAddrOpts.contains("obj")) {
+			result.put(GAZETTEER_SCHEME_ADDRESS, addrRow);
+		}
+		
+		Set<String> langs = getLangs(addrRow);
 		
 		Map<String, JSONObject> mapLevels = mapLevels(addrRow);
 
 		putName(result, ftype, mapLevels, jsonObject, addrRow);
+		
 		putAltNames(result, ftype, mapLevels, jsonObject, addrRow);
 		putNameTranslations(result, ftype, mapLevels, jsonObject, addrRow, langs);
+		
 		if(exportAllNames) {
 			result.put("all_names", new JSONObject(AddressesUtils.filterNameTags(jsonObject)));
 		}
 
-		putNearbyStreets(result, ftype, mapLevels, jsonObject, langs);
-		putNearbyPlaces(result, ftype, mapLevels, jsonObject, langs);
+		if(fillAddrOpts.contains("nearest")) {
+			putNearbyStreets(result, ftype, mapLevels, jsonObject, langs);
+			putNearbyPlaces(result, ftype, mapLevels, jsonObject, langs);
+		}
 		
-		JSONObject refs = new JSONObject();
-		
-		String minLVL = putAddrParts(result, refs, addrRow, mapLevels, langs);
-		result.put(GAZETTEER_SCHEME_REFS, refs);
-		
-		if(minLVL != null) {
-			result.put(GAZETTEER_SCHEME_ADDR_LEVEL, minLVL);
+		if(fillAddrOpts.contains("levels") || fillAddrOpts.contains("ref")) {
+			JSONObject refs = new JSONObject();
+			
+			String minLVL = putAddrParts(result, refs, addrRow, mapLevels, langs);
+			
+			if(fillAddrOpts.contains("ref")) {
+				result.put(GAZETTEER_SCHEME_REFS, refs);
+			}
+			
+			if(minLVL != null) {
+				result.put(GAZETTEER_SCHEME_ADDR_LEVEL, minLVL);
+			}
 		}
 		
 		JSONObject properties = jsonObject.optJSONObject("properties");
@@ -230,20 +336,24 @@ public class GazetteerOutWriter extends AddressPerRowJOHBase  {
 			result.put(GAZETTEER_SCHEME_CENTER_POINT, centroid);
 		}
 		
-		JSONObject geom = getFullGeometry(jsonObject, ftype); 
-		if(geom != null) {
-			Geometry g = GeoJsonWriter.parseGeometry(geom);
-			if(g != null && g.isValid()) {
-				
-				if(geom != null) {
-					String esGeomType = geom.getString(GAZETTEER_SCHEME_TYPE).toLowerCase();
-					geom.put(GAZETTEER_SCHEME_TYPE, esGeomType);
+		if(fullGeometry) {
+			JSONObject geom = getFullGeometry(jsonObject, ftype); 
+			if(geom != null) {
+				Geometry g = GeoJsonWriter.parseGeometry(geom);
+				if(g != null && g.isValid()) {
+					
+					if(geom != null) {
+						String esGeomType = geom.getString(GAZETTEER_SCHEME_TYPE).toLowerCase();
+						geom.put(GAZETTEER_SCHEME_TYPE, esGeomType);
+					}
+					
+					result.put(GAZETTEER_SCHEME_FULL_GEOMETRY, geom);
 				}
-				
-				result.put(GAZETTEER_SCHEME_FULL_GEOMETRY, geom);
 			}
 		}
 		
+		String md5Hex = DigestUtils.md5Hex(JSONHash.asCanonicalString(result, new HashSet<String>(Arrays.asList("timestamp"))));
+		result.put("md5", md5Hex);
 	}
 
 	protected void fillPOI(JSONFeature result, JSONObject jsonObject,
@@ -266,9 +376,40 @@ public class GazetteerOutWriter extends AddressPerRowJOHBase  {
 			return;
 		}
 	
-		result.put(GAZETTEER_SCHEME_POI_TYPE_NAMES, 
-				new JSONArray(osmDocFacade.listPoiClassNames(poiClassess)));
+		if(translatePOITypes) {
+			
+			JSONObject trans = new JSONObject();
+			
+			for(Feature f : poiClassess) {
+				String className = f.getName();
+				JSONObject classNameT = new JSONObject();
+				String title = f.getTitle();
+				for(String sl : L10n.supported) {
+					classNameT.put(sl, L10n.tr(title, Locale.forLanguageTag(sl)));
+				}
+				trans.put(className, classNameT);
+			}
+			
+			result.put(GAZETTEER_SCHEME_POI_TYPE_NAMES, trans);
+		}
 
+		
+		
+		fillPoiAddrRefs(result, jsonObject, poiAddrMatch);
+		
+		
+		JSONObject moreTags = osmDocFacade.parseMoreTags(poiClassess, tags, tagStatistics);
+		result.put("more_tags", moreTags);
+
+		//TODO Keywords
+		LinkedHashSet<String> keywords = new LinkedHashSet<String>();
+		osmDocFacade.collectKeywords(poiClassess, moreTags, keywords);
+		result.put(GAZETTEER_SCHEME_POI_KEYWORDS, new JSONArray(keywords));
+	}
+
+	protected void fillPoiAddrRefs(JSONFeature result, JSONObject jsonObject,
+			String poiAddrMatch) {
+		
 		JSONArray poiAddrRefs = new JSONArray();
 		
 		if(poiAddrMatch != null) {
@@ -287,17 +428,9 @@ public class GazetteerOutWriter extends AddressPerRowJOHBase  {
 					}
 				}
 			}
-		}
-		
-		result.getJSONObject("refs").put("poi_addresses", poiAddrRefs);
-		
-		JSONObject moreTags = osmDocFacade.parseMoreTags(poiClassess, tags, tagStatistics);
-		result.put("more_tags", moreTags);
 
-		//TODO Keywords
-		LinkedHashSet<String> keywords = new LinkedHashSet<String>();
-		osmDocFacade.collectKeywords(poiClassess, moreTags, keywords);
-		result.put(GAZETTEER_SCHEME_POI_KEYWORDS, new JSONArray(keywords));
+			result.getJSONObject("refs").put("poi_addresses", poiAddrRefs);
+		}
 	}
 
 	protected JSONObject getCentroid(JSONObject jsonObject, String ftype) {
@@ -394,7 +527,7 @@ public class GazetteerOutWriter extends AddressPerRowJOHBase  {
 		}
 		
 		JSONObject hn = mapLevels.get("hn");
-		if(hn != null) {
+		if(hn != null && fillAddrOpts.contains("levels")) {
 			result.put("housenumber", hn.optString("name"));
 		}
 		
@@ -439,7 +572,7 @@ public class GazetteerOutWriter extends AddressPerRowJOHBase  {
 
 	protected void putAddrLevel(JSONObject result, JSONObject refs,
 			Set<String> langs, JSONObject admin0, String key) {
-		if(admin0 != null) {
+		if(admin0 != null && fillAddrOpts.contains("levels")) {
 			
 			String name = admin0.optString("name");
 			if(StringUtils.isNotBlank(name)) {
@@ -451,12 +584,12 @@ public class GazetteerOutWriter extends AddressPerRowJOHBase  {
 				names.remove("name");
 				
 				filterNamesByLangs(names, langs);
-				if(!names.isEmpty()) {
+				if(!names.isEmpty() && fillAddrOpts.contains("alt_names")) {
 					result.put(key + "_alternate_names", new JSONArray(names.values()));
 				}
 				
 				JSONObject translations = AddressesUtils.getNamesTranslations(namesHash, langs);
-				if(translations != null && translations.length() > 0) {
+				if(translations != null && translations.length() > 0 && fillAddrOpts.contains("trans")) {
 					result.put(key + "_name_trans", translations);
 				}
 			}
@@ -487,7 +620,7 @@ public class GazetteerOutWriter extends AddressPerRowJOHBase  {
 		}
 	}
 
-	protected Set<String> putAltAddresses(JSONObject result, JSONObject addrRow) {
+	protected Set<String> getLangs(JSONObject addrRow) {
 		
 		Set<String> langsSet = new HashSet<String>();
 		
@@ -496,38 +629,16 @@ public class GazetteerOutWriter extends AddressPerRowJOHBase  {
 			
 			if(langs != null && langs.length() > 0) {
 				
-				List<String> altAddresses = new ArrayList<String>();
-				Map<String, String> altAddressesHash = new HashMap<String, String>();
-				
 				for(int i = 0; i < langs.length(); i++) {
 					String lang = langs.optString(i);
 					if(StringUtils.isNotBlank(lang)) {
 						langsSet.add(lang);
-						String altText = addrRow.optString("text:" + lang);
-						if(StringUtils.isNotBlank(altText)) {
-							altAddresses.add(altText);
-							altAddressesHash.put(lang, altText);
-						}
 					}
-				}
-				
-				if(!altAddresses.isEmpty()) {
-					result.put("alt_addresses", new JSONArray(altAddresses));
-					result.put("alt_addresses_trans", new JSONObject(altAddressesHash));
 				}
 			}
 		}
 		
 		return langsSet;
-	}
-
-	protected void putAddress(JSONObject result, JSONObject addrRow) {
-		if(addrRow != null) {
-			String addrText = addrRow.optString("text", null);
-			if(addrText != null) {
-				result.put(GAZETTEER_SCHEME_ADDRESS, addrText);
-			}
-		}
 	}
 
 	protected void putNearbyPlaces(JSONObject result, String ftype,
@@ -617,12 +728,12 @@ public class GazetteerOutWriter extends AddressPerRowJOHBase  {
 			result.put("name", nameTags.get("name"));
 			
 			nameTags.remove("name");
-			if(!nameTags.isEmpty()) {
+			if(!nameTags.isEmpty() && fillAddrOpts.contains("alt_names")) {
 				result.put("alt_names", new JSONArray(nameTags.values()));
 			}
 			
 			JSONObject translations = AddressesUtils.getNamesTranslations(properties, langs);
-			if(translations != null && translations.length() > 0) {
+			if(translations != null && translations.length() > 0 && fillAddrOpts.contains("trans")) {
 				result.put("name_trans", translations);
 			}
 			

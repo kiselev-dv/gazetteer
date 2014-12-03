@@ -24,12 +24,30 @@ public class HandlerOptions {
 		return list.get(0);
 	}
 	
-	public List<String> getList(String key) {
+	public List<String> getList(String key, List<String> def) {
+		if(vals.get(key) == null) {
+			return def;
+		}
 		return vals.get(key);
 	}
 	
 	public boolean has (String key) {
 		return vals.containsKey(key);
+	}
+
+	/**
+	 * @returns missed if there is no <b>key</b> parameter
+	 * @returns def if <b>key</b> appears without any particular value
+	 * */
+	public boolean getFlag (String key, Boolean def, Boolean missed) {
+		if(vals.containsKey(key)) {
+			if(vals.get(key).size() == 0) {
+				return def;
+			}
+			return vals.get(key).iterator().next().equals("true");
+		}
+		
+		return missed;
 	}
 
 	public static HandlerOptions parse(List<String> options, List<String> argNames) {

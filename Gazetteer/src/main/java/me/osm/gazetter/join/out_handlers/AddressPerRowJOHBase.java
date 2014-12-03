@@ -16,20 +16,24 @@ import org.json.JSONObject;
  * */
 public abstract class AddressPerRowJOHBase extends SingleWriterJOHBase {
 
+	protected volatile boolean dropEmptyAddresses = true;
+	
 	@Override
 	public void handle(JSONObject object, String stripe) {
 		List<JSONObject> addresses = listAddresses(object, stripe);
 		if(addresses != null && !addresses.isEmpty()) {
 			for(JSONObject address : addresses) {
 				if(address.has("boundariesHash") && address.getInt("boundariesHash") == 0) {
-					handle(object, null, stripe);
+					if (!dropEmptyAddresses) {
+						handle(object, null, stripe);
+					}
 				}
 				else {
 					handle(object, address, stripe);
 				}
 			}
 		}
-		else {
+		else if (!dropEmptyAddresses) {
 			handle(object, null, stripe);
 		}
 	}

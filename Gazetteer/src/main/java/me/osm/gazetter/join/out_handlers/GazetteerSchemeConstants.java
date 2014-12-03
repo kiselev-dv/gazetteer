@@ -37,6 +37,6 @@ public class GazetteerSchemeConstants {
 
 	public static final String GAZETTEER_SCHEME_ADDRESS = "address";
 	public static final String GAZETTEER_SCHEME_POI_ADDR_MATCH = "poi_addr_match";
-	public static final String GAZETTEER_SCHEME_POI_TYPE_NAMES = "poi_type_translated";
+	public static final String GAZETTEER_SCHEME_POI_TYPE_NAMES = "poi_class_translated";
 	
 }
