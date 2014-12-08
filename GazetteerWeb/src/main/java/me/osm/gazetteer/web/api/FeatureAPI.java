@@ -9,6 +9,7 @@ import javax.print.attribute.HashAttributeSet;
 
 import me.osm.gazetteer.web.ESNodeHodel;
 import me.osm.gazetteer.web.imp.Importer;
+import me.osm.gazetteer.web.imp.IndexHolder;
 
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
@@ -124,7 +125,7 @@ public class FeatureAPI {
 						FilterBuilders.notFilter(FilterBuilders.termFilter("feature_id", curentFeatureId))));
 	
 		SearchRequestBuilder querry = client.prepareSearch("gazetteer")
-				.setTypes(Importer.TYPE_NAME)
+				.setTypes(IndexHolder.LOCATION)
 				.addSort(SortBuilders.geoDistanceSort("center_point").point(point.getDouble("lat"), point.getDouble("lon")))
 				.setSize(20)
 				.setQuery(q);
@@ -155,7 +156,7 @@ public class FeatureAPI {
 			JSONArray sameBuilding, QueryBuilder q) {
 		
 		SearchRequestBuilder querry = client.prepareSearch("gazetteer")
-				.setTypes(Importer.TYPE_NAME)
+				.setTypes(IndexHolder.LOCATION)
 				.setQuery(q);
 		
 		SearchResponse searchResponse = querry

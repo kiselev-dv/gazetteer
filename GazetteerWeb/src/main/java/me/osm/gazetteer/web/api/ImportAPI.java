@@ -4,13 +4,18 @@ import me.osm.gazetteer.web.ESNodeHodel;
 import me.osm.gazetteer.web.imp.Importer;
 
 import org.apache.commons.lang3.StringUtils;
+import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequestBuilder;
+import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsRequest;
+import org.elasticsearch.client.IndicesAdminClient;
 import org.json.JSONObject;
 import org.restexpress.Request;
 import org.restexpress.Response;
 
 public class ImportAPI {
 	
+	private static final IndicesAdminClient INDICES_CLIENT = ESNodeHodel.getClient().admin().indices();
+
 	public JSONObject read(Request request, Response response){
 		
 		JSONObject result = new JSONObject();
@@ -20,7 +25,9 @@ public class ImportAPI {
 		boolean buildingsGeometry = !"false".equals(request.getHeader("buildings_geometry"));
 		
 		if(drop) {
-			new DeleteIndexRequestBuilder(ESNodeHodel.getClient().admin().indices(), "gazetteer").get();
+			if(INDICES_CLIENT.exists(new IndicesExistsRequest("gazetteer")).actionGet().isExists()) {
+				INDICES_CLIENT.delete(new DeleteIndexRequest("gazetteer")).actionGet();
+			}
 			
 			result.put("drop", true);
 		}

@@ -1,0 +1,25 @@
+{
+	"_all": {
+		"enabled": false
+    },
+    "_source": {
+    	"compressed": true
+    },
+    "_id": {
+    	"path": "name"
+    },
+    "properties": {
+        "name": {
+            "type": "string",
+            "index": "not_analyzed"
+        },
+        "title": {
+        	"type": "string",
+        	"index": "analyzed"
+        }
+        "keywords": {
+        	"type": "string",
+        	"index": "analyzed"
+        }
+    } 
+}

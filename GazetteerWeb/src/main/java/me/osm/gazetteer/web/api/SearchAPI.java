@@ -22,12 +22,13 @@ import org.elasticsearch.common.lucene.search.function.CombineFunction;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.DisMaxQueryBuilder;
 import org.elasticsearch.index.query.FilterBuilders;
+import org.elasticsearch.index.query.MatchQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.functionscore.ScoreFunctionBuilders;
 import org.elasticsearch.search.SearchHit;
-import org.elasticsearch.search.sort.SortBuilder;
 import org.elasticsearch.search.sort.SortBuilders;
+import org.elasticsearch.search.sort.SortOrder;
 import org.json.JSONObject;
 import org.restexpress.Request;
 import org.restexpress.Response;
@@ -84,8 +85,6 @@ public class SearchAPI {
 	 * */
 	public static final String LON_HEADER = "lon";
 	
-	
-	
 	private static volatile double queryNorm = 1;
 	private static volatile boolean distanceScore = false;
 	
@@ -96,7 +95,6 @@ public class SearchAPI {
 		String querry = StringUtils.stripToNull(request.getHeader(Q_HEADER));
 		
 		BoolQueryBuilder q = null;
-		float minScore = 0.0f;
 			
 		Set<String> types = getSet(request, TYPE_HEADER);
 		String hname = request.getHeader("hierarchy");
@@ -109,8 +107,6 @@ public class SearchAPI {
 		
 		if(querry != null) {
 			q = getSearchQuerry(querry);
-			q.boost(100);
-			minScore = 0.01f;
 		}
 		else {
 			q = QueryBuilders.boolQuery();
@@ -128,13 +124,11 @@ public class SearchAPI {
 
 		if(request.getHeader(LAT_HEADER) != null && request.getHeader(LON_HEADER) != null && distanceScore) {
 			qb = addDistanceScore(request, qb);
-			minScore += 1;
 		}
 		
 		List<String> bbox = getList(request, BBOX_HEADER);
 		if(!bbox.isEmpty() && bbox.size() == 4) {
 			qb = addBBOXRestriction(qb, bbox);
-			minScore = 0.0f;
 		}
 		
 		Client client = ESNodeHodel.getClient();
@@ -144,7 +138,6 @@ public class SearchAPI {
 				.setExplain(explain);
 		
 		searchRequest.setFetchSource(true);
-		//searchRequest.setMinScore(minScore);
 		
 		APIUtils.applyPaging(request, searchRequest);
 		
@@ -182,7 +175,7 @@ public class SearchAPI {
 	private static QueryBuilder addDistanceScore(QueryBuilder q, Double lat, Double lon) {
 		QueryBuilder qb = QueryBuilders.functionScoreQuery(q, 
 				ScoreFunctionBuilders.linearDecayFunction("center_point", 
-						new GeoPoint(lat, lon), "200km")).boostMode(CombineFunction.SUM)
+						new GeoPoint(lat, lon), "200km")).boostMode(CombineFunction.AVG)
 							.scoreMode("max");
 		return qb;
 	}
@@ -222,63 +215,32 @@ public class SearchAPI {
 
 	public static BoolQueryBuilder getSearchQuerry(String querry) {
 		
-		return QueryBuilders.boolQuery()
-			.should(dismax(
-					cscore("admin0_name", querry, 10.1f), 
-					cscore("admin0_alternate_names", querry, 9.1f)))
-			.should(dismax(
-					cscore("admin1_name", querry, 10.2f), 
-					cscore("admin1_alternate_names", querry, 9.2f)))
-			.should(dismax(
-					cscore("admin2_name", querry, 10.3f), 
-					cscore("admin2_alternate_names", querry, 9.3f)))
-			.should(dismax(
-					cscore("local_admin_name", querry, 10.4f), 
-					cscore("local_admin_alternate_names", querry, 9.4f)))
-			.should(dismax(
-					cscore("locality_name", querry, 10.5f), 
-					cscore("locality_alternate_names", querry, 9.5f),
-					cscore("nearest_place.name", querry, 8.5f)))
-			.should(dismax(
-					cscore("neighborhood_name", querry, 10.6f), 
-					cscore("neighborhood_alternate_names", querry, 9.6f),
-					cscore("nearest_neighbour.name", querry, 8.6f)))
-			.should(dismax(
-					cscore("street_name", querry, 10.7f), 
-					cscore("street_alternate_names", querry, 9.7f), 
-					cscore("nearby_streets.name", querry, 7.7f)))
-			.should(cscore("housenumber", querry, 10.8f))
-			.should(QueryBuilders.constantScoreQuery(QueryBuilders.termQuery("type", "adrpnt")).boost(5))
-			//Boost pois by name and keywords
-			.should(
-				QueryBuilders.filteredQuery(QueryBuilders.boolQuery()
-					.should(cscore("name", querry, 10.8f))
-					.should(cscore("keywords", querry, 10.8f)) 
-					.should(cscore("poi_type_translated", querry, 10.8f)), 
-				FilterBuilders.termFilter("type", "poipnt"))
-			)
-			.should(
-				QueryBuilders.filteredQuery(QueryBuilders.boolQuery()
-					.should(cscore("name", querry, 10.8f))
-					.should(cscore("alt_names", querry, 10.8f)), 
-				FilterBuilders.termsFilter("type", "hghway", "admbnd"))
-			);	
+		querry = StringUtils.remove(querry, ',');
+		String[] terms = StringUtils.split(querry, ", ");
+		
+		MatchQueryBuilder q = QueryBuilders.matchQuery("search", querry);
+		q.minimumShouldMatch("3<-1");
+		if(terms.length == 1) {
+			q.minimumShouldMatch("1");
+		}
+		
+		return QueryBuilders.boolQuery().must(q);
 		
 	}
 	
-	public static void updateQueryNorm () {
-		BoolQueryBuilder q = getSearchQuerry("1");
-		Client client = ESNodeHodel.getClient();
-		SearchRequestBuilder searchRequest = client.prepareSearch("gazetteer")
-				.setQuery(addDistanceScore(q, new Double(0.0), new Double(0.0)))
-				.setSize(1)
-				.setExplain(true);
-		
-		SearchResponse answer = searchRequest.execute().actionGet();
-		SearchHit hit = answer.getHits().iterator().next();
-		Explanation explanation = hit.getExplanation();
-		queryNorm = getQueryNorm(explanation);
-	}
+//	public static void updateQueryNorm () {
+//		QueryBuilder q = getSearchQuerry("1");
+//		Client client = ESNodeHodel.getClient();
+//		SearchRequestBuilder searchRequest = client.prepareSearch("gazetteer")
+//				.setQuery(addDistanceScore(q, new Double(0.0), new Double(0.0)))
+//				.setSize(1)
+//				.setExplain(true);
+//		
+//		SearchResponse answer = searchRequest.execute().actionGet();
+//		SearchHit hit = answer.getHits().iterator().next();
+//		Explanation explanation = hit.getExplanation();
+//		queryNorm = getQueryNorm(explanation);
+//	}
 	
 	public static double getQueryNorm() {
 		return queryNorm;
