@@ -88,7 +88,6 @@ public class Main {
 
 		defineRoutes(config, server);
 		
-		//SearchAPI.updateQueryNorm();
 		SearchAPI.setDistanceScoring(config.doDistanceScore());
 		
 		RoutesMetadataPlugin routesMetadataPlugin = new RoutesMetadataPlugin();
