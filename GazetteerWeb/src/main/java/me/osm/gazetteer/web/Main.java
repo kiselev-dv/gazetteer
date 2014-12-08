@@ -108,14 +108,14 @@ public class Main {
 		
 		OSMDocSinglton.initialize(config.getPoiCatalogPath());
 		
-		server.uri(root + "/feature/_search",
+		server.uri(root + "/location/_search",
 				new SearchAPI())
 				.method(HttpMethod.GET)
 				.name(Constants.FEATURE_URI)
 				.flag(Flags.Auth.PUBLIC_ROUTE)
 				.parameter(Parameters.Cache.MAX_AGE, 3600);
 
-		server.uri(root + "/feature/{id}/{_related}",
+		server.uri(root + "/location/{id}/{_related}",
 				new FeatureAPI())
 					.alias(root + "/feature/{id}")
 					.method(HttpMethod.GET)
@@ -123,14 +123,14 @@ public class Main {
 					.flag(Flags.Auth.PUBLIC_ROUTE)
 					.parameter(Parameters.Cache.MAX_AGE, 3600);
 
-		server.uri(root + "/feature/_suggest",
+		server.uri(root + "/location/_suggest",
 				new SuggestAPI())
 				.method(HttpMethod.GET)
 				.name(Constants.FEATURE_URI)
 				.flag(Flags.Auth.PUBLIC_ROUTE)
 				.parameter(Parameters.Cache.MAX_AGE, 3600);
 		
-		server.uri(root + "/feature/latlon/{lat}/{lon}/{_related}",
+		server.uri(root + "/location/latlon/{lat}/{lon}/{_related}",
 				new InverseGeocodeAPI())
 				.alias(root + "/feature/latlon/{lat}/{lon}")
 				.alias(root + "/_inverse")
@@ -138,6 +138,11 @@ public class Main {
 				.name(Constants.FEATURE_URI)
 				.flag(Flags.Auth.PUBLIC_ROUTE)
 				.parameter(Parameters.Cache.MAX_AGE, 3600);
+
+		server.uri(root + "/location/_import",
+				new ImportAPI())
+				.method(HttpMethod.GET)
+				.flag(Flags.Cache.DONT_CACHE);
 
 		server.uri(root + "/osmdoc/hierarchy/{lang}/{id}",
 				new OSMDocAPI())
@@ -153,10 +158,6 @@ public class Main {
 				.parameter("handler", "poi-class")
 				.parameter(Parameters.Cache.MAX_AGE, 3600);
 
-		server.uri(root + "/_import",
-				new ImportAPI())
-				.method(HttpMethod.GET)
-				.flag(Flags.Cache.DONT_CACHE);
 
 		server.uri(root + "/snapshot/.*",
 				new SnapshotsAPI(config))
