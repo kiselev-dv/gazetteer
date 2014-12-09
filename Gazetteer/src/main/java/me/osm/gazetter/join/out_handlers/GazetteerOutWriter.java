@@ -19,8 +19,12 @@ import static me.osm.gazetter.join.out_handlers.GazetteerSchemeConstants.GAZETTE
 import static me.osm.gazetter.join.out_handlers.GazetteerSchemeConstants.GAZETTEER_SCHEME_TIMESTAMP;
 import static me.osm.gazetter.join.out_handlers.GazetteerSchemeConstants.GAZETTEER_SCHEME_TYPE;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -33,18 +37,22 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import me.osm.gazetter.addresses.AddressesUtils;
+import me.osm.gazetter.join.util.ExportTagsStatisticCollector;
 import me.osm.gazetter.out.AddrRowValueExctractorImpl;
 import me.osm.gazetter.striper.FeatureTypes;
 import me.osm.gazetter.striper.GeoJsonWriter;
 import me.osm.gazetter.striper.JSONFeature;
+import me.osm.gazetter.utils.FileUtils;
 import me.osm.gazetter.utils.JSONHash;
 import me.osm.gazetter.utils.LocatePoint;
 import me.osm.osmdoc.localization.L10n;
 import me.osm.osmdoc.model.Feature;
+import me.osm.osmdoc.model.Tag.Val;
 import me.osm.osmdoc.read.DOCFileReader;
 import me.osm.osmdoc.read.DOCFolderReader;
 import me.osm.osmdoc.read.DOCReader;
 import me.osm.osmdoc.read.OSMDocFacade;
+import me.osm.osmdoc.read.tagvalueparsers.LogTagsStatisticCollector;
 import me.osm.osmdoc.read.tagvalueparsers.TagsStatisticCollector;
 
 import org.apache.commons.codec.digest.DigestUtils;
@@ -67,11 +75,9 @@ public class GazetteerOutWriter extends AddressPerRowJOHBase  {
 			TRANSLATE_POI_TYPES_OPTION, 
 			"fill_addresses", "export_all_names", 
 			"full_geometry",
-			"usage");
+			"usage", "tag-stat");
 
-	//private static final String FILL_NAMES_TRANSLATIONS = "export_all_names";
-
-	private static final TagsStatisticCollector tagStatistics = new TagsStatisticCollector();
+	private TagsStatisticCollector tagStatistics;
 
 	public static final String NAME = "out-gazetteer";
 
@@ -88,6 +94,8 @@ public class GazetteerOutWriter extends AddressPerRowJOHBase  {
 	private DOCReader reader;
 
 	private Set<String> fillAddrOpts = null;
+
+	private String tagStatPath;
 	
 	@Override
 	public JoinOutHandler newInstance(List<String> options) {
@@ -131,6 +139,14 @@ public class GazetteerOutWriter extends AddressPerRowJOHBase  {
 		}
 		else {
 			initializeWriter(paresdOpts.getString("out", null));
+		}
+		
+		tagStatPath = paresdOpts.getString("tag-stat", null);
+		if(tagStatPath == null) {
+			tagStatistics = new LogTagsStatisticCollector();
+		}
+		else {
+			tagStatistics = new ExportTagsStatisticCollector();
 		}
 		
 		return this;
@@ -397,13 +413,15 @@ public class GazetteerOutWriter extends AddressPerRowJOHBase  {
 		
 		fillPoiAddrRefs(result, jsonObject, poiAddrMatch);
 		
+		Map<String, List<Val>> moreTagsVals = new HashMap<String, List<Val>>();
+		JSONObject moreTags = osmDocFacade.parseMoreTags(poiClassess, tags, 
+				tagStatistics, moreTagsVals);
 		
-		JSONObject moreTags = osmDocFacade.parseMoreTags(poiClassess, tags, tagStatistics);
 		result.put("more_tags", moreTags);
 
-		//TODO Keywords
 		LinkedHashSet<String> keywords = new LinkedHashSet<String>();
-		osmDocFacade.collectKeywords(poiClassess, moreTags, keywords);
+		osmDocFacade.collectKeywords(poiClassess, moreTagsVals, keywords, null);
+		
 		result.put(GAZETTEER_SCHEME_POI_KEYWORDS, new JSONArray(keywords));
 	}
 
@@ -809,5 +827,26 @@ public class GazetteerOutWriter extends AddressPerRowJOHBase  {
 			return Collections.emptyList();
 		}
 		return list;
+	}
+	
+	@Override
+	public void allDone() {
+		if(StringUtils.isNotBlank(tagStatPath)) {
+			Collection<JSONObject> usage = ((ExportTagsStatisticCollector)tagStatistics).asJson();
+			
+			try {
+				PrintWriter printwriter = FileUtils.getPrintwriter(new File(tagStatPath), false);
+				
+				for(JSONObject jo : usage) {
+					printwriter.println(jo.toString());
+				}
+				
+				printwriter.flush();
+				printwriter.close();
+				
+			} catch (IOException e) {
+				throw new RuntimeException();
+			}
+		}
 	}
 }

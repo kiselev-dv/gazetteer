@@ -11,7 +11,7 @@ import org.json.JSONObject;
 import org.restexpress.Request;
 import org.restexpress.Response;
 
-public class ImportAPI {
+public class ImportLocations {
 	
 	private static final IndicesAdminClient INDICES_CLIENT = ESNodeHodel.getClient().admin().indices();
 

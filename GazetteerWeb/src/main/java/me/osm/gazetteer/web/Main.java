@@ -4,7 +4,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import me.osm.gazetteer.web.api.FeatureAPI;
-import me.osm.gazetteer.web.api.ImportAPI;
+import me.osm.gazetteer.web.api.ImportLocations;
 import me.osm.gazetteer.web.api.InverseGeocodeAPI;
 import me.osm.gazetteer.web.api.OSMDocAPI;
 import me.osm.gazetteer.web.api.SearchAPI;
@@ -139,7 +139,7 @@ public class Main {
 				.parameter(Parameters.Cache.MAX_AGE, 3600);
 
 		server.uri(root + "/location/_import",
-				new ImportAPI())
+				new ImportLocations())
 				.method(HttpMethod.GET)
 				.flag(Flags.Cache.DONT_CACHE);
 
