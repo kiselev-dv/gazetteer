@@ -16,7 +16,7 @@
         "title": {
         	"type": "string",
         	"index": "analyzed"
-        }
+        },
         "keywords": {
         	"type": "string",
         	"index": "analyzed"

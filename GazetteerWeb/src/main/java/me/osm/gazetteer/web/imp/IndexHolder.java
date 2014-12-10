@@ -2,9 +2,12 @@ package me.osm.gazetteer.web.imp;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Map.Entry;
 
 import me.osm.gazetteer.web.utils.FileUtils;
 import me.osm.gazetteer.web.utils.FileUtils.LineHandler;
+import me.osm.gazetteer.web.utils.OSMDocSinglton;
+import me.osm.osmdoc.model.Tag.TagValueType;
 
 import org.apache.commons.io.IOUtils;
 import org.elasticsearch.action.admin.indices.create.CreateIndexRequestBuilder;
@@ -24,6 +27,15 @@ public class IndexHolder {
 
 		JSONObject settings = readJSON("/gazetteer_schema.json");
 		settings.getJSONObject("mappings").put(LOCATION, readJSON("/mappings/location.json"));
+		
+		JSONObject moreTagsProperties = new JSONObject();
+		for(Entry<String, String> e : OSMDocSinglton.get().getFacade().listMoreTagsTypes().entrySet()) {
+			moreTagsProperties.put(e.getKey(), getPropertyMapping(e.getValue()));
+		}
+		
+		settings.getJSONObject("mappings").getJSONObject(LOCATION)
+			.getJSONObject("properties").put("more_tags", moreTagsProperties);
+		
 		settings.getJSONObject("mappings").put(POI_CLASS, readJSON("/mappings/poi_class.json"));
 
 		JSONObject indexSettings = settings.getJSONObject("settings");
@@ -31,9 +43,30 @@ public class IndexHolder {
 		
 		CreateIndexRequestBuilder request = admin.indices().prepareCreate("gazetteer")
 			.setSettings(indexSettings.toString())
-			.addMapping(LOCATION, settings.getJSONObject("mappings").getJSONObject(LOCATION).toString());
+			.addMapping(LOCATION, settings.getJSONObject("mappings").getJSONObject(LOCATION).toString())
+			.addMapping(POI_CLASS, settings.getJSONObject("mappings").getJSONObject(POI_CLASS).toString());
 		
 		request.get();
+	}
+
+	private JSONObject getPropertyMapping(String value) {
+		JSONObject result = new JSONObject();
+		result.put("index", "not_analyzed");
+		
+		switch (TagValueType.fromValue(value)) {
+		
+		case BOOLEAN: result.put("type", "boolean"); break;
+		
+		case DATE: result.put("type", "date"); break;
+		
+		case NUMBER: result.put("type", "double"); break;
+		
+		case OPEN_HOURS: result.put("type", "object"); break;
+			
+		default: result.put("type", "string"); break;
+		
+		}
+		return result;
 	}
 
 	private JSONObject readJSON(String resource) {

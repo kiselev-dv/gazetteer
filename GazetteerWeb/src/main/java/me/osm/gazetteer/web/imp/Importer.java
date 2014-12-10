@@ -106,11 +106,7 @@ public class Importer {
 			}
 			
 			if(bulkRequest.numberOfActions() > 0) {
-				BulkResponse bulkResponse = bulkRequest.execute().actionGet();
-				
-				if (bulkResponse.hasFailures()) {
-					throw new RuntimeException(bulkResponse.buildFailureMessage());
-				}
+				executeBulk();
 			}
 			
 			log.info("Import done. {} rows imported.", counter);
@@ -132,23 +128,32 @@ public class Importer {
 			line = processLine(line);
 			
 			if (line != null) {
-				IndexRequestBuilder ind = new IndexRequestBuilder(client)
-				.setSource(line).setIndex("gazetteer").setType(LOCATION);
+				IndexRequestBuilder ind = indexRequest(line);
 				bulkRequest.add(ind.request());
 				
 				counter++;
 			}
 			
 			if(counter % BATCH_SIZE == 0) {
-				BulkResponse bulkResponse = bulkRequest.execute().actionGet();
-				if (bulkResponse.hasFailures()) {
-					throw new RuntimeException(bulkResponse.buildFailureMessage());
-				}
+				executeBulk();
 				
 				log.info("{} rows imported", counter);
 				
 				bulkRequest = client.prepareBulk();
 			}
+		}
+	}
+
+	private IndexRequestBuilder indexRequest(String line) {
+		IndexRequestBuilder ind = new IndexRequestBuilder(client)
+			.setSource(line).setIndex("gazetteer").setType(LOCATION);
+		return ind;
+	}
+
+	private void executeBulk() {
+		BulkResponse bulkResponse = bulkRequest.execute().actionGet();
+		if (bulkResponse.hasFailures()) {
+			log.error(bulkResponse.buildFailureMessage());
 		}
 	}
 
