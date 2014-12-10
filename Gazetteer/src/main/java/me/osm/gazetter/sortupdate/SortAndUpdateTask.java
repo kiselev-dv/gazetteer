@@ -11,7 +11,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import me.osm.gazetter.striper.GeoJsonWriter;
 
-import org.apache.commons.io.FileUtils;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -4,10 +4,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -35,8 +33,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.supercsv.io.CsvListWriter;
 import org.supercsv.prefs.CsvPreference;
-
-import com.google.code.externalsorting.ExternalSort;
 
 public class CSVOutWriter implements LineHandler {
 	

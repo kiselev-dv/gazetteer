@@ -34,7 +34,7 @@ public class IndexHolder {
 		}
 		
 		settings.getJSONObject("mappings").getJSONObject(LOCATION)
-			.getJSONObject("properties").put("more_tags", moreTagsProperties);
+			.getJSONObject("properties").getJSONObject("more_tags").put("properties", moreTagsProperties);
 		
 		settings.getJSONObject("mappings").put(POI_CLASS, readJSON("/mappings/poi_class.json"));
 
@@ -51,9 +51,8 @@ public class IndexHolder {
 
 	private JSONObject getPropertyMapping(String value) {
 		JSONObject result = new JSONObject();
-		result.put("index", "not_analyzed");
 		
-		switch (TagValueType.fromValue(value)) {
+		switch (TagValueType.valueOf(value)) {
 		
 		case BOOLEAN: result.put("type", "boolean"); break;
 		

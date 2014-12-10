@@ -11,7 +11,6 @@ import java.util.List;
 
 import me.osm.gazetter.addresses.AddrLevelsSorting;
 import me.osm.gazetter.join.JoinExecutor;
-import me.osm.gazetter.join.out_handlers.GazetteerOutWriter;
 import me.osm.gazetter.out.CSVOutWriter;
 import me.osm.gazetter.out.Diff;
 import me.osm.gazetter.sortupdate.SortUpdate;

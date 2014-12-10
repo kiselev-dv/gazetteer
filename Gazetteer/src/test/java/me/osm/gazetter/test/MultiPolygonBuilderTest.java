@@ -1,5 +1,7 @@
 package me.osm.gazetter.test;
 
+import static org.junit.Assert.assertNotNull;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,8 +16,6 @@ import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.io.ParseException;
 import com.vividsolutions.jts.io.WKTReader;
-
-import static org.junit.Assert.*;
 
 /**
  * See http://wiki.openstreetmap.org/wiki/Multipolygon

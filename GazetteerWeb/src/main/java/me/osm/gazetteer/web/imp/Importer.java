@@ -34,7 +34,7 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class Importer {
+public class Importer implements Runnable {
 	
 	private static final OSMDocFacade FACADE = OSMDocSinglton.get().getFacade();
 
@@ -85,6 +85,7 @@ public class Importer {
 		return new FileInputStream(osmFilePath);
 	}
 
+	@Override
 	public void run() {
 
 		IndicesExistsResponse response = new IndicesExistsRequestBuilder(

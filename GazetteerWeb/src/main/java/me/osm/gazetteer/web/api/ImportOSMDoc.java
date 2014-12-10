@@ -2,7 +2,6 @@ package me.osm.gazetteer.web.api;
 
 import java.io.File;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;

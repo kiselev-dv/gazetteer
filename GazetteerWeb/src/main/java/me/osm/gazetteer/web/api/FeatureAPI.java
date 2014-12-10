@@ -5,10 +5,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.print.attribute.HashAttributeSet;
-
 import me.osm.gazetteer.web.ESNodeHodel;
-import me.osm.gazetteer.web.imp.Importer;
 import me.osm.gazetteer.web.imp.IndexHolder;
 
 import org.elasticsearch.action.search.SearchRequestBuilder;

@@ -1,5 +1,7 @@
 package me.osm.gazetteer.web.api;
 
+import java.util.concurrent.Executors;
+
 import me.osm.gazetteer.web.ESNodeHodel;
 import me.osm.gazetteer.web.imp.Importer;
 
@@ -14,7 +16,7 @@ import org.restexpress.Response;
 public class ImportLocations {
 	
 	private static final IndicesAdminClient INDICES_CLIENT = ESNodeHodel.getClient().admin().indices();
-
+	
 	public JSONObject read(Request request, Response response){
 		
 		JSONObject result = new JSONObject();
@@ -32,7 +34,12 @@ public class ImportLocations {
 		}
 		
 		if(StringUtils.isNotEmpty(source)) {
-			new Importer(source, buildingsGeometry).run();
+			try {
+				Executors.callable(new Importer(source, buildingsGeometry)).call();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			
 			result.put("import", true);
 			result.put("buildings_geometry", buildingsGeometry);
 		}
