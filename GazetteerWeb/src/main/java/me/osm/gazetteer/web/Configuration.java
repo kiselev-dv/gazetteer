@@ -1,9 +1,12 @@
 package me.osm.gazetteer.web;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.Properties;
 
 import org.restexpress.Format;
 import org.restexpress.RestExpress;
+import org.restexpress.util.Environment;
 
 public class Configuration
 extends org.restexpress.util.Environment
