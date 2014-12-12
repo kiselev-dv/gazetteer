@@ -24,7 +24,7 @@ public class ExportTagsStatisticCollector implements TagsStatisticCollector {
 	private static final Object MUTEX = new Object();
 
 	@Override
-	public void success(Object pv, Tag tag, String rawValue,
+	public void success(Object pv, Tag tag, Val val, String rawValue,
 			TagValueParser parser, List<Feature> poiClassess) {
 		
 		for(Feature f : poiClassess) {
@@ -68,9 +68,11 @@ public class ExportTagsStatisticCollector implements TagsStatisticCollector {
 	}
 
 	private String getValueString(Object pv) {
-		if(pv instanceof Val) {
-			return ((Val) pv).getValue();
+		
+		if(pv instanceof String) {
+			return (String) pv;
 		}
+		
 		else if(pv instanceof Boolean) {
 			return pv.toString(); 
 		}

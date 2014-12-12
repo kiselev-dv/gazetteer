@@ -11,6 +11,7 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.zip.GZIPInputStream;
 
 import me.osm.gazetteer.web.ESNodeHodel;
@@ -168,7 +169,9 @@ public class Importer implements Runnable {
 		String shortText;
 		try {
 			shortText = getShortText(obj);
+			shortText = sanitizeSearchText(shortText);
 			obj.put("search", shortText);
+			
 		} catch (EmptyAddressException e) {
 			return null;
 		}
@@ -176,7 +179,38 @@ public class Importer implements Runnable {
 		obj.remove("alt_addresses");
 		obj.remove("alt_addresses_trans");
 		
+		obj.put("weight", getWeight(obj));
+		
 		return obj.toString();
+	}
+
+	private int getWeight(JSONObject obj) {
+		String type = obj.optString("type");
+		int max = 0;
+		
+		JSONObject addrObj = obj.optJSONObject("address");
+		if(addrObj == null)
+			return max;
+		
+		JSONArray parts = addrObj.optJSONArray("parts");
+		if(parts == null) {
+			return max;
+		}
+		
+		for(int i = 0; i < parts.length(); i++) {
+			JSONObject part = parts.getJSONObject(i);
+			max = Math.max(max, part.optInt("lvl-size"));
+		}
+		
+		return max;
+	}
+
+	private String sanitizeSearchText(String shortText) {
+		
+		shortText = StringUtils.remove(shortText, ",");
+		shortText = StringUtils.replace(shortText, "-", " ");
+		
+		return shortText;
 	}
 
 	private String getShortText(JSONObject obj) throws EmptyAddressException {
@@ -188,6 +222,18 @@ public class Importer implements Runnable {
 			String addrText = addrobj.optString("text");
 			if(StringUtils.isNotBlank(addrText)) {
 				sb.append(addrText);
+				
+				if(!obj.has("street_name")) {
+					JSONArray ns = obj.optJSONArray("nearby_streets");
+					if(ns != null && ns.length() > 0) {
+						String nsName = ns.getJSONObject(0).getString("name");
+						sb.append(" ").append(nsName);
+					}
+				}
+				
+				if(!obj.has("locality_name") && obj.has("nearest_place")) {
+					sb.append(" ").append(obj.getJSONObject("nearest_place").getString("name"));
+				}
 			}
 			else {
 				throw new EmptyAddressException();

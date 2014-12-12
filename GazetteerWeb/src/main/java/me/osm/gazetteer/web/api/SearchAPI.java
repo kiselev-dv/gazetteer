@@ -21,8 +21,10 @@ import org.elasticsearch.common.geo.GeoPoint;
 import org.elasticsearch.common.lucene.search.function.CombineFunction;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.DisMaxQueryBuilder;
+import org.elasticsearch.index.query.FilterBuilder;
 import org.elasticsearch.index.query.FilterBuilders;
 import org.elasticsearch.index.query.MatchQueryBuilder;
+import org.elasticsearch.index.query.OrFilterBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.functionscore.ScoreFunctionBuilders;
@@ -118,7 +120,7 @@ public class SearchAPI {
 			q.must(QueryBuilders.termsQuery("poi_class", poiClass));
 		}
 		
-		QueryBuilder qb = q;
+		QueryBuilder qb = QueryBuilders.filteredQuery(q, getFilter(querry)) ;
 
 		if(request.getHeader(LAT_HEADER) != null && request.getHeader(LON_HEADER) != null && distanceScore) {
 			qb = addDistanceScore(request, qb);
@@ -153,6 +155,20 @@ public class SearchAPI {
 		
 		return answer;
 		
+	}
+
+	private FilterBuilder getFilter(String querry) {
+		
+		// Мне нужны только те пои, для которых совпал name и/или тип.
+		BoolQueryBuilder filterQ = QueryBuilders.boolQuery()
+				.must(QueryBuilders.termQuery("type", "poipnt"))
+				.must(QueryBuilders.multiMatchQuery(querry, "name", "poi_class"));
+		
+		OrFilterBuilder orFilter = FilterBuilders.orFilter(
+				FilterBuilders.queryFilter(filterQ), 
+				FilterBuilders.notFilter(FilterBuilders.termsFilter("type", "poipnt")));
+		
+		return orFilter;
 	}
 
 	private QueryBuilder addBBOXRestriction(QueryBuilder qb, List<String> bbox) {
@@ -222,7 +238,8 @@ public class SearchAPI {
 			q.minimumShouldMatch("1");
 		}
 		
-		return QueryBuilders.boolQuery().must(q);
+		return QueryBuilders.boolQuery()
+				.must(q);
 		
 	}
 	
@@ -260,18 +277,18 @@ public class SearchAPI {
 		return 1.0;
 	}
 
-	private static QueryBuilder dismax(QueryBuilder... querryes) {
-		DisMaxQueryBuilder dm = QueryBuilders.disMaxQuery();
-		for(QueryBuilder q : querryes) {
-			dm.add(q);
-		}
-		return dm;
-	}
-
-	private static QueryBuilder cscore(String field, String querry, float score) {
-		
-		return QueryBuilders.constantScoreQuery(QueryBuilders.matchQuery(field, querry)).boost(score);
-	}
+//	private static QueryBuilder dismax(QueryBuilder... querryes) {
+//		DisMaxQueryBuilder dm = QueryBuilders.disMaxQuery();
+//		for(QueryBuilder q : querryes) {
+//			dm.add(q);
+//		}
+//		return dm;
+//	}
+//
+//	private static QueryBuilder cscore(String field, String querry, float score) {
+//		
+//		return QueryBuilders.constantScoreQuery(QueryBuilders.matchQuery(field, querry)).boost(score);
+//	}
 	
 	public static void setDistanceScoring(boolean value) {
 		distanceScore = value;
