@@ -1,1 +1,2 @@
 script.disable_dynamic: true
+#discovery.zen.ping.unicast=tr1.nowtaxi.ru
