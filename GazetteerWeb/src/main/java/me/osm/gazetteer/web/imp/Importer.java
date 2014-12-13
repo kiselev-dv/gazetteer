@@ -188,23 +188,27 @@ public class Importer implements Runnable {
 
 	private int getWeight(JSONObject obj) {
 		String type = obj.optString("type");
-		int max = 0;
+		int min = Integer.MAX_VALUE;
+
+		if(type.equals("poipnt")) {
+			return 1;
+		}
 		
 		JSONObject addrObj = obj.optJSONObject("address");
 		if(addrObj == null)
-			return max;
+			return 0;
 		
 		JSONArray parts = addrObj.optJSONArray("parts");
 		if(parts == null) {
-			return max;
+			return 0;
 		}
 		
 		for(int i = 0; i < parts.length(); i++) {
 			JSONObject part = parts.getJSONObject(i);
-			max = Math.max(max, part.optInt("lvl-size"));
+			min = Math.min(min, part.optInt("lvl-size"));
 		}
 		
-		return max;
+		return min;
 	}
 
 	private String sanitizeSearchText(String shortText) {

@@ -29,6 +29,7 @@ import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.functionscore.ScoreFunctionBuilders;
 import org.elasticsearch.search.sort.SortBuilders;
+import org.elasticsearch.search.sort.SortOrder;
 import org.json.JSONObject;
 import org.restexpress.Request;
 import org.restexpress.Response;
@@ -134,6 +135,7 @@ public class SearchAPI {
 		Client client = ESNodeHodel.getClient();
 		SearchRequestBuilder searchRequest = client.prepareSearch("gazetteer")
 				.setQuery(qb)
+				.addSort(SortBuilders.fieldSort("weight").order(SortOrder.DESC))
 				.addSort(SortBuilders.scoreSort())
 				.setExplain(explain);
 		
@@ -239,7 +241,8 @@ public class SearchAPI {
 		}
 		
 		return QueryBuilders.boolQuery()
-				.must(q);
+				.must(q)
+				.mustNot(QueryBuilders.termQuery("weight", 0));
 		
 	}
 	
