@@ -304,6 +304,12 @@
             "type": "string",
             "index": "not_analyzed"
         },
+        "poi_class_trans": {
+            "type": "string",
+            "index": "analyzed",
+            "index_analyzer": "suggest_synonyms",
+            "search_analyzer": "standard"
+        },
         "poi_keywords": {
             "type": "string",
             "index": "analyzed",

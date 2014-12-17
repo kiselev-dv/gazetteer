@@ -10,6 +10,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -39,6 +40,8 @@ import org.slf4j.LoggerFactory;
 public class Importer implements Runnable {
 	
 	private static final OSMDocFacade FACADE = OSMDocSinglton.get().getFacade();
+	
+	protected ObjectsWeightBuilder weighter;
 
 	Logger log = LoggerFactory.getLogger(Importer.class);
 
@@ -73,6 +76,8 @@ public class Importer implements Runnable {
 		this.filePath = source;
 		client = ESNodeHodel.getClient();
 		bulkRequest = client.prepareBulk();
+		
+		weighter = new DefaultWeightBuilder();
 	}
 
 	public static InputStream getFileIS(String osmFilePath) throws IOException,
@@ -178,38 +183,18 @@ public class Importer implements Runnable {
 			return null;
 		}
 		
+		if("poipnt".equals(obj.optString("type"))) {
+			obj.put("poi_class_trans", new JSONArray(getPoiTypesTranslated(obj)));
+		}
+		
 		obj.remove("alt_addresses");
 		obj.remove("alt_addresses_trans");
 		
-		obj.put("weight", getWeight(obj));
+		obj.put("weight", weighter.weight(obj));
 		
 		return obj.toString();
 	}
 
-	private int getWeight(JSONObject obj) {
-		String type = obj.optString("type");
-		int min = Integer.MAX_VALUE;
-
-		if(type.equals("poipnt")) {
-			return 1;
-		}
-		
-		JSONObject addrObj = obj.optJSONObject("address");
-		if(addrObj == null)
-			return 0;
-		
-		JSONArray parts = addrObj.optJSONArray("parts");
-		if(parts == null) {
-			return 0;
-		}
-		
-		for(int i = 0; i < parts.length(); i++) {
-			JSONObject part = parts.getJSONObject(i);
-			min = Math.min(min, part.optInt("lvl-size"));
-		}
-		
-		return min;
-	}
 
 	private String sanitizeSearchText(String shortText) {
 		
@@ -247,20 +232,10 @@ public class Importer implements Runnable {
 		}
 		
 		if("poipnt".equals(obj.optString("type"))) {
-			JSONArray poiClasses = obj.getJSONArray("poi_class");
+			List<String> titles = getPoiTypesTranslated(obj);
 			
-			List<Feature> classes = new ArrayList<Feature>();
-			for(int i = 0; i < poiClasses.length(); i++) {
-				String classCode = poiClasses.getString(i);
-				classes.add(FACADE.getFeature(classCode));
-			}
-			
-			for(Feature f : classes) {
-				for(String ln : L10n.supported) {
-					String translatedTitle = FACADE.getTranslatedTitle(f, Locale.forLanguageTag(ln));
-					
-					sb.append(" ").append(translatedTitle);
-				}
+			for(String s : titles) {
+				sb.append(" ").append(s);
 			}
 			
 			String name = obj.optString("name");
@@ -268,6 +243,28 @@ public class Importer implements Runnable {
 		}
 		
 		return StringUtils.remove(sb.toString(), ',');
+	}
+
+	private List<String> getPoiTypesTranslated(JSONObject obj) {
+		
+		List<String> result = new ArrayList<String>(1);
+		
+		JSONArray poiClasses = obj.getJSONArray("poi_class");
+		
+		List<Feature> classes = new ArrayList<Feature>();
+		for(int i = 0; i < poiClasses.length(); i++) {
+			String classCode = poiClasses.getString(i);
+			classes.add(FACADE.getFeature(classCode));
+		}
+		
+		for(Feature f : classes) {
+			for(String ln : L10n.supported) {
+				String translatedTitle = FACADE.getTranslatedTitle(f, Locale.forLanguageTag(ln));
+				result.add(translatedTitle);
+			}
+		}
+		
+		return result;
 	}
 
 	private JSONObject filterFullGeometry(JSONObject jsonObject) {

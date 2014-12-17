@@ -28,6 +28,7 @@ import org.elasticsearch.index.query.OrFilterBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.functionscore.ScoreFunctionBuilders;
+import org.elasticsearch.search.sort.SortBuilder;
 import org.elasticsearch.search.sort.SortBuilders;
 import org.elasticsearch.search.sort.SortOrder;
 import org.json.JSONObject;
@@ -121,8 +122,8 @@ public class SearchAPI {
 			q.must(QueryBuilders.termsQuery("poi_class", poiClass));
 		}
 		
-		QueryBuilder qb = QueryBuilders.filteredQuery(q, getFilter(querry)) ;
-
+		QueryBuilder qb = poiClass.isEmpty() ? QueryBuilders.filteredQuery(q, getFilter(querry)) : q;
+		
 		if(request.getHeader(LAT_HEADER) != null && request.getHeader(LON_HEADER) != null && distanceScore) {
 			qb = addDistanceScore(request, qb);
 		}
@@ -131,6 +132,9 @@ public class SearchAPI {
 		if(!bbox.isEmpty() && bbox.size() == 4) {
 			qb = addBBOXRestriction(qb, bbox);
 		}
+		
+//		qb = QueryBuilders.functionScoreQuery(qb)
+//				.add(ScoreFunctionBuilders.fieldValueFactorFunction("weight"));
 		
 		Client client = ESNodeHodel.getClient();
 		SearchRequestBuilder searchRequest = client.prepareSearch("gazetteer")
@@ -164,7 +168,7 @@ public class SearchAPI {
 		// Мне нужны только те пои, для которых совпал name и/или тип.
 		BoolQueryBuilder filterQ = QueryBuilders.boolQuery()
 				.must(QueryBuilders.termQuery("type", "poipnt"))
-				.must(QueryBuilders.multiMatchQuery(querry, "name", "poi_class"));
+				.must(QueryBuilders.multiMatchQuery(querry, "name", "poi_class", "poi_class_trans"));
 		
 		OrFilterBuilder orFilter = FilterBuilders.orFilter(
 				FilterBuilders.queryFilter(filterQ), 

@@ -1,0 +1,236 @@
+{
+	"name": "Search test cities",
+	"cases": [
+		{
+			"name":"Москва",
+			"request": {
+				"q":"Москва"
+			},
+			"first_result": {
+				"location":"0.5/55.7516/37.6187",
+				"type":["plcpnt","plcbnd","admbnd"]
+			}
+		},
+		{
+			"name":"Петербург",
+			"request": {
+				"q":"Петербург"
+			},
+			"first_result": {
+				"location":"0.5/59.9387/30.3508",
+				"type":["plcpnt","plcbnd","admbnd"]
+			}
+		},
+		{
+			"name":"Санкт-Петербург",
+			"request": {
+				"q":"Петербург"
+			},
+			"first_result": {
+				"location":"0.5/59.9387/30.3508",
+				"type":["plcpnt","plcbnd","admbnd"]
+			}
+		},
+		{
+			"name":"Екатеринбург",
+			"request": {
+				"q":"Екатеринбург"
+			},
+			"first_result": {
+				"location":"0.1/56.83866/60.60414",
+				"type":["plcpnt","plcbnd","admbnd"]
+			}
+		},
+		{
+			"name":"Ростов",
+			"request": {
+				"q":"Ростов"
+			},
+			"first_result": {
+				"location":"0.1/57.1846/39.4167",
+				"type":["plcpnt","plcbnd","admbnd"]
+			}
+		},
+		{
+			"name":"Ростов на дону",
+			"request": {
+				"q":"Ростов на дону"
+			},
+			"first_result": {
+				"location":"0.1/47.2248/39.7024",
+				"type":["plcpnt","plcbnd","admbnd"]
+			}
+		},
+		{
+			"name":"Ростов-на-дону",
+			"request": {
+				"q":"Ростов-на-дону"
+			},
+			"first_result": {
+				"location":"0.1/47.2248/39.7024",
+				"type":["plcpnt","plcbnd","admbnd"]
+			}
+		},
+		{
+			"name":"Новосибирск",
+			"request": {
+				"q":"Новосибирск"
+			},
+			"first_result": {
+				"location":"0.1/55.0287/82.9239",
+				"type":["plcpnt","plcbnd","admbnd"]
+			}
+		},
+		{
+			"name":"Новосибирск",
+			"request": {
+				"q":"Новосибирск"
+			},
+			"first_result": {
+				"location":"0.1/55.0287/82.9239",
+				"type":["plcpnt","plcbnd","admbnd"]
+			}
+		},
+		{
+			"name":"Нижний Новгород",
+			"request": {
+				"q":"Нижний Новгород"
+			},
+			"first_result": {
+				"location":"0.1/56.3273/44.0095",
+				"type":["plcpnt","plcbnd","admbnd"]
+			}
+		},
+		{
+			"name":"Казань",
+			"request": {
+				"q":"Казань"
+			},
+			"first_result": {
+				"location":"0.1/55.78219/49.12473",
+				"type":["plcpnt","plcbnd","admbnd"]
+			}
+		},
+		{
+			"name":"Самара",
+			"request": {
+				"q":"Самара"
+			},
+			"first_result": {
+				"location":"0.1/53.1987/50.1142",
+				"type":["plcpnt","plcbnd","admbnd"]
+			}
+		},
+		{
+			"name":"Челябинск",
+			"request": {
+				"q":"Челябинск"
+			},
+			"first_result": {
+				"location":"0.1/55.15920/61.40435",
+				"type":["plcpnt","plcbnd","admbnd"]
+			}
+		},
+		{
+			"name":"Омск",
+			"request": {
+				"q":"Омск"
+			},
+			"first_result": {
+				"location":"0.1/54.9906/73.3718",
+				"type":["plcpnt","plcbnd","admbnd"]
+			}
+		},
+		{
+			"name":"Уфа",
+			"request": {
+				"q":"Уфа"
+			},
+			"first_result": {
+				"location":"0.1/54.7249/55.9521",
+				"type":["plcpnt","plcbnd","admbnd"]
+			}
+		},
+		{
+			"name":"Красноярск",
+			"request": {
+				"q":"Красноярск"
+			},
+			"first_result": {
+				"location":"0.1/56.0097/92.8732",
+				"type":["plcpnt","plcbnd","admbnd"]
+			}
+		},
+		{
+			"name":"Пермь",
+			"request": {
+				"q":"Пермь"
+			},
+			"first_result": {
+				"location":"0.1/58.0166/56.2530",
+				"type":["plcpnt","plcbnd","admbnd"]
+			}
+		},
+		{
+			"name":"Волгоград",
+			"request": {
+				"q":"Волгоград"
+			},
+			"first_result": {
+				"location":"0.1/48.7066/44.5146",
+				"type":["plcpnt","plcbnd","admbnd"]
+			}
+		},
+		{
+			"name":"Воронеж",
+			"request": {
+				"q":"Воронеж"
+			},
+			"first_result": {
+				"location":"0.1/51.6545/39.2168",
+				"type":["plcpnt","plcbnd","admbnd"]
+			}
+		},
+		{
+			"name":"Владивосток",
+			"request": {
+				"q":"Владивосток"
+			},
+			"first_result": {
+				"location":"0.1/43.1150/131.8903",
+				"type":["plcpnt","plcbnd","admbnd"]
+			}
+		},
+		{
+			"name":"Калининград",
+			"request": {
+				"q":"Калининград"
+			},
+			"first_result": {
+				"location":"0.1/54.7057/20.5071",
+				"type":["plcpnt","plcbnd","admbnd"]
+			}
+		},
+		{
+			"name":"Химки",
+			"request": {
+				"q":"Химки"
+			},
+			"first_result": {
+				"location":"0.01/55.8903/37.4487",
+				"type":["plcpnt"]
+			}
+		},
+		{
+			"name":"Химки, Морщихино",
+			"request": {
+				"q":"Химки, Морщихино"
+			},
+			"first_result": {
+				"location":"0.001/55.9382/37.3009",
+				"type":["plcpnt"]
+			}
+		}		
+		
+	]
+}
