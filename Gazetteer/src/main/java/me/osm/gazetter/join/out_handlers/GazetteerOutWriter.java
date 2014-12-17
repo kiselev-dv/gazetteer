@@ -831,6 +831,8 @@ public class GazetteerOutWriter extends AddressPerRowJOHBase  {
 	
 	@Override
 	public void allDone() {
+		super.allDone();
+		
 		if(StringUtils.isNotBlank(tagStatPath)) {
 			Collection<JSONObject> usage = ((ExportTagsStatisticCollector)tagStatistics).asJson();
 			
