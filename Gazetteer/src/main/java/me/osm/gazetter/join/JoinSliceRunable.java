@@ -681,8 +681,16 @@ public class JoinSliceRunable implements Runnable {
 
 	
 	private void handleOut(JSONObject poi) {
-		for(JoinOutHandler handler : Options.get().getJoinOutHandlers()) {
-			handler.handle(poi, this.src.getName());
+		if(poi != null) {
+			for(JoinOutHandler handler : Options.get().getJoinOutHandlers()) {
+				try {
+					handler.handle(poi, this.src.getName());
+				}
+				catch (Exception e) {
+					String id = poi.optString("id"); 
+					log.error(String.format("Eception in handler %s for %s", handler.getClass().getName(),  id) , e);
+				}
+			}
 		}
 	}
 

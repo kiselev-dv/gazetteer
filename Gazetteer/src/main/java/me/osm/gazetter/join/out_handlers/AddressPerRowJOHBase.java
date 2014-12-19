@@ -172,6 +172,11 @@ public abstract class AddressPerRowJOHBase extends SingleWriterJOHBase {
 			List<JSONObject> addresses = new ArrayList<JSONObject>();
 			String poiAddrMatch = fillPoiAddresses(jsonObject, addresses);
 			if(addresses.isEmpty() || "nearest".equals(poiAddrMatch)) {
+				
+				if(jsonObject.optJSONObject("boundaries") == null) {
+					return null;
+				}
+				
 				poiAddrMatch = "boundaries";
 				addresses =  new ArrayList<JSONObject>(Collections.singletonList(jsonObject.optJSONObject("boundaries")));
 			}
