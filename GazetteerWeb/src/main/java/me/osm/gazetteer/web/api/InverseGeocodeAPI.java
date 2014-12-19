@@ -40,7 +40,7 @@ public class InverseGeocodeAPI {
 		double lon = Double.parseDouble(request.getHeader("lon"));
 		double lat = Double.parseDouble(request.getHeader("lat"));
 		
-		boolean related = request.getHeader("related") != null;
+		boolean wRelated = request.getHeader("related") != null;
 		
 		boolean fullGeometry = request.getHeader(SearchAPI.FULL_GEOMETRY_HEADER) != null 
 				&& "true".equals(request.getParameter(SearchAPI.FULL_GEOMETRY_HEADER));
@@ -50,9 +50,14 @@ public class InverseGeocodeAPI {
 		JSONObject point = getPoint(lon, lat);
 		
 		if(point != null) {
-			fillByPoint(parts, point);
+			if(wRelated) {
+				JSONObject related = FeatureAPI.getRelated(point);
+				if(related != null) {
+					point.put("_related", related);
+				}
+			}
 			
-			result.put("point", point);
+			return point;
 		}
 		else {
 			JSONObject highway = getHighway(lon, lat);
@@ -172,12 +177,12 @@ public class InverseGeocodeAPI {
 						QueryBuilders.matchAllQuery(),
 						FilterBuilders.andFilter(
 								FilterBuilders.termsFilter("type", "adrpnt", "poipnt"),
-								FilterBuilders.geoDistanceFilter("center_point").point(lat, lon).distance(200, DistanceUnit.METERS)
+								FilterBuilders.geoDistanceFilter("center_point").point(lat, lon).distance(1000, DistanceUnit.METERS)
 						));
 
 		SearchRequestBuilder searchRequest = client.prepareSearch("gazetteer").setQuery(q);
 		searchRequest.addSort(SortBuilders.geoDistanceSort("center_point").point(lat, lon));
-		searchRequest.setSize(5);
+		searchRequest.setSize(10);
 		
 		SearchResponse searchResponse = searchRequest.get();
 				

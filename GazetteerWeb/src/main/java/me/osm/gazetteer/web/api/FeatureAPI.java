@@ -73,7 +73,7 @@ public class FeatureAPI {
 		return null;
 	}
 
-	private static JSONObject getRelated(JSONObject feature) {
+	public static JSONObject getRelated(JSONObject feature) {
 
 		String id = feature.getString("feature_id");
 		Client client = ESNodeHodel.getClient();
