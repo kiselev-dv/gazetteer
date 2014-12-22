@@ -13,16 +13,25 @@ public class SuggestAPI extends SearchAPI {
 		
 		BoolQueryBuilder searchQuerry = QueryBuilders.boolQuery();
 		
-		QueryBuilder q = QueryBuilders.prefixQuery("name", querry.tail().toString());
+		QueryBuilder prefQ = null;
+		
+		Query tail = querry.tail();
+		if(tail.countNumeric() == 1) {
+			prefQ = QueryBuilders.matchQuery("search", tail.toString());
+		}
+		else {
+			prefQ = QueryBuilders.prefixQuery("name", tail.toString());
+		}
+		
 		Query head = querry.head();
 
 		if(head == null) {
-			searchQuerry.must(q)
+			searchQuerry.must(prefQ)
 			.mustNot(QueryBuilders.termQuery("weight", 0));
 		}
 		else {
 			super.commonSearchQ(head, searchQuerry);
-			searchQuerry.must(q);
+			searchQuerry.must(prefQ);
 		}
 		
 		
