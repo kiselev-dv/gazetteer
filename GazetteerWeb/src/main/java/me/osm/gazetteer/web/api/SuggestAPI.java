@@ -34,7 +34,6 @@ public class SuggestAPI extends SearchAPI {
 			searchQuerry.must(prefQ);
 		}
 		
-		
 		return searchQuerry;
 		
 	}
