@@ -2,6 +2,7 @@ package me.osm.gazetteer.web;
 
 import me.osm.gazetteer.web.api.FeatureAPI;
 import me.osm.gazetteer.web.api.ImportLocations;
+import me.osm.gazetteer.web.api.ImportOSMDoc;
 import me.osm.gazetteer.web.api.InverseGeocodeAPI;
 import me.osm.gazetteer.web.api.OSMDocAPI;
 import me.osm.gazetteer.web.api.SearchAPI;
@@ -65,6 +66,12 @@ public class Routes {
 				.method(HttpMethod.GET)
 				.flag(Flags.Auth.PUBLIC_ROUTE)
 				.parameter("handler", "hierarchy")
+				.parameter(Parameters.Cache.MAX_AGE, 3600);
+
+		server.uri(root + "/osmdoc/_import",
+				new ImportOSMDoc())
+				.method(HttpMethod.GET)
+				.flag(Flags.Auth.PUBLIC_ROUTE)
 				.parameter(Parameters.Cache.MAX_AGE, 3600);
 
 		server.uri(root + "/osmdoc/poi-class/{lang}/{id}",

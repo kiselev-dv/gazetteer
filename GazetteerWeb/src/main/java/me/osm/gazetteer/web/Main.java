@@ -3,7 +3,6 @@ package me.osm.gazetteer.web;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
-import me.osm.gazetteer.web.api.SearchAPI;
 import me.osm.gazetteer.web.postprocessor.AllowOriginPP;
 import me.osm.gazetteer.web.postprocessor.LastModifiedHeaderPostprocessor;
 import me.osm.gazetteer.web.serialization.SerializationProvider;
@@ -42,7 +41,6 @@ public class Main {
 
 		Routes.defineRoutes(server);
 		
-		SearchAPI.setDistanceScoring(config.doDistanceScore());
 		OSMDocSinglton.initialize(config.getPoiCatalogPath());
 		
 		server.bind(config.getPort());

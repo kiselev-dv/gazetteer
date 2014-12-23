@@ -3,6 +3,7 @@ package me.osm.gazetteer.web.api;
 import java.io.File;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
@@ -30,9 +31,19 @@ public class ImportOSMDoc {
 		
 		String source = request.getHeader("source");
 		
+		final BulkRequestBuilder bulk = ESNodeHodel.getClient().prepareBulk();
+
+		List<JSONObject> features = OSMDocSinglton.get().getFacade().listTranslatedFeatures(null);
+		for(JSONObject obj : features) {
+			
+			IndexRequestBuilder ind = new IndexRequestBuilder(ESNodeHodel.getClient())
+				.setSource(obj.toString()).setIndex("gazetteer").setType(IndexHolder.POI_CLASS);
+			
+			bulk.add(ind.request());
+		}
+		
 		if(StringUtils.isNotEmpty(source)) {
 			
-			final BulkRequestBuilder bulk = ESNodeHodel.getClient().prepareBulk();
 
 			FileUtils.handleLines(new File(source), new LineHandler() {
 				
@@ -71,8 +82,8 @@ public class ImportOSMDoc {
 				
 			});
 			
-			bulk.execute().actionGet();
 		}
+		bulk.execute().actionGet();
 		
 		result.put("result", "success");
 		

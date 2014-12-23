@@ -1,5 +1,7 @@
 package me.osm.gazetteer.web.api;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -74,6 +76,16 @@ public class Query {
 	
 	public List<QToken> listToken() {
 		return tokens;
+	}
+
+	public Query filter(Collection<String> remove) {
+		List<QToken> r = new ArrayList<QToken>();
+		for(QToken t : this.tokens) {
+			if(!remove.contains(t.toString())) {
+				r.add(t);
+			}
+		}
+		return new Query(r);
 	}
 	
 }

@@ -4,11 +4,14 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import me.osm.gazetteer.web.ESNodeHodel;
+import me.osm.gazetteer.web.imp.IndexHolder;
 import me.osm.gazetteer.web.utils.OSMDocSinglton;
 import me.osm.osmdoc.model.Feature;
 
@@ -16,6 +19,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.Client;
+import org.elasticsearch.common.geo.GeoDistance;
 import org.elasticsearch.common.geo.GeoPoint;
 import org.elasticsearch.common.lucene.search.function.CombineFunction;
 import org.elasticsearch.index.query.BoolQueryBuilder;
@@ -25,7 +29,10 @@ import org.elasticsearch.index.query.MatchQueryBuilder;
 import org.elasticsearch.index.query.OrFilterBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.index.query.functionscore.FunctionScoreQueryBuilder;
 import org.elasticsearch.index.query.functionscore.ScoreFunctionBuilders;
+import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.sort.SortBuilders;
 import org.elasticsearch.search.sort.SortOrder;
 import org.json.JSONObject;
@@ -84,88 +91,112 @@ public class SearchAPI {
 	 * */
 	public static final String LON_HEADER = "lon";
 	
-	private static volatile boolean distanceScore = false;
-	
-	private final QueryAnalyzer queryAnalyzer = new QueryAnalyzer();
+	protected final QueryAnalyzer queryAnalyzer = new QueryAnalyzer();
 	
 	public JSONObject read(Request request, Response response) 
 			throws IOException {
 
-		boolean explain = "true".equals(request.getHeader(EXPLAIN_HEADER));
-		String querryString = StringUtils.stripToNull(request.getHeader(Q_HEADER));
-		
-		BoolQueryBuilder q = null;
+		try {
+			boolean explain = "true".equals(request.getHeader(EXPLAIN_HEADER));
+			String querryString = StringUtils.stripToNull(request.getHeader(Q_HEADER));
 			
-		Set<String> types = getSet(request, TYPE_HEADER);
-		String hname = request.getHeader("hierarchy");
-		Set<String> poiClass = getSet(request, POI_CLASS_HEADER);
-		addPOIGroups(request, poiClass, hname);
+			BoolQueryBuilder q = null;
 			
-		if(querryString == null && poiClass.isEmpty() && types.isEmpty()) {
-			return null;
-		}
-		
-		Query query = queryAnalyzer.getQuery(querryString);
-		
-		if(querryString != null) {
-			q = getSearchQuerry(query);
-		}
-		else {
-			q = QueryBuilders.boolQuery();
-		}
+			Set<String> types = getSet(request, TYPE_HEADER);
+			String hname = request.getHeader("hierarchy");
+			
+			Set<String> poiClass = getSet(request, POI_CLASS_HEADER);
+			addPOIGroups(request, poiClass, hname);
+			
+			Double lat = getDoubleHeader(LAT_HEADER, request);
+			Double lon = getDoubleHeader(LON_HEADER, request);
+			
+			if(querryString == null && poiClass.isEmpty() && types.isEmpty()) {
+				return null;
+			}
+			
+			Query query = queryAnalyzer.getQuery(querryString);
+			
+			JSONObject poiType = findPoiClass(query);
+			if(poiType != null) {
+				poiClass.add(poiType.getString("name"));
+			}
+			
+			if(querryString != null) {
+				q = getSearchQuerry(query);
+			}
+			else {
+				q = QueryBuilders.boolQuery();
+			}
+			
+			if(!types.isEmpty()) {
+				q.must(QueryBuilders.termsQuery("type", types));
+			}
+			
+			if(!poiClass.isEmpty()) {
+				q.must(QueryBuilders.termsQuery("poi_class", poiClass));
+			}
+			
+			QueryBuilder qb = poiClass.isEmpty() ? QueryBuilders.filteredQuery(q, getFilter(querryString)) : q;
+			
+			qb = rescore(qb, lat, lon, poiClass);
+			
+			List<String> bbox = getList(request, BBOX_HEADER);
+			if(!bbox.isEmpty() && bbox.size() == 4) {
+				qb = addBBOXRestriction(qb, bbox);
+			}
+			
+			Client client = ESNodeHodel.getClient();
+			SearchRequestBuilder searchRequest = client.prepareSearch("gazetteer")
+					.setQuery(qb)
+					.setExplain(explain);
+			
+			searchRequest.addSort(SortBuilders.scoreSort());
 
-		if(!types.isEmpty()) {
-			q.must(QueryBuilders.termsQuery("type", types));
+			searchRequest.setFetchSource(true);
+			
+			APIUtils.applyPaging(request, searchRequest);
+			
+			SearchResponse searchResponse = searchRequest.execute().actionGet();
+			
+			boolean fullGeometry = request.getHeader(FULL_GEOMETRY_HEADER) != null 
+					&& "true".equals(request.getParameter(FULL_GEOMETRY_HEADER));
+			
+			JSONObject answer = APIUtils.encodeSearchResult(
+					searchResponse,	fullGeometry, explain);
+			
+			answer.put("request", request.getHeader(Q_HEADER));
+			if(poiType != null) {
+				answer.put("matched_type", request.getHeader(Q_HEADER));
+			}
+			
+			APIUtils.resultPaging(request, answer);
+			
+			return answer;
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+			throw e;
 		}
 		
-		if(!poiClass.isEmpty()) {
-			q.must(QueryBuilders.termsQuery("poi_class", poiClass));
-		}
-		
-		QueryBuilder qb = poiClass.isEmpty() ? QueryBuilders.filteredQuery(q, getFilter(querryString)) : q;
-		
-		if(request.getHeader(LAT_HEADER) != null && request.getHeader(LON_HEADER) != null && distanceScore) {
-			qb = addDistanceScore(request, qb);
-		}
-		
-		List<String> bbox = getList(request, BBOX_HEADER);
-		if(!bbox.isEmpty() && bbox.size() == 4) {
-			qb = addBBOXRestriction(qb, bbox);
-		}
+	}
+
+	protected JSONObject findPoiClass(Query query) {
 		
 		Client client = ESNodeHodel.getClient();
-		SearchRequestBuilder searchRequest = client.prepareSearch("gazetteer")
-				.setQuery(qb)
-				.addSort(SortBuilders.fieldSort("weight").order(SortOrder.DESC))
-				.addSort(SortBuilders.scoreSort())
-				
-				.setExplain(explain);
 		
-		Double lat = getDoubleHeader(LAT_HEADER, request);
-		Double lon = getDoubleHeader(LON_HEADER, request);
+		String qs = query.filter(new HashSet<String>(Arrays.asList("на", "дом"))).toString();
 		
-		if(lat != null && lon != null) {
-			searchRequest.addSort(SortBuilders.geoDistanceSort("center_point").point(lat, lon));
+		SearchRequestBuilder searchRequest = client.prepareSearch("gazetteer").setTypes(IndexHolder.POI_CLASS)
+				.setQuery(QueryBuilders.multiMatchQuery(qs, "translated_title", "keywords"));
+		
+		SearchHit[] hits = searchRequest.get().getHits().getHits();
+
+		if(hits.length > 0) {
+			return new JSONObject(hits[0].sourceAsString());
 		}
 		
-		searchRequest.setFetchSource(true);
-		
-		APIUtils.applyPaging(request, searchRequest);
-		
-		SearchResponse searchResponse = searchRequest.execute().actionGet();
-		
-		boolean fullGeometry = request.getHeader(FULL_GEOMETRY_HEADER) != null 
-		&& "true".equals(request.getParameter(FULL_GEOMETRY_HEADER));
-		
-		JSONObject answer = APIUtils.encodeSearchResult(
-				searchResponse,	fullGeometry, explain);
-		
-		answer.put("request", request.getHeader(Q_HEADER));
-		
-		APIUtils.resultPaging(request, answer);
-		
-		return answer;
-		
+		return null;
 	}
 
 	private Double getDoubleHeader(String header, Request request) {
@@ -204,18 +235,22 @@ public class SearchAPI {
 		return qb;
 	}
 
-	private QueryBuilder addDistanceScore(Request request, QueryBuilder q) {
-		Double lat = Double.parseDouble(request.getHeader(LAT_HEADER));
-		Double lon = Double.parseDouble(request.getHeader(LON_HEADER));
-
-		return addDistanceScore(q, lat, lon);
-	}
-
-	private static QueryBuilder addDistanceScore(QueryBuilder q, Double lat, Double lon) {
-		QueryBuilder qb = QueryBuilders.functionScoreQuery(q, 
-				ScoreFunctionBuilders.linearDecayFunction("center_point", 
-						new GeoPoint(lat, lon), "200km")).boostMode(CombineFunction.AVG)
-							.scoreMode("max");
+	private static QueryBuilder rescore(QueryBuilder q, Double lat, Double lon, Set<String> poiClass) {
+		
+		FunctionScoreQueryBuilder qb = 
+				QueryBuilders.functionScoreQuery(q)
+					.scoreMode("avg")
+					.boostMode(CombineFunction.REPLACE);
+		
+		if(lat != null && lon != null) {
+			qb.add(ScoreFunctionBuilders.linearDecayFunction("center_point", 
+					new GeoPoint(lat, lon), "5km").setWeight(poiClass.isEmpty() ? 5 : 25));
+		}
+		
+		qb.add(ScoreFunctionBuilders.fieldValueFactorFunction("weight").setWeight(0.02f));
+		
+		qb.add(ScoreFunctionBuilders.scriptFunction("score", "expression").setWeight(1));
+		
 		return qb;
 	}
 
@@ -290,10 +325,6 @@ public class SearchAPI {
 		if (numbers > 1) {
 			resultQuery.minimumNumberShouldMatch(numbers - 1);
 		}
-	}
-
-	public static void setDistanceScoring(boolean value) {
-		distanceScore = value;
 	}
 
 }
