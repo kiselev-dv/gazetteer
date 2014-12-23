@@ -240,9 +240,27 @@ public class Importer implements Runnable {
 			
 			String name = obj.optString("name");
 			sb.append(" ").append(name);
+			
+			JSONObject tags = obj.optJSONObject("tags");
+			if(tags != null) {
+				concatTagValue(sb, tags, "operator");
+				concatTagValue(sb, tags, "brand");
+				concatTagValue(sb, tags, "network");
+				concatTagValue(sb, tags, "ref");
+				concatTagValue(sb, tags, "branch");
+			}
 		}
 		
 		return StringUtils.remove(sb.toString(), ',');
+	}
+
+	private void concatTagValue(StringBuilder sb, JSONObject tags, String tag) {
+		String tv = StringUtils.stripToNull(tags.optString(tag));
+		if(tv != null) {
+			for(String s : StringUtils.split(tv, ";")) {
+				sb.append(" ").append(s);
+			}
+		}
 	}
 
 	private List<String> getPoiTypesTranslated(JSONObject obj) {

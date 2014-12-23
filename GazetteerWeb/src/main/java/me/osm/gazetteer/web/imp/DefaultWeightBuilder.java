@@ -95,26 +95,6 @@ public class DefaultWeightBuilder implements ObjectsWeightBuilder {
 			return "neighbour";
 		}
 		
-		if(alvl == 8) {
-			return "city";
-		}
-		
-		if(alvl == 6 || alvl == 7) {
-			return "district";
-		}
-
-		if(alvl == 4 || alvl == 5) {
-			return "state";
-		}
-
-		if(alvl == 2) {
-			return "country";
-		}
-		
-		if("city".equals(place)) {
-			return "city";
-		}
-
 		//остались города и деревни (place), но если они внутри более крупного города
 		//то классифицируем их как район.
 		//place: hamlet village town 
@@ -146,6 +126,27 @@ public class DefaultWeightBuilder implements ObjectsWeightBuilder {
 			
 			return "place:hamlet";
 		}
+		
+		if(alvl == 8) {
+			return "city";
+		}
+		
+		if(alvl == 6 || alvl == 7) {
+			return "district";
+		}
+
+		if(alvl == 4 || alvl == 5) {
+			return "state";
+		}
+
+		if(alvl == 2) {
+			return "country";
+		}
+		
+		if("city".equals(place)) {
+			return "city";
+		}
+
 		
 		return null;
 	}
