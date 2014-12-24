@@ -688,7 +688,8 @@ public class JoinSliceRunable implements Runnable {
 				}
 				catch (Exception e) {
 					String id = poi.optString("id"); 
-					log.error(String.format("Eception in handler %s for %s", handler.getClass().getName(),  id) , e);
+					String errMessage = String.format("Eception in handler %s for %s", handler.getClass().getName(),  id);
+					log.error(errMessage, e);
 				}
 			}
 		}

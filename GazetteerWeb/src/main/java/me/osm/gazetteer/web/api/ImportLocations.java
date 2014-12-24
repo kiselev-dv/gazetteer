@@ -24,6 +24,7 @@ public class ImportLocations {
 		String source = request.getHeader("source");
 		boolean drop = "true".equals(request.getHeader("drop"));
 		boolean buildingsGeometry = !"false".equals(request.getHeader("buildings_geometry"));
+		boolean osmdoc = "true".equals(request.getHeader("osmdoc"));
 		
 		if(drop) {
 			if(INDICES_CLIENT.exists(new IndicesExistsRequest("gazetteer")).actionGet().isExists()) {
@@ -34,6 +35,7 @@ public class ImportLocations {
 		}
 		
 		if(StringUtils.isNotEmpty(source)) {
+			
 			try {
 				Executors.callable(new Importer(source, buildingsGeometry)).call();
 			} catch (Exception e) {
@@ -42,6 +44,11 @@ public class ImportLocations {
 			
 			result.put("import", true);
 			result.put("buildings_geometry", buildingsGeometry);
+		}
+
+		if(osmdoc) {
+			new ImportOSMDoc().run(null);
+			result.put("osmdoc", osmdoc);
 		}
 		
 		return result;

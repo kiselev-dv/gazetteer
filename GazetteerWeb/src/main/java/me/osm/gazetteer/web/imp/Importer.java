@@ -10,10 +10,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.text.NumberFormat;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.zip.GZIPInputStream;
 
 import me.osm.gazetteer.web.ESNodeHodel;
@@ -26,6 +24,7 @@ import me.osm.osmdoc.read.OSMDocFacade;
 import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.elasticsearch.action.ListenableActionFuture;
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsRequestBuilder;
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsResponse;
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
@@ -45,7 +44,7 @@ public class Importer implements Runnable {
 
 	Logger log = LoggerFactory.getLogger(Importer.class);
 
-	private static final int BATCH_SIZE = 10000;
+	private static final int BATCH_SIZE = 1000;
 
 	private Client client;
 	private BulkRequestBuilder bulkRequest;
@@ -56,6 +55,8 @@ public class Importer implements Runnable {
 	private long counter = 0;
 
 	private boolean buildingsGeometry;
+
+	private ListenableActionFuture<BulkResponse> curentBulkRequest;
 	
 	private static class EmptyAddressException extends Exception {
 
@@ -160,10 +161,15 @@ public class Importer implements Runnable {
 	}
 
 	private void executeBulk() {
-		BulkResponse bulkResponse = bulkRequest.execute().actionGet();
-		if (bulkResponse.hasFailures()) {
-			log.error(bulkResponse.buildFailureMessage());
+		
+		if(curentBulkRequest != null) {
+			BulkResponse bulkResponse = curentBulkRequest.actionGet();
+			if (bulkResponse.hasFailures()) {
+				log.error(bulkResponse.buildFailureMessage());
+			}
 		}
+
+		curentBulkRequest = bulkRequest.execute();
 	}
 
 	private String processLine(String line) {

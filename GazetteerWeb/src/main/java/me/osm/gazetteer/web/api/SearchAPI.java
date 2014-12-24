@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.Set;
 
 import me.osm.gazetteer.web.ESNodeHodel;
+import me.osm.gazetteer.web.imp.Importer;
 import me.osm.gazetteer.web.imp.IndexHolder;
 import me.osm.gazetteer.web.utils.OSMDocSinglton;
 import me.osm.osmdoc.model.Feature;
@@ -147,7 +148,8 @@ public class SearchAPI {
 			}
 			
 			Client client = ESNodeHodel.getClient();
-			SearchRequestBuilder searchRequest = client.prepareSearch("gazetteer")
+			SearchRequestBuilder searchRequest = client
+					.prepareSearch("gazetteer").setTypes(IndexHolder.LOCATION)
 					.setQuery(qb)
 					.setExplain(explain);
 			
@@ -302,12 +304,14 @@ public class SearchAPI {
 
 	public void commonSearchQ(Query query, BoolQueryBuilder resultQuery) {
 		int numbers = query.countNumeric();
+		
+		List<String> required = new ArrayList<String>();
 		for(QToken token : query.listToken()) {
-			
+			//optional
 			if(token.isOptional()) {
 				resultQuery.should(QueryBuilders.matchQuery("search", token.toString()));
 			}
-			
+			//number
 			else if(token.isNumbersOnly()) {
 				if (numbers == 1) {
 					resultQuery.must(QueryBuilders.matchQuery("search", token.toString())).boost(10);
@@ -316,11 +320,15 @@ public class SearchAPI {
 					resultQuery.should(QueryBuilders.matchQuery("search", token.toString())).boost(10);
 				}
 			}
-			
+			//regular token
 			else {
 				resultQuery.must(QueryBuilders.matchQuery("search", token.toString()));
+				required.add(token.toString());
 			}
 		}
+		
+		resultQuery.must(QueryBuilders.matchQuery("name.text", StringUtils.join(required, " ")));
+		//resultQuery.should(QueryBuilders.termsQuery("name.exact", required).boost(10));
 		
 		if (numbers > 1) {
 			resultQuery.minimumNumberShouldMatch(numbers - 1);

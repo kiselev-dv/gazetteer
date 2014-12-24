@@ -87,6 +87,26 @@ public class DefaultWeightBuilder implements ObjectsWeightBuilder {
 			place = StringUtils.stripToNull(tags.optString("place"));
 		}
 		
+		if(alvl == 8) {
+			return "city";
+		}
+		
+		if(alvl == 6 || alvl == 7) {
+			return "district";
+		}
+
+		if(alvl == 4 || alvl == 5) {
+			return "state";
+		}
+
+		if(alvl == 2) {
+			return "country";
+		}
+		
+		if("city".equals(place)) {
+			return "city";
+		}
+		
 		if(alvl > 8) {
 			return "neighbour";
 		}
@@ -126,27 +146,6 @@ public class DefaultWeightBuilder implements ObjectsWeightBuilder {
 			
 			return "place:hamlet";
 		}
-		
-		if(alvl == 8) {
-			return "city";
-		}
-		
-		if(alvl == 6 || alvl == 7) {
-			return "district";
-		}
-
-		if(alvl == 4 || alvl == 5) {
-			return "state";
-		}
-
-		if(alvl == 2) {
-			return "country";
-		}
-		
-		if("city".equals(place)) {
-			return "city";
-		}
-
 		
 		return null;
 	}

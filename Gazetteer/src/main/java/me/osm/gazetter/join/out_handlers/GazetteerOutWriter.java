@@ -287,10 +287,12 @@ public class GazetteerOutWriter extends AddressPerRowJOHBase  {
 	@Override
 	protected void handleAdminBoundaryAddrRow(JSONObject object,
 			JSONObject address, String stripe) {
-		JSONFeature result = new JSONFeature();
-		fillObject(result, address, object);
-		println(result.toString());
-		flush();
+		if(StringUtils.contains(stripe, "binx")) {
+			JSONFeature result = new JSONFeature();
+			fillObject(result, address, object);
+			println(result.toString());
+			flush();
+		}
 	}
 	
 	/**

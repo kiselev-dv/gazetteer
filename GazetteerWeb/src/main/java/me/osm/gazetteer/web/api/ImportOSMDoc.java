@@ -27,9 +27,13 @@ public class ImportOSMDoc {
 	
 	public JSONObject read(Request request, Response response){
 		
-		JSONObject result = new JSONObject();
-		
 		String source = request.getHeader("source");
+		
+		return run(source);
+	}
+
+	public JSONObject run(String source) {
+		JSONObject result = new JSONObject();
 		
 		final BulkRequestBuilder bulk = ESNodeHodel.getClient().prepareBulk();
 
@@ -83,6 +87,7 @@ public class ImportOSMDoc {
 			});
 			
 		}
+		
 		bulk.execute().actionGet();
 		
 		result.put("result", "success");

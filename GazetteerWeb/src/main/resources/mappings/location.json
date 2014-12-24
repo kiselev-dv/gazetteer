@@ -43,6 +43,7 @@
             		"index":"not_analyzed"
             	},
             	"text": {
+            		"type":"string",
             		"index": "analyzed",
             		"index_analyzer": "suggest_synonyms",
             		"search_analyzer": "standard"
