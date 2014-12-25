@@ -327,8 +327,13 @@ public class SearchAPI {
 			}
 		}
 		
-		resultQuery.must(QueryBuilders.matchQuery("name.text", StringUtils.join(required, " ")));
-		//resultQuery.should(QueryBuilders.termsQuery("name.exact", required).boost(10));
+		List<String> cammel = new ArrayList<String>();
+		for(String s : required) {
+			cammel.add(s);
+			cammel.add(StringUtils.capitalize(s));
+		}
+		
+		resultQuery.should(QueryBuilders.termsQuery("name.exact", cammel).boost(20));
 		
 		if (numbers > 1) {
 			resultQuery.minimumNumberShouldMatch(numbers - 1);
