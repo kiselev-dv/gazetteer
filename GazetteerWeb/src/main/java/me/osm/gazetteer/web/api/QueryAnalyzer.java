@@ -23,11 +23,12 @@ public class QueryAnalyzer {
 	}
 
 	public Query getQuery(String q) {
-		q = q.toLowerCase();
 		
 		if(null == q) {
 			return null;
 		}
+
+		q = q.toLowerCase();
 		
 		String[] tokens = StringUtils.split(q, tokenSeparators);
 		

@@ -4,14 +4,11 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import me.osm.gazetteer.web.ESNodeHodel;
-import me.osm.gazetteer.web.imp.Importer;
 import me.osm.gazetteer.web.imp.IndexHolder;
 import me.osm.gazetteer.web.utils.OSMDocSinglton;
 import me.osm.osmdoc.model.Feature;
@@ -20,22 +17,19 @@ import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.Client;
-import org.elasticsearch.common.geo.GeoDistance;
 import org.elasticsearch.common.geo.GeoPoint;
 import org.elasticsearch.common.lucene.search.function.CombineFunction;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.FilterBuilder;
 import org.elasticsearch.index.query.FilterBuilders;
-import org.elasticsearch.index.query.MatchQueryBuilder;
 import org.elasticsearch.index.query.OrFilterBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.functionscore.FunctionScoreQueryBuilder;
 import org.elasticsearch.index.query.functionscore.ScoreFunctionBuilders;
 import org.elasticsearch.search.SearchHit;
-import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.sort.SortBuilders;
-import org.elasticsearch.search.sort.SortOrder;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.restexpress.Request;
 import org.restexpress.Response;
@@ -118,9 +112,14 @@ public class SearchAPI {
 			
 			Query query = queryAnalyzer.getQuery(querryString);
 			
-			JSONObject poiType = findPoiClass(query);
-			if(poiType != null) {
-				poiClass.add(poiType.getString("name"));
+			List<JSONObject> poiType = null;
+			if(query != null) {
+				poiType = findPoiClass(query);
+				if(!poiType.isEmpty()) {
+					for(JSONObject pt : poiType) {
+						poiClass.add(pt.getString("name"));
+					}
+				}
 			}
 			
 			if(querryString != null) {
@@ -139,6 +138,7 @@ public class SearchAPI {
 			}
 			
 			QueryBuilder qb = poiClass.isEmpty() ? QueryBuilders.filteredQuery(q, getFilter(querryString)) : q;
+			//qb = q;
 			
 			qb = rescore(qb, lat, lon, poiClass);
 			
@@ -168,8 +168,8 @@ public class SearchAPI {
 					searchResponse,	fullGeometry, explain);
 			
 			answer.put("request", request.getHeader(Q_HEADER));
-			if(poiType != null) {
-				answer.put("matched_type", request.getHeader(Q_HEADER));
+			if(poiType != null && !poiType.isEmpty()) {
+				answer.put("matched_type", new JSONArray(poiType));
 			}
 			
 			APIUtils.resultPaging(request, answer);
@@ -183,7 +183,7 @@ public class SearchAPI {
 		
 	}
 
-	protected JSONObject findPoiClass(Query query) {
+	protected List<JSONObject> findPoiClass(Query query) {
 		
 		Client client = ESNodeHodel.getClient();
 		
@@ -194,11 +194,12 @@ public class SearchAPI {
 		
 		SearchHit[] hits = searchRequest.get().getHits().getHits();
 
+		List<JSONObject> result = new ArrayList<JSONObject>(hits.length);
 		if(hits.length > 0) {
-			return new JSONObject(hits[0].sourceAsString());
+			result.add(new JSONObject(hits[0].sourceAsString()));
 		}
 		
-		return null;
+		return result;
 	}
 
 	private Double getDoubleHeader(String header, Request request) {
@@ -220,7 +221,7 @@ public class SearchAPI {
 		// Мне нужны только те пои, для которых совпал name и/или тип.
 		BoolQueryBuilder filterQ = QueryBuilders.boolQuery()
 				.must(QueryBuilders.termQuery("type", "poipnt"))
-				.must(QueryBuilders.multiMatchQuery(querry, "name", "poi_class", "poi_class_trans"));
+				.must(QueryBuilders.multiMatchQuery(querry, "name.text", "poi_class", "poi_class_trans"));
 		
 		OrFilterBuilder orFilter = FilterBuilders.orFilter(
 				FilterBuilders.queryFilter(filterQ), 

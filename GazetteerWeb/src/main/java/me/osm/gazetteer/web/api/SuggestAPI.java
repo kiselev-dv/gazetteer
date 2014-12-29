@@ -1,8 +1,10 @@
 package me.osm.gazetteer.web.api;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 
 import me.osm.gazetteer.web.ESNodeHodel;
 import me.osm.gazetteer.web.imp.IndexHolder;
@@ -28,23 +30,13 @@ public class SuggestAPI extends SearchAPI {
 		
 		String querryString = StringUtils.stripToNull(request.getHeader(Q_HEADER));
 		Query query = queryAnalyzer.getQuery(querryString);
-		JSONObject type = suggestPoiType(query);
+		List<JSONObject> type = suggestPoiType(query);
 
-		if(type == null) {
-			return super.read(request, response);
-		} 
+		JSONObject answer = super.read(request, response);
 		
-		JSONObject result = new JSONObject();
-		result.put("result", "success");
+		answer.put("matched_type", new JSONArray(type));
 		
-		JSONArray features = new JSONArray();
-		result.put("features", features);
-		
-		result.put("matched_type", type);
-		
-		result.put("hits", 1);
-		
-		return result;
+		return answer;
 	}
 	
 	@Override
@@ -60,7 +52,7 @@ public class SuggestAPI extends SearchAPI {
 			prefQ = QueryBuilders.matchQuery("search", tail.toString());
 		}
 		else {
-			prefQ = QueryBuilders.prefixQuery("name", tail.toString());
+			prefQ = QueryBuilders.prefixQuery("name.text", tail.toString());
 		}
 		
 		Query head = querry.head();
@@ -78,7 +70,7 @@ public class SuggestAPI extends SearchAPI {
 		
 	}
 
-	private JSONObject suggestPoiType(Query query) {
+	private List<JSONObject> suggestPoiType(Query query) {
 		Client client = ESNodeHodel.getClient();
 		
 		String qs = query.filter(new HashSet<String>(Arrays.asList("на", "дом"))).toString();
@@ -88,11 +80,14 @@ public class SuggestAPI extends SearchAPI {
 		
 		SearchHit[] hits = searchRequest.get().getHits().getHits();
 
+		List<JSONObject> types = new ArrayList<JSONObject>(hits.length);
 		if(hits.length > 0) {
-			return new JSONObject(hits[0].sourceAsString());
+			for(SearchHit hit : hits) {
+				types.add(new JSONObject(hit.getSourceAsString()));
+			}
 		}
 		
-		return null;
+		return types;
 	}
 	
 	

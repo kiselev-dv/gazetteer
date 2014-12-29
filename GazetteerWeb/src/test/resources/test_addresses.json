@@ -80,6 +80,16 @@
 				"location":"0.5/56.8442/60.6394",
 				"type":["poipnt"]
 			}
+		},
+		{
+			"name":"Dautov",
+			"request": {
+				"q":"Dautov"
+			},
+			"first_result": {
+				"location":"0.05/56.83194/60.57633",
+				"type":["poipnt"]
+			}
 		}
 	]
 }
