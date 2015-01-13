@@ -22,6 +22,7 @@ import static me.osm.gazetter.join.out_handlers.GazetteerSchemeConstants.GAZETTE
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -34,6 +35,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.Set;
 
 import me.osm.gazetter.addresses.AddressesUtils;
@@ -61,6 +63,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.google.code.externalsorting.ExternalSort;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.LineString;
@@ -96,6 +99,11 @@ public class GazetteerOutWriter extends AddressPerRowJOHBase  {
 	private Set<String> fillAddrOpts = null;
 
 	private String tagStatPath;
+	
+	private String outFile;
+	private static AtomicInteger instances = new AtomicInteger();
+
+	private String tmpFile;
 	
 	@Override
 	public JoinOutHandler newInstance(List<String> options) {
@@ -823,18 +831,34 @@ public class GazetteerOutWriter extends AddressPerRowJOHBase  {
 		}
 	}
 	
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	private static List<String> list( List list) {
-		if(list == null) {
-			return Collections.emptyList();
-		}
-		return list;
+	@Override
+	protected void initializeWriter(String file) {
+		this.outFile = file;
+		tmpFile = "out-gazetteer" + instances.getAndIncrement() + ".json.tmp";
+		super.initializeWriter(tmpFile);
 	}
 	
 	@Override
 	public void allDone() {
-		super.allDone();
 		
+		super.allDone();
+
+		try {
+			List<File> batch = ExternalSort.sortInBatch(
+					new File(tmpFile), new JSONByIdComparator(), ExternalSort.DEFAULTMAXTEMPFILES,
+					Charset.forName("utf8"), null, true);
+			ExternalSort.mergeSortedFiles(batch, new File(outFile), new JSONByIdComparator(), true);
+			
+			new File(tmpFile).delete();
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+		
+		writeTagStat();
+	}
+
+	private void writeTagStat() {
 		if(StringUtils.isNotBlank(tagStatPath)) {
 			Collection<JSONObject> usage = ((ExportTagsStatisticCollector)tagStatistics).asJson();
 			
