@@ -18,6 +18,7 @@ import me.osm.gazetter.split.Split;
 import me.osm.gazetter.striper.Slicer;
 import net.sourceforge.argparse4j.ArgumentParsers;
 import net.sourceforge.argparse4j.impl.Arguments;
+import net.sourceforge.argparse4j.inf.ArgumentAction;
 import net.sourceforge.argparse4j.inf.ArgumentParser;
 import net.sourceforge.argparse4j.inf.ArgumentParserException;
 import net.sourceforge.argparse4j.inf.Namespace;
@@ -202,7 +203,8 @@ public class Main {
 				File destFolder = new File(namespace.getString(DATA_DIR_VAL));
 				String in = namespace.getString("osm_file");
 				String compression = namespace.getString("compression");
-				Split splitter = new Split(destFolder, in, compression);
+				boolean append = namespace.getBoolean("append");
+				Split splitter = new Split(destFolder, in, compression, append);
 				splitter.run();
 			}
 
@@ -231,6 +233,12 @@ public class Main {
 				
 				List<String> handlers = list(namespace.getList("handlers"));
 				Options.get().setJoinHandlers(handlers);
+				
+				if(Options.get().getJoinOutHandlers().isEmpty()) {
+					System.out.println("No join handlers was initialized.");
+					System.out.println("Predefined handlers are: " + StringUtils.join(Options.getPredefinedOutHandlers(), ", "));
+					System.exit(1);
+				}
 //				Options.get().setPOICatalogPath(namespace.getString(POI_CATALOG_VAL));
 				
 				new JoinExecutor(new HashSet(list(namespace.getList("check_boundaries"))))
@@ -243,18 +251,6 @@ public class Main {
 				new SortUpdate(namespace.getString(DATA_DIR_VAL)).run();
 			}
 			
-			if(namespace.get(COMMAND).equals(Command.OUT_CSV)) {
-
-				Options.get().setCsvOutLineHandler(namespace.getString("line_handler"));
-
-				new CSVOutWriter(
-						namespace.getString(DATA_DIR_VAL), 
-						StringUtils.join(list(namespace.getList("columns")), ' '), 
-						list(namespace.getList("types")),
-						namespace.getString("out_file"),
-						namespace.getString(POI_CATALOG_VAL)).write();
-			}
-
 			if(namespace.get(COMMAND).equals(Command.DIFF)) {
 				new Diff(namespace.getString("old"), namespace.getString("new"), 
 						namespace.getString("out_file")).run();
@@ -387,6 +383,8 @@ public class Main {
         		.setConst("none").setDefault("bz2")
         		.help("Use with \"osm_file -\" allow to read compressed stream from STDIN.");
         	
+        	split.addArgument("--append").required(false).setDefault(Boolean.FALSE)
+				.nargs("?").setConst(Boolean.TRUE);
         }
         
 		//slice

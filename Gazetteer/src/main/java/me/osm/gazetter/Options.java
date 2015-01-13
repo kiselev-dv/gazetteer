@@ -28,6 +28,7 @@ import me.osm.gazetter.join.out_handlers.GazetteerOutWriter;
 import me.osm.gazetter.join.out_handlers.JoinOutHandler;
 import me.osm.gazetter.join.out_handlers.PrintJoinOutHandler;
 import me.osm.gazetter.out.CSVOutLineHandler;
+import me.osm.gazetter.out.CSVOutWriter;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -47,6 +48,11 @@ public class Options {
 	static {
 		predefinedJoinOutHandlers.put(PrintJoinOutHandler.NAME, new PrintJoinOutHandler());
 		predefinedJoinOutHandlers.put(GazetteerOutWriter.NAME, new GazetteerOutWriter());
+		predefinedJoinOutHandlers.put(CSVOutWriter.NAME, new CSVOutWriter());
+	}
+	
+	public static Collection<String> getPredefinedOutHandlers() {
+		return predefinedJoinOutHandlers.keySet();
 	}
 	
 	private static volatile Options instance;
@@ -54,7 +60,6 @@ public class Options {
 	private final AddressesParser addressesParser;
 	private final NamesMatcher namesMatcher;
 	private boolean findLangsLevel;
-	private CSVOutLineHandler csvOutLineHandler = null;
 	private int nThreads = Runtime.getRuntime().availableProcessors();
 	private boolean compress = true;
 	private List<JoinOutHandler> joinHandlers = new ArrayList<>();
@@ -209,14 +214,6 @@ public class Options {
 		return findLangsLevel;
 	}
 
-	public CSVOutLineHandler getCsvOutLineHandler() {
-		return csvOutLineHandler;
-	}
-
-	public void setCsvOutLineHandler(String csvOutLineHandler) {
-		this.csvOutLineHandler = getCSVHandler(csvOutLineHandler);
-	}
-
 	public int getNumberOfThreads () {
 		return this.nThreads;
 	}
@@ -242,6 +239,10 @@ public class Options {
 				for(String sh : handlers) {
 					if(sh.endsWith(".groovy") || predefinedJoinOutHandlers.keySet().contains(sh)) {
 						groups.add(new ArrayList<String>());
+					}
+					
+					if(groups.isEmpty()) {
+						return;
 					}
 					
 					groups.get(groups.size() - 1).add(sh);

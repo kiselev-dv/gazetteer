@@ -52,7 +52,7 @@ public class FeatureValueExctractorImpl implements FeatureValueExtractor {
 			VERBOSE_TYPE));
 	
 	@Override
-	public Object getValue(String key, JSONObject jsonObject, Integer rowIndex) {
+	public Object getValue(String key, JSONObject jsonObject) {
 		try {
 			String ftype = jsonObject.getString("ftype");
 			

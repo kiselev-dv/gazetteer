@@ -177,22 +177,24 @@ public class BoundariesFallbacker {
 				public void handle(String s) {
 					String[] split = StringUtils.split(s, '\t');
 				
-					if(split[0].equals(itg.id)) {
-						LocalDateTime t = new LocalDateTime(StringUtils.removeEnd(split[1], "Z"));
-						if(itg.timestamp == null || t.isAfter(itg.timestamp)) {
+					if(split != null && split.length >= 3) {
+						if(split[0].equals(itg.id)) {
+							LocalDateTime t = new LocalDateTime(StringUtils.removeEnd(split[1], "Z"));
+							if(itg.timestamp == null || t.isAfter(itg.timestamp)) {
+								itg.geometry = split[2];
+								itg.timestamp = t;
+							}
+						}
+						else {
+							
+							if(itg.id != null) {
+								tmpW.println(itg.id + '\t' + itg.timestamp.toString() + '\t' + itg.geometry);
+							}
+							
+							itg.id = split[0];
 							itg.geometry = split[2];
-							itg.timestamp = t;
+							itg.timestamp = LocalDateTime.parse(split[1]); 
 						}
-					}
-					else {
-						
-						if(itg.id != null) {
-							tmpW.println(itg.id + '\t' + itg.timestamp.toString() + '\t' + itg.geometry);
-						}
-						
-						itg.id = split[0];
-						itg.geometry = split[2];
-						itg.timestamp = LocalDateTime.parse(split[1]); 
 					}
 				}
 				

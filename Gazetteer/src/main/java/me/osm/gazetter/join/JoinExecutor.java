@@ -114,7 +114,9 @@ public class JoinExecutor implements JoinFailuresHandler{
 			throw new RuntimeException("Executor service shutdown failed.", e);
 		}
 		
-		log.info("Rerun join for {} from {} files. In one thread.", fails.size(), stripesFiles.length);
+		if(!fails.isEmpty()) {
+			log.info("Rerun join for {} from {} files. In one thread.", fails.size(), stripesFiles.length);
+		}
 		
 		ArrayList<File> oneThread = new ArrayList<File>(fails);
 		fails.clear();

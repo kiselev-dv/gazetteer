@@ -56,11 +56,12 @@ public class JoinBoundariesExecutor {
 		
 		@Override
 		public int compare(String arg0, String arg1) {
-			int i1 = Integer.parseInt(GeoJsonWriter.getAdmLevel(arg0));
-			int i2 = Integer.parseInt(GeoJsonWriter.getAdmLevel(arg1));
 			
-			lvls.add(i1);
-			lvls.add(i2);
+			int i1 = arg0 == null ? -1 : Integer.parseInt(GeoJsonWriter.getAdmLevel(arg0));
+			int i2 = arg1 == null ? -1 : Integer.parseInt(GeoJsonWriter.getAdmLevel(arg1));
+			
+			if(i1 > 0) lvls.add(i1);
+			if(i2 > 0) lvls.add(i2);
 			
 			return Integer.compare(i1, i2);
 		}

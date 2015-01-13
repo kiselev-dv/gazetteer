@@ -23,14 +23,7 @@ public abstract class AddressPerRowJOHBase extends SingleWriterJOHBase {
 		List<JSONObject> addresses = listAddresses(object, stripe);
 		if(addresses != null && !addresses.isEmpty()) {
 			for(JSONObject address : addresses) {
-				if(address.has("boundariesHash") && address.getInt("boundariesHash") == 0) {
-					if (!dropEmptyAddresses) {
-						handle(object, null, stripe);
-					}
-				}
-				else {
-					handle(object, address, stripe);
-				}
+				handle(object, address, stripe);
 			}
 		}
 		else if (!dropEmptyAddresses) {
@@ -186,6 +179,11 @@ public abstract class AddressPerRowJOHBase extends SingleWriterJOHBase {
 			}
 			
 			return addresses;
+		}
+		
+		JSONObject b =jsonObject.optJSONObject("boundaries");
+		if(b != null) {
+			return Collections.singletonList(jsonObject.optJSONObject("boundaries"));
 		}
 		
 		return null;

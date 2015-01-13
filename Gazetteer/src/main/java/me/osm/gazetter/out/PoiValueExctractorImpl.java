@@ -32,7 +32,7 @@ public class PoiValueExctractorImpl extends FeatureValueExctractorImpl {
 	}
 
 	@Override
-	public Object getValue(String key, JSONObject jsonObject, Integer rowIndex) {
+	public Object getValue(String key, JSONObject jsonObject) {
 		try {
 			
 			String lang = null;
@@ -157,7 +157,7 @@ public class PoiValueExctractorImpl extends FeatureValueExctractorImpl {
 				return val;
 
 			default:
-				return super.getValue(key, jsonObject, rowIndex);
+				return super.getValue(key, jsonObject);
 			}
 		}
 		catch (Exception e) {

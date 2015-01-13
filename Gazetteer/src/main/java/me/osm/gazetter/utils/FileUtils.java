@@ -59,7 +59,9 @@ public class FileUtils {
 			
 			String line = bufferedReader.readLine();
 			do {
-				handler.handle(line);
+				if(line != null) {
+					handler.handle(line);
+				}
 				line = bufferedReader.readLine();
 			} while (line != null);
 		} catch (IOException e) {

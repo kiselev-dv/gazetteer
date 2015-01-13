@@ -2,6 +2,7 @@ package me.osm.gazetter.join.out_handlers;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -50,7 +51,7 @@ public class HandlerOptions {
 		return missed;
 	}
 
-	public static HandlerOptions parse(List<String> options, List<String> argNames) {
+	public static HandlerOptions parse(List<String> options, Collection<String> argNames) {
 		
 		HandlerOptions result = new HandlerOptions();
 		

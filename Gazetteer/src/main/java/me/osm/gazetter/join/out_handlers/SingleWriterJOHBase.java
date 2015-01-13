@@ -8,7 +8,7 @@ import me.osm.gazetter.utils.FileUtils;
 
 public abstract class SingleWriterJOHBase implements JoinOutHandler {
 
-	private PrintWriter writer = new PrintWriter(System.out);
+	protected PrintWriter writer = new PrintWriter(System.out);
 	
 	private static final Object mutex = new Object();
 	

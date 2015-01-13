@@ -31,7 +31,7 @@ public class Split implements LineHandler {
 	private PrintWriter wayPW;
 	private PrintWriter relPW;
 
-	public Split (File destFolder, String input, String compression) {
+	public Split (File destFolder, String input, String compression, boolean append) {
 		try {
 			if(input.equals("-")) {
 				if("gzip".equals(compression)) {
@@ -55,16 +55,17 @@ public class Split implements LineHandler {
 		}
 		destFolder.mkdirs();
 		try {
+			boolean compress = !append && Options.get().isCompress();
+			
+			String suffix = compress ? ".gz" : "";
+			
 			nodePW = FileUtils.getPrintwriter(new File(destFolder.getAbsolutePath() 
-					+ "/" + "nodes.osm" 
-					+ (Options.get().isCompress() ? ".gz" : "" )), false);
+					+ "/" + "nodes.osm" + suffix), append);
 			
 			wayPW = FileUtils.getPrintwriter(new File(destFolder.getAbsolutePath() 
-					+ "/" + "ways.osm" 
-					+ (Options.get().isCompress() ? ".gz" : "" )), false);
+					+ "/" + "ways.osm" + suffix), append);
 			relPW = FileUtils.getPrintwriter(new File(destFolder.getAbsolutePath() 
-					+ "/" + "rels.osm" 
-					+ (Options.get().isCompress() ? ".gz" : "" )), false);
+					+ "/" + "rels.osm" + suffix), append);
 		}
 		catch (Exception e) {
 			throw new RuntimeException("Failed to initialize splitter. "
