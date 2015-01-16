@@ -30,17 +30,20 @@ public class FileWriteDao implements WriteDao {
 	}
 
 	private PrintWriter getWriter(String key) throws IOException {
+
 		PrintWriter pw = writers.get(key);
 		if(pw == null) {
 			synchronized(writers) {
 				pw = writers.get(key);
 				if(pw == null) {
-					File file = new File(dir.getAbsolutePath() + "/" + key + (Options.get().isCompress() ? ".gz" : ""));
+					boolean useGZ = Options.get().isCompress();
+
+					File file = new File(dir.getAbsolutePath() + "/" + key + (useGZ ? ".gz" : ""));
 					if(!file.exists()) {
 						file.createNewFile();
 					}
 					
-					pw = FileUtils.getPrintwriter(file, true);
+					pw = FileUtils.getPrintwriter(file, !useGZ);
 					writers.put(key, pw);
 				}
 			}

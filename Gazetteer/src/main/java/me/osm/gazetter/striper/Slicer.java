@@ -89,42 +89,47 @@ public class Slicer implements BoundariesHandler,
 			List<String> boundariesFallbackTypes) {
 		
 		long start = new Date().getTime(); 
-		
-		log.info("Slice {}", types);
-		
-		HashSet<String> drop = new HashSet<String>(dropList);
-		
-		List<Builder> builders = new ArrayList<>();
-		
-		Set<String> typesSet = new HashSet<String>(types);
-		
-		if(typesSet.contains("all") || typesSet.contains("boundaries")) {
-			builders.add(new BoundariesBuilder(this, 
-					BoundariesFallbacker.getInstance(boundariesFallbackIndex, boundariesFallbackTypes)));
-		}
 
-		if(typesSet.contains("all") || typesSet.contains("places")) {
-			builders.add(new PlaceBuilder(this, this, 
-					BoundariesFallbacker.getInstance(boundariesFallbackIndex, boundariesFallbackTypes)));
+		try {
+			
+			log.info("Slice {}", types);
+			
+			HashSet<String> drop = new HashSet<String>(dropList);
+			
+			List<Builder> builders = new ArrayList<>();
+			
+			Set<String> typesSet = new HashSet<String>(types);
+			
+			if(typesSet.contains("all") || typesSet.contains("boundaries")) {
+				builders.add(new BoundariesBuilder(this, 
+						BoundariesFallbacker.getInstance(boundariesFallbackIndex, boundariesFallbackTypes)));
+			}
+			
+			if(typesSet.contains("all") || typesSet.contains("places")) {
+				builders.add(new PlaceBuilder(this, this, 
+						BoundariesFallbacker.getInstance(boundariesFallbackIndex, boundariesFallbackTypes)));
+			}
+			
+			if(typesSet.contains("all") || typesSet.contains("highways")) {
+				builders.add(new HighwaysBuilder(this, this));
+			}
+			
+			if(typesSet.contains("all") || typesSet.contains("addresses")) {
+				builders.add(new AddrPointsBuilder(this));
+			}
+			
+			if(typesSet.contains("all") || typesSet.contains("pois")) {
+				builders.add(new PoisBuilder(this, poiCatalogPath, exclude, named));
+			}
+			
+			
+			Builder[] buildersArray = builders.toArray(new Builder[builders.size()]);
+			new Engine().filter(drop, osmSlicesPath, buildersArray);
 		}
-
-		if(typesSet.contains("all") || typesSet.contains("highways")) {
-			builders.add(new HighwaysBuilder(this, this));
-		}
-
-		if(typesSet.contains("all") || typesSet.contains("addresses")) {
-			builders.add(new AddrPointsBuilder(this));
+		finally {
+			writeDAO.close();
 		}
 		
-		if(typesSet.contains("all") || typesSet.contains("pois")) {
-			builders.add(new PoisBuilder(this, poiCatalogPath, exclude, named));
-		}
-
-		
-		Builder[] buildersArray = builders.toArray(new Builder[builders.size()]);
-		new Engine().filter(drop, osmSlicesPath, buildersArray);
-		
-		writeDAO.close();
 		log.info("Slice done in {}", DurationFormatUtils.formatDurationHMS(new Date().getTime() - start));
 	}
 
