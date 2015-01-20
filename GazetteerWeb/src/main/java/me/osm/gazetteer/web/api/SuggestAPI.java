@@ -13,6 +13,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.index.query.BoolQueryBuilder;
+import org.elasticsearch.index.query.DisMaxQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
@@ -73,10 +74,19 @@ public class SuggestAPI extends SearchAPI {
 	private List<JSONObject> suggestPoiType(Query query) {
 		Client client = ESNodeHodel.getClient();
 		
-		String qs = query.filter(new HashSet<String>(Arrays.asList("на", "дом"))).toString();
+		Query filtered = query.filter(new HashSet<String>(Arrays.asList("на", "дом")));
 		
-		SearchRequestBuilder searchRequest = client.prepareSearch("gazetteer").setTypes(IndexHolder.POI_CLASS)
-				.setQuery(QueryBuilders.prefixQuery("translated_title", qs));
+		DisMaxQueryBuilder dismax = QueryBuilders.disMaxQuery()
+				.add(QueryBuilders.prefixQuery("translated_title", filtered.toString()));
+		
+		dismax.add(QueryBuilders.prefixQuery("translated_title", query.tail().toString()));
+		if(!query.listToken().isEmpty()) {
+			dismax.add(QueryBuilders.prefixQuery("translated_title", query.listToken().get(0).toString()));
+		}
+		
+		SearchRequestBuilder searchRequest = client.prepareSearch("gazetteer")
+				.setTypes(IndexHolder.POI_CLASS)
+				.setQuery(dismax);
 		
 		SearchHit[] hits = searchRequest.get().getHits().getHits();
 

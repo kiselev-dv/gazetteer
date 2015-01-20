@@ -75,7 +75,7 @@ extends org.restexpress.util.Environment
 	}
 
 	public String getPoiCatalogPath() {
-		return poiCatalogPath;
+		return poiCatalogPath == null ? "jar" : poiCatalogPath;
 	}
 
 	public String getHostName() {
