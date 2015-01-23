@@ -34,7 +34,7 @@ public class Routes {
 
 		server.uri(root + "/location/{id}/{_related}",
 				new FeatureAPI())
-					.alias(root + "/feature/{id}")
+					.alias(root + "/location/{id}")
 					.method(HttpMethod.GET)
 					.name(Constants.FEATURE_URI)
 					.flag(Flags.Auth.PUBLIC_ROUTE)

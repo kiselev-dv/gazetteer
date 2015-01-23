@@ -86,6 +86,18 @@ public class SearchAPI {
 	 * */
 	public static final String LON_HEADER = "lon";
 	
+	/**
+	 * Features id's of higher objects to filter results.
+	 * */
+	public static final String PARENTS_HEADER = "parents";
+	
+	/**
+	 * Use it, if you have separate addresses parts texts, to search over.
+	 * */
+	public static final String PARTS_HEADER = "parts";
+	
+	
+	
 	protected final QueryAnalyzer queryAnalyzer = new QueryAnalyzer();
 	
 	public JSONObject read(Request request, Response response) 
