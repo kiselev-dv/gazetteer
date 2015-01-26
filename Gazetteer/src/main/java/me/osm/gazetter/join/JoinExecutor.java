@@ -47,7 +47,7 @@ public class JoinExecutor implements JoinFailuresHandler{
 		
 		@Override
 		public boolean accept(File dir, String name) {
-			return name.matches("stripe\\d+\\.gjson(\\.gz)?");
+			return name.matches("stripe[\\.\\d-]+\\.gjson(\\.gz)?(?!.)");
 		}
 	
 	}
@@ -89,7 +89,6 @@ public class JoinExecutor implements JoinFailuresHandler{
 	
 	private void joinStripes(String stripesFolder, List<JSONObject> common) {
 		
-		//ExecutorService executorService = Executors.newFixedThreadPool(Options.get().getNumberOfThreads());
 		int threads = Options.get().getNumberOfThreads();
 		
 		LinkedBlockingQueue<Runnable> queue = new LinkedBlockingQueue<Runnable>(threads);

@@ -118,6 +118,8 @@ public class SearchAPI {
 			Double lat = getDoubleHeader(LAT_HEADER, request);
 			Double lon = getDoubleHeader(LON_HEADER, request);
 			
+			Set<String> parents = getSet(request, PARENTS_HEADER);
+			
 			if(querryString == null && poiClass.isEmpty() && types.isEmpty()) {
 				return null;
 			}
