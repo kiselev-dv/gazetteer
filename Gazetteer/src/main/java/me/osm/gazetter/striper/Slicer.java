@@ -68,6 +68,7 @@ public class Slicer implements BoundariesHandler,
 	private static double dxinv = 1/dx;
 	private static double x0 = 0;
 	private static int chars = 4 + f / 10; 
+	private static int roundPlaces = 4 + f / 10; 
 	private static String FILE_MASK = "%0" + chars + "d";
 	
 	private WriteDao writeDAO;
@@ -93,6 +94,7 @@ public class Slicer implements BoundariesHandler,
 		dxinv = 1/dx;
 		x0 = 0;
 		chars = 4 + f / 10; 
+		roundPlaces = 4 + f / 10; 
 		FILE_MASK = "%0" + chars + "d";
 	}
 	
@@ -266,7 +268,7 @@ public class Slicer implements BoundariesHandler,
 		Polygon bbox = (Polygon) p.getEnvelope();
 		
 		Point centroid = bbox.getCentroid();
-		double snapX = round(snap(centroid.getX()), 4);
+		double snapX = round(snap(centroid.getX()), roundPlaces);
 		
 		double minX = p.getEnvelopeInternal().getMinX();
 		double maxX = p.getEnvelopeInternal().getMaxX();
@@ -292,8 +294,8 @@ public class Slicer implements BoundariesHandler,
 		double maxX = bbox.getMaxX();
 		
 		List<Double> bladesX = new ArrayList<>();
-		for(double x = minX;x <= maxX;x += 0.1) {
-			double snapX = round(snap(x), 4);
+		for(double x = minX;x <= maxX;x += dx) {
+			double snapX = round(snap(x), roundPlaces);
 			
 			if(snapX > minX && snapX < maxX) {
 				bladesX.add(snapX);
@@ -320,22 +322,22 @@ public class Slicer implements BoundariesHandler,
 			x2 = x; 
 			polygons.add(
 				factory.createPolygon(new Coordinate[]{
-					new Coordinate(x1, bbox.getMinY() - 0.001),	
-					new Coordinate(x2, bbox.getMinY() - 0.001),	
-					new Coordinate(x2, bbox.getMaxY() + 0.001),	
-					new Coordinate(x1, bbox.getMaxY() + 0.001),	
-					new Coordinate(x1, bbox.getMinY() - 0.001)	
+					new Coordinate(x1, bbox.getMinY() - 0.00001),	
+					new Coordinate(x2, bbox.getMinY() - 0.00001),	
+					new Coordinate(x2, bbox.getMaxY() + 0.00001),	
+					new Coordinate(x1, bbox.getMaxY() + 0.00001),	
+					new Coordinate(x1, bbox.getMinY() - 0.00001)	
 			}));
 			x1 = x2;
 		}
 		x2 = maxX;
 		polygons.add(
 			factory.createPolygon(new Coordinate[]{
-					new Coordinate(x1, bbox.getMinY() - 0.001),	
-					new Coordinate(x2, bbox.getMinY() - 0.001),	
-					new Coordinate(x2, bbox.getMaxY() + 0.001),	
-					new Coordinate(x1, bbox.getMaxY() + 0.001),	
-					new Coordinate(x1, bbox.getMinY() - 0.001)	
+					new Coordinate(x1, bbox.getMinY() - 0.00001),	
+					new Coordinate(x2, bbox.getMinY() - 0.00001),	
+					new Coordinate(x2, bbox.getMaxY() + 0.00001),	
+					new Coordinate(x1, bbox.getMaxY() + 0.00001),	
+					new Coordinate(x1, bbox.getMinY() - 0.00001)	
 		}));
 		
 		
