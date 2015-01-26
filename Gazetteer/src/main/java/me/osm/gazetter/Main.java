@@ -419,7 +419,7 @@ public class Main {
 			slice.addArgument(BOUNDARIES_FALLBACK_TYPES_PARAM).nargs("*")
 				.help("List of boundaries to keep in boundaries fallback file. Eg. boundary:2");
 			
-			slice.addArgument("x10").setConst(Boolean.TRUE)
+			slice.addArgument("--x10").setConst(Boolean.TRUE)
 				.setDefault(Boolean.FALSE).action(new StoreTrueArgumentAction())
 				.help("Slice ten times thinner stripes");
 			
@@ -457,10 +457,6 @@ public class Main {
 						+ "If one of [name:uk name:ru name:en] is equals \n"
 						+ "to name still generate additional row. \n"
 						+ "(You can filter it later with simple distinct check).");
-			
-//			join.addArgument(POI_CATALOG_OPT).setDefault("jar")
-//				.help("Path to osm-doc catalog xml file. By default internal osm-doc.xml "
-//						+ "from osm-doc-java.jar will be used.");
 			
 			join.addArgument("--handlers").nargs("*");
 			
