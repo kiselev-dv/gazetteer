@@ -80,9 +80,15 @@ public class JoinExecutor implements JoinFailuresHandler{
 				DurationFormatUtils.formatDurationHMS(new Date().getTime()
 						- start));
 		
+		start = new Date().getTime();
 		for(JoinOutHandler h : Options.get().getJoinOutHandlers()) {
 			h.allDone();
 		}
+		
+		log.info(
+				"All handlers done in {}",
+				DurationFormatUtils.formatDurationHMS(new Date().getTime()
+						- start));
 	}
 
 	private final List<File> fails = Collections.synchronizedList(new ArrayList<File>());;
