@@ -18,6 +18,7 @@ import me.osm.gazetter.split.Split;
 import me.osm.gazetter.striper.Slicer;
 import net.sourceforge.argparse4j.ArgumentParsers;
 import net.sourceforge.argparse4j.impl.Arguments;
+import net.sourceforge.argparse4j.impl.action.StoreTrueArgumentAction;
 import net.sourceforge.argparse4j.inf.ArgumentAction;
 import net.sourceforge.argparse4j.inf.ArgumentParser;
 import net.sourceforge.argparse4j.inf.ArgumentParserException;
@@ -224,7 +225,8 @@ public class Main {
 						list(namespace.getList(NAMED_POI_BRANCH_VAL)),
 						list(namespace.getList("drop")),
 						namespace.getString(BOUNDARIES_FALLBACK_VAL),
-						list(namespace.getList(BOUNDARIES_FALLBACK_TYPES_VAL))
+						list(namespace.getList(BOUNDARIES_FALLBACK_TYPES_VAL)),
+						namespace.getBoolean("x10")
 				);
 				
 			}
@@ -416,6 +418,10 @@ public class Main {
 			
 			slice.addArgument(BOUNDARIES_FALLBACK_TYPES_PARAM).nargs("*")
 				.help("List of boundaries to keep in boundaries fallback file. Eg. boundary:2");
+			
+			slice.addArgument("x10").setConst(Boolean.TRUE)
+				.setDefault(Boolean.FALSE).action(new StoreTrueArgumentAction())
+				.help("Slice ten times thinner stripes");
 			
 		}
 

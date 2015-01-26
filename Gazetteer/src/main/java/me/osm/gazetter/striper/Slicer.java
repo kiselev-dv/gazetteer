@@ -63,12 +63,15 @@ public class Slicer implements BoundariesHandler,
 	private static final GeometryFactory factory = new GeometryFactory();
 	private ExecutorService executorService;
 	
-	private static double dx = 0.1;
+	private static int f = 1;
+	private static double dx = 0.1 / f;
+	private static double dxinv = 1/dx;
 	private static double x0 = 0;
+	private static int chars = 4 + f / 10; 
+	private static String FILE_MASK = "%0" + chars + "d";
 	
 	private WriteDao writeDAO;
 	private String osmSlicesPath;
-
 	
 	public static final List<String> sliceTypes = Arrays.asList(
 			"all", "boundaries", "places", "highways", "addresses", "pois"
@@ -84,15 +87,28 @@ public class Slicer implements BoundariesHandler,
 		executorService = Executors.newFixedThreadPool(Options.get().getNumberOfThreads());
 	}
 	
+	public static void setFactor(int newf) {
+		int f = newf;
+		dx = 0.1 / f;
+		dxinv = 1/dx;
+		x0 = 0;
+		chars = 4 + f / 10; 
+		FILE_MASK = "%0" + chars + "d";
+	}
+	
 	public void run(String poiCatalogPath, List<String> types, List<String> exclude, 
 			List<String> named, List<String> dropList, String boundariesFallbackIndex, 
-			List<String> boundariesFallbackTypes) {
+			List<String> boundariesFallbackTypes, boolean x10) {
 		
 		long start = new Date().getTime(); 
 
 		try {
 			
 			log.info("Slice {}", types);
+
+			if(x10) {
+				setFactor(10);
+			}
 			
 			HashSet<String> drop = new HashSet<String>(dropList);
 			
@@ -364,7 +380,7 @@ public class Slicer implements BoundariesHandler,
 	}
 
 	public static String getFilePrefix(double x) {
-		return String.format("%04d", (new Double((x + 180.0) * 10.0).intValue()));
+		return String.format(FILE_MASK, (new Double((x + 180.0) * dxinv).intValue()));
 	}
 
 	@Override
@@ -421,8 +437,8 @@ public class Slicer implements BoundariesHandler,
 		
 		// most of highways hits only one stripe so it's faster to write
 		// it into all of them without splitting 
-		int min = new Double((env.getMinX() + 180.0) * 10.0).intValue();
-		int max = new Double((env.getMaxX() + 180.0) * 10.0).intValue();
+		int min = new Double((env.getMinX() + 180.0) * dxinv).intValue();
+		int max = new Double((env.getMaxX() + 180.0) * dxinv).intValue();
 		
 		Point centroid = geometry.getCentroid();
 		
@@ -443,7 +459,7 @@ public class Slicer implements BoundariesHandler,
 		else if(max - min == 1) {
 			//it's faster to write geometry as is in such case.
 			for(int i = min; i <= max; i++) {
-				String n = String.format("%04d", i); 
+				String n = String.format(FILE_MASK, i); 
 				writeOut(geoJSONString, n);
 			}
 		}
@@ -562,7 +578,7 @@ public class Slicer implements BoundariesHandler,
 		
 		if(minN <= maxN) {
 			for(int i = minN; i <= maxN; i++) {
-				String n = String.format("%04d", i);
+				String n = String.format(FILE_MASK, i);
 				
 				JSONObject feature = new JSONFeature();
 
