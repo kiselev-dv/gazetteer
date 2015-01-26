@@ -15,6 +15,9 @@ public class JSONByIdComparator implements Comparator<String> {
     	String uid1 = GeoJsonWriter.getId(o1);
     	String uid2 = GeoJsonWriter.getId(o2);
     	
+    	if(uid1 == null && uid2 == null) return 0;
+    	if(uid1 == null || uid2 == null) return uid1 == null ? -1 : 1;
+    	
 		return uid1.compareTo(uid2);
 	}
 

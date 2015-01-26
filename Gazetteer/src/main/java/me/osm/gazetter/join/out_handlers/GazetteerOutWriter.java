@@ -846,8 +846,9 @@ public class GazetteerOutWriter extends AddressPerRowJOHBase  {
 		try {
 			List<File> batch = ExternalSort.sortInBatch(
 					new File(tmpFile), new JSONByIdComparator(), ExternalSort.DEFAULTMAXTEMPFILES,
-					Charset.forName("utf8"), null, true);
-			ExternalSort.mergeSortedFiles(batch, new File(outFile), new JSONByIdComparator(), true);
+					Charset.forName("utf8"), null, true, 0, true);
+			ExternalSort.mergeSortedFiles(batch, new File(outFile), new JSONByIdComparator(),
+					Charset.forName("utf8"), true, false, true);
 			
 			new File(tmpFile).delete();
 		}
