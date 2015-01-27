@@ -65,6 +65,7 @@ public class Main {
 	
 	private static final String LOG_OPT = "--log-level";
 	private static final String LOG_FILE_OPT = "--log-file";
+	private static final String LOG_PREFIX_OPT = "--log-prefix";
 
 	private static final String POI_CATALOG_VAL = "poi_catalog";
 	private static final String POI_CATALOG_OPT = "--poi-catalog";
@@ -336,6 +337,10 @@ public class Main {
 			else if(k.equals(LOG_FILE_OPT) && iterator.hasNext()) {
 				System.setProperty(org.slf4j.impl.SimpleLogger.LOG_FILE_KEY, iterator.next());
 			}
+			else if(k.equals(LOG_PREFIX_OPT) && iterator.hasNext()) {
+				System.setProperty(org.slf4j.impl.SimpleLogger.DATE_TIME_FORMAT_KEY, 
+						"'" + iterator.next()	+ "' " + "yyyy-MM-dd HH.mm.ss.S");
+			}
 		}
 	}
 
@@ -360,6 +365,7 @@ public class Main {
         
         parser.addArgument(LOG_OPT).required(false).setDefault("WARN");
         parser.addArgument(LOG_FILE_OPT).required(false);
+        parser.addArgument(LOG_PREFIX_OPT).required(false);
         
         Subparsers subparsers = parser.addSubparsers();
 		
