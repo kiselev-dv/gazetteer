@@ -87,5 +87,27 @@ public class Query {
 		}
 		return new Query(r);
 	}
+
+	public Query required() {
+		List<QToken> r = new ArrayList<QToken>();
+		for(QToken t : this.tokens) {
+			if(!t.isOptional()) {
+				r.add(t);
+			}
+		}
+		return new Query(r);
+	}
+
+	public Query woNumbers() {
+		List<QToken> r = new ArrayList<QToken>();
+		for(QToken t : this.tokens) {
+			if(!t.isHasNumbers()) {
+				r.add(t);
+			}
+		}
+		return new Query(r);
+	}
+	
+	
 	
 }

@@ -129,11 +129,11 @@ public class SearchAPI {
 			List<JSONObject> poiType = null;
 			if(query != null) {
 				poiType = findPoiClass(query);
-				if(!poiType.isEmpty()) {
-					for(JSONObject pt : poiType) {
-						poiClass.add(pt.getString("name"));
-					}
-				}
+//				if(!poiType.isEmpty()) {
+//					for(JSONObject pt : poiType) {
+//						poiClass.add(pt.getString("name"));
+//					}
+//				}
 			}
 			
 			if(querryString != null) {
@@ -201,7 +201,7 @@ public class SearchAPI {
 		
 		Client client = ESNodeHodel.getClient();
 		
-		String qs = query.filter(new HashSet<String>(Arrays.asList("на", "дом"))).toString();
+		String qs = query.required().woNumbers().toString();
 		
 		SearchRequestBuilder searchRequest = client.prepareSearch("gazetteer").setTypes(IndexHolder.POI_CLASS)
 				.setQuery(QueryBuilders.multiMatchQuery(qs, "translated_title", "keywords"));
@@ -264,7 +264,7 @@ public class SearchAPI {
 					new GeoPoint(lat, lon), "5km").setWeight(poiClass.isEmpty() ? 5 : 25));
 		}
 		
-		qb.add(ScoreFunctionBuilders.fieldValueFactorFunction("weight").setWeight(0.02f));
+		qb.add(ScoreFunctionBuilders.fieldValueFactorFunction("weight").setWeight(0.005f));
 		
 		qb.add(ScoreFunctionBuilders.scriptFunction("score", "expression").setWeight(1));
 		
@@ -321,6 +321,7 @@ public class SearchAPI {
 		int numbers = query.countNumeric();
 		
 		List<String> required = new ArrayList<String>();
+		List<String> nums = new ArrayList<String>();
 		for(QToken token : query.listToken()) {
 			//optional
 			if(token.isOptional()) {
@@ -340,6 +341,10 @@ public class SearchAPI {
 				resultQuery.must(QueryBuilders.matchQuery("search", token.toString()));
 				required.add(token.toString());
 			}
+			
+			if (token.isHasNumbers()) {
+				nums.add(token.toString());
+			}
 		}
 		
 		List<String> cammel = new ArrayList<String>();
@@ -348,7 +353,8 @@ public class SearchAPI {
 			cammel.add(StringUtils.capitalize(s));
 		}
 		
-		resultQuery.should(QueryBuilders.termsQuery("name.exact", cammel).boost(20));
+		resultQuery.should(QueryBuilders.termsQuery("name.exact", cammel).boost(10));
+		resultQuery.should(QueryBuilders.termsQuery("housenumber", nums).boost(250));
 		
 		if (numbers > 1) {
 			resultQuery.minimumNumberShouldMatch(numbers - 1);

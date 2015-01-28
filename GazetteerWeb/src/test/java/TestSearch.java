@@ -33,6 +33,7 @@ public class TestSearch {
 
 			me.doTest("test_cityes.json");
 			me.doTest("test_addresses.json");
+			me.doTest("test_uik.json");
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -43,7 +44,7 @@ public class TestSearch {
 
 	private void doTest(String resourceName) {
 		JSONObject task = readJSON(resourceName);
-
+		
 		log.info("Run {}", task.optString("name"));
 		
 		boolean success = true;
@@ -53,7 +54,7 @@ public class TestSearch {
 		JSONArray cases = task.optJSONArray("cases");
 		for (int i = 0; i < cases.length(); i++) {
 			JSONObject caze = cases.getJSONObject(i);
-			boolean caseSuccess = doCase(caze);
+			boolean caseSuccess = doCase(caze, i, cases.length());
 			if(!caseSuccess) {
 				fails.add(caze.optString("name"));
 			}
@@ -61,17 +62,22 @@ public class TestSearch {
 		}
 		
 		if (success) {
-			log.info("DONE {}", task.optString("name"));
+			log.trace("DONE {}", task.optString("name"));
 		}
 		else {
-			log.warn("FAILS: {}", fails);
+			if(fails.size() < 10) {
+				log.warn("FAILS: {}", fails);
+			}
+			else {
+				log.warn("{} from {} are failed", fails.size(), cases.length());
+			}
 			log.warn("FAILED {}", task.optString("name"));
 		}
 	}
 
-	private boolean doCase(JSONObject caze) {
+	private boolean doCase(JSONObject caze, int i, int total) {
 		
-		log.info("Run case {}", caze.optString("name"));
+		log.info("Run {} from {}. Case {}", new Object[]{i + 1, total, caze.optString("name")});
 
 		JSONObject jsonObject = caze.getJSONObject("request");
 
@@ -84,7 +90,7 @@ public class TestSearch {
 		boolean success = checkAnswer(caze, answer);
 		
 		if(success) {
-			log.info("\tCase {} OK", caze.optString("name")); 
+			log.trace("\tCase {} OK", caze.optString("name")); 
 			return true;
 		}
 		else {
@@ -147,7 +153,7 @@ public class TestSearch {
 		String objType = obj.optString("type");
 		
 		if(types.contains(objType)) {
-			log.info("\tType OK");
+			log.trace("\tType OK");
 			return true;
 		}
 		else {
@@ -178,7 +184,7 @@ public class TestSearch {
 			
 		}
 		
-		log.info("\tLocation: OK");
+		log.trace("\tLocation: OK");
 		return true;
 	}
 

@@ -11,7 +11,7 @@ import org.apache.commons.lang3.StringUtils;
 
 public class QueryAnalyzer {
 
-	private String tokenSeparators = ", -;.";
+	private String tokenSeparators = ", -;.\"";
 	public Set<String> ignore; 
 	
 	public QueryAnalyzer() {
@@ -40,7 +40,8 @@ public class QueryAnalyzer {
 			
 			boolean hasNumbers = withoutNumbers.length() != t.length();
 			boolean numbersOnly = StringUtils.isBlank(withoutNumbers);
-			boolean optional = ignore.contains(StringUtils.lowerCase(t));
+			boolean optional = ignore.contains(StringUtils.lowerCase(t)) 
+					|| (!hasNumbers && withoutNumbers.length() < 3);
 			
 			result.add(new QToken(t, hasNumbers, numbersOnly, optional));
 		}
