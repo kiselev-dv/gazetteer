@@ -19,6 +19,10 @@ import me.osm.gazetter.striper.readers.RelationsReader.Relation;
 import me.osm.gazetter.striper.readers.RelationsReader.Relation.RelationMember;
 import me.osm.gazetter.striper.readers.RelationsReader.Relation.RelationMember.ReferenceType;
 import me.osm.gazetter.striper.readers.WaysReader.Way;
+import me.osm.gazetter.utils.binary.Accessor;
+import me.osm.gazetter.utils.binary.Accessors;
+import me.osm.gazetter.utils.binary.BinaryBuffer;
+import me.osm.gazetter.utils.binary.ByteBufferList;
 import me.osm.osmdoc.model.Feature;
 import me.osm.osmdoc.read.DOCFileReader;
 import me.osm.osmdoc.read.DOCFolderReader;
@@ -73,10 +77,9 @@ public class PoisBuilder extends ABuilder {
 	}
 	
 	private static final Logger log = LoggerFactory.getLogger(PoisBuilder.class.getName());
-	
 
-	private List<ByteBuffer> way2relation = new ArrayList<>(); 
-	private List<ByteBuffer> node2way = new ArrayList<>();
+	private BinaryBuffer way2relation = new ByteBufferList(8 + 8); 
+	private BinaryBuffer node2way = new ByteBufferList(8 + 8 + 2 + 8 + 8);
 
 	//Trying to save some memory
 	private TLongList writedAddrNodes = new TLongArrayList(); 
@@ -87,6 +90,11 @@ public class PoisBuilder extends ABuilder {
 	
 	private static final boolean fullGeometry = true;
 	private static final long MASK_16_BITS = 0xFFFFL;
+
+	private static final Accessor w2rRelAccessor = Accessors.longAccessor(8);
+	private static final Accessor w2rWayAccessor = Accessors.longAccessor(0);
+	private static final Accessor n2wWayAccessor = Accessors.longAccessor(8);
+	private static final Accessor n2wNodeAccessor = Accessors.longAccessor(0);
 	
 	@Override
 	public void handle(final Relation rel) {
@@ -113,12 +121,8 @@ public class PoisBuilder extends ABuilder {
 	}
 
 	private void buildAddrPoint4Relation(final Relation rel) {
-		int i = Collections.binarySearch(way2relation, null, new Comparator<ByteBuffer>(){
-			@Override
-			public int compare(ByteBuffer bb, ByteBuffer key) {
-				return Long.compare(bb.getLong(8), rel.id);
-			}
-		});
+		
+		int i = way2relation.find(rel.id, w2rRelAccessor);
 
 		if(i < 0) {
 			return;
@@ -127,15 +131,10 @@ public class PoisBuilder extends ABuilder {
 		Point centroid = null;
 		List<LineString> lines = new ArrayList<>();
 		
-		for(ByteBuffer bb : findAll(way2relation, i, rel.id, 8)) {
+		for(ByteBuffer bb : way2relation.findAll(i, rel.id, w2rRelAccessor)) {
 			final long way = bb.getLong(0);
 			
-			int p = Collections.binarySearch(node2way, null, new Comparator<ByteBuffer>(){
-				@Override
-				public int compare(ByteBuffer bb, ByteBuffer key) {
-					return Long.compare(bb.getLong(8), way);
-				}
-			});
+			int p = node2way.find(way, n2wWayAccessor);
 
 			if(fullGeometry) {
 				List<ByteBuffer> wayPoints = getWayPoints(way);
@@ -167,7 +166,7 @@ public class PoisBuilder extends ABuilder {
 				}
 			}
 			else {
-				for(ByteBuffer bb2 : findAll(node2way, p, way, 8)) {
+				for(ByteBuffer bb2 : node2way.findAll(p, way, n2wWayAccessor)) {
 					double lon = bb2.getDouble(8 + 8 + 2);
 					double lat = bb2.getDouble(8 + 8 + 2 + 8);
 					centroid = factory.createPoint(new Coordinate(lon, lat));
@@ -202,7 +201,7 @@ public class PoisBuilder extends ABuilder {
 
 	private void orderByRelation() {
 		if(!this.byRealtionOrdered) {
-			Collections.sort(way2relation, Builder.SECOND_LONG_FIELD_COMPARATOR);
+			way2relation.sort(Builder.SECOND_LONG_FIELD_COMPARATOR);
 			this.byRealtionOrdered = true;
 		}
 	}
@@ -225,7 +224,7 @@ public class PoisBuilder extends ABuilder {
 	@Override
 	public void firstRunDoneRelations() {
 		handler.newThreadpoolUser(getThreadPoolUser());
-		Collections.sort(way2relation, Builder.FIRST_LONG_FIELD_COMPARATOR);
+		way2relation.sort(Builder.FIRST_LONG_FIELD_COMPARATOR);
 	}
 	
 	@Override
@@ -256,14 +255,9 @@ public class PoisBuilder extends ABuilder {
 	}
 	
 	private List<ByteBuffer> getWayPoints(final long lineId) {
-		int i = Collections.binarySearch(node2way, null, new Comparator<ByteBuffer>() {
-			@Override
-			public int compare(ByteBuffer row, ByteBuffer key) {
-				return Long.compare(row.getLong(8), lineId);
-			}
-		});
+		int i = node2way.find(lineId, n2wWayAccessor);
 
-		List<ByteBuffer> points = findAll(node2way, i, lineId, 8);
+		List<ByteBuffer> points = node2way.findAll(i, lineId, n2wWayAccessor);
 		Collections.sort(points, new Comparator<ByteBuffer>() {
 
 			@Override
@@ -272,17 +266,12 @@ public class PoisBuilder extends ABuilder {
 			}
 			
 		});
+		
 		return points;
 	}
 
 	private void buildAddrPointForWay(final Way line) {
-		int i = Collections.binarySearch(node2way, null, new Comparator<ByteBuffer>() {
-			@Override
-			public int compare(ByteBuffer row, ByteBuffer key) {
-				return Long.compare(row.getLong(8), line.id);
-			}
-		});
-		
+		int i = node2way.find(line.id, n2wWayAccessor);
 		if(i >= 0) {
 			JSONObject meta = new JSONObject();
 			meta.put("id", line.id);
@@ -352,13 +341,13 @@ public class PoisBuilder extends ABuilder {
 
 	private void orderByWay() {
 		if(!this.orderedByway) {
-			Collections.sort(node2way, Builder.SECOND_LONG_FIELD_COMPARATOR);
+			node2way.sort(Builder.SECOND_LONG_FIELD_COMPARATOR);
 			this.orderedByway = true;
 		}
 	}
 
 	private void indexWay(Way line) {
-		if(filterByTags(line.tags) || findRelMemberIndex(line.id) >= 0) {
+		if(filterByTags(line.tags) || way2relation.find(line.id, w2rWayAccessor) >= 0) {
 			indexLine(line);
 		}
 	}
@@ -378,20 +367,9 @@ public class PoisBuilder extends ABuilder {
 
 	@Override
 	public void firstRunDoneWays() {
-		Collections.sort(node2way, Builder.FIRST_LONG_FIELD_COMPARATOR);
+		node2way.sort(Builder.FIRST_LONG_FIELD_COMPARATOR);
 		log.info("Done read ways. {} nodes added to index.", node2way.size());
 		this.indexFilled = true;
-	}
-
-	private int findRelMemberIndex(final long id) {
-		
-		return Collections.binarySearch(way2relation, null, new Comparator<ByteBuffer>() {
-
-			@Override
-			public int compare(ByteBuffer obj, ByteBuffer key) {
-				return Long.compare(obj.getLong(0), id);
-			}
-		});
 	}
 
 	@Override
@@ -423,15 +401,10 @@ public class PoisBuilder extends ABuilder {
 	}
 
 	private void indexNode2Way(final Node node) {
-		int ni = Collections.binarySearch(node2way, null, new Comparator<ByteBuffer>() {
-
-			@Override
-			public int compare(ByteBuffer row, ByteBuffer key) {
-				return Long.compare(row.getLong(0), node.id);
-			}
-		});
 		
-		for(ByteBuffer bb : findAll(node2way, ni, node.id, 0)) {
+		int ni = node2way.find(node.id, n2wNodeAccessor);
+		
+		for(ByteBuffer bb : node2way.findAll(ni, node.id, n2wNodeAccessor)) {
 			bb.putDouble(8 + 8 + 2, node.lon);
 			bb.putDouble(8 + 8 + 2 + 8, node.lat);
 		}

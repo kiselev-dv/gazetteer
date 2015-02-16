@@ -89,7 +89,7 @@ public class SearchAPI {
 	/**
 	 * Features id's of higher objects to filter results.
 	 * */
-	public static final String PARENTS_HEADER = "parents";
+	public static final String REFERENCES_HEADER = "ref";
 	
 	/**
 	 * Use it, if you have separate addresses parts texts, to search over.
@@ -118,9 +118,9 @@ public class SearchAPI {
 			Double lat = getDoubleHeader(LAT_HEADER, request);
 			Double lon = getDoubleHeader(LON_HEADER, request);
 			
-			Set<String> parents = getSet(request, PARENTS_HEADER);
+			Set<String> refs = getSet(request, REFERENCES_HEADER);
 			
-			if(querryString == null && poiClass.isEmpty() && types.isEmpty()) {
+			if(querryString == null && poiClass.isEmpty() && types.isEmpty() && refs.isEmpty()) {
 				return null;
 			}
 			
@@ -161,6 +161,10 @@ public class SearchAPI {
 				qb = addBBOXRestriction(qb, bbox);
 			}
 			
+			if(!refs.isEmpty()) {
+				qb = addRefsRestriction(qb, refs);
+			}
+			
 			Client client = ESNodeHodel.getClient();
 			SearchRequestBuilder searchRequest = client
 					.prepareSearch("gazetteer").setTypes(IndexHolder.LOCATION)
@@ -195,6 +199,11 @@ public class SearchAPI {
 			throw e;
 		}
 		
+	}
+
+	private QueryBuilder addRefsRestriction(QueryBuilder qb, Set<String> refs) {
+		qb = QueryBuilders.filteredQuery(qb, FilterBuilders.termsFilter("refs", refs));
+		return qb;
 	}
 
 	protected List<JSONObject> findPoiClass(Query query) {

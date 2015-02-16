@@ -23,6 +23,10 @@ import me.osm.gazetter.striper.readers.RelationsReader.Relation;
 import me.osm.gazetter.striper.readers.RelationsReader.Relation.RelationMember;
 import me.osm.gazetter.striper.readers.RelationsReader.Relation.RelationMember.ReferenceType;
 import me.osm.gazetter.striper.readers.WaysReader.Way;
+import me.osm.gazetter.utils.binary.Accessor;
+import me.osm.gazetter.utils.binary.Accessors;
+import me.osm.gazetter.utils.binary.BinaryBuffer;
+import me.osm.gazetter.utils.binary.ByteBufferList;
 
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -55,10 +59,10 @@ public class BoundariesBuilder extends ABuilder {
 	}
 	
 	//way rel role
-	private List<ByteBuffer> way2relation = new ArrayList<>(10000);
+	private BinaryBuffer way2relation = new ByteBufferList(8);
 
 	//node way index
-	private List<ByteBuffer> node2way = new ArrayList<>(10000);
+	private BinaryBuffer node2way = new ByteBufferList(8 + 8 + 4 + 8 + 8);
 
 	private boolean byMemberOrdered = false;
 	private boolean byNodeOrdered = false;
@@ -69,6 +73,10 @@ public class BoundariesBuilder extends ABuilder {
 	
 	private final ExecutorService executorService = 
 			Executors.newFixedThreadPool(Options.get().getNumberOfThreads());
+	
+	private static final Accessor n2wWayAccessor = Accessors.longAccessor(8);
+	private static final Accessor n2wNodeAccessor = Accessors.longAccessor(0);
+	private static final Accessor w2rWayAccessor = Accessors.longAccessor(0);
 	
 	private static final class Task implements Runnable {
 
@@ -157,14 +165,9 @@ public class BoundariesBuilder extends ABuilder {
 		
 		for(final RelationMember m : rel.members) {
 			if(m.type == ReferenceType.WAY) {
-				int wi = Collections.binarySearch(node2way, null, new Comparator<ByteBuffer>() {
-					@Override
-					public int compare(ByteBuffer bb, ByteBuffer key) {
-						return Long.compare(bb.getLong(8), m.ref);
-					}
-				});
+				int wi = node2way.find(m.ref, n2wWayAccessor);
 
-				List<ByteBuffer> points = findAll(node2way, wi, m.ref, 8);
+				List<ByteBuffer> points = node2way.findAll(wi, m.ref, n2wWayAccessor);
 				Collections.sort(points, new Comparator<ByteBuffer>() {
 					@Override
 					public int compare(ByteBuffer bb1, ByteBuffer bb2) {
@@ -202,20 +205,10 @@ public class BoundariesBuilder extends ABuilder {
 	private Coordinate[] buildWayGeometry(Way line) {
 		orderByWay();
 		
-		int wayIndex = findWay(line.id);
-		List<ByteBuffer> nodes = findAll(node2way, wayIndex, line.id, 8);
+		int wayIndex = node2way.find(line.id, n2wWayAccessor);
+		List<ByteBuffer> nodes = node2way.findAll(wayIndex, line.id, n2wWayAccessor);
 		
 		return BuildUtils.buildWayGeometry(line, nodes, 0, 20, 28);
-	}
-
-	private int findWay(final long id) {
-		return Collections.binarySearch(node2way, null, new Comparator<ByteBuffer>() {
-
-			@Override
-			public int compare(ByteBuffer bb, ByteBuffer key) {
-				return Long.compare(bb.getLong(8), id);
-			}
-		});
 	}
 
 	private boolean isIndexFilled() {
@@ -258,7 +251,7 @@ public class BoundariesBuilder extends ABuilder {
 	public void handle(Way line) {
 		
 		if(!isIndexFilled()) {
-			int i = getRelationMembership(line.id);
+			int i = way2relation.find(line.id, w2rWayAccessor);
 			if (i >= 0 || (line.isClosed() && filterByTags(line.tags))) {
 				addWayToIndex(line);
 			}
@@ -336,7 +329,7 @@ public class BoundariesBuilder extends ABuilder {
 	public void firstRunDoneRelations()	{
 		handler.newThreadpoolUser(getThreadPoolUser());
 		if(!byMemberOrdered) {
-			Collections.sort(way2relation, Builder.FIRST_LONG_FIELD_COMPARATOR);
+			way2relation.sort(Builder.FIRST_LONG_FIELD_COMPARATOR);
 			byMemberOrdered = true;
 		}
 		log.info("Done read relations. {} ways addes to index.", way2relation.size());
@@ -345,7 +338,7 @@ public class BoundariesBuilder extends ABuilder {
 	@Override
 	public void firstRunDoneWays() {
 		if(!byNodeOrdered) {
-			Collections.sort(node2way, Builder.FIRST_LONG_FIELD_COMPARATOR);
+			node2way.sort(Builder.FIRST_LONG_FIELD_COMPARATOR);
 			byNodeOrdered = true;
 			byWayOrdered = false;
 		}
@@ -354,7 +347,7 @@ public class BoundariesBuilder extends ABuilder {
 
 	public void orderByWay() {
 		if(!byWayOrdered) {
-			Collections.sort(node2way, Builder.SECOND_LONG_FIELD_COMPARATOR);
+			node2way.sort(Builder.SECOND_LONG_FIELD_COMPARATOR);
 			byWayOrdered = true;
 			byNodeOrdered = false;
 		}
@@ -362,34 +355,15 @@ public class BoundariesBuilder extends ABuilder {
 
 	@Override
 	public void handle(Node node) {
-		int i = findNode(node.id);
-		List<ByteBuffer> lines = findAll(node2way, i, node.id, 0);
+		
+		int i = node2way.find(node.id, n2wNodeAccessor);		
+		List<ByteBuffer> lines = node2way.findAll(i, node.id, n2wNodeAccessor);
 		
 		for(ByteBuffer bb : lines) {
 			bb.putDouble(20, node.lon).putDouble(28, node.lat);
 		}
 		
 		indexFilled = true;
-	}
-
-	private int getRelationMembership(final long id) {
-		return Collections.binarySearch(way2relation, null, new Comparator<ByteBuffer>() {
-			
-			@Override
-			public int compare(ByteBuffer bb, ByteBuffer key) {
-				return Long.compare(bb.getLong(0), id);
-			}
-		});
-	}
-
-	private int findNode(final long id) {
-		return Collections.binarySearch(node2way, null, new Comparator<ByteBuffer>() {
-
-			@Override
-			public int compare(ByteBuffer bb, ByteBuffer key) {
-				return Long.compare(bb.getLong(0), id);
-			}
-		});
 	}
 
 	@Override

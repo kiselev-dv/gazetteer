@@ -21,6 +21,10 @@ import me.osm.gazetter.striper.readers.RelationsReader.Relation;
 import me.osm.gazetter.striper.readers.RelationsReader.Relation.RelationMember;
 import me.osm.gazetter.striper.readers.RelationsReader.Relation.RelationMember.ReferenceType;
 import me.osm.gazetter.striper.readers.WaysReader.Way;
+import me.osm.gazetter.utils.binary.Accessor;
+import me.osm.gazetter.utils.binary.Accessors;
+import me.osm.gazetter.utils.binary.BinaryBuffer;
+import me.osm.gazetter.utils.binary.ByteBufferList;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,12 +34,15 @@ import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineString;
 
+/**
+ * Класс строит геометрию way'ев
+ * */
 public class HighwaysBuilder extends ABuilder implements HighwaysHandler {
 
 	private static final Logger log = LoggerFactory
 			.getLogger(HighwaysBuilder.class.getName());
 
-	private static volatile ExecutorService executorService = 
+	private static final ExecutorService executorService = 
 			Executors.newFixedThreadPool(Options.get().getNumberOfThreads());
 	
 	private static final class BuildWayGeometryTask implements Runnable {
@@ -69,7 +76,8 @@ public class HighwaysBuilder extends ABuilder implements HighwaysHandler {
 		this.junctionsHandler = junctionsHandler;
 	}
 
-	private static final List<ByteBuffer> node2way = new ArrayList<>();
+	private static final BinaryBuffer node2way = new ByteBufferList(8 + 8 + 8 + 8 + 2);
+	
 	private boolean indexFilled = false;
 	private boolean byWayOrdered = false;
 
@@ -166,15 +174,10 @@ public class HighwaysBuilder extends ABuilder implements HighwaysHandler {
 
 	private static void buildLine(final Way line, HighwaysHandler handler) {
 
-		int li = Collections.binarySearch(node2way, null,
-				new Comparator<ByteBuffer>() {
-					@Override
-					public int compare(ByteBuffer row, ByteBuffer key) {
-						return Long.compare(row.getLong(8), line.id);
-					}
-				});
-
-		List<ByteBuffer> nodeRows = findAll(node2way, li, line.id, 8);
+		Accessor lneIDAccessor = Accessors.longAccessor(8);
+		int li = node2way.find(line.id, lneIDAccessor);
+		
+		List<ByteBuffer> nodeRows = node2way.findAll(li, line.id, lneIDAccessor);
 		
 		//sort by node
 		Collections.sort(nodeRows, Builder.FIRST_LONG_FIELD_COMPARATOR);
@@ -214,7 +217,7 @@ public class HighwaysBuilder extends ABuilder implements HighwaysHandler {
 
 	private void orderByWay() {
 		if (!byWayOrdered) {
-			Collections.sort(node2way, Builder.SECOND_LONG_FIELD_COMPARATOR);
+			node2way.sort(Builder.SECOND_LONG_FIELD_COMPARATOR);
 			byWayOrdered = true;
 		}
 	}
@@ -222,15 +225,10 @@ public class HighwaysBuilder extends ABuilder implements HighwaysHandler {
 	@Override
 	public void handle(final Node node) {
 		
-		int ni = Collections.binarySearch(node2way, null,
-				new Comparator<ByteBuffer>() {
-					@Override
-					public int compare(ByteBuffer row, ByteBuffer key) {
-						return Long.compare(row.getLong(0), node.id);
-					}
-				});
-
-		List<ByteBuffer> nodeRows = findAll(node2way, ni, node.id, 0);
+		Accessor nodeIdAccessor = Accessors.longAccessor(0);
+		int ni = node2way.find(node.id, nodeIdAccessor); 
+		
+		List<ByteBuffer> nodeRows = node2way.findAll(ni, node.id, nodeIdAccessor);
 		for (ByteBuffer row : nodeRows) {
 			row.putDouble(LON_OFFSET, node.lon);
 			row.putDouble(LAT_OFFSET, node.lat);
@@ -240,7 +238,7 @@ public class HighwaysBuilder extends ABuilder implements HighwaysHandler {
 	@Override
 	public void firstRunDoneWays() {
 		indexFilled = true;
-		Collections.sort(node2way, Builder.FIRST_LONG_FIELD_COMPARATOR);
+		node2way.sort(Builder.FIRST_LONG_FIELD_COMPARATOR);
 		
 		this.highwaysHandler.newThreadpoolUser(getThreadPoolUser());
 		this.junctionsHandler.newThreadpoolUser(getThreadPoolUser());
@@ -249,7 +247,7 @@ public class HighwaysBuilder extends ABuilder implements HighwaysHandler {
 	@Override
 	public void secondRunDoneRelations() {
 		if (this.junctionsHandler != null) {
-			Collections.sort(node2way, Builder.FIRST_LONG_FIELD_COMPARATOR);
+			node2way.sort(Builder.FIRST_LONG_FIELD_COMPARATOR);
 			findJunctions();
 		}
 		executorService.shutdown();
