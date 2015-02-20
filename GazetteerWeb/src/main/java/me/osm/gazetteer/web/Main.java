@@ -43,6 +43,8 @@ public class Main {
 
 		Routes.defineRoutes(server);
 		
+		server.addMessageObserver(new HttpLogger());
+		
 		
 		server.bind(config.getPort());
 		Runtime runtime = Runtime.getRuntime();

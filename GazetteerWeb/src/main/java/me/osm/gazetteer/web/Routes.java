@@ -25,8 +25,20 @@ public class Routes {
 
 		System.out.println("Define routes with web root: " + root);
 		
+		server.uri(root + "/location/_import",
+				new ImportLocations())
+				.method(HttpMethod.GET)
+				.flag(Flags.Cache.DONT_CACHE);
+
 		server.uri(root + "/location/_search",
 				new SearchAPI())
+				.method(HttpMethod.GET)
+				.name(Constants.FEATURE_URI)
+				.flag(Flags.Auth.PUBLIC_ROUTE)
+				.parameter(Parameters.Cache.MAX_AGE, 3600);
+
+		server.uri(root + "/location/_suggest",
+				new SuggestAPI())
 				.method(HttpMethod.GET)
 				.name(Constants.FEATURE_URI)
 				.flag(Flags.Auth.PUBLIC_ROUTE)
@@ -39,13 +51,6 @@ public class Routes {
 					.name(Constants.FEATURE_URI)
 					.flag(Flags.Auth.PUBLIC_ROUTE)
 					.parameter(Parameters.Cache.MAX_AGE, 3600);
-
-		server.uri(root + "/location/_suggest",
-				new SuggestAPI())
-				.method(HttpMethod.GET)
-				.name(Constants.FEATURE_URI)
-				.flag(Flags.Auth.PUBLIC_ROUTE)
-				.parameter(Parameters.Cache.MAX_AGE, 3600);
 		
 		server.uri(root + "/location/latlon/{lat}/{lon}/{_related}",
 				new InverseGeocodeAPI())
@@ -55,11 +60,6 @@ public class Routes {
 				.name(Constants.FEATURE_URI)
 				.flag(Flags.Auth.PUBLIC_ROUTE)
 				.parameter(Parameters.Cache.MAX_AGE, 3600);
-
-		server.uri(root + "/location/_import",
-				new ImportLocations())
-				.method(HttpMethod.GET)
-				.flag(Flags.Cache.DONT_CACHE);
 
 		server.uri(root + "/osmdoc/hierarchy/{lang}/{id}",
 				new OSMDocAPI())
