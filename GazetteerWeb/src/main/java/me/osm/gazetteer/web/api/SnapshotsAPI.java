@@ -1,36 +1,55 @@
 package me.osm.gazetteer.web.api;
 
-import java.io.StringWriter;
+import groovy.lang.GroovyClassLoader;
+
+import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
 import me.osm.gazetteer.web.Configuration;
-import me.osm.gazetteer.web.utils.VelocityHelper;
+import me.osm.gazetteer.web.api.imp.SnapshotRender;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.velocity.Template;
-import org.apache.velocity.VelocityContext;
-import org.apache.velocity.app.VelocityEngine;
-import org.apache.velocity.runtime.RuntimeConstants;
 import org.json.JSONObject;
 import org.restexpress.Request;
 import org.restexpress.Response;
 
 public class SnapshotsAPI {
 	
+	private String featureURLBase = "/";
 	
-	private static final VelocityEngine ve;
+	private static final SnapshotRender render;
 	static {
-		ve = new VelocityEngine();
-		ve.setProperty(RuntimeConstants.RESOURCE_LOADER, "file");
-		ve.setProperty(RuntimeConstants.FILE_RESOURCE_LOADER_PATH, "config/velocity");
-		ve.init();
+		
+		GroovyClassLoader gcl = new GroovyClassLoader(SnapshotsAPI.class.getClassLoader());
+		try {
+			gcl.addClasspath("lib");
+			Class<?> clazz = gcl.parseClass(new File("config/templates/htmlRender.groovy"));
+			Object aScript = clazz.newInstance();
+			
+			if(aScript instanceof SnapshotRender) {
+				render = (SnapshotRender) aScript;
+			}
+			else {
+				render = null;
+			}
+			
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+		finally {
+			try {
+				gcl.close();
+			}
+			catch (Exception e) {
+				throw new RuntimeException(e);
+			}
+		}
 	}
-
-	private String featureURLBAse = "/";
 	
 	public SnapshotsAPI(Configuration config) {
-		this.featureURLBAse = config.getSiteXMLFeatureURL();
+		this.featureURLBase = config.getSiteXMLFeatureURL();
 	}
 	
 	public void read(Request req, Response res)	{
@@ -38,22 +57,21 @@ public class SnapshotsAPI {
 		
 		try	{
 			
-		    
-			JSONObject feature = FeatureAPI.getFeature(getFeatureId(parameters), false);
+			JSONObject feature = FeatureAPI.getFeature(getFeatureId(parameters), true);
 
 			if(feature != null) {
-				Template t = ve.getTemplate("feature.velocity.html");
-				VelocityContext vc = new VelocityContext();
 				
-				vc.put("featureJSON", feature);
-				vc.put("fDetailsBase", featureURLBAse);
-				vc.put("u", VelocityHelper.INSTANCE);
+				addSchema(feature);
 				
-				StringWriter sw = new StringWriter();
-				t.merge(vc, sw);
-				
-				res.setContentType("text/html; charset=utf8");
-				res.setBody(sw.toString());
+				try {
+					String body = render.render(feature.toString());
+					res.setContentType("text/html; charset=utf8");
+					res.setBody(body);
+				}
+				catch (Exception e) {
+					render.updateTemplate();
+					throw e;
+				}
 			}
 			else {
 				res.setResponseCode(404);
@@ -64,6 +82,10 @@ public class SnapshotsAPI {
 			res.setException(e);
 			e.printStackTrace();
 		} 
+	}
+
+	private void addSchema(JSONObject feature) {
+		
 	}
 
 	private String getFeatureId(String parameters) {

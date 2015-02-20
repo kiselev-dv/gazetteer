@@ -1,13 +1,13 @@
 package me.osm.gazetteer.web.api;
 
 import java.io.UnsupportedEncodingException;
+import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import me.osm.gazetteer.web.Configuration;
 import me.osm.gazetteer.web.ESNodeHodel;
 
-import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.action.count.CountResponse;
 import org.elasticsearch.action.search.SearchRequestBuilder;
@@ -82,7 +82,7 @@ public class Sitemap {
 			
 			String id = hit.getId();
 			String[] split = StringUtils.split(id, '-');
-			id= StringUtils.join(ArrayUtils.subarray(split, 0, split.length - 1), '-');
+			id= StringUtils.join(Arrays.copyOfRange(split, 0, split.length - 1), '-');
 			
 			String featureURL = StringUtils.replace(featureUrlTemplate, "{id}", id);
 			featureURL = hostName + featureURL;

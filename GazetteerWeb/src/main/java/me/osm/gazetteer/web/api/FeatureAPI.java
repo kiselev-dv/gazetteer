@@ -48,10 +48,14 @@ public class FeatureAPI {
 		}
 		
 		QueryBuilder q = QueryBuilders.filteredQuery(QueryBuilders.matchAllQuery(), 
-				FilterBuilders.orFilter(FilterBuilders.termsFilter("feature_id", idParam), FilterBuilders.termsFilter("id", idParam)) );
+				FilterBuilders.orFilter(
+					FilterBuilders.termsFilter("feature_id", idParam), 
+					FilterBuilders.termsFilter("id", idParam))
+				);
 		
 		SearchResponse searchResponse = client.prepareSearch("gazetteer")
-			.setSize(10)
+			.setTypes(IndexHolder.LOCATION)
+			.setSize(50)
 			.setQuery(q).get();
 		
 		SearchHit[] hits = searchResponse.getHits().getHits();

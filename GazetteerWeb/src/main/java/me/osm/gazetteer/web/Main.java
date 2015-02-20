@@ -30,6 +30,8 @@ public class Main {
 		
 		config = loadEnvironment(args);
 		ESNodeHodel.getClient();
+
+		OSMDocSinglton.initialize(config.getPoiCatalogPath());
 		
 		RestExpress.setSerializationProvider(new SerializationProvider());
 		
@@ -41,7 +43,6 @@ public class Main {
 
 		Routes.defineRoutes(server);
 		
-		OSMDocSinglton.initialize(config.getPoiCatalogPath());
 		
 		server.bind(config.getPort());
 		Runtime runtime = Runtime.getRuntime();

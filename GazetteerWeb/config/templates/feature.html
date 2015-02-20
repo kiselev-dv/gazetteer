@@ -1,0 +1,71 @@
+<html>
+	<head>
+		<title>${f.name}</title>
+	</head>
+	<body>
+		<div class="feature" id="${f.feature_id}" itemscope itemtype="http://schema.org/LocalBusiness">
+			<h3 class="name">${f.name}</h3>
+			<a href="${HTML_ROOT}#!/map?fid=${f.feature_id}">${RENDER.tr("templates.feature.showOnMap")}</a>
+			
+			<p>
+			<div class="poi-type">
+				<div class="title">${RENDER.tr("templates.feature.poiTypes")}</div>
+				<ul>
+					<% for(typeCode in f.poi_class) { 
+						def poiClass = OSM_DOC.facade.getFeature(typeCode);
+					%>
+						<li id="${typeCode}">${OSM_DOC.facade.getTranslatedTitle(poiClass, LOCALE)}</li>
+					<%}%>
+				</ul>
+			</div>
+			</p>
+			
+			<p>
+			<h4>${RENDER.tr("templates.feature.address")}</h4>
+			<% for(address in f.addresses) { %>
+			<div class="address">${address.address.text}</div>
+			<%}%>
+			
+			<%
+				def classes = [] as List;
+				for(typeCode in f.poi_class) {
+					classes.add(OSM_DOC.facade.getFeature(typeCode));
+				}
+				def tags = OSM_DOC.facade.getMoreTags(classes);
+			%>
+			<h4 class="title">${RENDER.tr("templates.feature.moreTags")}</h4>
+			<div class="more-tags">
+				<table>
+					<%f.more_tags.each {key, value ->  %>
+					<tr ng-repeat="t in listMoreTags(objectDetails)">
+						<td class="attr-name" valign="top" id="${key}">
+							${OSM_DOC.facade.getTranslatedTitle(null, tags.get(key), LOCALE)}
+						</td>
+						<td>${value}</td>
+					</tr>
+					<%}%>
+				</table>
+			</div>
+			</p>
+		</div>
+		 
+		<% if(f._related != null){ %>
+		<div>
+			<h4>${RENDER.tr("templates.feature.sameBuilding")}</h4>
+			<ul>
+				<%for(rel in f._related._same_building) { 
+					if (rel.poi_addr_match != "nearest" && rel.feature_id != f.feature_id) {
+				%>
+				<li><a href="${HTML_ROOT}#!/map?fid=${rel.feature_id}">${RENDER.nameAndType(rel)}</a></li>
+				<%}}%>
+			</ul>
+			<h4>${RENDER.tr("templates.feature.sameType")}</h4>
+			<ul>
+				<%for(rel in f._related._same_poi_type) {%>
+				<li><a href="${HTML_ROOT}#!/map?fid=${rel.feature_id}">${RENDER.nameAndType(rel)}</a></li>
+				<%}%>
+			</ul>
+		</div>		
+		<%}%>
+	</body>
+</html>
