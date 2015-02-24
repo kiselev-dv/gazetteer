@@ -7,6 +7,7 @@ import java.util.regex.Pattern;
 
 import me.osm.gazetteer.web.Configuration;
 import me.osm.gazetteer.web.ESNodeHodel;
+import me.osm.gazetteer.web.imp.IndexHolder;
 
 import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.action.count.CountResponse;
@@ -62,6 +63,7 @@ public class Sitemap {
 		Client client = ESNodeHodel.getClient();
 		
 		SearchRequestBuilder searchQ = client.prepareSearch("gazetteer")
+				.setTypes(IndexHolder.LOCATION)
 				.setNoFields()
 				.setQuery(QueryBuilders.matchAllQuery())
 				.setExplain(false);
@@ -84,6 +86,9 @@ public class Sitemap {
 			String[] split = StringUtils.split(id, '-');
 			if(split.length > 3) {
 				id= StringUtils.join(Arrays.copyOfRange(split, 0, split.length - 1), '-');
+			}
+			else {
+				id= StringUtils.join(split, '-');
 			}
 			
 			String featureURL = StringUtils.replace(featureUrlTemplate, "{id}", id);
