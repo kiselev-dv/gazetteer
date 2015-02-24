@@ -10,6 +10,8 @@ for(typeCode in subj.poi_class) {
 	types += ", " + OSM_DOC.facade.getTranslatedTitle(OSM_DOC.facade.getFeature(typeCode), LOCALE);
 }
 if(types.length() > 0) {
-%>
+	if(subj.name != null){%>
+(${types.substring(2)})
+<%} else {%>
 ${types.substring(2)}
-<%}%>
+<%}}%>

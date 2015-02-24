@@ -53,6 +53,11 @@ public class SnapshotsAPI {
 	}
 	
 	public void read(Request req, Response res)	{
+		
+		if(StringUtils.contains(req.getPath(), "update_template") ) {
+			render.updateTemplate();
+		}
+		
 		String parameters = StringUtils.substringAfter(req.getPath(), "_escaped_fragment_=");
 		
 		try	{
