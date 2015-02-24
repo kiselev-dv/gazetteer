@@ -7,6 +7,7 @@ import java.util.HashSet;
 import java.util.List;
 
 import me.osm.gazetteer.web.ESNodeHodel;
+import me.osm.gazetteer.web.api.imp.Query;
 import me.osm.gazetteer.web.imp.IndexHolder;
 
 import org.apache.commons.lang3.StringUtils;

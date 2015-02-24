@@ -1,4 +1,4 @@
-package me.osm.gazetteer.web.api;
+package me.osm.gazetteer.web.api.imp;
 
 import java.util.ArrayList;
 import java.util.Collection;

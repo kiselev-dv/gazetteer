@@ -7,6 +7,8 @@ import java.util.regex.Pattern;
 
 import me.osm.gazetteer.web.Configuration;
 import me.osm.gazetteer.web.ESNodeHodel;
+import me.osm.gazetteer.web.api.imp.SitemapRender;
+import me.osm.gazetteer.web.api.imp.XMLSitemapRender;
 import me.osm.gazetteer.web.imp.IndexHolder;
 
 import org.apache.commons.lang3.StringUtils;
@@ -25,14 +27,11 @@ public class Sitemap {
 	private static final int PAGE_SIZE = 45000;
 	private String featureUrlTemplate;
 	
-	Pattern p = Pattern.compile(".*sitemap([0-9]+)\\.xml(\\.gz)?");
-	private String webRoot;
-	private String hostName;
+	private static final Pattern p = Pattern.compile(".*sitemap([0-9]+)\\.xml(\\.gz)?");
+	private Configuration config;
 	
 	public Sitemap(Configuration config) {
-		this.featureUrlTemplate = config.getSiteXMLFeatureURL();
-		this.webRoot = config.getWebRoot();
-		this.hostName = config.getHostName();
+		this.config = config;
 	}
 	
 	public void read(Request req, Response res)	{
@@ -42,13 +41,25 @@ public class Sitemap {
 			String path = req.getPath();
 			
 			if(path.endsWith ("sitemap_index.xml")) {
-				readIndex(req, res);
+				XMLSitemapRender render = new XMLSitemapRender(config);
+
+				renderIndex(render);
+				
+				ChannelBuffer body = ChannelBuffers.wrappedBuffer(render.toString().getBytes("UTF-8"));
+				res.setBody(body);
+				res.setContentType("text/xml");
 			}
 			
 			else {
 				Matcher matcher = p.matcher(path);
 				if(matcher.matches()) {
-					readPage(Integer.valueOf(matcher.group(1)), req, res);
+					XMLSitemapRender render = new XMLSitemapRender(config);
+					
+					renderPage(Integer.valueOf(matcher.group(1)), render);
+					
+					ChannelBuffer body = ChannelBuffers.wrappedBuffer(render.toString().getBytes("UTF-8"));
+					res.setBody(body);
+					res.setContentType("text/xml");
 				}
 			}
 			
@@ -58,7 +69,7 @@ public class Sitemap {
 		} 
 	}
 
-	private void readPage(int page, Request req, Response res) throws UnsupportedEncodingException {
+	public static void renderPage(int page, SitemapRender render) throws UnsupportedEncodingException {
 
 		Client client = ESNodeHodel.getClient();
 		
@@ -73,12 +84,8 @@ public class Sitemap {
 		
 		SearchResponse searchResponse = searchQ.get();
 		
-		StringBuilder sb = new StringBuilder();
 		
-		sb.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
-		sb.append("<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\" \n" + 
-				  "        xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" \n" + 
-				  "        xsi:schemaLocation=\"http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd\">\n");
+		render.pageBegin();
 		
 		for(SearchHit hit : searchResponse.getHits().getHits()) {
 			
@@ -91,43 +98,26 @@ public class Sitemap {
 				id= StringUtils.join(split, '-');
 			}
 			
-			String featureURL = StringUtils.replace(featureUrlTemplate, "{id}", id);
-			featureURL = hostName + featureURL;
-			
-			sb.append("    <url>\n");
-			sb.append("        <loc>").append(featureURL).append("</loc>");
-			sb.append("    </url>\n");
+			render.feature(id);
 		}
 		
-		sb.append("</urlset>");
-		
-		ChannelBuffer body = ChannelBuffers.wrappedBuffer(sb.toString().getBytes("UTF-8"));
-		res.setBody(body);
-		res.setContentType("text/xml");
+		render.pageEnd();
 	}
 
-	private void readIndex(Request req, Response res) throws UnsupportedEncodingException {
+	public static void renderIndex(SitemapRender render) throws UnsupportedEncodingException {
 		Client client = ESNodeHodel.getClient();
 		
 		CountResponse countResponse = client.prepareCount("gazetteer").setQuery(QueryBuilders.matchAllQuery()).get();
 		
 		long count = countResponse.getCount();
 		
-		StringBuilder sb = new StringBuilder();
-		
-		sb.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
-		sb.append("<sitemapindex xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">\n");
+		render.indexBegin();
 		
 		for(int i = 0; i <= count / PAGE_SIZE; i++) {
-			sb.append("    <sitemap>\n");
-			sb.append("        <loc>").append(hostName).append(webRoot).append("/sitemap").append(i).append(".xml").append("</loc>");
-			sb.append("    </sitemap>\n");
+			render.page(i);
 		}
 		
-		sb.append("</sitemapindex>");
-		
-		res.setBody(ChannelBuffers.wrappedBuffer(sb.toString().getBytes("UTF-8")));
-		res.setContentType("text/xml");
+		render.indexEnd();
 	}
 	
 }

@@ -9,6 +9,10 @@ import java.util.List;
 import java.util.Set;
 
 import me.osm.gazetteer.web.ESNodeHodel;
+import me.osm.gazetteer.web.api.imp.APIUtils;
+import me.osm.gazetteer.web.api.imp.QToken;
+import me.osm.gazetteer.web.api.imp.Query;
+import me.osm.gazetteer.web.api.imp.QueryAnalyzer;
 import me.osm.gazetteer.web.imp.IndexHolder;
 import me.osm.gazetteer.web.utils.OSMDocSinglton;
 import me.osm.osmdoc.model.Feature;

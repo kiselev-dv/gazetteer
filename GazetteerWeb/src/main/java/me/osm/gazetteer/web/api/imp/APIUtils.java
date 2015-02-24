@@ -1,4 +1,4 @@
-package me.osm.gazetteer.web.api;
+package me.osm.gazetteer.web.api.imp;
 
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.elasticsearch.action.search.SearchRequestBuilder;
