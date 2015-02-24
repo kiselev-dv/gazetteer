@@ -17,6 +17,7 @@ class HTMLSnapshotRender implements SnapshotRender {
 		'config/templates/poi-more-tags.html',
 		'config/templates/poi-related.html',
 		'config/templates/name.html',
+		'config/templates/ref.html',
 		'config/templates/address.html'
 	];
 
@@ -29,6 +30,7 @@ class HTMLSnapshotRender implements SnapshotRender {
 		"templates.feature.address": "Адрес: ",
 		"templates.feature.building": "Здание",
 		"templates.feature.moreTags": "Дополнительная информация: ",
+		"templates.feature.otherNames": "Другие названия этого места: ",
 		"templates.feature.sameBuilding": "Организации в том-же здании",
 		"templates.feature.sameType": "Организации того-же типа поблизости"
 	];
@@ -63,20 +65,6 @@ class HTMLSnapshotRender implements SnapshotRender {
 	
 	public String tr(String key) {
 		return translations[key] == null ? key : translations[key];
-	}
-	
-	public String nameAndType(subj) {
-		String r = "";
-		if(subj.name != null) {
-			r += subj.name + " ";
-		}
-		
-		String types = "";
-		for(typeCode in subj.poi_class) {
-			types += ", " + osmdoc.facade.getTranslatedTitle(osmdoc.facade.getFeature(typeCode), locale);
-		}
-		
-		return r + "(" + types.substring(2) + ")";
 	}
 	
 	public String callTemplate(name, f, subj) {

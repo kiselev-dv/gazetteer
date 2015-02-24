@@ -85,7 +85,18 @@ public class SnapshotsAPI {
 	}
 
 	private void addSchema(JSONObject feature) {
-		
+		if("poipnt".equals(feature.optString("type"))) {
+			feature.put("itemtype", "http://schema.org/LocalBusiness");
+		}
+		else if("adrpnt".equals(feature.optString("type"))) {
+			feature.put("itemtype", "http://schema.org/Residence");
+		}
+		else if("admbnd".equals(feature.optString("type"))) {
+			feature.put("itemtype", "http://schema.org/AdministrativeArea");
+		}
+		else {
+			feature.put("itemtype", "http://schema.org/Place");
+		}
 	}
 
 	private String getFeatureId(String parameters) {

@@ -1,4 +1,4 @@
-<h3 class="name">
+<h3 class="name" itemprop="name">
 <%
 	if(f.type == "poipnt") {
 		if(f.name != null && f.name != "") {
@@ -8,5 +8,18 @@
 	else if(f.type == "adrpnt") {
 		out << RENDER.tr("templates.feature.building");
 	}
+	else {
+		out << f.name;
+	}
 %>	
 </h3>
+
+<% if(f.alt_names != null && !f.alt_names.empty) { %>
+<div class="alt-names">
+	<h5>${RENDER.tr("templates.feature.otherNames")}</h5>
+	<% f.alt_names.each {name -> %>
+	<span>${name}</span>&nbsp;
+	<%}%>
+</div>
+<%}%>
+

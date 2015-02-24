@@ -1,0 +1,15 @@
+<% if(subj.type == "adrpnt") {%>
+${subj.housenumber}
+<%}%>
+<%
+if(subj.name != null) {%>
+${subj.name}
+<%}
+String types = "";
+for(typeCode in subj.poi_class) {
+	types += ", " + OSM_DOC.facade.getTranslatedTitle(OSM_DOC.facade.getFeature(typeCode), LOCALE);
+}
+if(types.length() > 0) {
+%>
+${types.substring(2)}
+<%}%>

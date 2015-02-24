@@ -3,9 +3,8 @@
 		<title>${f.name}</title><%}%>
 	</head>
 	<body>
-		<div class="feature" id="${f.feature_id}" itemscope itemtype="http://schema.org/LocalBusiness">
+		<div class="feature" id="${f.feature_id}" itemscope itemtype="${f.itemtype}">
 			${RENDER.callTemplate('name', f, f)}
-			<a href="${HTML_ROOT}#!/map?fid=${f.feature_id}">${RENDER.tr("templates.feature.showOnMap")}</a>
 			
 			${RENDER.callTemplate('poi-types', f, f)}
 			
@@ -20,5 +19,7 @@
 		</div>
 		 
 		${RENDER.callTemplate('poi-related', f, f)}
+		
+		<a href="${HTML_ROOT}#!/map?fid=${f.feature_id}">${RENDER.tr("templates.feature.showOnMap")}</a>
 	</body>
 </html>

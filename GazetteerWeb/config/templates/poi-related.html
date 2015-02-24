@@ -6,7 +6,7 @@
 				<%for(rel in f._related._same_building) { 
 					if (rel.poi_addr_match != "nearest" && rel.feature_id != f.feature_id) {
 				%>
-				<li><a href="${HTML_ROOT}#!/map?fid=${rel.feature_id}">${RENDER.nameAndType(rel)}</a></li>
+				<li><a href="${HTML_ROOT}#!/map?fid=${rel.feature_id}">${RENDER.callTemplate("ref", f, rel)}</a></li>
 				<%}}%>
 			</ul>
 			<%}%>
@@ -14,8 +14,15 @@
 			<h4>${RENDER.tr("templates.feature.sameType")}</h4>
 			<ul>
 				<%for(rel in f._related._same_poi_type) {%>
-				<li><a href="${HTML_ROOT}#!/map?fid=${rel.feature_id}">${RENDER.nameAndType(rel)}</a></li>
+				<li><a href="${HTML_ROOT}#!/map?fid=${rel.feature_id}">${RENDER.callTemplate("ref", f, rel)}</a></li>
 				<%}%>
+			</ul>
+			<%}%>
+			<%if(f._related._ref_hn != null) {%>
+			<ul> 
+				<%f._related._ref_hn.each { rel -> %>
+				<li><a href="${HTML_ROOT}#!/map?fid=${rel.feature_id}">${RENDER.callTemplate("ref", f, rel)}</a></li>
+			<%}%>
 			</ul>
 			<%}%>
 		</div>		

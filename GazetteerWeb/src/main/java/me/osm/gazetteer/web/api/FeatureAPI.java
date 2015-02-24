@@ -18,6 +18,7 @@ import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.sort.SortBuilders;
+import org.elasticsearch.search.sort.SortOrder;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.restexpress.Request;
@@ -108,7 +109,7 @@ public class FeatureAPI {
 			sameType(id, types, feature.getJSONObject("center_point"), client, samePoiType);
 		}
 		else if(id.startsWith("hghway")) {
-			result.put("_referenced", referenced(id, client));
+			result.put("_ref_hn", referenced4Street(id, client));
 		}
 		
 		result.put("_same_building", sameBuilding);
@@ -117,18 +118,28 @@ public class FeatureAPI {
 		return result;
 	}
 
-	private static JSONArray referenced(String id, Client client) {
+	private static JSONArray referenced4Street(String id, Client client) {
 		
 		JSONArray result = new JSONArray();
 		
 		QueryBuilder q = QueryBuilders.filteredQuery(
 				QueryBuilders.matchAllQuery(), 
-				FilterBuilders.termsFilter("ref", id));
-		
+				FilterBuilders.andFilter(
+						FilterBuilders.termsFilter("refs.street", id),
+						FilterBuilders.termFilter("type", "adrpnt")));
+
 		SearchRequestBuilder querry = client.prepareSearch("gazetteer")
 				.setTypes(IndexHolder.LOCATION)
 				.setSize(200)
+				.addSort("housenumber", SortOrder.ASC)
 				.setQuery(q);
+		
+		return putReferenced(client, result, querry);
+		
+	}
+
+	private static JSONArray putReferenced(Client client, JSONArray result,
+			SearchRequestBuilder querry) {
 		
 		SearchResponse searchResponse = querry
 				.execute().actionGet();
@@ -139,7 +150,6 @@ public class FeatureAPI {
 		}
 		
 		return result;
-		
 	}
 
 	private static void sameType(String curentFeatureId, Collection<String> types, JSONObject point, Client client,
