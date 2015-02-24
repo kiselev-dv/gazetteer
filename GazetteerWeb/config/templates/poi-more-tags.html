@@ -9,20 +9,24 @@
 			<h4 class="title">${RENDER.tr("templates.feature.moreTags")}</h4>
 			<div class="more-tags">
 				<table>
-					<%f.more_tags.each {key, value ->  %>
+					<%
+						f.more_tags.each {key, value ->  
+						def td = (me.osm.osmdoc.model.Tag)tags.get(key);
+						if(td != null) {
+					%>
 					<tr ng-repeat="t in listMoreTags(objectDetails)">
 						<td class="attr-name" valign="top" id="${key}">
-							${OSM_DOC.facade.getTranslatedTitle(null, tags.get(key), LOCALE)}
+							${OSM_DOC.facade.getTranslatedTitle(null, td, LOCALE)}
 						</td>
 						<td>
-						<% if(tags.get(key).getTagValueType().toString() == "URL") { %>
+						<% if(td.getTagValueType().toString() == "URL") { %>
 							<a href="${value}">${value}</a>
 						<%} else {%>
 							${value}
 						<%}%>
 						</td>
 					</tr>
-					<%}%>
+					<%}}%>
 				</table>
 			</div>
 <%}%>			

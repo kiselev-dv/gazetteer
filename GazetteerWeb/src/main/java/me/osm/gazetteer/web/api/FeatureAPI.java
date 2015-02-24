@@ -1,8 +1,10 @@
 package me.osm.gazetteer.web.api;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import me.osm.gazetteer.web.ESNodeHodel;
@@ -105,11 +107,39 @@ public class FeatureAPI {
 			
 			sameType(id, types, feature.getJSONObject("center_point"), client, samePoiType);
 		}
+		else if(id.startsWith("hghway")) {
+			result.put("_referenced", referenced(id, client));
+		}
 		
 		result.put("_same_building", sameBuilding);
 		result.put("_same_poi_type", samePoiType);
 		
 		return result;
+	}
+
+	private static JSONArray referenced(String id, Client client) {
+		
+		JSONArray result = new JSONArray();
+		
+		QueryBuilder q = QueryBuilders.filteredQuery(
+				QueryBuilders.matchAllQuery(), 
+				FilterBuilders.termsFilter("ref", id));
+		
+		SearchRequestBuilder querry = client.prepareSearch("gazetteer")
+				.setTypes(IndexHolder.LOCATION)
+				.setSize(200)
+				.setQuery(q);
+		
+		SearchResponse searchResponse = querry
+				.execute().actionGet();
+		
+		for(SearchHit hit : searchResponse.getHits().getHits()) {
+			JSONObject h = new JSONObject(hit.getSourceAsString());
+			result.put(h);
+		}
+		
+		return result;
+		
 	}
 
 	private static void sameType(String curentFeatureId, Collection<String> types, JSONObject point, Client client,

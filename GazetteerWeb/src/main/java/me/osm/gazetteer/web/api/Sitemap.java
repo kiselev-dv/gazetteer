@@ -82,7 +82,9 @@ public class Sitemap {
 			
 			String id = hit.getId();
 			String[] split = StringUtils.split(id, '-');
-			id= StringUtils.join(Arrays.copyOfRange(split, 0, split.length - 1), '-');
+			if(split.length > 3) {
+				id= StringUtils.join(Arrays.copyOfRange(split, 0, split.length - 1), '-');
+			}
 			
 			String featureURL = StringUtils.replace(featureUrlTemplate, "{id}", id);
 			featureURL = hostName + featureURL;
