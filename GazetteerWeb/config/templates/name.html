@@ -1,0 +1,12 @@
+<h3 class="name">
+<%
+	if(f.type == "poipnt") {
+		if(f.name != null && f.name != "") {
+			out << f.name; 
+		}
+	}
+	else if(f.type == "adrpnt") {
+		out << RENDER.tr("templates.feature.building");
+	}
+%>	
+</h3>

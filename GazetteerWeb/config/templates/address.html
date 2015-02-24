@@ -1,0 +1,19 @@
+<div class="address">
+<%
+	def first = true;
+	subj.address.parts.each { part -> 
+		if (part.name != null && part.name != "") { %>
+			<span class="addr-part-${part.lvl}">
+			<% if(part.lnk != null) { %>
+					${(first ? "" : "<span class='addr-part-delim'>&nbsp;</span>")}
+					<a href="${HTML_ROOT}#!/map?fid=${part.lnk}&details">${part.name}</a>
+			<%}
+			else { %>
+				<span>${part.name}</span>
+			<%} %>
+			</span>		
+			<% first = false;
+		}
+	}
+%>
+</div>

@@ -1,0 +1,14 @@
+<% if(f.poi_class != null && !f.poi_class.isEmpty()) { %>	
+		<p>
+			<div class="poi-type">
+				<div class="title">${RENDER.tr("templates.feature.poiTypes")}</div>
+				<ul>
+					<% for(typeCode in f.poi_class) { 
+						def poiClass = OSM_DOC.facade.getFeature(typeCode);
+					%>
+						<li id="${typeCode}">${OSM_DOC.facade.getTranslatedTitle(poiClass, LOCALE)}</li>
+					<%}%>
+				</ul>
+			</div>
+		</p>
+<%}%>

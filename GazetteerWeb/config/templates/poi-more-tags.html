@@ -1,0 +1,28 @@
+<%if(f.type == 'poipnt') { %>			
+			<%
+				def classes = [] as List;
+				for(typeCode in f.poi_class) {
+					classes.add(OSM_DOC.facade.getFeature(typeCode));
+				}
+				def tags = OSM_DOC.facade.getMoreTags(classes);
+			%>
+			<h4 class="title">${RENDER.tr("templates.feature.moreTags")}</h4>
+			<div class="more-tags">
+				<table>
+					<%f.more_tags.each {key, value ->  %>
+					<tr ng-repeat="t in listMoreTags(objectDetails)">
+						<td class="attr-name" valign="top" id="${key}">
+							${OSM_DOC.facade.getTranslatedTitle(null, tags.get(key), LOCALE)}
+						</td>
+						<td>
+						<% if(tags.get(key).getTagValueType().toString() == "URL") { %>
+							<a href="${value}">${value}</a>
+						<%} else {%>
+							${value}
+						<%}%>
+						</td>
+					</tr>
+					<%}%>
+				</table>
+			</div>
+<%}%>			
