@@ -4,6 +4,7 @@ import groovy.lang.GroovyClassLoader;
 
 import java.io.File;
 import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -11,6 +12,7 @@ import me.osm.gazetteer.web.Configuration;
 import me.osm.gazetteer.web.api.imp.HTMLSitemapRender;
 import me.osm.gazetteer.web.api.imp.SnapshotRender;
 
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONObject;
 import org.restexpress.Request;
@@ -150,6 +152,12 @@ public class SnapshotsAPI {
 
 	private Map<String, String> parseArgs(String parameters) {
 		Map<String, String> res = new HashMap<String, String>();
+		
+		try {
+			parameters = URLDecoder.decode(parameters, "utf-8");
+		} catch (UnsupportedEncodingException e) {
+			throw new RuntimeException(e);
+		}
 		
 		String p = StringUtils.substringAfter(parameters, "?");
 		String[] pairs = StringUtils.split(p, '&');
