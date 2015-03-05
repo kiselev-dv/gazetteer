@@ -6,11 +6,13 @@ import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 import me.osm.gazetteer.web.Configuration;
 import me.osm.gazetteer.web.api.imp.HTMLSitemapRender;
 import me.osm.gazetteer.web.api.imp.SnapshotRender;
+import me.osm.gazetteer.web.utils.OSMDocSinglton;
 
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -65,24 +67,39 @@ public class SnapshotsAPI {
 			render.updateTemplate();
 		}
 		
-		String parameters = StringUtils.substringAfter(req.getPath(), "_escaped_fragment_=");
-		Map<String, String> args = parseArgs(parameters);
-		
 		try	{
-			//index page snapshot
-			if(parameters.isEmpty()) {
-				renderIndexSnapshot(res);
-			}
-			else if(args.get("index_page") != null) {
-				int page = Integer.parseInt(args.get("index_page"));
-				renderSitemapPage(page, res);
-			}
-			//feature snapshot
-			else {
-				JSONObject feature = FeatureAPI.getFeature(args.get("fid"), true);
+			if(StringUtils.contains(req.getPath(), "_escaped_fragment_=")) {
+				String parameters = StringUtils.substringAfter(req.getPath(), "_escaped_fragment_=");
+				Map<String, String> args = parseArgs(parameters);
 				
-				if(feature != null) {
-					renderFeatureSnapshot(res, feature);
+				//index page snapshot
+				if(parameters.isEmpty()) {
+					renderIndexSnapshot(res);
+				}
+				else if(args.get("index_page") != null) {
+					int page = Integer.parseInt(args.get("index_page"));
+					renderSitemapPage(page, res);
+				}
+				//feature snapshot
+				else {
+					JSONObject feature = FeatureAPI.getFeature(args.get("fid"), true);
+					
+					if(feature != null) {
+						renderFeatureSnapshot(res, feature);
+					}
+					else {
+						res.setResponseCode(404);
+					}
+				}
+			}
+			//catalog snapshot
+			else if(StringUtils.contains(req.getPath(), "hierarchy/")) {
+				String parameters = StringUtils.substringAfter(req.getPath(), "hierarchy/");
+				String lang = StringUtils.substringBefore(parameters, "/");
+				JSONObject hierarchyJSON = OSMDocSinglton.get().getFacade().getHierarchyJSON("osm-ru", Locale.forLanguageTag(lang));
+				if(hierarchyJSON != null) {
+					res.setContentType("text/html; charset=utf8");
+					res.setBody(render.render(hierarchyJSON.toString(), "hierarchy"));
 				}
 				else {
 					res.setResponseCode(404);
@@ -113,6 +130,7 @@ public class SnapshotsAPI {
 		HTMLSitemapRender httpSitemapRender = new HTMLSitemapRender(config);
 		try {
 			Sitemap.renderIndex(httpSitemapRender);
+			res.setContentType("text/html; charset=utf8");
 			res.setBody(httpSitemapRender.toString());
 			
 		} catch (UnsupportedEncodingException e) {
@@ -127,7 +145,7 @@ public class SnapshotsAPI {
 		
 		try {
 			res.setContentType("text/html; charset=utf8");
-			res.setBody(render.render(feature.toString()));
+			res.setBody(render.render(feature.toString(), "feature"));
 		}
 		catch (Exception e) {
 			render.updateTemplate();

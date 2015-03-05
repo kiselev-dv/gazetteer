@@ -12,6 +12,8 @@ class HTMLSnapshotRender implements SnapshotRender {
 	def engine = new SimpleTemplateEngine();
 	
 	def tpls = [
+	    'config/templates/hgroup.html',
+	    'config/templates/hierarchy.html',
 		'config/templates/feature.html',
 		'config/templates/poi-types.html',
 		'config/templates/poi-more-tags.html',
@@ -52,9 +54,9 @@ class HTMLSnapshotRender implements SnapshotRender {
 	}
 	
 	@Override
-	public String render(String json) {
+	public String render(String json, String templateName) {
 		def jsonObj = new JsonSlurper().parseText(json);
-		return templates['feature'].make([
+		return templates[templateName].make([
 			"f":jsonObj, 
 			"HTML_ROOT": "/", 
 			"RENDER":this, 

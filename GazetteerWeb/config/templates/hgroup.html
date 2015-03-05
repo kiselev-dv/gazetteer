@@ -1,0 +1,33 @@
+<% if (subj == 'script') { %>
+<div class="js-enabled" style="display: none;">
+	<ul>
+	<% for(g in f.groups){ %>
+		<li>
+			<a href="/#!/ru/pg/${g.name}">${g.title}</a>
+			${RENDER.callTemplate('hgroup', g, 'script')}
+		</li>
+	<% } %>
+		<ul>
+		<%for(gf in f.features){%>
+			<li><a href="/#!/ru/pt/${gf.name}">${gf.translated_title}</a></li>
+		<%}%>
+		</ul>	
+	</ul>
+</div>
+<%} else {%>
+<noscript>
+	<ul>
+	<% for(g in f.groups){ %>
+		<li>
+			<a href="/ru/catalog/group/${g.name}.html">${g.title}</a>
+			${RENDER.callTemplate('hgroup', g, 'noscript')}
+		</li>
+	<% } %>	
+		<ul>
+		<%for(gf in f.features){%>
+			<li><a href="/ru/catalog/feature/${gf.name}.html">${gf.translated_title}</a></li>
+		<%}%>
+		</ul>
+	</ul>
+</noscript>
+<%}%>
