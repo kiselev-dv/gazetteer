@@ -133,11 +133,6 @@ public class SearchAPI {
 			List<JSONObject> poiType = null;
 			if(query != null) {
 				poiType = findPoiClass(query);
-//				if(!poiType.isEmpty()) {
-//					for(JSONObject pt : poiType) {
-//						poiClass.add(pt.getString("name"));
-//					}
-//				}
 			}
 			
 			if(querryString != null) {
@@ -156,7 +151,6 @@ public class SearchAPI {
 			}
 			
 			QueryBuilder qb = poiClass.isEmpty() ? QueryBuilders.filteredQuery(q, getFilter(querryString)) : q;
-			//qb = q;
 			
 			qb = rescore(qb, lat, lon, poiClass);
 			
