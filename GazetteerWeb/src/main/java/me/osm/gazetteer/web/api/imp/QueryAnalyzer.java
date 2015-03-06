@@ -29,6 +29,7 @@ public class QueryAnalyzer {
 		}
 
 		q = q.toLowerCase();
+		q = StringUtils.replaceChars(q, "ё", "е");
 		
 		String[] tokens = StringUtils.split(q, tokenSeparators);
 		

@@ -23,9 +23,11 @@ import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.geo.GeoPoint;
 import org.elasticsearch.common.lucene.search.function.CombineFunction;
+import org.elasticsearch.common.unit.Fuzziness;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.FilterBuilder;
 import org.elasticsearch.index.query.FilterBuilders;
+import org.elasticsearch.index.query.MatchQueryBuilder;
 import org.elasticsearch.index.query.OrFilterBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -345,7 +347,12 @@ public class SearchAPI {
 			}
 			//regular token
 			else {
-				resultQuery.must(QueryBuilders.matchQuery("search", token.toString()));
+				MatchQueryBuilder mq = QueryBuilders.matchQuery("search", token.toString());
+				if(token.isHasNumbers()) {
+					mq.fuzziness(Fuzziness.ONE);
+				}
+				
+				resultQuery.must(mq);
 				required.add(token.toString());
 			}
 			
