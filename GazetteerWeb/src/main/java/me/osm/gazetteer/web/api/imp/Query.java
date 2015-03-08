@@ -54,7 +54,7 @@ public class Query {
 		
 		int r = 0;
 		for(QToken token : tokens) {
-			if(token.isNumbersOnly()) {
+			if(token.isHasNumbers()) {
 				r++;
 			}
 		}

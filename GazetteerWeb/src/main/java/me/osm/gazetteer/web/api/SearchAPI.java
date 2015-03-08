@@ -7,6 +7,8 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import me.osm.gazetteer.web.ESNodeHodel;
 import me.osm.gazetteer.web.api.imp.APIUtils;
@@ -18,6 +20,7 @@ import me.osm.gazetteer.web.utils.OSMDocSinglton;
 import me.osm.osmdoc.model.Feature;
 
 import org.apache.commons.lang3.StringUtils;
+import org.codehaus.groovy.util.StringUtil;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.Client;
@@ -345,14 +348,26 @@ public class SearchAPI {
 					resultQuery.should(QueryBuilders.matchQuery("search", token.toString())).boost(10);
 				}
 			}
+			else if(token.isHasNumbers()) {
+				BoolQueryBuilder numberQ = QueryBuilders.boolQuery();
+				numberQ.minimumShouldMatch("1");
+				numberQ.disableCoord(true);
+				
+				//for numbers in street names
+				numberQ.should(QueryBuilders.matchQuery("search", token.toString()));
+
+				//for housenumbers
+				Collection<String> fuzzyNumbers = fuzzyNumbers(token.toString());
+				numberQ.should(QueryBuilders.termsQuery("housenumber", fuzzyNumbers));
+				
+				nums.addAll(fuzzyNumbers);
+				
+				resultQuery.must(numberQ);
+				required.add(token.toString());
+			}
 			//regular token
 			else {
-				MatchQueryBuilder mq = QueryBuilders.matchQuery("search", token.toString());
-				if(token.isHasNumbers()) {
-					mq.fuzziness(Fuzziness.ONE);
-				}
-				
-				resultQuery.must(mq);
+				resultQuery.must(QueryBuilders.matchQuery("search", token.toString()));
 				required.add(token.toString());
 			}
 			
@@ -371,8 +386,31 @@ public class SearchAPI {
 		resultQuery.should(QueryBuilders.termsQuery("housenumber", nums).boost(250));
 		
 		if (numbers > 1) {
-			resultQuery.minimumNumberShouldMatch(numbers - 1);
+			resultQuery.minimumNumberShouldMatch(numbers / 2);
 		}
+	}
+
+	private static Pattern NP = Pattern.compile("[0-9]+");
+	
+	private Collection<String> fuzzyNumbers(String string) {
+		Matcher matcher = NP.matcher(string);
+
+		Set<String> result = new HashSet<>();
+		List<String> numbers = new ArrayList<>();
+		
+		while(matcher.find()) {
+			numbers.add(matcher.group());
+		}
+		
+		result.add(StringUtils.lowerCase(string));
+		result.add(numbers.get(0));
+		
+		String[] split = StringUtils.splitByCharacterTypeCamelCase(string);
+		for(String s : Arrays.asList(split)) {
+			result.add(StringUtils.lowerCase(s));
+		}
+		
+		return result;
 	}
 
 }

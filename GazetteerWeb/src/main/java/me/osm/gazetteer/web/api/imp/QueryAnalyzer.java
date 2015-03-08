@@ -1,6 +1,5 @@
 package me.osm.gazetteer.web.api.imp;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -11,13 +10,22 @@ import org.apache.commons.lang3.StringUtils;
 
 public class QueryAnalyzer {
 
-	private String tokenSeparators = ", -;.\"";
-	public Set<String> ignore; 
+	private static final String tokenSeparators = ", -;.\"";
+	public static final Set<String> ignore = new HashSet<String>(); 
+	static {
+		readOptionals();
+	}
 	
-	public QueryAnalyzer() {
+	@SuppressWarnings("unchecked")
+	private static void readOptionals() {
 		try {
-			ignore = new HashSet<String>(IOUtils.readLines(getClass().getResourceAsStream("/optional")));
-		} catch (IOException e) {
+			for(String option : (List<String>)IOUtils.readLines(QueryAnalyzer.class.getResourceAsStream("/optional"))) {
+				if(!StringUtils.startsWith(option, "#") && !StringUtils.isEmpty(option)) {
+					ignore.add(StringUtils.lowerCase(option));
+				}
+			}
+		}
+		catch (Exception e) {
 			throw new RuntimeException(e);
 		}
 	}

@@ -10,6 +10,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.zip.GZIPInputStream;
@@ -196,11 +197,29 @@ public class Importer implements Runnable {
 		obj.remove("alt_addresses");
 		obj.remove("alt_addresses_trans");
 		
+		if(obj.has("housenumber")) {
+			List<String> fuzzy = fuzzyHousenumberIndex(obj.optString("housenumber"));
+			//obj.put("housenumber", StringUtils.lowerCase(obj.optString("housenumber")));
+			obj.put("housenumber", new JSONArray(fuzzy));
+		}
+		
 		obj.put("weight", weighter.weight(obj));
 		
 		return obj.toString();
 	}
 
+	private List<String> fuzzyHousenumberIndex(String optString) {
+		List<String> result = new ArrayList<>();
+		
+		result.add(optString);
+		
+		String[] split = StringUtils.splitByCharacterTypeCamelCase(optString);
+		for(String s : split) {
+			result.add(StringUtils.lowerCase(s));
+		}
+		
+		return result;
+	}
 
 	private String sanitizeSearchText(String shortText) {
 		

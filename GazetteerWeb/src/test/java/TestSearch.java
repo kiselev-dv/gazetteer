@@ -25,7 +25,7 @@ public class TestSearch {
 	public static void main(String[] args) {
 		try {
 			
-			if(Utils.available(8080)) {
+			if(TestSearchUtils.available(8080)) {
 				Main.main(args);
 			}
 
@@ -76,6 +76,11 @@ public class TestSearch {
 	}
 
 	private boolean doCase(JSONObject caze, int i, int total) {
+		
+		if(caze.optBoolean("skip")) {
+			log.info("Skip {}", caze.optString("name"));
+			return true;
+		}
 		
 		log.info("Run {} from {}. Case {}", new Object[]{i + 1, total, caze.optString("name")});
 

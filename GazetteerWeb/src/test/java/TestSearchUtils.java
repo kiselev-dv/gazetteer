@@ -3,7 +3,7 @@ import java.net.DatagramSocket;
 import java.net.ServerSocket;
 
 
-public class Utils {
+public class TestSearchUtils {
 	
 	private static final int MIN_PORT_NUMBER = 1;
 	private static final int MAX_PORT_NUMBER = 65535;
