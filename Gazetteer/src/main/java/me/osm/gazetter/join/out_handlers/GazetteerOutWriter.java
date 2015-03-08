@@ -19,8 +19,11 @@ import static me.osm.gazetter.join.out_handlers.GazetteerSchemeConstants.GAZETTE
 import static me.osm.gazetter.join.out_handlers.GazetteerSchemeConstants.GAZETTEER_SCHEME_TIMESTAMP;
 import static me.osm.gazetter.join.out_handlers.GazetteerSchemeConstants.GAZETTEER_SCHEME_TYPE;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -834,8 +837,9 @@ public class GazetteerOutWriter extends AddressPerRowJOHBase  {
 	@Override
 	protected void initializeWriter(String file) {
 		this.outFile = file;
-		tmpFile = "out-gazetteer" + instances.getAndIncrement() + ".json.tmp";
-		super.initializeWriter(tmpFile);
+//		tmpFile = "out-gazetteer" + instances.getAndIncrement() + ".json.tmp";
+//		super.initializeWriter(tmpFile);
+		super.initializeWriter(this.outFile);
 	}
 	
 	@Override
@@ -844,11 +848,16 @@ public class GazetteerOutWriter extends AddressPerRowJOHBase  {
 		super.allDone();
 
 		try {
-			List<File> batch = ExternalSort.sortInBatch(
-					new File(tmpFile), new JSONByIdComparator(), ExternalSort.DEFAULTMAXTEMPFILES,
-					Charset.forName("utf8"), null, true, 0, true);
+			
+			File file = new File(this.outFile);
+			BufferedReader fbr = new BufferedReader(new InputStreamReader(FileUtils.getFileIS(file)));
+			
+			List<File> batch = ExternalSort.sortInBatch(fbr, file.length(), new JSONByIdComparator(), 
+					ExternalSort.DEFAULTMAXTEMPFILES, ExternalSort.estimateAvailableMemory(), 
+					Charset.forName("utf-8"), null, true, 0, true);
+			
 			ExternalSort.mergeSortedFiles(batch, new File(outFile), new JSONByIdComparator(),
-					Charset.forName("utf8"), true, false, true);
+					Charset.forName("utf-8"), true, false, true);
 			
 			new File(tmpFile).delete();
 		}
