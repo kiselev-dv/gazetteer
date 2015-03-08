@@ -20,8 +20,8 @@ import static me.osm.gazetter.join.out_handlers.GazetteerSchemeConstants.GAZETTE
 import static me.osm.gazetter.join.out_handlers.GazetteerSchemeConstants.GAZETTEER_SCHEME_TYPE;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
@@ -29,7 +29,6 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -38,8 +37,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import me.osm.gazetter.addresses.AddressesUtils;
 import me.osm.gazetter.join.util.ExportTagsStatisticCollector;
@@ -104,9 +103,9 @@ public class GazetteerOutWriter extends AddressPerRowJOHBase  {
 	private String tagStatPath;
 	
 	private String outFile;
-	private static AtomicInteger instances = new AtomicInteger();
-
-	private String tmpFile;
+//	private static AtomicInteger instances = new AtomicInteger();
+//
+//	private String tmpFile;
 	
 	@Override
 	public JoinOutHandler newInstance(List<String> options) {
@@ -856,10 +855,14 @@ public class GazetteerOutWriter extends AddressPerRowJOHBase  {
 					ExternalSort.DEFAULTMAXTEMPFILES, ExternalSort.estimateAvailableMemory(), 
 					Charset.forName("utf-8"), null, true, 0, true);
 			
-			ExternalSort.mergeSortedFiles(batch, new File(outFile), new JSONByIdComparator(),
-					Charset.forName("utf-8"), true, false, true);
+			writer.flush();
+			writer.close();
 			
-			new File(tmpFile).delete();
+			initializeWriter(outFile);
+			
+			ExternalSort.mergeSortedFiles(batch, new BufferedWriter(writer), 
+					new JSONByIdComparator(), Charset.forName("utf-8"), true, true);
+			
 		}
 		catch (Exception e) {
 			throw new RuntimeException(e);
