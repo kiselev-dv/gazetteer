@@ -90,13 +90,9 @@ public class Sitemap {
 		for(SearchHit hit : searchResponse.getHits().getHits()) {
 			
 			String id = hit.getId();
-//			String[] split = StringUtils.split(id, '-');
-//			if(split.length > 3) {
-//				id= StringUtils.join(Arrays.copyOfRange(split, 0, split.length - 1), '-');
-//			}
-//			else {
-//				id= StringUtils.join(split, '-');
-//			}
+			if(StringUtils.startsWith(id, "adrpnt") || StringUtils.startsWith(id, "poipnt")) {
+				id = StringUtils.substringBefore(id, "--");
+			}
 			
 			render.feature(id);
 		}

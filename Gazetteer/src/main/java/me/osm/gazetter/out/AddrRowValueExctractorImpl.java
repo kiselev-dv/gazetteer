@@ -135,19 +135,19 @@ public class AddrRowValueExctractorImpl implements AddrRowValueExtractor {
 			}
 			String h = getPositiveHash(hash);
 			
-			return jsonObject.getString("id") + "-" + h;
+			return jsonObject.getString("id") + "--" + h;
 		}
 
 		if(FeatureTypes.ADDR_POINT_FTYPE.equals(ftype)) {
 			String addrType = addrRow.optString(AddressesSchemesParser.ADDR_SCHEME);
 			
-			return jsonObject.getString("id") + "-" + addrType;
+			return jsonObject.getString("id") + "--" + addrType;
 		}
 
 		if(FeatureTypes.POI_FTYPE.equals(ftype)) {
 			String addrType = addrRow.optString(AddressesSchemesParser.ADDR_SCHEME);
 			
-			return jsonObject.getString("id") + "-" + addrType;
+			return jsonObject.getString("id") + "--" + addrType;
 		}
 		
 		return jsonObject.getString("id");
