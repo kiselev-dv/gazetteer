@@ -33,6 +33,7 @@ import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.index.IndexRequestBuilder;
 import org.elasticsearch.client.Client;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -174,38 +175,44 @@ public class Importer implements Runnable {
 	}
 
 	private String processLine(String line) {
-		JSONObject obj = new JSONObject(line);
-		
-		if(!buildingsGeometry) {
-			obj = filterFullGeometry(obj);
-		}
-		
-		String shortText;
 		try {
-			shortText = getShortText(obj);
-			shortText = sanitizeSearchText(shortText);
-			obj.put("search", shortText);
+			JSONObject obj = new JSONObject(line);
 			
-		} catch (EmptyAddressException e) {
+			if(!buildingsGeometry) {
+				obj = filterFullGeometry(obj);
+			}
+			
+			String shortText;
+			try {
+				shortText = getShortText(obj);
+				shortText = sanitizeSearchText(shortText);
+				obj.put("search", shortText);
+				
+			} catch (EmptyAddressException e) {
+				return null;
+			}
+			
+			if("poipnt".equals(obj.optString("type"))) {
+				obj.put("poi_class_trans", new JSONArray(getPoiTypesTranslated(obj)));
+			}
+			
+			obj.remove("alt_addresses");
+			obj.remove("alt_addresses_trans");
+			
+			if(obj.has("housenumber")) {
+				List<String> fuzzy = fuzzyHousenumberIndex(obj.optString("housenumber"));
+				obj.put("housenumber", new JSONArray(fuzzy));
+			}
+			
+			obj.put("weight", weighter.weight(obj));
+
+			return obj.toString();
+		}
+		catch (JSONException e) {
+			log.error("Failed to parse: " + line);
 			return null;
 		}
 		
-		if("poipnt".equals(obj.optString("type"))) {
-			obj.put("poi_class_trans", new JSONArray(getPoiTypesTranslated(obj)));
-		}
-		
-		obj.remove("alt_addresses");
-		obj.remove("alt_addresses_trans");
-		
-		if(obj.has("housenumber")) {
-			List<String> fuzzy = fuzzyHousenumberIndex(obj.optString("housenumber"));
-			//obj.put("housenumber", StringUtils.lowerCase(obj.optString("housenumber")));
-			obj.put("housenumber", new JSONArray(fuzzy));
-		}
-		
-		obj.put("weight", weighter.weight(obj));
-		
-		return obj.toString();
 	}
 
 	private List<String> fuzzyHousenumberIndex(String optString) {
