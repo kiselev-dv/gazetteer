@@ -847,16 +847,12 @@ public class GazetteerOutWriter extends AddressPerRowJOHBase  {
 		super.allDone();
 
 		try {
-			
 			File file = new File(this.outFile);
 			BufferedReader fbr = new BufferedReader(new InputStreamReader(FileUtils.getFileIS(file)));
 			
 			List<File> batch = ExternalSort.sortInBatch(fbr, file.length(), new JSONByIdComparator(), 
 					ExternalSort.DEFAULTMAXTEMPFILES, ExternalSort.estimateAvailableMemory(), 
 					Charset.forName("utf-8"), null, true, 0, true);
-			
-			writer.flush();
-			writer.close();
 			
 			initializeWriter(outFile);
 			
