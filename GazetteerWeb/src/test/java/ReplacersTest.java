@@ -1,14 +1,11 @@
 import static org.junit.Assert.assertArrayEquals;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import me.osm.gazetteer.web.imp.Importer;
 import me.osm.gazetteer.web.utils.OSMDocSinglton;
-import me.osm.gazetteer.web.utils.ReplacersCompiler;
 
-import org.apache.commons.io.IOUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -97,6 +94,18 @@ public class ReplacersTest {
 			assert set.contains("15");
 			assert set.contains("15a");
 			assert set.contains("15a к1");
+			
+			set = new HashSet<String>(importer.fuzzyHousenumberIndex("д. 15строение1"));
+			
+			assert set.contains("15");
+			assert !set.contains("15c");
+			assert set.contains("15a c1");
+
+			set = new HashSet<String>(importer.fuzzyHousenumberIndex("д. 15с1"));
+			
+			assert set.contains("15");
+			assert !set.contains("15c");
+			assert set.contains("15 c1");
 		}
 		catch (Exception e) {
 			throw new RuntimeException(e);

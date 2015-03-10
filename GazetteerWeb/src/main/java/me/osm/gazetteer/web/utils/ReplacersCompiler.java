@@ -1,15 +1,18 @@
 package me.osm.gazetteer.web.utils;
 
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
+import static org.apache.commons.lang3.StringUtils.startsWith;
+import static org.apache.commons.lang3.StringUtils.strip;
+import static org.apache.commons.lang3.StringUtils.substringAfter;
+import static org.apache.commons.lang3.StringUtils.substringBefore;
 import groovy.lang.GroovyClassLoader;
 
 import java.io.File;
 import java.util.List;
-import java.util.regex.Pattern;
+
+import me.osm.gazetteer.web.imp.Replacer;
 
 import org.apache.commons.lang3.StringUtils;
-
-import static org.apache.commons.lang3.StringUtils.*;
-import me.osm.gazetteer.web.imp.Replacer;
 
 public class ReplacersCompiler {
 
@@ -39,43 +42,53 @@ public class ReplacersCompiler {
 		compile(replacers, configContent);
 	}
 
+	private static class State {
+		public StringBuilder sb = new StringBuilder();
+		public String pattern = null;
+		public String template = null;
+		public boolean multiline = false;
+	}
+	
 	public static void compile(List<Replacer> replacers,
 			List<String> text) {
 		
-		boolean multiline = false;
-		
-		StringBuilder sb = new StringBuilder();
-		String pattern = null;
-		String template = null;
+		State state = new State();
 		
 		for(String line : text) {
-			if(!startsWith(line, "#")) {
+			if(!startsWith(line, "#") && !startsWith(line, "@")) {
 				
-				if(!multiline) {
-					pattern = strip(substringBefore(line, "=>"));
-					template = strip(substringAfter(line, "=>"));
+				if(!state.multiline) {
+					state.pattern = strip(substringBefore(line, "=>"));
+					state.template = strip(substringAfter(line, "=>"));
 				}
 				
-				if(startsWith(template, "///")) {
-					if(!multiline) {
-						multiline = true;
-						template = substringAfter(template, "///");
+				if(startsWith(state.template, "///")) {
+					if(!state.multiline) {
+						state.multiline = true;
+						state.template = substringAfter(state.template, "///");
 						
-						if(StringUtils.isNotBlank(template)) {
-							sb.append(template);
+						if(StringUtils.isNotBlank(state.template)) {
+							state.sb.append(state.template);
 						}
 					}
 					else {
-						multiline = false;
-						add(replacers, pattern, sb.toString());
-						sb = new StringBuilder();
+						state.multiline = false;
+						add(replacers, state.pattern, state.sb.toString());
+						state.sb = new StringBuilder();
 					}
 				}
-				else if(multiline) {
-					sb.append(line).append("\n");
+				else if(state.multiline) {
+					state.sb.append(line).append("\n");
 				}
 				else {
-					add(replacers, pattern, template);
+					add(replacers, state.pattern, state.template);
+				}
+			}
+			else if(startsWith(line, "@")) {
+				String include = substringAfter(line, "include").trim();
+				if(isNotBlank(include)) {
+					
+					compile(replacers, new File(include));
 				}
 			}
 		}

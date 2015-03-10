@@ -1,5 +1,6 @@
 package me.osm.gazetteer.web.api;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -16,7 +17,9 @@ import me.osm.gazetteer.web.api.imp.QToken;
 import me.osm.gazetteer.web.api.imp.Query;
 import me.osm.gazetteer.web.api.imp.QueryAnalyzer;
 import me.osm.gazetteer.web.imp.IndexHolder;
+import me.osm.gazetteer.web.imp.Replacer;
 import me.osm.gazetteer.web.utils.OSMDocSinglton;
+import me.osm.gazetteer.web.utils.ReplacersCompiler;
 import me.osm.osmdoc.model.Feature;
 
 import org.apache.commons.lang3.StringUtils;
@@ -105,9 +108,12 @@ public class SearchAPI {
 	 * */
 	public static final String PARTS_HEADER = "parts";
 	
+	protected List<Replacer> housenumberReplacers = new ArrayList<>();
+	{
+		ReplacersCompiler.compile(housenumberReplacers, new File("config/replacers/hnSearchReplacers"));
+	}
 	
-	
-	protected final QueryAnalyzer queryAnalyzer = new QueryAnalyzer();
+	protected QueryAnalyzer queryAnalyzer = new QueryAnalyzer();
 	
 	public JSONObject read(Request request, Response response) 
 			throws IOException {
@@ -390,24 +396,30 @@ public class SearchAPI {
 		}
 	}
 
-	private static Pattern NP = Pattern.compile("[0-9]+");
-	
 	private Collection<String> fuzzyNumbers(String string) {
-		Matcher matcher = NP.matcher(string);
 
-		Set<String> result = new HashSet<>();
-		List<String> numbers = new ArrayList<>();
+		List<String> result = new ArrayList<>();
 		
-		while(matcher.find()) {
-			numbers.add(matcher.group());
+		if(StringUtils.isNotBlank(string)) {
+			result.add(string);
+			result.addAll(transformHousenumbers(string));
 		}
 		
-		result.add(StringUtils.lowerCase(string));
-		result.add(numbers.get(0));
-		
-		String[] split = StringUtils.splitByCharacterTypeCamelCase(string);
-		for(String s : Arrays.asList(split)) {
-			result.add(StringUtils.lowerCase(s));
+		return result;
+	}
+
+	private Collection<String> transformHousenumbers(String optString) {
+		Set<String> result = new HashSet<>(); 
+		for(Replacer replacer : housenumberReplacers) {
+			try {
+				Collection<String> replace = replacer.replace(optString);
+				if(replace != null) {
+					result.addAll(replace);
+				}
+			}
+			catch (Exception e) {
+				
+			}
 		}
 		
 		return result;
