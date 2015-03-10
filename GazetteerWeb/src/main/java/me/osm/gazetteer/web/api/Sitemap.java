@@ -1,7 +1,6 @@
 package me.osm.gazetteer.web.api;
 
 import java.io.UnsupportedEncodingException;
-import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -25,7 +24,6 @@ import org.restexpress.Response;
 
 public class Sitemap {
 	private static final int PAGE_SIZE = 45000;
-	private String featureUrlTemplate;
 	
 	private static final Pattern p = Pattern.compile(".*sitemap([0-9]+)\\.xml(\\.gz)?");
 	private Configuration config;
@@ -83,7 +81,6 @@ public class Sitemap {
 		searchQ.setFrom(page * PAGE_SIZE);
 		
 		SearchResponse searchResponse = searchQ.get();
-		
 		
 		render.pageBegin();
 		

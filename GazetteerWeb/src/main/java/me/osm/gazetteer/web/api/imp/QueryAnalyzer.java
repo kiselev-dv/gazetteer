@@ -35,6 +35,8 @@ public class QueryAnalyzer {
 		if(null == q) {
 			return null;
 		}
+		
+		q = transform(q);
 
 		q = q.toLowerCase();
 		q = StringUtils.replaceChars(q, "ё", "е");
@@ -57,6 +59,10 @@ public class QueryAnalyzer {
 		
 		
 		return new Query(result);
+	}
+
+	protected String transform(String q) {
+		return q;
 	}
 	
 }

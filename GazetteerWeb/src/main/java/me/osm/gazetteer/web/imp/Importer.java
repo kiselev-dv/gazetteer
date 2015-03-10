@@ -3,6 +3,7 @@ package me.osm.gazetteer.web.imp;
 import static me.osm.gazetteer.web.imp.IndexHolder.LOCATION;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -10,14 +11,17 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.text.NumberFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 import java.util.zip.GZIPInputStream;
 
 import me.osm.gazetteer.web.ESNodeHodel;
 import me.osm.gazetteer.web.FeatureTypes;
 import me.osm.gazetteer.web.utils.OSMDocSinglton;
+import me.osm.gazetteer.web.utils.ReplacersCompiler;
 import me.osm.osmdoc.localization.L10n;
 import me.osm.osmdoc.model.Feature;
 import me.osm.osmdoc.read.OSMDocFacade;
@@ -60,16 +64,10 @@ public class Importer implements Runnable {
 
 	private ListenableActionFuture<BulkResponse> curentBulkRequest;
 	
+	private List<Replacer> replasers = new ArrayList<>(); 
+	
 	private static class EmptyAddressException extends Exception {
-
 		private static final long serialVersionUID = 8178453133841622471L;
-		
-	}
-
-	public Importer(String filePath) {
-		this.filePath = filePath;
-		client = ESNodeHodel.getClient();
-		bulkRequest = client.prepareBulk();
 	}
 
 	public Importer(String source, boolean buildingsGeometry) {
@@ -81,6 +79,7 @@ public class Importer implements Runnable {
 		bulkRequest = client.prepareBulk();
 		
 		weighter = new DefaultWeightBuilder();
+		ReplacersCompiler.compile(replasers, new File("config/replacers/hnIndexReplasers"));
 	}
 
 	public static InputStream getFileIS(String osmFilePath) throws IOException,
@@ -200,8 +199,8 @@ public class Importer implements Runnable {
 			obj.remove("alt_addresses_trans");
 			
 			if(obj.has("housenumber")) {
-				List<String> fuzzy = fuzzyHousenumberIndex(obj.optString("housenumber"));
-				obj.put("housenumber", new JSONArray(fuzzy));
+				obj.put("housenumber", 
+						new JSONArray(fuzzyHousenumberIndex(obj.optString("housenumber"))));
 			}
 			
 			obj.put("weight", weighter.weight(obj));
@@ -215,14 +214,29 @@ public class Importer implements Runnable {
 		
 	}
 
-	private List<String> fuzzyHousenumberIndex(String optString) {
+	public List<String> fuzzyHousenumberIndex(String optString) {
 		List<String> result = new ArrayList<>();
+
+		if(StringUtils.isNotBlank(optString)) {
+			result.add(optString);
+			result.addAll(transformHousenumbers(optString));
+		}
 		
-		result.add(optString);
-		
-		String[] split = StringUtils.splitByCharacterTypeCamelCase(optString);
-		for(String s : split) {
-			result.add(StringUtils.lowerCase(s));
+		return result;
+	}
+
+	private Collection<String> transformHousenumbers(String optString) {
+		Set<String> result = new HashSet<>(); 
+		for(Replacer replacer : replasers) {
+			try {
+				Collection<String> replace = replacer.replace(optString);
+				if(replace != null) {
+					result.addAll(replace);
+				}
+			}
+			catch (Exception e) {
+				
+			}
 		}
 		
 		return result;
@@ -325,6 +339,10 @@ public class Importer implements Runnable {
 		}
 		
 		return jsonObject;
+	}
+	
+	public List<Replacer> getReplacers() {
+		return replasers;
 	}
 
 }

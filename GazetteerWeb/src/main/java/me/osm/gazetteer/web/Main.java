@@ -24,7 +24,7 @@ public class Main {
 	}
 	
 	private static RestExpress server;
-	private static Configuration config;
+	private volatile static Configuration config;
 	
 	public static void main(String[] args) throws Exception {
 		

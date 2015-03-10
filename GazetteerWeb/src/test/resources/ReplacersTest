@@ -1,0 +1,22 @@
+.* => ///<%
+
+# test comment inside groovy template
+out << "echo: " + groups[0];
+
+%>
+///
+
+.*([\d]+[\w])/([\d]+[\w]) => ${ApacheUtils.lowerCase(groups[1])}
+
+# д. 123Aкорпус 5a => 123а к5а
+.*([\d]+[\w])[\s]*(к|корпус|у|уч|участок|л|лит|литера|с|стр|с-е|строение)[\.]?[\s]*([\d]*[\w]?)) => ///
+
+# 123а
+${ApacheUtils.lowerCase(groups[1])}
+
+# 123а к5а
+${ApacheUtils.lowerCase(groups[1])} ${ApacheUtils.lowerCase(groups[2]).substring(0, 1)}${ApacheUtils.lowerCase(groups[3])}
+
+# 123а 5а
+${ApacheUtils.lowerCase(groups[1])} ${ApacheUtils.lowerCase(groups[3])}
+///
