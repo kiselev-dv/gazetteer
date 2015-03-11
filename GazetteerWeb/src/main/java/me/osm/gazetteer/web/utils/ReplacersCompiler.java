@@ -55,21 +55,18 @@ public class ReplacersCompiler {
 		State state = new State();
 		
 		for(String line : text) {
-			if(!startsWith(line, "#") && !startsWith(line, "@")) {
+			if(!startsWith(line, "#") && !startsWith(line, "@") && isNotBlank(line)) {
 				
 				if(!state.multiline) {
 					state.pattern = strip(substringBefore(line, "=>"));
 					state.template = strip(substringAfter(line, "=>"));
 				}
 				
-				if(startsWith(state.template, "///")) {
+				if(startsWith(state.template, "///") || startsWith(line, "///")) {
 					if(!state.multiline) {
 						state.multiline = true;
 						state.template = substringAfter(state.template, "///");
-						
-						if(StringUtils.isNotBlank(state.template)) {
-							state.sb.append(state.template);
-						}
+						state.sb = new StringBuilder(state.template);
 					}
 					else {
 						state.multiline = false;
@@ -87,7 +84,6 @@ public class ReplacersCompiler {
 			else if(startsWith(line, "@")) {
 				String include = substringAfter(line, "include").trim();
 				if(isNotBlank(include)) {
-					
 					compile(replacers, new File(include));
 				}
 			}
@@ -97,7 +93,9 @@ public class ReplacersCompiler {
 	private static void add(List<Replacer> replacers, String pattern,
 			String template) {
 		try {
-			replacers.add(replacersFactory.createReplacer(pattern, template));
+			if(StringUtils.isNotBlank(pattern)) {
+				replacers.add(replacersFactory.createReplacer(pattern, template));
+			}
 		}
 		catch (Exception e) {
 			e.printStackTrace();

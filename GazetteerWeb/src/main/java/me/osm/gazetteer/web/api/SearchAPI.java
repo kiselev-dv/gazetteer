@@ -40,6 +40,8 @@ import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.functionscore.FunctionScoreQueryBuilder;
 import org.elasticsearch.index.query.functionscore.ScoreFunctionBuilders;
 import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.aggregations.AggregationBuilder;
+import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.sort.SortBuilders;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -179,6 +181,8 @@ public class SearchAPI {
 					.prepareSearch("gazetteer").setTypes(IndexHolder.LOCATION)
 					.setQuery(qb)
 					.setExplain(explain);
+			
+			searchRequest.addAggregation(AggregationBuilders.terms("highways").field("name"));
 			
 			searchRequest.addSort(SortBuilders.scoreSort());
 
@@ -354,23 +358,6 @@ public class SearchAPI {
 					resultQuery.should(QueryBuilders.matchQuery("search", token.toString())).boost(10);
 				}
 			}
-			else if(token.isHasNumbers()) {
-				BoolQueryBuilder numberQ = QueryBuilders.boolQuery();
-				numberQ.minimumShouldMatch("1");
-				numberQ.disableCoord(true);
-				
-				//for numbers in street names
-				numberQ.should(QueryBuilders.matchQuery("search", token.toString()));
-
-				//for housenumbers
-				Collection<String> fuzzyNumbers = fuzzyNumbers(token.toString());
-				numberQ.should(QueryBuilders.termsQuery("housenumber", fuzzyNumbers));
-				
-				nums.addAll(fuzzyNumbers);
-				
-				resultQuery.must(numberQ);
-				required.add(token.toString());
-			}
 			//regular token
 			else {
 				resultQuery.must(QueryBuilders.matchQuery("search", token.toString()));
@@ -380,6 +367,23 @@ public class SearchAPI {
 			if (token.isHasNumbers()) {
 				nums.add(token.toString());
 			}
+		}
+		
+		Collection<String> housenumbers = fuzzyNumbers(query.toString());
+		if(!housenumbers.isEmpty()) {
+			
+			BoolQueryBuilder numberQ = QueryBuilders.boolQuery();
+			numberQ.minimumShouldMatch("1");
+			numberQ.disableCoord(true);
+
+			//for numbers in street names
+			numberQ.should(QueryBuilders.matchQuery("search", housenumbers));
+			
+			//for housenumbers
+			numberQ.should(QueryBuilders.termsQuery("housenumber", housenumbers));
+			nums.addAll(housenumbers);
+
+			resultQuery.must(numberQ);
 		}
 		
 		List<String> cammel = new ArrayList<String>();

@@ -66,7 +66,7 @@ public class FileUtils {
 
 			@Override
 			public void handle(String s) {
-				if (filter != null && filter.isSuitable(s)) {
+				if (filter == null || filter.isSuitable(s)) {
 					result.add(s);
 				}
 			}

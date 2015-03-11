@@ -14,6 +14,7 @@ class GroovyReplacersFactory implements ReplacersFactory {
 	
 	public Replacer createReplacer(String pattern, String template) {
 		def result = new ReplacerImpl();
+		result.patternString = pattern;
 		result.pattern = Pattern.compile(pattern);
 		result.template = engine.createTemplate(template);
 		return result;
@@ -21,6 +22,8 @@ class GroovyReplacersFactory implements ReplacersFactory {
 }
 
 class ReplacerImpl implements Replacer {
+	
+	private String patternString;
 	private Pattern pattern;
 	private Template template;
 	
@@ -37,12 +40,12 @@ class ReplacerImpl implements Replacer {
 				groups.add(matcher.group(i));
 			}
 			
-			result = template.make([
+			def text = template.make([
 				'ApacheUtils': StringUtils, 
 				'groups': groups, 
 				'full': hn]);
 			
-			for(String str in StringUtils.split(result, "\n")) {
+			for(String str in StringUtils.split(text.toString(), "\n")) {
 				if(StringUtils.isNotBlank(str)) {
 					rl.add(str);
 				}

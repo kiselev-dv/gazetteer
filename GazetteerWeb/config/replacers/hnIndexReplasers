@@ -25,10 +25,10 @@
 #
 # Original string is added by dafault.
 
-.*([\d]+)([\w]) => ${groups[1]}${ApacheUtils.lowerCase(groups[2])}
+([\d]+)([\w]) => ${groups[1]}${ApacheUtils.lowerCase(groups[2])}
 
 # д. 123Aкорпус 5a => 123а к5а
-.*([\d]+[\w])?[\s]*(корпус|к|участок|уч|у|литера|лит|л|строение|стр|с-е|с|/)?[\.]?[\s]*([\d]*[\w]?) => ///
+([\d]+[\w])+?[\s]*(корпус|корп|к|участок|уч|у|литера|лит|л|строение|стр|с-е|с|/)?[\.]?[\s]*([\d]*[\w]?) => ///
 
 # 123а
 ${ApacheUtils.lowerCase(groups[1])}
