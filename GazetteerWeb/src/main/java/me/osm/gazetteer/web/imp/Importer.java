@@ -13,6 +13,7 @@ import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
@@ -181,6 +182,8 @@ public class Importer implements Runnable {
 				obj = filterFullGeometry(obj);
 			}
 			
+			filterAddrPartsNames(obj);
+			
 			String shortText;
 			try {
 				shortText = getShortText(obj);
@@ -214,15 +217,31 @@ public class Importer implements Runnable {
 		
 	}
 
+	private void filterAddrPartsNames(JSONObject obj) {
+		JSONObject addr = obj.optJSONObject("address");
+		if(addr != null) {
+			JSONArray parts = addr.optJSONArray("parts");
+			
+			if(parts != null) {
+				for(int i=0; i < parts.length();i++) {
+					JSONObject part = parts.getJSONObject(i);
+					if(part != null) {
+						part.remove("names");
+					}
+				}
+			}
+		}
+	}
+
 	public List<String> fuzzyHousenumberIndex(String optString) {
-		List<String> result = new ArrayList<>();
+		LinkedHashSet<String> result = new LinkedHashSet<>();
 
 		if(StringUtils.isNotBlank(optString)) {
 			result.add(optString);
 			result.addAll(transformHousenumbers(optString));
 		}
 		
-		return result;
+		return new ArrayList<>(result);
 	}
 
 	private Collection<String> transformHousenumbers(String optString) {

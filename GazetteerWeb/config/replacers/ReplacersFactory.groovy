@@ -41,13 +41,13 @@ class ReplacerImpl implements Replacer {
 			}
 			
 			def text = template.make([
-				'ApacheUtils': StringUtils, 
+				'SU': StringUtils, 
 				'groups': groups, 
 				'full': hn]);
 			
 			for(String str in StringUtils.split(text.toString(), "\n")) {
 				if(StringUtils.isNotBlank(str)) {
-					rl.add(str);
+					rl.add(StringUtils.trim(str));
 				}
 			}
 		}

@@ -7,6 +7,7 @@
                 "suggest_synonyms": {
                     "type": "custom",
                     "tokenizer": "whitespace",
+                    "char_filter" : ["yo"],
                     "filter": [
                         "lowercase",
                         "synonym_filter"
@@ -18,6 +19,12 @@
                     "type": "synonym",
                     "expand": true,
                     "synonyms" : []
+                }
+            },
+            "char_filter" : {
+                "yo" : {
+                    "type" : "mapping",
+                    "mappings" : ["ё=>е"]
                 }
             }
         }

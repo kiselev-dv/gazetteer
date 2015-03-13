@@ -7,7 +7,7 @@
 # regexp matching pattern => groovy SimpleTemplateEngine replacement.
 #
 # Matcher expressions are case sensetive! 
-# You can use default groovy functions and Apache string utils under the name ApacheUtils.
+# You can use default groovy functions and Apache string utils under the name SU.
 # matched groups avaible in groups list.
 # 
 # Return replaced String. Empty or null strings will be ignored, duplications will be removed. 
@@ -25,17 +25,15 @@
 #
 # Original string is added by dafault.
 
-([\d]+)([\w]) => ${groups[1]}${ApacheUtils.lowerCase(groups[2])}
-
 # д. 123Aкорпус 5a => 123а к5а
-([\d]+[\w])+?[\s]*(корпус|корп|к|участок|уч|у|литера|лит|л|строение|стр|с-е|с|/)?[\.]?[\s]*([\d]*[\w]?) => ///
-
-# 123а
-${ApacheUtils.lowerCase(groups[1])}
+([\d]+[\wa-яА-Яё]?)+[\s]*(корпус|корп|к|участок|уч|у|литера|лит|л|строение|стр|с-е|с|/)?[\.]?[\s]*([\d]*[\w]?) => ///
 
 # 123а к5а
-${ApacheUtils.lowerCase(groups[1])} ${ApacheUtils.lowerCase(groups[2]).substring(0, 1)}${ApacheUtils.lowerCase(groups[3])}
+${SU.lowerCase(groups[1])}${SU.startsWith(groups[2], "/") ? "" : " "}${SU.stripToEmpty(SU.lowerCase(groups[2])?.substring(0, 1))}${SU.stripToEmpty(SU.lowerCase(groups[3]))}
 
 # 123а 5а
-${ApacheUtils.lowerCase(groups[1])} ${ApacheUtils.lowerCase(groups[3])}
+${SU.lowerCase(groups[1])} ${SU.stripToEmpty(SU.lowerCase(groups[3]))}
+
+# 123а
+${SU.lowerCase(groups[1])}
 ///

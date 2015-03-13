@@ -31,8 +31,8 @@ public class TestSearch {
 
 			TestSearch me = new TestSearch();
 
-			me.doTest("test_cityes.json");
-			me.doTest("test_addresses.json");
+			//me.doTest("test_cityes.json");
+			//me.doTest("test_addresses.json");
 			me.doTest("test_uik.json");
 
 		} catch (Exception e) {
@@ -78,7 +78,7 @@ public class TestSearch {
 	private boolean doCase(JSONObject caze, int i, int total) {
 		
 		if(caze.optBoolean("skip")) {
-			log.info("Skip {}", caze.optString("name"));
+			log.info("Skip {} {}", caze.optString("name"), caze.optString("comment"));
 			return true;
 		}
 		
@@ -111,6 +111,7 @@ public class TestSearch {
 			
 			JSONObject fr = getFirstResult(answer);
 			if(fr == null) {
+				log.warn("\tFAILED Empty answer");
 				return false;
 			}
 				

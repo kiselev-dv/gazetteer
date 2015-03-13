@@ -30,4 +30,13 @@ public class QToken {
 	public String toString() {
 		return text;
 	}
+
+	public String print() {
+		
+		if(optional) {
+			return "opt(" + text + ")";
+		}
+		
+		return text;
+	}
 }

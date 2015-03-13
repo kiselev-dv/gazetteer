@@ -1,3 +1,5 @@
 # This replacers will be used to parse housenumbers while request processing.
 
 @include config/replacers/hnIndexReplasers
+
+([\d]+/[\d]*[\wa-яА-Яё]?) => ${SU.lowerCase(groups[1])}

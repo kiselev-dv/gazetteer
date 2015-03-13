@@ -5,11 +5,11 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import me.osm.gazetteer.web.ESNodeHodel;
 import me.osm.gazetteer.web.api.imp.APIUtils;
@@ -23,30 +23,29 @@ import me.osm.gazetteer.web.utils.ReplacersCompiler;
 import me.osm.osmdoc.model.Feature;
 
 import org.apache.commons.lang3.StringUtils;
-import org.codehaus.groovy.util.StringUtil;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.geo.GeoPoint;
 import org.elasticsearch.common.lucene.search.function.CombineFunction;
-import org.elasticsearch.common.unit.Fuzziness;
 import org.elasticsearch.index.query.BoolQueryBuilder;
+import org.elasticsearch.index.query.DisMaxQueryBuilder;
 import org.elasticsearch.index.query.FilterBuilder;
 import org.elasticsearch.index.query.FilterBuilders;
-import org.elasticsearch.index.query.MatchQueryBuilder;
 import org.elasticsearch.index.query.OrFilterBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.functionscore.FunctionScoreQueryBuilder;
 import org.elasticsearch.index.query.functionscore.ScoreFunctionBuilders;
 import org.elasticsearch.search.SearchHit;
-import org.elasticsearch.search.aggregations.AggregationBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.sort.SortBuilders;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.restexpress.Request;
 import org.restexpress.Response;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SearchAPI {
 
@@ -114,6 +113,8 @@ public class SearchAPI {
 	{
 		ReplacersCompiler.compile(housenumberReplacers, new File("config/replacers/hnSearchReplacers"));
 	}
+	
+	private static final Logger log = LoggerFactory.getLogger(SearchAPI.class);
 	
 	protected QueryAnalyzer queryAnalyzer = new QueryAnalyzer();
 	
@@ -340,10 +341,29 @@ public class SearchAPI {
 	}
 
 	public void commonSearchQ(Query query, BoolQueryBuilder resultQuery) {
+		
 		int numbers = query.countNumeric();
 		
 		List<String> required = new ArrayList<String>();
-		List<String> nums = new ArrayList<String>();
+		LinkedHashSet<String> nums = new LinkedHashSet<String>();
+		
+		Collection<String> housenumbers = fuzzyNumbers(query.toString());
+
+		if(!housenumbers.isEmpty()) {
+			
+			DisMaxQueryBuilder numberQ = QueryBuilders.disMaxQuery();
+
+			List<String> reversed = new ArrayList<>(housenumbers);
+			Collections.reverse(reversed);
+			
+			int i = 1;
+			for(String variant : reversed) {
+				numberQ.add(QueryBuilders.termQuery("housenumber", variant).boost(i++ * 10)); 
+			}
+			
+			resultQuery.must(numberQ);
+		}
+		
 		for(QToken token : query.listToken()) {
 			//optional
 			if(token.isOptional()) {
@@ -358,6 +378,23 @@ public class SearchAPI {
 					resultQuery.should(QueryBuilders.matchQuery("search", token.toString())).boost(10);
 				}
 			}
+			// Если реплейсеры не распознали номер дома, то пробуем действовать по старинке.
+			// Возможно стоит совместить оба метода
+			else if(token.isHasNumbers()) {
+				if(housenumbers.isEmpty()) {
+					DisMaxQueryBuilder numberQ = QueryBuilders.disMaxQuery();
+					
+					//for numbers in street names
+					numberQ.add(QueryBuilders.matchQuery("search", token.toString()));
+					
+					numberQ.add(QueryBuilders.termQuery("housenumber", token.toString()));
+					
+					nums.add(token.toString());
+					
+					resultQuery.must(numberQ);
+					required.add(token.toString());
+				}
+			}
 			//regular token
 			else {
 				resultQuery.must(QueryBuilders.matchQuery("search", token.toString()));
@@ -369,22 +406,7 @@ public class SearchAPI {
 			}
 		}
 		
-		Collection<String> housenumbers = fuzzyNumbers(query.toString());
-		if(!housenumbers.isEmpty()) {
-			
-			BoolQueryBuilder numberQ = QueryBuilders.boolQuery();
-			numberQ.minimumShouldMatch("1");
-			numberQ.disableCoord(true);
-
-			//for numbers in street names
-			numberQ.should(QueryBuilders.matchQuery("search", housenumbers));
-			
-			//for housenumbers
-			numberQ.should(QueryBuilders.termsQuery("housenumber", housenumbers));
-			nums.addAll(housenumbers);
-
-			resultQuery.must(numberQ);
-		}
+		log.trace("Request: {} Required tokens: {}", query, required);
 		
 		List<String> cammel = new ArrayList<String>();
 		for(String s : required) {
@@ -405,15 +427,15 @@ public class SearchAPI {
 		List<String> result = new ArrayList<>();
 		
 		if(StringUtils.isNotBlank(string)) {
-			result.add(string);
-			result.addAll(transformHousenumbers(string));
+			LinkedHashSet<String> tr = transformHousenumbers(string);
+			result.addAll(tr);
 		}
 		
 		return result;
 	}
 
-	private Collection<String> transformHousenumbers(String optString) {
-		Set<String> result = new HashSet<>(); 
+	private LinkedHashSet<String> transformHousenumbers(String optString) {
+		LinkedHashSet<String> result = new LinkedHashSet<>(); 
 		for(Replacer replacer : housenumberReplacers) {
 			try {
 				Collection<String> replace = replacer.replace(optString);
@@ -422,7 +444,7 @@ public class SearchAPI {
 				}
 			}
 			catch (Exception e) {
-				
+				LoggerFactory.getLogger(getClass()).warn("Exception in Replacer", e);
 			}
 		}
 		

@@ -107,7 +107,20 @@ public class Query {
 		}
 		return new Query(r);
 	}
-	
-	
+
+	public String print() {
+		
+		StringBuilder sb = new StringBuilder();
+
+		if(tokens == null || tokens.isEmpty()) {
+			return "";
+		}
+		
+		for(QToken t : tokens) {
+			sb.append(" ").append(t.print());
+		}
+		
+		return sb.substring(1);
+	}
 	
 }
