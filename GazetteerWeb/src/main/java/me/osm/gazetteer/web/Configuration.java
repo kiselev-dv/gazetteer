@@ -23,6 +23,9 @@ public class Configuration extends org.restexpress.util.Environment
 	private String poiCatalogPath;
 	private String host;
 	private boolean distanceScore;
+	private String qAnalyzerTokenSeparators = ", -;.\"()[]№#";
+	private String removeCharacters = "#?%*№@$\"\'";
+	private boolean resendRequestOnFail = true;
 	
 	@Override
 	protected void fillValues(Properties p)
@@ -37,6 +40,9 @@ public class Configuration extends org.restexpress.util.Environment
 		this.adminPasswordHash = p.getProperty("admin_password_sha1", "1A7292E6063EFEFD527B98DDB49F0D38906378B3");
 		this.poiCatalogPath = p.getProperty("poi_catalog_path", "poi_catalog");
 		this.distanceScore = "true".equals(p.getProperty("distance_score", "false"));
+		this.qAnalyzerTokenSeparators = p.getProperty("query_token_separators", ", -;.\"()[]№#");
+		this.removeCharacters = p.getProperty("query_remove_characters", "#?%*№@$\"\'");
+		this.resendRequestOnFail = !"false".equals(p.getProperty("resend_request_on_fail", "true"));
 	}
 
 	public String getDefaultFormat()
@@ -80,6 +86,18 @@ public class Configuration extends org.restexpress.util.Environment
 
 	public boolean doDistanceScore() {
 		return distanceScore;
+	}
+
+	public String getQueryAnalyzerSeparators() {
+		return qAnalyzerTokenSeparators;
+	}
+
+	public String getRemoveCharacters() {
+		return removeCharacters;
+	}
+
+	public boolean isReRestrict() {
+		return resendRequestOnFail;
 	}
 	
 }

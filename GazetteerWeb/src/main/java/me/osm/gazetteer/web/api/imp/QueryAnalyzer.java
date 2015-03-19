@@ -7,6 +7,8 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import me.osm.gazetteer.web.Main;
+
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -16,7 +18,9 @@ public class QueryAnalyzer {
 	
 	private static final Logger log = LoggerFactory.getLogger(QueryAnalyzer.class);
 
-	private static final String tokenSeparators = ", -;.\"()[]";
+	private static final String tokenSeparators = Main.config().getQueryAnalyzerSeparators();
+	private static final String removeChars = Main.config().getRemoveCharacters();
+	
 	public static final Set<String> optionals = new HashSet<String>(); 
 	public static Pattern optRegexp = null;
 	static {
@@ -60,6 +64,8 @@ public class QueryAnalyzer {
 		}
 		
 		q = transform(q);
+		
+		q = StringUtils.replaceChars(q, removeChars, null);
 
 		q = q.toLowerCase();
 		q = StringUtils.replaceChars(q, "ё", "е");

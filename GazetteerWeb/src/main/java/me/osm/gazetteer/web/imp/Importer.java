@@ -184,11 +184,10 @@ public class Importer implements Runnable {
 			
 			filterAddrPartsNames(obj);
 			
-			String shortText;
 			try {
-				shortText = getShortText(obj);
-				shortText = sanitizeSearchText(shortText);
-				obj.put("search", shortText);
+				String searchText = getSearchText(obj);
+				searchText = sanitizeSearchText(searchText);
+				obj.put("search", searchText);
 				
 			} catch (EmptyAddressException e) {
 				return null;
@@ -269,13 +268,13 @@ public class Importer implements Runnable {
 		return shortText;
 	}
 
-	private String getShortText(JSONObject obj) throws EmptyAddressException {
+	private String getSearchText(JSONObject obj) throws EmptyAddressException {
 		
 		StringBuilder sb = new StringBuilder();
 		JSONObject addrobj = obj.optJSONObject("address");
 		
 		if(addrobj != null) {
-			String addrText = addrobj.optString("text");
+			String addrText = addrobj.optString("longText");
 			if(StringUtils.isNotBlank(addrText)) {
 				sb.append(addrText);
 				

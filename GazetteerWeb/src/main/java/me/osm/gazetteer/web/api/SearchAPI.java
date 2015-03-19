@@ -6,12 +6,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
 import me.osm.gazetteer.web.ESNodeHodel;
+import me.osm.gazetteer.web.Main;
 import me.osm.gazetteer.web.api.imp.APIUtils;
 import me.osm.gazetteer.web.api.imp.QToken;
 import me.osm.gazetteer.web.api.imp.Query;
@@ -48,6 +50,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class SearchAPI {
+
+	private static final String STRICT_SEARCH_HEADER = "strict";
 
 	/**
 	 * Explain search results or not 
@@ -118,7 +122,11 @@ public class SearchAPI {
 	
 	protected QueryAnalyzer queryAnalyzer = new QueryAnalyzer();
 	
-	public JSONObject read(Request request, Response response) 
+	public JSONObject read(Request request, Response response) throws IOException  {
+		return read(request, response, false);
+	}
+	
+	public JSONObject read(Request request, Response response, boolean resendedAfterFail) 
 			throws IOException {
 
 		try {
@@ -148,9 +156,18 @@ public class SearchAPI {
 			if(query != null) {
 				poiType = findPoiClass(query);
 			}
+
+			boolean strictRequested = request.getHeader(STRICT_SEARCH_HEADER) != null && Boolean.parseBoolean(request.getHeader(STRICT_SEARCH_HEADER));
 			
 			if(querryString != null) {
-				q = getSearchQuerry(query);
+				if(resendedAfterFail && !strictRequested) {
+					//not a strict query
+					q = getSearchQuerry(query, false);
+				}
+				else {
+					//strict query
+					q = getSearchQuerry(query, true);
+				}
 			}
 			else {
 				q = QueryBuilders.boolQuery();
@@ -193,6 +210,12 @@ public class SearchAPI {
 			
 			SearchResponse searchResponse = searchRequest.execute().actionGet();
 			
+			if(searchResponse.getHits().getHits().length == 0) {
+				if(Main.config().isReRestrict() && !strictRequested && !resendedAfterFail) {
+					return read(request, response, true);
+				}
+			}
+			
 			boolean fullGeometry = request.getHeader(FULL_GEOMETRY_HEADER) != null 
 					&& "true".equals(request.getParameter(FULL_GEOMETRY_HEADER));
 			
@@ -203,6 +226,8 @@ public class SearchAPI {
 			if(poiType != null && !poiType.isEmpty()) {
 				answer.put("matched_type", new JSONArray(poiType));
 			}
+			
+			answer.put("resended_after_fail", resendedAfterFail);
 			
 			APIUtils.resultPaging(request, answer);
 			
@@ -327,11 +352,11 @@ public class SearchAPI {
 		return result;
 	}
 
-	public BoolQueryBuilder getSearchQuerry(Query query) {
+	public BoolQueryBuilder getSearchQuerry(Query query, boolean strict) {
 		
 		BoolQueryBuilder resultQuery = QueryBuilders.boolQuery();
 		
-		commonSearchQ(query, resultQuery);
+		commonSearchQ(query, resultQuery, strict);
 		
 		resultQuery.disableCoord(true);
 		resultQuery.mustNot(QueryBuilders.termQuery("weight", 0));
@@ -340,10 +365,11 @@ public class SearchAPI {
 		
 	}
 
-	public void commonSearchQ(Query query, BoolQueryBuilder resultQuery) {
+	public void commonSearchQ(Query query, BoolQueryBuilder resultQuery, boolean strict) {
 		
 		int numbers = query.countNumeric();
 		
+		List<String> nameExact = new ArrayList<String>();
 		List<String> required = new ArrayList<String>();
 		LinkedHashSet<String> nums = new LinkedHashSet<String>();
 		
@@ -351,17 +377,26 @@ public class SearchAPI {
 
 		if(!housenumbers.isEmpty()) {
 			
-			DisMaxQueryBuilder numberQ = QueryBuilders.disMaxQuery();
+			BoolQueryBuilder numberQ = QueryBuilders.boolQuery();
 
 			List<String> reversed = new ArrayList<>(housenumbers);
+			Collections.sort(reversed, new Comparator<String>() {
+
+				@Override
+				public int compare(String o1, String o2) {
+					return Integer.compare(StringUtils.length(o1), StringUtils.length(o2));
+				}
+				
+			});
 			Collections.reverse(reversed);
 			
 			int i = 1;
 			for(String variant : reversed) {
-				numberQ.add(QueryBuilders.termQuery("housenumber", variant).boost(i++ * 10)); 
+				numberQ.should(QueryBuilders.termQuery("housenumber", variant).boost(i++ * 20)); 
+				numberQ.should(QueryBuilders.matchQuery("search", variant).boost(i++ * 10));
 			}
 			
-			resultQuery.must(numberQ);
+			resultQuery.must(numberQ.boost(10));
 		}
 		
 		for(QToken token : query.listToken()) {
@@ -382,23 +417,24 @@ public class SearchAPI {
 			// Возможно стоит совместить оба метода
 			else if(token.isHasNumbers()) {
 				if(housenumbers.isEmpty()) {
-					DisMaxQueryBuilder numberQ = QueryBuilders.disMaxQuery();
+					BoolQueryBuilder numberQ = QueryBuilders.boolQuery();
+					numberQ.disableCoord(true);
 					
 					//for numbers in street names
-					numberQ.add(QueryBuilders.matchQuery("search", token.toString()));
+					numberQ.should(QueryBuilders.matchQuery("search", token.toString()));
 					
-					numberQ.add(QueryBuilders.termQuery("housenumber", token.toString()));
+					numberQ.should(QueryBuilders.termQuery("housenumber", token.toString()).boost(5));
 					
 					nums.add(token.toString());
 					
 					resultQuery.must(numberQ);
-					required.add(token.toString());
+					nameExact.add(token.toString());
 				}
 			}
 			//regular token
 			else {
-				resultQuery.must(QueryBuilders.matchQuery("search", token.toString()));
 				required.add(token.toString());
+				nameExact.add(token.toString());
 			}
 			
 			if (token.isHasNumbers()) {
@@ -406,10 +442,25 @@ public class SearchAPI {
 			}
 		}
 		
+		BoolQueryBuilder requiredQ = QueryBuilders.boolQuery();
+		requiredQ.disableCoord(true);
+		
+		for(String t : required) {
+			requiredQ.should(QueryBuilders.matchQuery("search", t));
+		}
+		
+		if(strict) {
+			requiredQ.minimumNumberShouldMatch(required.size());
+		}
+		else {
+			requiredQ.minimumShouldMatch("0<-1 3<-2");
+		}
+		resultQuery.must(requiredQ.boost(10));
+		
 		log.trace("Request: {} Required tokens: {}", query, required);
 		
 		List<String> cammel = new ArrayList<String>();
-		for(String s : required) {
+		for(String s : nameExact) {
 			cammel.add(s);
 			cammel.add(StringUtils.capitalize(s));
 		}
@@ -417,9 +468,6 @@ public class SearchAPI {
 		resultQuery.should(QueryBuilders.termsQuery("name.exact", cammel).boost(10));
 		resultQuery.should(QueryBuilders.termsQuery("housenumber", nums).boost(250));
 		
-		if (numbers > 1) {
-			resultQuery.minimumNumberShouldMatch(numbers / 2);
-		}
 	}
 
 	private Collection<String> fuzzyNumbers(String string) {

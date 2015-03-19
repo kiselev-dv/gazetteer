@@ -2,4 +2,9 @@
 
 @include config/replacers/hnIndexReplasers
 
-([\d]+/[\d]*[\wa-яА-Яё]?) => ${SU.lowerCase(groups[1])}
+([\d]+)[/-]([\d]+[\wa-яА-Яё]|[\d]+|[\wa-яА-Яё]) => ///
+
+${SU.lowerCase(groups[1])}
+${SU.lowerCase(groups[1])}/${SU.lowerCase(groups[2])}
+
+///

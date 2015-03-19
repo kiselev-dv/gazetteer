@@ -42,7 +42,7 @@ public class SuggestAPI extends SearchAPI {
 	}
 	
 	@Override
-	public BoolQueryBuilder getSearchQuerry(Query querry) {
+	public BoolQueryBuilder getSearchQuerry(Query querry, boolean strict) {
 		
 		
 		BoolQueryBuilder searchQuerry = QueryBuilders.boolQuery();
@@ -64,7 +64,7 @@ public class SuggestAPI extends SearchAPI {
 			.mustNot(QueryBuilders.termQuery("weight", 0));
 		}
 		else {
-			super.commonSearchQ(head, searchQuerry);
+			super.commonSearchQ(head, searchQuerry, strict);
 			searchQuerry.must(prefQ);
 		}
 		
