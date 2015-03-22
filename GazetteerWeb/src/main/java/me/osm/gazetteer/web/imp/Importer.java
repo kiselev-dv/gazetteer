@@ -278,13 +278,13 @@ public class Importer implements Runnable {
 			if(StringUtils.isNotBlank(addrText)) {
 				sb.append(addrText);
 				
-				if(!obj.has("street_name")) {
-					JSONArray ns = obj.optJSONArray("nearby_streets");
-					if(ns != null && ns.length() > 0) {
-						String nsName = ns.getJSONObject(0).getString("name");
-						sb.append(" ").append(nsName);
-					}
-				}
+//				if(!obj.has("street_name")) {
+//					JSONArray ns = obj.optJSONArray("nearby_streets");
+//					if(ns != null && ns.length() > 0) {
+//						String nsName = ns.getJSONObject(0).getString("name");
+//						sb.append(" ").append(nsName);
+//					}
+//				}
 				
 				if(!obj.has("locality_name") && obj.has("nearest_place")) {
 					sb.append(" ").append(obj.getJSONObject("nearest_place").getString("name"));

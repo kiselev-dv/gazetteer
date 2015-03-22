@@ -34,6 +34,7 @@ import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.DisMaxQueryBuilder;
 import org.elasticsearch.index.query.FilterBuilder;
 import org.elasticsearch.index.query.FilterBuilders;
+import org.elasticsearch.index.query.MatchQueryBuilder;
 import org.elasticsearch.index.query.OrFilterBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -406,11 +407,14 @@ public class SearchAPI {
 			}
 			//number
 			else if(token.isNumbersOnly()) {
-				if (numbers == 1) {
-					resultQuery.must(QueryBuilders.matchQuery("search", token.toString())).boost(10);
-				}
-				else {
-					resultQuery.should(QueryBuilders.matchQuery("search", token.toString())).boost(10);
+				// Если реплейсеры не распознали номер дома
+				if(housenumbers.isEmpty()) {
+					if (numbers == 1) {
+						resultQuery.must(QueryBuilders.matchQuery("search", token.toString())).boost(10);
+					}
+					else {
+						resultQuery.should(QueryBuilders.matchQuery("search", token.toString())).boost(10);
+					}
 				}
 			}
 			// Если реплейсеры не распознали номер дома, то пробуем действовать по старинке.
@@ -445,19 +449,37 @@ public class SearchAPI {
 		BoolQueryBuilder requiredQ = QueryBuilders.boolQuery();
 		requiredQ.disableCoord(true);
 		
+		
 		for(String t : required) {
-			requiredQ.should(QueryBuilders.matchQuery("search", t));
+			if(strict) {
+				requiredQ.should(QueryBuilders.matchQuery("search", t).boost(20));
+			}
+			else {
+				
+				MatchQueryBuilder search = QueryBuilders.matchQuery("search", t).boost(20);
+				MatchQueryBuilder nearestS = QueryBuilders.matchQuery("nearby_streets.name", t).boost(0.2f);
+				
+				requiredQ.should(QueryBuilders.disMaxQuery().add(search).add(nearestS).tieBreaker(0.4f));
+			}
 		}
 		
 		if(strict) {
 			requiredQ.minimumNumberShouldMatch(required.size());
 		}
 		else {
-			requiredQ.minimumShouldMatch("0<-1 3<-2");
+			int r = required.size();
+			if(r > 3) {
+				requiredQ.minimumNumberShouldMatch(r - 2);
+			}
+			else if(r >= 2) {
+				requiredQ.minimumNumberShouldMatch(r - 1);
+			}
 		}
-		resultQuery.must(requiredQ.boost(10));
+		
+		resultQuery.must(requiredQ);
 		
 		log.trace("Request: {} Required tokens: {}", query, required);
+		log.trace("Request: {} Housenumbers variants: {}", query, housenumbers);
 		
 		List<String> cammel = new ArrayList<String>();
 		for(String s : nameExact) {
