@@ -86,11 +86,15 @@ public class ImportOSMDoc {
 				
 			});
 			
+			bulk.execute().actionGet();
+			
+			result.put("result", "success");
+		}
+		else {
+			result.put("message", "Empty source");
+			result.put("result", "failed");
 		}
 		
-		bulk.execute().actionGet();
-		
-		result.put("result", "success");
 		
 		return result;
 	}

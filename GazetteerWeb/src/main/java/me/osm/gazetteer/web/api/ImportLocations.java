@@ -8,6 +8,7 @@ import me.osm.gazetteer.web.imp.Importer;
 import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsRequest;
+import org.elasticsearch.action.admin.indices.mapping.delete.DeleteMappingRequest;
 import org.elasticsearch.client.IndicesAdminClient;
 import org.json.JSONObject;
 import org.restexpress.Request;
@@ -28,22 +29,29 @@ public class ImportLocations {
 		
 		if(drop) {
 			if(INDICES_CLIENT.exists(new IndicesExistsRequest("gazetteer")).actionGet().isExists()) {
-				INDICES_CLIENT.delete(new DeleteIndexRequest("gazetteer")).actionGet();
+				INDICES_CLIENT.deleteMapping(new DeleteMappingRequest("gazetteer").types("location")).actionGet();
 			}
 			
 			result.put("drop", true);
 		}
 		
-		if(StringUtils.isNotEmpty(source)) {
+		boolean imp = StringUtils.isNotEmpty(source);
+		if(imp) {
 			
-			try {
-				Executors.callable(new Importer(source, buildingsGeometry)).call();
-			} catch (Exception e) {
-				e.printStackTrace();
+			Importer importer = new Importer(source, buildingsGeometry);
+			
+			if(importer.submit()) {
+				result.put("state", "submited");
+				result.put("locations_import", imp);
+				result.put("task_id", importer.getId());
+				result.put("buildings_geometry", buildingsGeometry);
 			}
-			
-			result.put("import", true);
-			result.put("buildings_geometry", buildingsGeometry);
+			else {
+				result.put("state", "rejected");
+				result.put("locations_import", imp);
+				result.put("task_id", importer.getId());
+				result.put("buildings_geometry", buildingsGeometry);
+			}
 		}
 
 		if(osmdoc) {

@@ -21,6 +21,8 @@ import java.util.zip.GZIPInputStream;
 
 import me.osm.gazetteer.web.ESNodeHodel;
 import me.osm.gazetteer.web.FeatureTypes;
+import me.osm.gazetteer.web.executions.AbortedException;
+import me.osm.gazetteer.web.executions.BackgroundExecutorFacade.BackgroundExecutableTask;
 import me.osm.gazetteer.web.utils.OSMDocSinglton;
 import me.osm.gazetteer.web.utils.ReplacersCompiler;
 import me.osm.osmdoc.localization.L10n;
@@ -30,6 +32,7 @@ import me.osm.osmdoc.read.OSMDocFacade;
 import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.elasticsearch.action.ListenableActionFuture;
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsRequestBuilder;
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsResponse;
@@ -43,7 +46,7 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class Importer implements Runnable {
+public class Importer extends BackgroundExecutableTask {
 	
 	private static final OSMDocFacade FACADE = OSMDocSinglton.get().getFacade();
 	
@@ -96,8 +99,8 @@ public class Importer implements Runnable {
 	}
 
 	@Override
-	public void run() {
-
+	public void executeTask() throws AbortedException {
+		
 		IndicesExistsResponse response = new IndicesExistsRequestBuilder(
 				client.admin().indices()).setIndices("gazetteer").execute()
 				.actionGet();
@@ -122,15 +125,19 @@ public class Importer implements Runnable {
 			
 			log.info("Import done. {} rows imported.", counter);
 		}
+		catch (AbortedException aborted) {
+			log.info("Import was interrupted. {} rows imported.", counter);
+			throw aborted;
+		}
 		catch (Exception e) {
-			throw new RuntimeException(e);
+			throw new AbortedException("Import aborted. Root error msg: " + ExceptionUtils.getRootCauseMessage(e), e, false);
 		}
 		finally {
 			IOUtils.closeQuietly(fileIS);
 		}
 	}
 	
-	private void add(String line) {
+	private void add(String line) throws AbortedException {
 		if(line != null) {
 			if(bulkRequest == null) {
 				bulkRequest = client.prepareBulk();
@@ -147,6 +154,10 @@ public class Importer implements Runnable {
 			
 			if(counter % BATCH_SIZE == 0) {
 				executeBulk();
+				
+				if(isAborted()) {
+					throw new AbortedException(null, null, true);
+				}
 				
 				log.info("{} rows imported", 
 						NumberFormat.getNumberInstance().format(counter));
@@ -277,14 +288,6 @@ public class Importer implements Runnable {
 			String addrText = addrobj.optString("longText");
 			if(StringUtils.isNotBlank(addrText)) {
 				sb.append(addrText);
-				
-//				if(!obj.has("street_name")) {
-//					JSONArray ns = obj.optJSONArray("nearby_streets");
-//					if(ns != null && ns.length() > 0) {
-//						String nsName = ns.getJSONObject(0).getString("name");
-//						sb.append(" ").append(nsName);
-//					}
-//				}
 				
 				if(!obj.has("locality_name") && obj.has("nearest_place")) {
 					sb.append(" ").append(obj.getJSONObject("nearest_place").getString("name"));
