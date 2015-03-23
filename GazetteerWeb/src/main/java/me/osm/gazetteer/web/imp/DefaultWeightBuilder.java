@@ -20,7 +20,7 @@ public class DefaultWeightBuilder implements ObjectsWeightBuilder {
 		baseLevels.put("place:village", 5 * 100 + 30);
 		baseLevels.put("place:hamlet", 5 * 100 + 20);
 		
-		//towns inside city like Khimki inside Moscow
+		//towns inside city like Zelenograd inside Moscow
 		baseLevels.put("place:district", 5 * 100);
 		
 		baseLevels.put("district", 6 * 100);
