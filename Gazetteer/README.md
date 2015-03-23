@@ -125,7 +125,7 @@ optional arguments:
 JOIN
 
 usage: gazetter join [-h] [--common COMMON] [--addr-order {HN_STREET_CITY,STREET_HN_CITY,CITY_STREET_HN}] [--addr-parser ADDR_PARSER] [--check-boundaries [CHECK_BOUNDARIES [CHECK_BOUNDARIES ...]]]
-                [--skip-in-text [SKIP_IN_TEXT [SKIP_IN_TEXT ...]]] [--find-langs [FIND_LANGS]]
+                [--skip-in-text [SKIP_IN_TEXT [SKIP_IN_TEXT ...]]] [--find-langs [FIND_LANGS]] [--handlers [HANDLERS [HANDLERS ...]]]
 
 optional arguments:
   -h, --help             show this help message and exit
@@ -146,6 +146,10 @@ optional arguments:
                          If one of [name:uk name:ru name:en] is equals 
                          to name still generate additional row. 
                          (You can filter it later with simple distinct check).
+  --handlers [HANDLERS [HANDLERS ...]]
+  			 Handlers, predefined (out-gazetteer, out-csv) or custom custom_handler.groovy
+  			 Consumes named and positional attributes, named via key=value
+  			 Default handlers vaits for output file as first positional argument
 
 
 
