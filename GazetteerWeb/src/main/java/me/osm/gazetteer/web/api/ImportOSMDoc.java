@@ -86,7 +86,6 @@ public class ImportOSMDoc {
 				
 			});
 			
-			bulk.execute().actionGet();
 			
 			result.put("result", "success");
 		}
@@ -95,6 +94,7 @@ public class ImportOSMDoc {
 			result.put("result", "failed");
 		}
 		
+		bulk.execute().actionGet();
 		
 		return result;
 	}
