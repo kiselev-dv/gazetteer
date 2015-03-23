@@ -20,6 +20,10 @@
         "keywords": {
         	"type": "string",
         	"index": "analyzed"
+        },
+        "parsed_tags": {
+			"type": "object",
+			"index": "not_analyzed"        
         }
     } 
 }
