@@ -7,9 +7,12 @@ With next goals in mind:
 * Easy to deploy (keep number of external dependencyes as low as possible)
 * Memory friendly (most parts can be easily rewrited, to use file indexes and save ram)
 * Clusterization friendly (build whole process as a number of tasks, which can be performed in multi-thread/multi-node environment)
- 
 
-compile with apache maven
+Use latest release
+------------------
+
+
+Or compile with apache maven
 ------------------
 
     Install kiselev-dv/osm-doc-java first
@@ -45,14 +48,8 @@ So tipical workflow looks like:
     #java -jar gazetteer.jar slice addresses pois
 
 	#Do spatial join
-	java -jar gazetteer.jar join
+	java -jar gazetteer.jar join --handlers out-gazetteer /path/to/save/file.json.gz
 	
-	#Write data in json
-	java -jar gazetteer.jar out-gazetteer
-	
-	#or in csv
-	java -jar gazetteer.jar out-csv --columns id, address
-
 usage
 -----
 
