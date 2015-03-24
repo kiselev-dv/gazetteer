@@ -38,7 +38,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import me.osm.gazetter.addresses.AddressesUtils;
 import me.osm.gazetter.join.util.ExportTagsStatisticCollector;
@@ -103,37 +102,34 @@ public class GazetteerOutWriter extends AddressPerRowJOHBase  {
 	private String tagStatPath;
 	
 	private String outFile;
-//	private static AtomicInteger instances = new AtomicInteger();
-//
-//	private String tmpFile;
 	
 	@Override
 	public JoinOutHandler newInstance(List<String> options) {
 		
-		HandlerOptions paresdOpts = HandlerOptions.parse(options, OPTIONS);
+		HandlerOptions parsedOpts = HandlerOptions.parse(options, OPTIONS);
 		
-		if(paresdOpts.has("usage")) {
+		if(parsedOpts.has("usage")) {
 			printUsage();
 			System.exit(0);
 		}
 		
-		translatePOITypes = paresdOpts.getFlag(TRANSLATE_POI_TYPES_OPTION, true, false);
+		translatePOITypes = parsedOpts.getFlag(TRANSLATE_POI_TYPES_OPTION, true, false);
 		
-		fillAddrOpts = new HashSet<String>(paresdOpts.getList("fill_addresses", 
+		fillAddrOpts = new HashSet<String>(parsedOpts.getList("fill_addresses", 
 				Arrays.asList("ref", "levels", "nearest", "obj", "trans", "alt_names")));
 		
-		exportAllNames = paresdOpts.getFlag("export_all_names", true, false);
-		fullGeometry = paresdOpts.getFlag("full_geometry", true, true);
+		exportAllNames = parsedOpts.getFlag("export_all_names", true, false);
+		fullGeometry = parsedOpts.getFlag("full_geometry", true, true);
 		
-		localAdminKeys = paresdOpts.getList("local_admin", Arrays.asList("boundary:6"));
+		localAdminKeys = parsedOpts.getList("local_admin", Arrays.asList("boundary:6"));
 		
-		localityKeys = paresdOpts.getList("locality", 
+		localityKeys = parsedOpts.getList("locality", 
 				Arrays.asList("place:city", "place:town", "place:village", "place:hamlet", "boundary:8"));
 		
-		neighborhoodKeys = paresdOpts.getList("locality", 
+		neighborhoodKeys = parsedOpts.getList("locality", 
 				Arrays.asList("place:town", "place:village", "place:hamlet", "place:neighbour", "boundary:9", "boundary:10"));
 		
-		String poiCatalogPath = paresdOpts.getString("poi_catalog", "jar");
+		String poiCatalogPath = parsedOpts.getString("poi_catalog", "jar");
 		
 		if(poiCatalogPath.endsWith(".xml") || poiCatalogPath.equals("jar")) {
 			reader = new DOCFileReader(poiCatalogPath);
@@ -144,14 +140,14 @@ public class GazetteerOutWriter extends AddressPerRowJOHBase  {
 		
 		osmDocFacade = new OSMDocFacade(reader, null);
 		
-		if(paresdOpts.has(null)) {
-			initializeWriter(paresdOpts.getString(null, null));
+		if(parsedOpts.has(null)) {
+			initializeWriter(parsedOpts.getString(null, null));
 		}
 		else {
-			initializeWriter(paresdOpts.getString("out", null));
+			initializeWriter(parsedOpts.getString("out", null));
 		}
 		
-		tagStatPath = paresdOpts.getString("tag-stat", null);
+		tagStatPath = parsedOpts.getString("tag-stat", null);
 		if(tagStatPath == null) {
 			tagStatistics = new LogTagsStatisticCollector();
 		}
@@ -836,8 +832,6 @@ public class GazetteerOutWriter extends AddressPerRowJOHBase  {
 	@Override
 	protected void initializeWriter(String file) {
 		this.outFile = file;
-//		tmpFile = "out-gazetteer" + instances.getAndIncrement() + ".json.tmp";
-//		super.initializeWriter(tmpFile);
 		super.initializeWriter(this.outFile);
 	}
 	
