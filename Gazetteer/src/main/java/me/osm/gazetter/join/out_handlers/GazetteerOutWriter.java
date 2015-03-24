@@ -831,6 +831,11 @@ public class GazetteerOutWriter extends AddressPerRowJOHBase  {
 	
 	@Override
 	protected void initializeWriter(String file) {
+		if(file == null) {
+			System.out.println("There is no out file");
+			printUsage();
+		}
+		
 		this.outFile = file;
 		super.initializeWriter(this.outFile);
 	}
