@@ -9,6 +9,7 @@ import me.osm.gazetteer.web.api.SearchAPI;
 import me.osm.gazetteer.web.api.Sitemap;
 import me.osm.gazetteer.web.api.SnapshotsAPI;
 import me.osm.gazetteer.web.api.Static;
+import me.osm.gazetteer.web.api.StatisticAPI;
 import me.osm.gazetteer.web.api.SuggestAPI;
 
 import org.jboss.netty.handler.codec.http.HttpMethod;
@@ -72,6 +73,13 @@ public class Routes {
 				new ImportOSMDoc())
 				.method(HttpMethod.GET)
 				.flag(Flags.Auth.PUBLIC_ROUTE)
+				.parameter(Parameters.Cache.MAX_AGE, 3600);
+
+		server.uri(root + "/osmdoc/statistic/tagvalues/{poi_class}",
+				new StatisticAPI())
+				.method(HttpMethod.GET)
+				.flag(Flags.Auth.PUBLIC_ROUTE)
+				.defaultFormat("json")
 				.parameter(Parameters.Cache.MAX_AGE, 3600);
 
 		server.uri(root + "/osmdoc/poi-class/{lang}/{id}",
