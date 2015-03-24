@@ -14,7 +14,6 @@ import me.osm.gazetteer.web.api.imp.HTMLSitemapRender;
 import me.osm.gazetteer.web.api.imp.SnapshotRender;
 import me.osm.gazetteer.web.utils.OSMDocSinglton;
 
-import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONObject;
 import org.restexpress.Request;

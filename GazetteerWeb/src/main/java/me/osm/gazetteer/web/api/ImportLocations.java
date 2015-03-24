@@ -1,12 +1,9 @@
 package me.osm.gazetteer.web.api;
 
-import java.util.concurrent.Executors;
-
 import me.osm.gazetteer.web.ESNodeHodel;
 import me.osm.gazetteer.web.imp.Importer;
 
 import org.apache.commons.lang3.StringUtils;
-import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsRequest;
 import org.elasticsearch.action.admin.indices.mapping.delete.DeleteMappingRequest;
 import org.elasticsearch.client.IndicesAdminClient;
