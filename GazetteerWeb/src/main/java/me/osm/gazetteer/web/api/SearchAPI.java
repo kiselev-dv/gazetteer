@@ -3,11 +3,9 @@ package me.osm.gazetteer.web.api;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -30,6 +28,7 @@ import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.geo.GeoPoint;
 import org.elasticsearch.common.lucene.search.function.CombineFunction;
+import org.elasticsearch.common.unit.Fuzziness;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.FilterBuilder;
 import org.elasticsearch.index.query.FilterBuilders;
@@ -48,6 +47,8 @@ import org.restexpress.Request;
 import org.restexpress.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static me.osm.gazetteer.web.api.utils.RequestUtils.*;
 
 public class SearchAPI {
 
@@ -105,8 +106,9 @@ public class SearchAPI {
 	
 	/**
 	 * Features id's of higher objects to filter results.
+	 * Array members will be added using OR
 	 * */
-	public static final String REFERENCES_HEADER = "ref";
+	public static final String REFERENCES_HEADER = "filter";
 	
 	/**
 	 * Use it, if you have separate addresses parts texts, to search over.
@@ -122,29 +124,46 @@ public class SearchAPI {
 	
 	protected QueryAnalyzer queryAnalyzer = new QueryAnalyzer();
 	
+	/**
+	 * REST Express read routine method
+	 * */
 	public JSONObject read(Request request, Response response) throws IOException  {
 		return read(request, response, false);
 	}
 	
+	/**
+	 * Parse request, create and execute query, encode and return results. 
+	 * 
+	 * @param request RESTExpress request
+	 * @param response RestExpress response
+	 * @param resendedAfterFail shows that it is a second request, sent after strict request failed
+	 * 
+	 * @return Search results encoded with {@link JSONObject}}
+	 * */
 	public JSONObject read(Request request, Response response, boolean resendedAfterFail) 
 			throws IOException {
 
+		boolean explain = "true".equals(request.getHeader(EXPLAIN_HEADER));
+		String querryString = StringUtils.stripToNull(request.getHeader(Q_HEADER));
+		
+		Set<String> types = getSet(request, TYPE_HEADER);
+		String hname = request.getHeader("hierarchy");
+		
+		Set<String> poiClass = getSet(request, POI_CLASS_HEADER);
+		addPOIGroups(request, poiClass, hname);
+		
+		Double lat = getDoubleHeader(LAT_HEADER, request);
+		Double lon = getDoubleHeader(LON_HEADER, request);
+		
+		Set<String> refs = getSet(request, REFERENCES_HEADER);
+		
+		boolean strictRequested = request.getHeader(STRICT_SEARCH_HEADER) != null && 
+				Boolean.parseBoolean(request.getHeader(STRICT_SEARCH_HEADER));
+		
+		boolean fullGeometry = request.getHeader(FULL_GEOMETRY_HEADER) != null 
+				&& "true".equals(request.getParameter(FULL_GEOMETRY_HEADER));
+
 		try {
-			boolean explain = "true".equals(request.getHeader(EXPLAIN_HEADER));
-			String querryString = StringUtils.stripToNull(request.getHeader(Q_HEADER));
-			
-			BoolQueryBuilder q = null;
-			
-			Set<String> types = getSet(request, TYPE_HEADER);
-			String hname = request.getHeader("hierarchy");
-			
-			Set<String> poiClass = getSet(request, POI_CLASS_HEADER);
-			addPOIGroups(request, poiClass, hname);
-			
-			Double lat = getDoubleHeader(LAT_HEADER, request);
-			Double lon = getDoubleHeader(LON_HEADER, request);
-			
-			Set<String> refs = getSet(request, REFERENCES_HEADER);
 			
 			if(querryString == null && poiClass.isEmpty() && types.isEmpty() && refs.isEmpty()) {
 				return null;
@@ -156,55 +175,13 @@ public class SearchAPI {
 			if(query != null) {
 				poiType = findPoiClass(query);
 			}
-
-			boolean strictRequested = request.getHeader(STRICT_SEARCH_HEADER) != null && Boolean.parseBoolean(request.getHeader(STRICT_SEARCH_HEADER));
 			
-			if(querryString != null) {
-				if(resendedAfterFail && !strictRequested) {
-					//not a strict query
-					q = getSearchQuerry(query, false);
-				}
-				else {
-					//strict query
-					q = getSearchQuerry(query, true);
-				}
-			}
-			else {
-				q = QueryBuilders.boolQuery();
-			}
+			//Strict if strict is requested or this query wasn't yet been resended after fail
+			boolean strict = strictRequested ? true : !resendedAfterFail;
 			
-			if(!types.isEmpty()) {
-				q.must(QueryBuilders.termsQuery("type", types));
-			}
-			
-			if(!poiClass.isEmpty()) {
-				q.must(QueryBuilders.termsQuery("poi_class", poiClass));
-			}
-			
-			QueryBuilder qb = poiClass.isEmpty() ? QueryBuilders.filteredQuery(q, getFilter(querryString)) : q;
-			
-			qb = rescore(qb, lat, lon, poiClass);
-			
-			List<String> bbox = getList(request, BBOX_HEADER);
-			if(!bbox.isEmpty() && bbox.size() == 4) {
-				qb = addBBOXRestriction(qb, bbox);
-			}
-			
-			if(!refs.isEmpty()) {
-				qb = addRefsRestriction(qb, refs);
-			}
-			
-			Client client = ESNodeHodel.getClient();
-			SearchRequestBuilder searchRequest = client
-					.prepareSearch("gazetteer").setTypes(IndexHolder.LOCATION)
-					.setQuery(qb)
-					.setExplain(explain);
-			
-			searchRequest.addAggregation(AggregationBuilders.terms("highways").field("name"));
-			
-			searchRequest.addSort(SortBuilders.scoreSort());
-
-			searchRequest.setFetchSource(true);
+			SearchRequestBuilder searchRequest = buildSearchRequest(request, strict,
+					explain, types, poiClass,
+					lat, lon, refs, query);
 			
 			APIUtils.applyPaging(request, searchRequest);
 			
@@ -216,9 +193,6 @@ public class SearchAPI {
 				}
 			}
 			
-			boolean fullGeometry = request.getHeader(FULL_GEOMETRY_HEADER) != null 
-					&& "true".equals(request.getParameter(FULL_GEOMETRY_HEADER));
-			
 			JSONObject answer = APIUtils.encodeSearchResult(
 					searchResponse,	fullGeometry, explain);
 			
@@ -227,7 +201,7 @@ public class SearchAPI {
 				answer.put("matched_type", new JSONArray(poiType));
 			}
 			
-			answer.put("resended_after_fail", resendedAfterFail);
+			answer.put("strict", strict);
 			
 			APIUtils.resultPaging(request, answer);
 			
@@ -235,16 +209,84 @@ public class SearchAPI {
 		}
 		catch (Exception e) {
 			e.printStackTrace();
-			throw e;
+			response.setException(e);
+			response.setResponseCode(500);
+			
+			return null;
 		}
 		
 	}
 
-	private QueryBuilder addRefsRestriction(QueryBuilder qb, Set<String> refs) {
-		qb = QueryBuilders.filteredQuery(qb, FilterBuilders.termsFilter("refs", refs));
-		return qb;
+	/**
+	 * Create search request
+	 * 
+	 * @param request RESTExpress request
+	 * @param strict create a strict request
+	 * @param explain add query results explanations
+	 * @param types restrict query with types (poipnt, adrpnt and so on)
+	 * @param poiClass restrict query with poi classes
+	 * @param lat latitude of user's viewport center 
+	 * @param lon longitude of user's viewport center 
+	 * @param refs restrict request with refs 
+	 * @param query analyzed query 
+	 * 
+	 * @return ElasticSearch SearchRequest
+	 * */
+	public SearchRequestBuilder buildSearchRequest(Request request, boolean strict,
+			boolean explain, Set<String> types, Set<String> poiClass, 
+			Double lat, Double lon, Set<String> refs, Query query) {
+		
+		BoolQueryBuilder q = null;
+		
+		if(query != null) {
+			q = getSearchQuerry(query, strict);
+		}
+		else {
+			q = QueryBuilders.boolQuery();
+		}
+		
+		if(!types.isEmpty()) {
+			q.must(QueryBuilders.termsQuery("type", types));
+		}
+		
+		if(!poiClass.isEmpty()) {
+			q.must(QueryBuilders.termsQuery("poi_class", poiClass));
+		}
+		
+		QueryBuilder qb = poiClass.isEmpty() ? QueryBuilders.filteredQuery(q, createPoiFilter(query)) : q;
+		
+		qb = rescore(qb, lat, lon, poiClass);
+		
+		List<String> bbox = getList(request, BBOX_HEADER);
+		if(!bbox.isEmpty() && bbox.size() == 4) {
+			qb = addBBOXRestriction(qb, bbox);
+		}
+		
+		if(!refs.isEmpty()) {
+			qb = addRefsRestriction(qb, refs);
+		}
+		
+		Client client = ESNodeHodel.getClient();
+		SearchRequestBuilder searchRequest = client
+				.prepareSearch("gazetteer").setTypes(IndexHolder.LOCATION)
+				.setQuery(qb)
+				.setExplain(explain);
+		
+		searchRequest.addAggregation(AggregationBuilders.terms("highways").field("name"));
+		
+		searchRequest.addSort(SortBuilders.scoreSort());
+
+		searchRequest.setFetchSource(true);
+		return searchRequest;
 	}
 
+	/**
+	 * Search for poi classes
+	 * 
+	 * @param analyzed query
+	 * 
+	 * @return List of matched poi classes
+	 * */
 	protected List<JSONObject> findPoiClass(Query query) {
 		
 		Client client = ESNodeHodel.getClient();
@@ -264,26 +306,38 @@ public class SearchAPI {
 		return result;
 	}
 
-	private Double getDoubleHeader(String header, Request request) {
-		String valString = request.getHeader(header);
-		if(valString != null) {
-			try{
-				return Double.parseDouble(valString);
-			}
-			catch (NumberFormatException e) {
-				return null;
-			}
-		}
-		
-		return null;
+	/**
+	 * Restrict query with provided reference.
+	 * 
+	 * Allows you to search only within certain boundaries.
+	 * References will be conjuncted using OR. 
+	 * Adds terms filter over 'refs' field.
+	 * 
+	 * @param qb parent query builder
+	 * @param refs set of references
+	 * 
+	 * @return modified query
+	 * */
+	private QueryBuilder addRefsRestriction(QueryBuilder qb, Set<String> refs) {
+		qb = QueryBuilders.filteredQuery(qb, FilterBuilders.termsFilter("refs", refs));
+		return qb;
 	}
 
-	private FilterBuilder getFilter(String querry) {
+	/**
+	 * Filter to search over pois' names.
+	 * 
+	 * Looks over name.text, poi_class and poi_class_trans.
+	 * 
+	 * @param querry analyzed query
+	 * 
+	 * @return filter to search over pois
+	 * */
+	private FilterBuilder createPoiFilter(Query querry) {
 		
 		// Мне нужны только те пои, для которых совпал name и/или тип.
 		BoolQueryBuilder filterQ = QueryBuilders.boolQuery()
 				.must(QueryBuilders.termQuery("type", "poipnt"))
-				.must(QueryBuilders.multiMatchQuery(querry, "name.text", "poi_class", "poi_class_trans"));
+				.must(QueryBuilders.multiMatchQuery(querry.toString(), "name.text", "poi_class", "poi_class_trans"));
 		
 		OrFilterBuilder orFilter = FilterBuilders.orFilter(
 				FilterBuilders.queryFilter(filterQ), 
@@ -292,6 +346,15 @@ public class SearchAPI {
 		return orFilter;
 	}
 
+	/**
+	 * Add bounding box restriction to main query.
+	 * Will fails, if strings can't be parsed as double.
+	 * 
+	 * @param qb main query builde
+	 * @param bbox list of bbox coordinates
+	 * 
+	 * @return restricted query
+	 * */
 	private QueryBuilder addBBOXRestriction(QueryBuilder qb, List<String> bbox) {
 		qb = QueryBuilders.filteredQuery(qb, 
 				FilterBuilders.geoBoundingBoxFilter("center_point")
@@ -300,6 +363,19 @@ public class SearchAPI {
 		return qb;
 	}
 
+	/**
+	 * Setup scoring.
+	 * 
+	 * Replace default scoring, with combination of 
+	 * original score, geo-distance and weight (object type)
+	 * 
+	 * @param q original query
+	 * @param lat latitude of center for geo-distance scoring
+	 * @param lon longitude of center for geo-distance scoring
+	 * @param poiClass poi classes
+	 * 
+	 * @return Builder with rescored query
+	 * */
 	private static QueryBuilder rescore(QueryBuilder q, Double lat, Double lon, Set<String> poiClass) {
 		
 		FunctionScoreQueryBuilder qb = 
@@ -319,6 +395,13 @@ public class SearchAPI {
 		return qb;
 	}
 
+	/**
+	 * Add all poi_classes from poi group
+	 * 
+	 * @param request REST Express request
+	 * @param poiClass set of strings where parsed poi classes will be added
+	 * @param hname name of osm-doc hierarchy which contains group and poi classes
+	 * */
 	private void addPOIGroups(Request request, Set<String> poiClass, String hname) {
 		for(String s : getSet(request, POI_GROUP_HEADER)) {
 			Collection<? extends Feature> hierarcyBranch = OSMDocSinglton.get().getReader().getHierarcyBranch(hname, s);
@@ -330,33 +413,20 @@ public class SearchAPI {
 		}
 	}
 
-	private Set<String> getSet(Request request, String header) {
-		Set<String> types = new HashSet<String>();
-		List<String> t = request.getHeaders(header);
-		if(t != null) {
-			for(String s : t) {
-				types.addAll(Arrays.asList(StringUtils.split(s, ", []\"\'")));
-			}
-		}
-		return types;
-	}
-
-	private List<String> getList(Request request, String header) {
-		List<String> result = new ArrayList<String>();
-		List<String> t = request.getHeaders(header);
-		if(t != null) {
-			for(String s : t) {
-				result.addAll(Arrays.asList(StringUtils.split(s, ", []\"\'")));
-			}
-		}
-		return result;
-	}
-
+	/**
+	 * Add commonSearchQ result into main query
+	 * used for override from subclasses 
+	 * 
+	 * @param query analyzed user query
+	 * @param strict create strict request
+	 * 
+	 * @return query builder
+	 * */
 	public BoolQueryBuilder getSearchQuerry(Query query, boolean strict) {
 		
 		BoolQueryBuilder resultQuery = QueryBuilders.boolQuery();
 		
-		commonSearchQ(query, resultQuery, strict);
+		mainSearchQ(query, resultQuery, strict);
 		
 		resultQuery.disableCoord(true);
 		resultQuery.mustNot(QueryBuilders.termQuery("weight", 0));
@@ -365,7 +435,14 @@ public class SearchAPI {
 		
 	}
 
-	public void commonSearchQ(Query query, BoolQueryBuilder resultQuery, boolean strict) {
+	/**
+	 * Creates main search query.
+	 * 
+	 * @param query analyzed user query
+	 * @param resultQuery parent query
+	 * @param strict create strict version of query
+	 * */
+	public void mainSearchQ(Query query, BoolQueryBuilder resultQuery, boolean strict) {
 		
 		int numbers = query.countNumeric();
 		
@@ -373,8 +450,12 @@ public class SearchAPI {
 		List<String> required = new ArrayList<String>();
 		LinkedHashSet<String> nums = new LinkedHashSet<String>();
 		
+		// Try to find housenumbers using hnSearchReplacers
 		Collection<String> housenumbers = fuzzyNumbers(query.toString());
 
+		// If those numbers were found
+		// Add those numbers into subquery
+		// Longer variants will have score boost
 		if(!housenumbers.isEmpty()) {
 			
 			BoolQueryBuilder numberQ = QueryBuilders.boolQuery();
@@ -400,14 +481,17 @@ public class SearchAPI {
 		}
 		
 		for(QToken token : query.listToken()) {
-			//optional
+	
 			if(token.isOptional()) {
 				resultQuery.should(QueryBuilders.matchQuery("search", token.toString()));
 			}
-			//number
 			else if(token.isNumbersOnly()) {
+				
 				// Если реплейсеры не распознали номер дома
+				// If hnSearch replacers fails to find any housenumbers
 				if(housenumbers.isEmpty()) {
+					
+					// If there is only one number in query, it must be in matched data
 					if (numbers == 1) {
 						resultQuery.must(QueryBuilders.matchQuery("search", token.toString())).boost(10);
 					}
@@ -416,9 +500,9 @@ public class SearchAPI {
 					}
 				}
 			}
-			// Если реплейсеры не распознали номер дома, то пробуем действовать по старинке.
-			// Возможно стоит совместить оба метода
 			else if(token.isHasNumbers()) {
+				// Если реплейсеры не распознали номер дома, то пробуем действовать по старинке.
+				// If hnSearch replacers fails to find any housenumbers
 				if(housenumbers.isEmpty()) {
 					BoolQueryBuilder numberQ = QueryBuilders.boolQuery();
 					numberQ.disableCoord(true);
@@ -434,8 +518,8 @@ public class SearchAPI {
 					nameExact.add(token.toString());
 				}
 			}
-			//regular token
 			else {
+				// Add regular token to the list of required tokens
 				required.add(token.toString());
 				nameExact.add(token.toString());
 			}
@@ -451,18 +535,21 @@ public class SearchAPI {
 		
 		for(String t : required) {
 			if(strict) {
+				// In strict version term must appear in document's search field
 				requiredQ.should(QueryBuilders.matchQuery("search", t).boost(20));
 			}
 			else {
-				
-				MatchQueryBuilder search = QueryBuilders.matchQuery("search", t).boost(20);
-				MatchQueryBuilder nearestS = QueryBuilders.matchQuery("nearby_streets.name", t).boost(0.2f);
+				// In not strict variant term must appears in search field or in name of nearby street
+				// Also add fuzzines
+				QueryBuilder search = QueryBuilders.fuzzyQuery("search", t).fuzziness(Fuzziness.ONE).boost(20);
+				QueryBuilder nearestS = QueryBuilders.matchQuery("nearby_streets.name", t).boost(0.2f);
 				
 				requiredQ.should(QueryBuilders.disMaxQuery().add(search).add(nearestS).tieBreaker(0.4f));
 			}
 		}
 		
 		if(strict) {
+			// In strict variant all terms must be in search field
 			requiredQ.minimumNumberShouldMatch(required.size());
 		}
 		else {
@@ -486,23 +573,37 @@ public class SearchAPI {
 			cammel.add(StringUtils.capitalize(s));
 		}
 		
+		// Boost for exact object name match
 		resultQuery.should(QueryBuilders.termsQuery("name.exact", cammel).boost(10));
+		
+		// Boost for housenumber match
 		resultQuery.should(QueryBuilders.termsQuery("housenumber", nums).boost(250));
 		
 	}
 
-	private Collection<String> fuzzyNumbers(String string) {
+	/**
+	 * Generates housenumbers variants
+	 * 
+	 * @param hn housenumber part of query or full query
+	 * */
+	private Collection<String> fuzzyNumbers(String hn) {
 
 		List<String> result = new ArrayList<>();
 		
-		if(StringUtils.isNotBlank(string)) {
-			LinkedHashSet<String> tr = transformHousenumbers(string);
+		if(StringUtils.isNotBlank(hn)) {
+			LinkedHashSet<String> tr = transformHousenumbers(hn);
 			result.addAll(tr);
 		}
 		
 		return result;
 	}
 
+	/**
+	 * Generates housenumbers variants using housenumberReplacers
+	 * see hnSearchReplacers
+	 * 
+	 * @param optString housenumber part of query or full query
+	 * */
 	private LinkedHashSet<String> transformHousenumbers(String optString) {
 		LinkedHashSet<String> result = new LinkedHashSet<>(); 
 		for(Replacer replacer : housenumberReplacers) {

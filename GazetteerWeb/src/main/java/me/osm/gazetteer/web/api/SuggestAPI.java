@@ -64,7 +64,7 @@ public class SuggestAPI extends SearchAPI {
 			.mustNot(QueryBuilders.termQuery("weight", 0));
 		}
 		else {
-			super.commonSearchQ(head, searchQuerry, strict);
+			super.mainSearchQ(head, searchQuerry, strict);
 			searchQuerry.must(prefQ);
 		}
 		
