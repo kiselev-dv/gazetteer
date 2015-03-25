@@ -340,8 +340,7 @@
             "index": "not_analyzed"
         },
         "center_point": {
-            "type": "geo_point",
-            "index": "not_analyzed"
+            "type": "geo_point"
         },
         "full_geometry": {
         	"type": "geo_shape",
