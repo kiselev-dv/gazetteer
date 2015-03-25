@@ -15,6 +15,7 @@ import org.elasticsearch.client.AdminClient;
 import org.elasticsearch.client.Client;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.slf4j.LoggerFactory;
 
 public class IndexHolder {
 	
@@ -45,6 +46,8 @@ public class IndexHolder {
 			.setSettings(indexSettings.toString())
 			.addMapping(LOCATION, settings.getJSONObject("mappings").getJSONObject(LOCATION).toString())
 			.addMapping(POI_CLASS, settings.getJSONObject("mappings").getJSONObject(POI_CLASS).toString());
+		
+		LoggerFactory.getLogger(getClass()).info("Update mappings");
 		
 		request.get();
 	}
@@ -80,9 +83,13 @@ public class IndexHolder {
 			result.put("index", "not_analyzed");
 			break;
 			
-		default: 
+		case ENUM: 
 			result.put("type", "string");
 			result.put("index", "not_analyzed");
+			break;
+			
+		default: 
+			result.put("type", "string");
 			break;
 		
 		}
