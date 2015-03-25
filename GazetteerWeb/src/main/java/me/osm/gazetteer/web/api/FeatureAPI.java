@@ -1,8 +1,11 @@
 package me.osm.gazetteer.web.api;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Set;
 
 import me.osm.gazetteer.web.ESNodeHodel;
@@ -63,7 +66,12 @@ public class FeatureAPI {
 		
 		if(hits.length > 0) {
 			
-			JSONObject feature = mergeIntoFeature(hits);
+			List<JSONObject> hitObjects = new ArrayList<>(hits.length);
+			for(SearchHit hitsrc : hits) {
+				hitObjects.add(new JSONObject(hitsrc.getSourceAsString())) ;
+			}
+			
+			JSONObject feature = mergeIntoFeature(hitObjects);
 
 			if(withRelated) {
 				JSONObject related =  getRelated(feature);
@@ -76,6 +84,61 @@ public class FeatureAPI {
 		}
 		
 		return null;
+	}
+	
+	/**
+	 * Merge different address rows with the same feature_id into
+	 * one object with array of different addresses.
+	 * <p>
+	 * PRESERVES original order
+	 * <p>
+	 * NB: Index contains 1 row for each address, 
+	 * but this API returns object (feature) with all addresses
+	 * 
+	 * @param rows addresses from ES query
+	 * @return list of merged objects
+	 * */
+	public static List<JSONObject> mergeFeaturesByID(List<JSONObject> rows) {
+		
+		//Use linked hash map to preserve original sorting
+		LinkedHashMap<String, List<JSONObject>> sorter = new LinkedHashMap<>();
+		
+		for(JSONObject obj : rows) {
+			String fid = obj.getString("feature_id");
+			if(sorter.get(fid) == null ) {
+				sorter.put(fid, new ArrayList<JSONObject>());
+			}
+			
+			sorter.get(fid).add(obj);
+		}
+		
+		List<JSONObject> result = new ArrayList<>(sorter.keySet().size());
+		
+		for(List<JSONObject> feature : sorter.values()) {
+			result.add(FeatureAPI.mergeIntoFeature(feature));
+		}
+		
+		return result;
+	}
+	
+	public static JSONObject mergeIntoFeature(List<JSONObject> feature) {
+		JSONObject result = null;
+		JSONArray addresses = new JSONArray();
+		
+		for(JSONObject hit : feature) {
+			
+			if(result == null) {
+				result = new JSONObject(hit, COMMON_FIELDS);
+			}
+			
+			addresses.put(new JSONObject(hit, ADDR_ROW_FIELDS));
+		}
+		
+		if(result != null) {
+			result.put("addresses", addresses);
+		}
+		
+		return result;
 	}
 
 	public static JSONObject getRelated(JSONObject feature) {
@@ -221,7 +284,8 @@ public class FeatureAPI {
         "poi_class",
         "poi_keywords",
         "more_tags",
-        "center_point"
+        "center_point",
+        "full_geometry"
 	};
 
 	private static final String[] ADDR_ROW_FIELDS = new String[] {
@@ -246,28 +310,5 @@ public class FeatureAPI {
 		"housenumber",
 		"refs"
 	};
-	
-	private static JSONObject mergeIntoFeature(SearchHit[] hits) {
-		
-		JSONObject result = null;
-		JSONArray addresses = new JSONArray();
-		
-		for(SearchHit hitsrc : hits) {
-			
-			JSONObject hit = new JSONObject(hitsrc.getSourceAsString());
-			
-			if(result == null) {
-				result = new JSONObject(hit, COMMON_FIELDS);
-			}
-			
-			addresses.put(new JSONObject(hit, ADDR_ROW_FIELDS));
-		}
-		
-		if(result != null) {
-			result.put("addresses", addresses);
-		}
-		
-		return result;
-	}
 
 }
