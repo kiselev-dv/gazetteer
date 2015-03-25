@@ -234,7 +234,9 @@ public class InverseGeocodeAPI {
 											.radius(r, DistanceUnit.METERS), ShapeRelation.INTERSECTS)
 						));
 		
-		SearchRequestBuilder searchRequest = client.prepareSearch("gazetteer").setQuery(q);
+		SearchRequestBuilder searchRequest = 
+				client.prepareSearch("gazetteer").setTypes("location").setQuery(q);
+		
 		searchRequest.setSize(1);
 		SearchResponse searchResponse = searchRequest.get();
 		
@@ -321,7 +323,7 @@ public class InverseGeocodeAPI {
 								FilterBuilders.geoDistanceFilter("center_point").point(lat, lon).distance(1000, DistanceUnit.METERS)
 						));
 
-		SearchRequestBuilder searchRequest = client.prepareSearch("gazetteer").setQuery(q);
+		SearchRequestBuilder searchRequest = client.prepareSearch("gazetteer").setTypes("location").setQuery(q);
 		searchRequest.addSort(SortBuilders.geoDistanceSort("center_point").point(lat, lon));
 		
 		searchRequest.setSize(maxNeighbours == 0 ? 10 : maxNeighbours);
