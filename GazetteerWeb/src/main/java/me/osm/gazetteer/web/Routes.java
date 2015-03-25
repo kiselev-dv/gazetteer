@@ -55,7 +55,7 @@ public class Routes {
 		
 		server.uri(root + "/location/latlon/{lat}/{lon}/{_related}",
 				new InverseGeocodeAPI())
-				.alias(root + "/feature/latlon/{lat}/{lon}")
+				.alias(root + "/location/latlon/{lat}/{lon}")
 				.alias(root + "/_inverse")
 				.method(HttpMethod.GET)
 				.name(Constants.FEATURE_URI)

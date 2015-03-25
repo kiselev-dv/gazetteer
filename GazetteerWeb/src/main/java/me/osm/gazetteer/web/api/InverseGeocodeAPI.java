@@ -71,7 +71,7 @@ public class InverseGeocodeAPI {
 		double lat = RequestUtils.getDoubleHeader("lat", request);
 		
 		// Add related objects for founded feature or not
-		boolean wRelated = request.getHeader("related") != null;
+		boolean wRelated = request.getHeader("_related") != null;
 		
 		// Store full geometry of objects or not
 		boolean fullGeometry = request.getHeader(SearchAPI.FULL_GEOMETRY_HEADER) != null 
