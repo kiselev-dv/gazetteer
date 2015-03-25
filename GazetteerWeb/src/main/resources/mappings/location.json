@@ -305,6 +305,7 @@
         },
         "tags": {
             "type": "object",
+            "index": "not_analyzed",
             "enabled" : false 
         },
         "poi_class": {
