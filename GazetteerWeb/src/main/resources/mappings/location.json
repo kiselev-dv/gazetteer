@@ -8,18 +8,6 @@
     "_id": {
     	"path": "id"
     },
-    "dynamic_templates": [
-        {
-            "string_template": {
-				"mapping": {
-					"index": "not_analyzed",
-					"type": "string"
-				},
-				"match_mapping_type": "string",
-				"match": "*"
-            }
-        }
-    ],
     "properties": {
         "id": {
             "type": "string",

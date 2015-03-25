@@ -60,9 +60,30 @@ public class IndexHolder {
 		
 		case NUMBER: result.put("type", "double"); break;
 		
-		case OPEN_HOURS: result.put("type", "object"); break;
+		case OPEN_HOURS: 
+			result.put("type", "object");
+			result.put("index", "not_analyzed");
+			break;
+		
+		case URL: 
+			result.put("type", "string");
+			result.put("index", "not_analyzed");
+			break;
+
+		case PHONE: 
+			result.put("type", "string");
+			result.put("index", "not_analyzed");
+			break;
+
+		case WIKI: 
+			result.put("type", "string");
+			result.put("index", "not_analyzed");
+			break;
 			
-		default: result.put("type", "string"); break;
+		default: 
+			result.put("type", "string");
+			result.put("index", "not_analyzed");
+			break;
 		
 		}
 		return result;
