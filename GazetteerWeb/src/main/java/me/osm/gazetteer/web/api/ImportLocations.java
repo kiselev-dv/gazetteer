@@ -4,8 +4,8 @@ import me.osm.gazetteer.web.ESNodeHodel;
 import me.osm.gazetteer.web.imp.Importer;
 
 import org.apache.commons.lang3.StringUtils;
+import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsRequest;
-import org.elasticsearch.action.admin.indices.mapping.delete.DeleteMappingRequest;
 import org.elasticsearch.client.IndicesAdminClient;
 import org.json.JSONObject;
 import org.restexpress.Request;
@@ -26,7 +26,7 @@ public class ImportLocations {
 		
 		if(drop) {
 			if(INDICES_CLIENT.exists(new IndicesExistsRequest("gazetteer")).actionGet().isExists()) {
-				INDICES_CLIENT.deleteMapping(new DeleteMappingRequest("gazetteer").types("location")).actionGet();
+				INDICES_CLIENT.delete(new DeleteIndexRequest("gazetteer")).actionGet();
 			}
 			
 			result.put("drop", true);
