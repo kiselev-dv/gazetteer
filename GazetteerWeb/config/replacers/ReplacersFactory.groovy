@@ -27,10 +27,19 @@ class ReplacerImpl implements Replacer {
 	private Pattern pattern;
 	private Template template;
 	
-	@Override
 	public Collection<String> replace(String hn) {
+		def result = [] as Set;
+		replaceGroups(hn).values().every {
+			item -> result.addAll(item);
+		}
 		
-		def rl = [] as Set;
+		return result;
+	}
+	
+	@Override
+	public Map<String, Collection<String>> replaceGroups(String hn) {
+		
+		def replaces = [:];
 		
 		def matcher = pattern.matcher(hn);
 		while(matcher.find()) {
@@ -45,17 +54,19 @@ class ReplacerImpl implements Replacer {
 				'groups': groups, 
 				'full': hn]);
 			
+			def group = [] as Set;
+			
 			for(String str in StringUtils.split(text.toString(), "\n")) {
 				if(StringUtils.isNotBlank(str)) {
-					rl.add(StringUtils.trim(str));
+					group.add(StringUtils.trim(str));
 				}
+			}
+			
+			if(group.size() > 0) {
+				replaces.put(groups[0], group);
 			}
 		}
 		
-		if(rl.size() > 0) {
-			return rl;	
-		}
-		
-		return null;
+		return replaces;
 	}
 }

@@ -1,5 +1,9 @@
 package me.osm.gazetteer.web.api;
 
+import static me.osm.gazetteer.web.api.utils.RequestUtils.getDoubleHeader;
+import static me.osm.gazetteer.web.api.utils.RequestUtils.getList;
+import static me.osm.gazetteer.web.api.utils.RequestUtils.getSet;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -12,10 +16,11 @@ import java.util.Set;
 
 import me.osm.gazetteer.web.ESNodeHodel;
 import me.osm.gazetteer.web.Main;
-import me.osm.gazetteer.web.api.imp.APIUtils;
 import me.osm.gazetteer.web.api.imp.QToken;
 import me.osm.gazetteer.web.api.imp.Query;
 import me.osm.gazetteer.web.api.imp.QueryAnalyzer;
+import me.osm.gazetteer.web.api.utils.APIUtils;
+import me.osm.gazetteer.web.api.utils.Paginator;
 import me.osm.gazetteer.web.imp.IndexHolder;
 import me.osm.gazetteer.web.imp.Replacer;
 import me.osm.gazetteer.web.utils.OSMDocSinglton;
@@ -32,7 +37,7 @@ import org.elasticsearch.common.unit.Fuzziness;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.FilterBuilder;
 import org.elasticsearch.index.query.FilterBuilders;
-import org.elasticsearch.index.query.MatchQueryBuilder;
+import org.elasticsearch.index.query.FuzzyQueryBuilder;
 import org.elasticsearch.index.query.OrFilterBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -48,11 +53,13 @@ import org.restexpress.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static me.osm.gazetteer.web.api.utils.RequestUtils.*;
-
 public class SearchAPI {
 
-	private static final String STRICT_SEARCH_HEADER = "strict";
+	/**
+	 * Create strict query.
+	 * Default value is false.
+	 * */
+	public static final String STRICT_SEARCH_HEADER = "strict";
 
 	/**
 	 * Explain search results or not 
@@ -115,11 +122,14 @@ public class SearchAPI {
 	 * */
 	public static final String PARTS_HEADER = "parts";
 	
+	/*
+	 * Search and fuzzy housenumbers
+	 * */
 	protected List<Replacer> housenumberReplacers = new ArrayList<>();
 	{
 		ReplacersCompiler.compile(housenumberReplacers, new File("config/replacers/hnSearchReplacers"));
 	}
-	
+
 	private static final Logger log = LoggerFactory.getLogger(SearchAPI.class);
 	
 	protected QueryAnalyzer queryAnalyzer = new QueryAnalyzer();
@@ -176,14 +186,14 @@ public class SearchAPI {
 				poiType = findPoiClass(query);
 			}
 			
-			//Strict if strict is requested or this query wasn't yet been resended after fail
+			// Strict if strict is requested or this query wasn't yet been resended after fail
 			boolean strict = strictRequested ? true : !resendedAfterFail;
 			
 			SearchRequestBuilder searchRequest = buildSearchRequest(request, strict,
 					explain, types, poiClass,
 					lat, lon, refs, query);
 			
-			APIUtils.applyPaging(request, searchRequest);
+			Paginator.applyPaging(request, searchRequest);
 			
 			SearchResponse searchResponse = searchRequest.execute().actionGet();
 			
@@ -203,7 +213,7 @@ public class SearchAPI {
 			
 			answer.put("strict", strict);
 			
-			APIUtils.resultPaging(request, answer);
+			Paginator.resultPaging(request, answer);
 			
 			return answer;
 		}
@@ -447,11 +457,11 @@ public class SearchAPI {
 		int numbers = query.countNumeric();
 		
 		List<String> nameExact = new ArrayList<String>();
-		List<String> required = new ArrayList<String>();
+		List<QToken> required = new ArrayList<QToken>();
 		LinkedHashSet<String> nums = new LinkedHashSet<String>();
 		
 		// Try to find housenumbers using hnSearchReplacers
-		Collection<String> housenumbers = fuzzyNumbers(query.toString());
+		Collection<String> housenumbers = fuzzyNumbers(query.woFuzzy().toString());
 
 		// If those numbers were found
 		// Add those numbers into subquery
@@ -518,54 +528,80 @@ public class SearchAPI {
 					nameExact.add(token.toString());
 				}
 			}
-			else {
+			else if(!token.isFuzzied()) {
 				// Add regular token to the list of required tokens
-				required.add(token.toString());
+				required.add(token);
 				nameExact.add(token.toString());
 			}
 			
 			if (token.isHasNumbers()) {
 				nums.add(token.toString());
 			}
+			
+			if (token.isFuzzied()) {
+				// Fuzzied tokens a are required by default 
+				required.add(token);
+			}
 		}
 		
 		BoolQueryBuilder requiredQ = QueryBuilders.boolQuery();
 		requiredQ.disableCoord(true);
 		
-		
-		for(String t : required) {
+		for(QToken t : required) {
 			if(strict) {
-				// In strict version term must appear in document's search field
-				requiredQ.should(QueryBuilders.matchQuery("search", t).boost(20));
+				
+				if(t.isFuzzied()) {
+					// In strict version one of the term variants must appears in search field
+					requiredQ.should(QueryBuilders.disMaxQuery().boost(20)
+							.add(QueryBuilders.termsQuery("search", t.getVariants()).boost(1))
+							.add(QueryBuilders.termsQuery("street_name", t.getVariants()).boost(10)));
+				}
+				else {
+					// In strict version term must appear in document's search field
+					requiredQ.should(QueryBuilders.matchQuery("search", t.toString()).boost(20));
+				}
 			}
 			else {
+				Object term = t.toString();
+				
+				if(t.isFuzzied()) {
+					term = t.getVariants();
+				}
+				
 				// In not strict variant term must appears in search field or in name of nearby street
 				// Also add fuzzines
-				QueryBuilder search = QueryBuilders.fuzzyQuery("search", t).fuzziness(Fuzziness.ONE).boost(20);
-				QueryBuilder nearestS = QueryBuilders.matchQuery("nearby_streets.name", t).boost(0.2f);
+				QueryBuilder search = QueryBuilders.fuzzyQuery("search", term).boost(20);
+				QueryBuilder nearestS = QueryBuilders.matchQuery("nearby_streets.name", term).boost(0.2f);
+				
+				if(!t.isFuzzied()) {
+					// If term wasn't fuzzied duiring analyze, add fuzzyness
+					((FuzzyQueryBuilder) search).fuzziness(Fuzziness.ONE);
+				}
 				
 				requiredQ.should(QueryBuilders.disMaxQuery().add(search).add(nearestS).tieBreaker(0.4f));
+				
 			}
 		}
+
+		int requiredCount = required.size();
 		
 		if(strict) {
 			// In strict variant all terms must be in search field
-			requiredQ.minimumNumberShouldMatch(required.size());
+			requiredQ.minimumNumberShouldMatch(requiredCount);
 		}
 		else {
-			int r = required.size();
-			if(r > 3) {
-				requiredQ.minimumNumberShouldMatch(r - 2);
+			if(requiredCount > 3) {
+				requiredQ.minimumNumberShouldMatch(requiredCount - 2);
 			}
-			else if(r >= 2) {
-				requiredQ.minimumNumberShouldMatch(r - 1);
+			else if(requiredCount >= 2) {
+				requiredQ.minimumNumberShouldMatch(requiredCount - 1);
 			}
 		}
 		
 		resultQuery.must(requiredQ);
 		
-		log.trace("Request: {} Required tokens: {}", query, required);
-		log.trace("Request: {} Housenumbers variants: {}", query, housenumbers);
+		log.trace("Request: {} Required tokens: {} Housenumbers variants: {}", 
+				new Object[]{query.print(), required, housenumbers});
 		
 		List<String> cammel = new ArrayList<String>();
 		for(String s : nameExact) {

@@ -5,6 +5,7 @@ import java.io.IOException;
 
 import me.osm.gazetteer.web.postprocessor.AllowOriginPP;
 import me.osm.gazetteer.web.postprocessor.LastModifiedHeaderPostprocessor;
+import me.osm.gazetteer.web.postprocessor.MarkHeaderPostprocessor;
 import me.osm.gazetteer.web.serialization.SerializationProvider;
 import me.osm.gazetteer.web.utils.OSMDocSinglton;
 
@@ -39,6 +40,7 @@ public class Main {
 				.setName(config.getName())
 				.addPostprocessor(new LastModifiedHeaderPostprocessor())
 				.addPostprocessor(new AllowOriginPP())
+				.addPostprocessor(new MarkHeaderPostprocessor())
 				.addPreprocessor(new BasikAuthPreprocessor(null));
 
 		Routes.defineRoutes(server);

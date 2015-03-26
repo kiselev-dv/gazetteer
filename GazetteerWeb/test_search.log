@@ -638,8 +638,6 @@
 [main] WARN TestSearch - 	Case Архангельская область г. Архангельск, ул. Малиновского, 4 FAILED
 [main] INFO TestSearch - Run 500 from 12623. Case Архангельская область г. Архангельск, ул. Кировская, 27
 [main] INFO TestSearch - Run 501 from 12623. Case Архангельская область г. Архангельск, пер. 1-й Банный, 2
-[main] WARN TestSearch - 	Location: FAILED
-[main] WARN TestSearch - 	Case Архангельская область г. Архангельск, пер. 1-й Банный, 2 FAILED
 [main] INFO TestSearch - Run 502 from 12623. Case Архангельская область г. Архангельск, ул. Победы, 128 корп.1
 [main] INFO TestSearch - Run 503 from 12623. Case Архангельская область г. Архангельск, ул. Ильича, 41
 [main] WARN TestSearch - 	Location: FAILED
@@ -835,7 +833,7 @@
 [main] INFO TestSearch - Run 654 from 12623. Case Астраханская область г. Астрахань, ул. Полякова, 19
 [main] INFO TestSearch - Run 655 from 12623. Case Астраханская область г. Астрахань, ул. Савушкина, 10А
 [main] INFO TestSearch - Run 656 from 12623. Case Астраханская область г. Астрахань, ул. 1-я Перевозная, 108А
-[main] WARN TestSearch - 	Location: FAILED
+[main] WARN TestSearch - 	FAILED Empty answer
 [main] WARN TestSearch - 	Case Астраханская область г. Астрахань, ул. 1-я Перевозная, 108А FAILED
 [main] INFO TestSearch - Run 657 from 12623. Case Астраханская область г. Астрахань, ул. 1-я Перевозная, 94
 [main] INFO TestSearch - Run 658 from 12623. Case Астраханская область г. Астрахань, ул. 1-я Перевозная, 94
@@ -857,8 +855,6 @@
 [main] INFO TestSearch - Run 668 from 12623. Case Астраханская область г. Астрахань, ул. Косм. В. Комарова, 53
 [main] INFO TestSearch - Run 669 from 12623. Case Астраханская область г. Астрахань, ул. Косм. В. Комарова, 154А
 [main] INFO TestSearch - Run 670 from 12623. Case Астраханская область г. Астрахань, ул. Косм. В. Комарова, 148
-[main] WARN TestSearch - 	Location: FAILED
-[main] WARN TestSearch - 	Case Астраханская область г. Астрахань, ул. Косм. В. Комарова, 148 FAILED
 [main] INFO TestSearch - Run 671 from 12623. Case Астраханская область г. Астрахань, ул. Зеленая, 70 А
 [main] WARN TestSearch - 	Location: FAILED
 [main] WARN TestSearch - 	Case Астраханская область г. Астрахань, ул. Зеленая, 70 А FAILED
@@ -932,8 +928,6 @@
 [main] INFO TestSearch - Run 713 from 12623. Case Астраханская область г. Астрахань, ул. Бумажников, 9а
 [main] INFO TestSearch - Run 714 from 12623. Case Астраханская область г. Астрахань, ул. Лепехинская, 49
 [main] INFO TestSearch - Run 715 from 12623. Case Астраханская область г. Астрахань, ул. 3-я Рыбацкая, 5
-[main] WARN TestSearch - 	Location: FAILED
-[main] WARN TestSearch - 	Case Астраханская область г. Астрахань, ул. 3-я Рыбацкая, 5 FAILED
 [main] INFO TestSearch - Run 716 from 12623. Case Астраханская область г. Астрахань, ул. Ляхова, 11
 [main] INFO TestSearch - Run 717 from 12623. Case Астраханская область г. Астрахань, ул. Адм. Нахимова, 44
 [main] INFO TestSearch - Run 718 from 12623. Case Астраханская область г. Астрахань, ул. Адм. Нахимова, 44
@@ -943,8 +937,6 @@
 [main] INFO TestSearch - Run 720 from 12623. Case Астраханская область г. Астрахань, ул. Ак. Королева, 33
 [main] INFO TestSearch - Run 721 from 12623. Case Астраханская область г. Астрахань, ул. 8-я Железнодорожная, 57А
 [main] INFO TestSearch - Run 722 from 12623. Case Астраханская область г. Астрахань, ул. 3-я Рыбацкая, 5
-[main] WARN TestSearch - 	Location: FAILED
-[main] WARN TestSearch - 	Case Астраханская область г. Астрахань, ул. 3-я Рыбацкая, 5 FAILED
 [main] INFO TestSearch - Run 723 from 12623. Case Астраханская область г. Астрахань, ул. Абазанская, 5
 [main] INFO TestSearch - Run 724 from 12623. Case Астраханская область г. Астрахань, ул. Щукина, 79
 [main] INFO TestSearch - Run 725 from 12623. Case Астраханская область г. Астрахань, ул. Дальняя, 91
@@ -1010,16 +1002,12 @@
 [main] INFO TestSearch - Run 777 from 12623. Case Астраханская область г. Астрахань, ул. Александрова, 3
 [main] INFO TestSearch - Run 778 from 12623. Case Астраханская область г. Астрахань, ул. Верещагина, 59/24
 [main] INFO TestSearch - Run 779 from 12623. Case Астраханская область г. Астрахань, ул. Ю. Селенского, 15А
-[main] WARN TestSearch - 	Location: FAILED
-[main] WARN TestSearch - 	Case Астраханская область г. Астрахань, ул. Ю. Селенского, 15А FAILED
 [main] INFO TestSearch - Run 780 from 12623. Case Астраханская область г. Астрахань, ул. Адмиралтейская, 21
 [main] INFO TestSearch - Run 781 from 12623. Case Астраханская область г. Астрахань, ул. Анатолия Сергеева,13
 [main] INFO TestSearch - Run 782 from 12623. Case Астраханская область г. Астрахань, ул. Татищева, 4
 [main] INFO TestSearch - Run 783 from 12623. Case Астраханская область г. Астрахань, ул. Татищева, 20А
 [main] INFO TestSearch - Run 784 from 12623. Case Астраханская область г. Астрахань, ул. Татищева, 8А
 [main] INFO TestSearch - Run 785 from 12623. Case Астраханская область г. Астрахань, ул. Ю. Селенского, 15А
-[main] WARN TestSearch - 	Location: FAILED
-[main] WARN TestSearch - 	Case Астраханская область г. Астрахань, ул. Ю. Селенского, 15А FAILED
 [main] INFO TestSearch - Run 786 from 12623. Case Астраханская область г. Астрахань, ул. Б.Алексеева, 61 к.2
 [main] INFO TestSearch - Run 787 from 12623. Case Астраханская область г. Астрахань, ул. Костина, 2
 [main] WARN TestSearch - 	Location: FAILED
@@ -1036,8 +1024,6 @@
 [main] WARN TestSearch - 	Case Астраханская область г. Астрахань, ул. Татищева, 16 FAILED
 [main] INFO TestSearch - Run 796 from 12623. Case Астраханская область г. Астрахань, ул. Ботвина, 12В
 [main] INFO TestSearch - Run 797 from 12623. Case Астраханская область г. Астрахань, ул. 11-й Красной Армии, 13
-[main] WARN TestSearch - 	Location: FAILED
-[main] WARN TestSearch - 	Case Астраханская область г. Астрахань, ул. 11-й Красной Армии, 13 FAILED
 [main] INFO TestSearch - Run 798 from 12623. Case Астраханская область г. Астрахань, ул. Б.Алексеева, 61 к.2
 [main] INFO TestSearch - Run 799 from 12623. Case Астраханская область г. Астрахань, ул. Бабаевского, 35 к.4
 [main] INFO TestSearch - Run 800 from 12623. Case Астраханская область г. Астрахань, ул. Сун-Ят-Сена, 63 к.2
@@ -1204,6 +1190,8 @@
 [main] WARN TestSearch - 	Location: FAILED
 [main] WARN TestSearch - 	Case Белгородская область г. Белгород, проспект Б. Хмельницкого, 58 FAILED
 [main] INFO TestSearch - Run 921 from 12623. Case Белгородская область г. Белгород, 2-й Карьерный переулок, 10
+[main] WARN TestSearch - 	Location: FAILED
+[main] WARN TestSearch - 	Case Белгородская область г. Белгород, 2-й Карьерный переулок, 10 FAILED
 [main] INFO TestSearch - Run 922 from 12623. Case Белгородская область г. Белгород, улица Н. Чумичова, 51А
 [main] WARN TestSearch - 	Location: FAILED
 [main] WARN TestSearch - 	Case Белгородская область г. Белгород, улица Н. Чумичова, 51А FAILED
@@ -1988,6 +1976,8 @@
 [main] WARN TestSearch - 	Location: FAILED
 [main] WARN TestSearch - 	Case Вологодская область г. Череповец, ул. К. Беляева, 48 FAILED
 [main] INFO TestSearch - Run 1401 from 12623. Case Вологодская область г. Вологда, ул. Болонина, 25
+[main] WARN TestSearch - 	Location: FAILED
+[main] WARN TestSearch - 	Case Вологодская область г. Вологда, ул. Болонина, 25 FAILED
 [main] INFO TestSearch - Run 1402 from 12623. Case Вологодская область г. Вологда, ул. Пирогова, 26
 [main] INFO TestSearch - Run 1403 from 12623. Case Вологодская область г. Вологда, Советский проспект, 24
 [main] INFO TestSearch - Run 1404 from 12623. Case Вологодская область г. Вологда, ул. Чернышевского, 53
@@ -2331,14 +2321,8 @@
 [main] INFO TestSearch - Run 1674 from 12623. Case Ивановская область г. Иваново, ул. Шошина, 15Б
 [main] INFO TestSearch - Run 1675 from 12623. Case Ивановская область г. Иваново, ул. Карла Маркса, 62
 [main] INFO TestSearch - Run 1676 from 12623. Case Ивановская область г. Иваново, ул. 1-я Меланжевая, 5
-[main] WARN TestSearch - 	Location: FAILED
-[main] WARN TestSearch - 	Case Ивановская область г. Иваново, ул. 1-я Меланжевая, 5 FAILED
 [main] INFO TestSearch - Run 1677 from 12623. Case Ивановская область г. Иваново, ул. 1-я Меланжевая, 5
-[main] WARN TestSearch - 	Location: FAILED
-[main] WARN TestSearch - 	Case Ивановская область г. Иваново, ул. 1-я Меланжевая, 5 FAILED
 [main] INFO TestSearch - Run 1678 from 12623. Case Ивановская область г. Иваново, ул. 1-я Меланжевая, 5
-[main] WARN TestSearch - 	Location: FAILED
-[main] WARN TestSearch - 	Case Ивановская область г. Иваново, ул. 1-я Меланжевая, 5 FAILED
 [main] INFO TestSearch - Run 1679 from 12623. Case Ивановская область г. Иваново, ул. Комсомольская, 52
 [main] WARN TestSearch - 	Location: FAILED
 [main] WARN TestSearch - 	Case Ивановская область г. Иваново, ул. Комсомольская, 52 FAILED
@@ -2358,8 +2342,6 @@
 [main] INFO TestSearch - Run 1691 from 12623. Case Ивановская область г. Иваново, ул. Апрельская, 3
 [main] INFO TestSearch - Run 1692 from 12623. Case Ивановская область г. Шуя, пл. Ленина, 15
 [main] INFO TestSearch - Run 1693 from 12623. Case Ивановская область Ивановский район, с. Ново-Талицы, ул. 2-я Шимановская, д. 6
-[main] WARN TestSearch - 	Location: FAILED
-[main] WARN TestSearch - 	Case Ивановская область Ивановский район, с. Ново-Талицы, ул. 2-я Шимановская, д. 6 FAILED
 [main] INFO TestSearch - Run 1694 from 12623. Case Ивановская область г. Иваново, ул. Дунаева, 13
 [main] INFO TestSearch - Run 1695 from 12623. Case Ивановская область г. Иваново, ул. Комсомольская, 52
 [main] WARN TestSearch - 	Location: FAILED
@@ -2426,8 +2408,6 @@
 [main] INFO TestSearch - Run 1737 from 12623. Case Ивановская область Родниковский район, г. Родники, пр. Северный, 1
 [main] INFO TestSearch - Run 1738 from 12623. Case Ивановская область Фурмановский район, г. Фурманов, ул. Социалистическая, д. 15
 [main] INFO TestSearch - Run 1739 from 12623. Case Ивановская область г. Шуя, ул. 2-я Первомайская, 20
-[main] WARN TestSearch - 	Location: FAILED
-[main] WARN TestSearch - 	Case Ивановская область г. Шуя, ул. 2-я Первомайская, 20 FAILED
 [main] INFO TestSearch - Run 1740 from 12623. Case Ивановская область г. Шуя, ул. Свердлова, 127а
 [main] INFO TestSearch - Run 1741 from 12623. Case Ивановская область г. Шуя, ул. Свердлова, 127а
 [main] INFO TestSearch - Run 1742 from 12623. Case Ивановская область г. Вичуга, ул. Володарского, 14
@@ -2517,6 +2497,8 @@
 [main] WARN TestSearch - 	Location: FAILED
 [main] WARN TestSearch - 	Case Иркутская область город Иркутск, ул. Академика Образцова, 23 FAILED
 [main] INFO TestSearch - Run 1778 from 12623. Case Иркутская область город Иркутск, пер. 15-й Советский, 2
+[main] WARN TestSearch - 	Location: FAILED
+[main] WARN TestSearch - 	Case Иркутская область город Иркутск, пер. 15-й Советский, 2 FAILED
 [main] INFO TestSearch - Run 1779 from 12623. Case Иркутская область город Иркутск, ул. Баумана, 214-а
 [main] INFO TestSearch - Run 1780 from 12623. Case Иркутская область город Иркутск, ул. Севастопольская, 218
 [main] INFO TestSearch - Run 1781 from 12623. Case Иркутская область город Иркутск, ул. Севастопольская, 218
@@ -2596,6 +2578,8 @@
 [main] INFO TestSearch - Run 1829 from 12623. Case Иркутская область город Иркутск, мкр. Юбилейный, 37
 [main] INFO TestSearch - Run 1830 from 12623. Case Иркутская область город Иркутск, ул. Карла Либкнехта, 131
 [main] INFO TestSearch - Run 1831 from 12623. Case Иркутская область город Иркутск, пер. 12-й Советский, 4-а
+[main] WARN TestSearch - 	Location: FAILED
+[main] WARN TestSearch - 	Case Иркутская область город Иркутск, пер. 12-й Советский, 4-а FAILED
 [main] INFO TestSearch - Run 1832 from 12623. Case Иркутская область город Иркутск, ул. Советская, 46
 [main] WARN TestSearch - 	Location: FAILED
 [main] WARN TestSearch - 	Case Иркутская область город Иркутск, ул. Советская, 46 FAILED
@@ -2606,6 +2590,8 @@
 [main] WARN TestSearch - 	Location: FAILED
 [main] WARN TestSearch - 	Case Иркутская область город Иркутск, ул. Советская, 172 FAILED
 [main] INFO TestSearch - Run 1837 from 12623. Case Иркутская область город Иркутск, пер. 12-й Советский, 4-а
+[main] WARN TestSearch - 	Location: FAILED
+[main] WARN TestSearch - 	Case Иркутская область город Иркутск, пер. 12-й Советский, 4-а FAILED
 [main] INFO TestSearch - Run 1838 from 12623. Case Иркутская область город Иркутск, мкр. Радужный, 34-б
 [main] INFO TestSearch - Run 1839 from 12623. Case Иркутская область город Иркутск, ул. Байкальская, 176
 [main] INFO TestSearch - Run 1840 from 12623. Case Иркутская область город Иркутск, ул. Некрасова, 2
@@ -2629,6 +2615,8 @@
 [main] WARN TestSearch - 	Case Иркутская область город Иркутск, мкр. Юбилейный, 100 FAILED
 [main] INFO TestSearch - Run 1853 from 12623. Case Иркутская область город Иркутск, ул. Зверева, 10
 [main] INFO TestSearch - Run 1854 from 12623. Case Иркутская область город Иркутск, пер. 12-й Советский, 4-а
+[main] WARN TestSearch - 	Location: FAILED
+[main] WARN TestSearch - 	Case Иркутская область город Иркутск, пер. 12-й Советский, 4-а FAILED
 [main] INFO TestSearch - Run 1855 from 12623. Case Иркутская область город Иркутск, ул. Карла Либкнехта, 131
 [main] INFO TestSearch - Run 1856 from 12623. Case Иркутская область город Иркутск, ул. Байкальская, 176
 [main] INFO TestSearch - Run 1857 from 12623. Case Иркутская область город Иркутск, ул. Зверева, 10
@@ -2835,8 +2823,6 @@
 [main] WARN TestSearch - 	Location: FAILED
 [main] WARN TestSearch - 	Case Калининградская область г. Калининград, ул. А. Суворова, 139 FAILED
 [main] INFO TestSearch - Run 1994 from 12623. Case Калининградская область г. Калининград, ул. Серж. Колоскова, 10
-[main] WARN TestSearch - 	Location: FAILED
-[main] WARN TestSearch - 	Case Калининградская область г. Калининград, ул. Серж. Колоскова, 10 FAILED
 [main] INFO TestSearch - Run 1995 from 12623. Case Калининградская область г. Калининград, ул. Радищева, 81
 [main] INFO TestSearch - Run 1996 from 12623. Case Калининградская область г. Калининград, ул. Радищева, 81
 [main] INFO TestSearch - Run 1997 from 12623. Case Калининградская область г. Калининград, ул. Менделеева, 13
@@ -3417,6 +3403,8 @@
 [main] WARN TestSearch - 	Location: FAILED
 [main] WARN TestSearch - 	Case Кировская область город Киров,  ул. Дзержинского, 23 FAILED
 [main] INFO TestSearch - Run 2434 from 12623. Case Кировская область город Киров, сл. «Село Красное», ул. Советская, 15
+[main] WARN TestSearch - 	Location: FAILED
+[main] WARN TestSearch - 	Case Кировская область город Киров, сл. «Село Красное», ул. Советская, 15 FAILED
 [main] INFO TestSearch - Run 2435 from 12623. Case Кировская область город Киров,  ул. Ленинградская, 3
 [main] INFO TestSearch - Run 2436 from 12623. Case Кировская область город Киров,  ул. Ленинградская,1
 [main] INFO TestSearch - Run 2437 from 12623. Case Кировская область город Киров,  ул. Свердлова, 21
@@ -3819,7 +3807,11 @@
 [main] INFO TestSearch - Run 2676 from 12623. Case Ленинградская область Тосненский район, г. Тосно, пр. Ленина, д. 24
 [main] INFO TestSearch - Run 2677 from 12623. Case Ленинградская область Тосненский район, г. Тосно, пр. Ленина, д. 24
 [main] INFO TestSearch - Run 2678 from 12623. Case Ленинградская область Тосненский район, пос. Ульяновка, ул. 2-я Футбольная, д. 1
+[main] WARN TestSearch - 	Location: FAILED
+[main] WARN TestSearch - 	Case Ленинградская область Тосненский район, пос. Ульяновка, ул. 2-я Футбольная, д. 1 FAILED
 [main] INFO TestSearch - Run 2679 from 12623. Case Ленинградская область Тосненский район, пос. Ульяновка, ул. 2-я Футбольная, д. 1
+[main] WARN TestSearch - 	Location: FAILED
+[main] WARN TestSearch - 	Case Ленинградская область Тосненский район, пос. Ульяновка, ул. 2-я Футбольная, д. 1 FAILED
 [main] INFO TestSearch - Run 2680 from 12623. Case Ленинградская область Тихвинский район, г. Тихвин, пл. Свободы, д. 1
 [main] INFO TestSearch - Run 2681 from 12623. Case Ленинградская область Тихвинский район, г. Тихвин, ул. Пролетарской Диктатуры, д. 47
 [main] WARN TestSearch - 	Location: FAILED
@@ -4171,7 +4163,7 @@
 [main] WARN TestSearch - 	Location: FAILED
 [main] WARN TestSearch - 	Case Московская область Краcногорский район, д. Путилково FAILED
 [main] INFO TestSearch - Run 2874 from 12623. Case Московская область Краcногорский район, д. Путилково, д. 11
-[main] WARN TestSearch - 	FAILED Empty answer
+[main] WARN TestSearch - 	Location: FAILED
 [main] WARN TestSearch - 	Case Московская область Краcногорский район, д. Путилково, д. 11 FAILED
 [main] INFO TestSearch - Run 2875 from 12623. Case Московская область г. Клин, ул. Ленина, д. 18
 [main] WARN TestSearch - 	Location: FAILED
@@ -4299,11 +4291,7 @@
 [main] WARN TestSearch - 	Location: FAILED
 [main] WARN TestSearch - 	Case Московская область Озёрский район, г. Озёры микрорайон имени маршала Катукова, FAILED
 [main] INFO TestSearch - Run 2942 from 12623. Case Московская область г. Егорьевск, ул. Антипова, д. 22
-[main] WARN TestSearch - 	Location: FAILED
-[main] WARN TestSearch - 	Case Московская область г. Егорьевск, ул. Антипова, д. 22 FAILED
 [main] INFO TestSearch - Run 2943 from 12623. Case Московская область г. Егорьевск, ул. Антипова, д. 22
-[main] WARN TestSearch - 	Location: FAILED
-[main] WARN TestSearch - 	Case Московская область г. Егорьевск, ул. Антипова, д. 22 FAILED
 [main] INFO TestSearch - Run 2944 from 12623. Case Московская область Щёлковский район, пос. Краснознаменский, ул. Л. Толстого, д. 1
 [main] INFO TestSearch - Run 2945 from 12623. Case Московская область Щёлковский район, п. Краснознаменский
 [main] WARN TestSearch - 	Location: FAILED
@@ -4330,6 +4318,8 @@
 [main] WARN TestSearch - 	Case Московская область Щёлковский район, г. Щёлково-4, ул. Беляева, д. 14 FAILED
 [main] INFO TestSearch - Run 2958 from 12623. Case Московская область Щёлковский район, г. Щёлково, 1-й Советский пер., д. 17
 [main] INFO TestSearch - Run 2959 from 12623. Case Московская область Щёлковский район, г. Щёлково, 1-й Советский пер., д. 32
+[main] WARN TestSearch - 	Location: FAILED
+[main] WARN TestSearch - 	Case Московская область Щёлковский район, г. Щёлково, 1-й Советский пер., д. 32 FAILED
 [main] INFO TestSearch - Run 2960 from 12623. Case Московская область Щёлковский район, г. Щёлково, ул. Московская, д. 68а
 [main] INFO TestSearch - Run 2961 from 12623. Case Московская область Щёлковский район, г. Щёлково-3, ул. Институтская д. 18
 [main] INFO TestSearch - Run 2962 from 12623. Case Московская область Щёлковский район, г. Щёлково-3, ул. Супруна (1 этаж)
@@ -4467,10 +4457,10 @@
 [main] WARN TestSearch - 	Case Московская область Мытищинский район, г. Мытищи, 1-й Щелковский проезд, дом 9 FAILED
 [main] INFO TestSearch - Run 3027 from 12623. Case Московская область г. Лобня, ул.Деповская 4
 [main] INFO TestSearch - Run 3028 from 12623. Case Московская область Сергиево-Посадский район, г. Сергиев Посад, ул. 1-й Ударной Армии, д. 93
-[main] WARN TestSearch - 	Location: FAILED
+[main] WARN TestSearch - 	FAILED Empty answer
 [main] WARN TestSearch - 	Case Московская область Сергиево-Посадский район, г. Сергиев Посад, ул. 1-й Ударной Армии, д. 93 FAILED
 [main] INFO TestSearch - Run 3029 from 12623. Case Московская область Сергиево-Посадский район, г. Сергиев Посад, ул. 1-й Ударной Армии, д. 93
-[main] WARN TestSearch - 	Location: FAILED
+[main] WARN TestSearch - 	FAILED Empty answer
 [main] WARN TestSearch - 	Case Московская область Сергиево-Посадский район, г. Сергиев Посад, ул. 1-й Ударной Армии, д. 93 FAILED
 [main] INFO TestSearch - Run 3030 from 12623. Case Московская область Жуковский, ул. Маяковского, д.15
 [main] INFO TestSearch - Run 3031 from 12623. Case Московская область Жуковский, ул. Маяковского, д.15
@@ -4478,7 +4468,7 @@
 [main] INFO TestSearch - Run 3033 from 12623. Case Московская область г. Электросталь, ул. Мира, дом 20в
 [main] INFO TestSearch - Run 3034 from 12623. Case Московская область г. Электросталь, ул. Мира, дом 20в
 [main] INFO TestSearch - Run 3035 from 12623. Case Московская область Сергиево-Посадский район, г. Сергиев Посад, ул. 1-й Ударной Армии, д. 93
-[main] WARN TestSearch - 	Location: FAILED
+[main] WARN TestSearch - 	FAILED Empty answer
 [main] WARN TestSearch - 	Case Московская область Сергиево-Посадский район, г. Сергиев Посад, ул. 1-й Ударной Армии, д. 93 FAILED
 [main] INFO TestSearch - Run 3036 from 12623. Case Московская область Раменский район, пос. Удельная, ул. Солнечная, д. 35
 [main] INFO TestSearch - Run 3037 from 12623. Case Московская область Люберецкий район, пос. МЭЗ, Быковское шоссе, д. 52а
@@ -4928,8 +4918,6 @@
 [main] WARN TestSearch - 	Location: FAILED
 [main] WARN TestSearch - 	Case Московская область г. Рошаль, ул.Свердлова д.48 FAILED
 [main] INFO TestSearch - Run 3311 from 12623. Case Московская область г. Орехово-Зуево, Клязьминский проезд, д. 8
-[main] WARN TestSearch - 	Location: FAILED
-[main] WARN TestSearch - 	Case Московская область г. Орехово-Зуево, Клязьминский проезд, д. 8 FAILED
 [main] INFO TestSearch - Run 3312 from 12623. Case Московская область Каширский район, г. Кашира, ул. Школьная, 1
 [main] WARN TestSearch - 	Location: FAILED
 [main] WARN TestSearch - 	Case Московская область Каширский район, г. Кашира, ул. Школьная, 1 FAILED
@@ -5134,6 +5122,8 @@
 [main] WARN TestSearch - 	Case Московская область г. Королев, мкр. Текстильщик, ул. Молодежная, дом 7 FAILED
 [main] INFO TestSearch - Run 3414 from 12623. Case Московская область Солнечногорский район, г. Солнечногорск, улица Красная, дом № 113
 [main] INFO TestSearch - Run 3415 from 12623. Case Московская область г. Королев, мкр. Болшево, ул. Школьная, дом 19
+[main] WARN TestSearch - 	Location: FAILED
+[main] WARN TestSearch - 	Case Московская область г. Королев, мкр. Болшево, ул. Школьная, дом 19 FAILED
 [main] INFO TestSearch - Run 3416 from 12623. Case Московская область г. Домодедово, ул. Ю. Корнеева, д. 42
 [main] INFO TestSearch - Run 3417 from 12623. Case Московская область г. Королев, Кооперативный пр-д, дом 1
 [main] WARN TestSearch - 	Location: FAILED
@@ -5201,6 +5191,8 @@
 [main] INFO TestSearch - Run 3462 from 12623. Case Московская область г. Юбилейный, улица М.К. Тихонравова дом 24/1
 [main] INFO TestSearch - Run 3463 from 12623. Case Московская область г. Юбилейный, улица М.К.Тихонравова дом 19
 [main] INFO TestSearch - Run 3464 from 12623. Case Московская область Одинцовский район, дачный поселок Лесной Городок, улица Фасадная, дом № 7
+[main] WARN TestSearch - 	Location: FAILED
+[main] WARN TestSearch - 	Case Московская область Одинцовский район, дачный поселок Лесной Городок, улица Фасадная, дом № 7 FAILED
 [main] INFO TestSearch - Run 3465 from 12623. Case Московская область г. Химки, ул. Дружбы, д. 3
 [main] INFO TestSearch - Run 3466 from 12623. Case Московская область г. Химки, ул. Дружбы, д. 3
 [main] INFO TestSearch - Run 3467 from 12623. Case Московская область г. Химки, ул. Дружбы, д. 3
@@ -5244,11 +5236,7 @@
 [main] WARN TestSearch - 	Location: FAILED
 [main] WARN TestSearch - 	Case Московская область Дмитровский район, городское поселение Яхрома, ул. Кирьянова, д. 12 FAILED
 [main] INFO TestSearch - Run 3493 from 12623. Case Московская область г. Дмитров, ул. Космонавтов, д. 11
-[main] WARN TestSearch - 	Location: FAILED
-[main] WARN TestSearch - 	Case Московская область г. Дмитров, ул. Космонавтов, д. 11 FAILED
 [main] INFO TestSearch - Run 3494 from 12623. Case Московская область г. Дмитров, ул. Космонавтов, д. 11
-[main] WARN TestSearch - 	Location: FAILED
-[main] WARN TestSearch - 	Case Московская область г. Дмитров, ул. Космонавтов, д. 11 FAILED
 [main] INFO TestSearch - Run 3495 from 12623. Case Московская область Сергиево-Посадский район, г. Пересвет, ул. Мира. д. 13
 [main] INFO TestSearch - Run 3496 from 12623. Case Московская область Сергиево-Посадский район, г. Пересвет, ул. Мира, д. 13
 [main] INFO TestSearch - Run 3497 from 12623. Case Московская область Жуковский, ул. Гудкова, д. 7а
@@ -5427,6 +5415,8 @@
 [main] INFO TestSearch - Run 3604 from 12623. Case Московская область г. Серпухов, ул. Химиков, дом № 6
 [main] INFO TestSearch - Run 3605 from 12623. Case Московская область г. Красноармейск, пр-т Ленина, д.4
 [main] INFO TestSearch - Run 3606 from 12623. Case Московская область г. Балашихи, шоссе Энтузиастов, 53
+[main] WARN TestSearch - 	Location: FAILED
+[main] WARN TestSearch - 	Case Московская область г. Балашихи, шоссе Энтузиастов, 53 FAILED
 [main] INFO TestSearch - Run 3607 from 12623. Case Московская область Жуковский, ул. Молодежная, д. 22
 [main] INFO TestSearch - Run 3608 from 12623. Case Московская область Красногорский район, п. Нахабино, ул. Совпартшкола
 [main] WARN TestSearch - 	Location: FAILED
@@ -5464,8 +5454,6 @@
 [main] INFO TestSearch - Run 3627 from 12623. Case Московская область г. Железнодорожный, Носовихинское шоссе, дом № 12
 [main] INFO TestSearch - Run 3628 from 12623. Case Московская область Ступинский район, г. Ступино, Проспект Победы, вл. 25
 [main] INFO TestSearch - Run 3629 from 12623. Case Московская область Сергиево-Посадский район, г. Сергиев Посад-7. Бульвар Свободы д. 5
-[main] WARN TestSearch - 	Location: FAILED
-[main] WARN TestSearch - 	Case Московская область Сергиево-Посадский район, г. Сергиев Посад-7. Бульвар Свободы д. 5 FAILED
 [main] INFO TestSearch - Run 3630 from 12623. Case Московская область Пушкинский район, г. Пушкино, ул. Некрасова, дом 3
 [main] INFO TestSearch - Run 3631 from 12623. Case Московская область Сергиево-Посадский район, г. Сергиев Посад-7. Бульвар Свободы д. 2
 [main] INFO TestSearch - Run 3632 from 12623. Case Московская область г. Климовск, ул. Ленина, д. 20
@@ -5671,6 +5659,8 @@
 [main] INFO TestSearch - Run 3736 from 12623. Case Московская область г. Железнодорожный, ул. Октябрьская, дом № 7
 [main] INFO TestSearch - Run 3737 from 12623. Case Московская область г. Балашиха, ул. Солнечная, 10
 [main] INFO TestSearch - Run 3738 from 12623. Case Московская область г. Истра, ул. Советская, д. 10а
+[main] WARN TestSearch - 	Location: FAILED
+[main] WARN TestSearch - 	Case Московская область г. Истра, ул. Советская, д. 10а FAILED
 [main] INFO TestSearch - Run 3739 from 12623. Case Московская область Жуковский, ул. Молодежная, д.36
 [main] INFO TestSearch - Run 3740 from 12623. Case Московская область г. Подольск, ул. Высотная, 5
 [main] INFO TestSearch - Run 3741 from 12623. Case Московская область г. Королев, ул. Исаева, дом 2/30
@@ -5692,8 +5682,6 @@
 [main] WARN TestSearch - 	Location: FAILED
 [main] WARN TestSearch - 	Case Московская область Егорьевский район, село Починки, ул. Молодежная, д. 4 FAILED
 [main] INFO TestSearch - Run 3755 from 12623. Case Московская область Ленинский район, г. Видное, ул. Ольг инская. дом 53
-[main] WARN TestSearch - 	Location: FAILED
-[main] WARN TestSearch - 	Case Московская область Ленинский район, г. Видное, ул. Ольг инская. дом 53 FAILED
 [main] INFO TestSearch - Run 3756 from 12623. Case Московская область г. Рошаль, ул.Карла Маркса, д. 1
 [main] WARN TestSearch - 	Location: FAILED
 [main] WARN TestSearch - 	Case Московская область г. Рошаль, ул.Карла Маркса, д. 1 FAILED
@@ -6017,6 +6005,8 @@
 [main] WARN TestSearch - 	Case Московская область г.Бронницы, пер.Комсомольский, д. 60 FAILED
 [main] INFO TestSearch - Run 3947 from 12623. Case Московская область г. Железнодорожный, ул. Лесопарковая, дом № 19
 [main] INFO TestSearch - Run 3948 from 12623. Case Московская область г. Железнодорожный, ул. Адмирала Кузнецова, дом № 10
+[main] WARN TestSearch - 	Location: FAILED
+[main] WARN TestSearch - 	Case Московская область г. Железнодорожный, ул. Адмирала Кузнецова, дом № 10 FAILED
 [main] INFO TestSearch - Run 3949 from 12623. Case Московская область Одинцовский район, город Одинцово, улица Молодежная, дом № 14
 [main] INFO TestSearch - Run 3950 from 12623. Case Московская область Раменский район, г. Раменское, ул. Гурьева, Д. 1А
 [main] WARN TestSearch - 	Location: FAILED
@@ -6238,8 +6228,6 @@
 [main] WARN TestSearch - 	Case Московская область Луховицкий район, г. Луховицы: ул. Советский переулок, д.4 FAILED
 [main] INFO TestSearch - Run 4076 from 12623. Case Московская область г. Клин, Бородинский проезд, д. 23
 [main] INFO TestSearch - Run 4077 from 12623. Case Московская область г. Лобня, ул.Спортивная д.4
-[main] WARN TestSearch - 	Location: FAILED
-[main] WARN TestSearch - 	Case Московская область г. Лобня, ул.Спортивная д.4 FAILED
 [main] INFO TestSearch - Run 4078 from 12623. Case Московская область г. Химки, ул. Первомайская, д. 33
 [main] WARN TestSearch - 	Location: FAILED
 [main] WARN TestSearch - 	Case Московская область г. Химки, ул. Первомайская, д. 33 FAILED
@@ -6370,8 +6358,12 @@
 [main] WARN TestSearch - 	Location: FAILED
 [main] WARN TestSearch - 	Case Московская область Озёрский район, с. Белые Колодези FAILED
 [main] INFO TestSearch - Run 4145 from 12623. Case Московская область г. Королев, мкр. Первомайский, ул. Советская, дом 5
+[main] WARN TestSearch - 	Location: FAILED
+[main] WARN TestSearch - 	Case Московская область г. Королев, мкр. Первомайский, ул. Советская, дом 5 FAILED
 [main] INFO TestSearch - Run 4146 from 12623. Case Московская область г. Долгопрудный, ул. Спортивная, д. 2
 [main] INFO TestSearch - Run 4147 from 12623. Case Московская область г. Долгопрудный, мкр. Хлебниково, ул. Станционная, д. 16
+[main] WARN TestSearch - 	Location: FAILED
+[main] WARN TestSearch - 	Case Московская область г. Долгопрудный, мкр. Хлебниково, ул. Станционная, д. 16 FAILED
 [main] INFO TestSearch - Run 4148 from 12623. Case Московская область Наро-Фоминский район, п. Селятино
 [main] WARN TestSearch - 	Location: FAILED
 [main] WARN TestSearch - 	Case Московская область Наро-Фоминский район, п. Селятино FAILED
@@ -6676,10 +6668,14 @@
 [main] WARN TestSearch - 	Case Московская область Раменский район, поселок Гжелка FAILED
 [main] INFO TestSearch - Run 4306 from 12623. Case Московская область Раменский район, г. Раменское, ул. Карла Маркса, д. 1
 [main] INFO TestSearch - Run 4307 from 12623. Case Московская область Раменский район, деревня Клишева, ул. Школьная, д. 90
+[main] WARN TestSearch - 	Location: FAILED
+[main] WARN TestSearch - 	Case Московская область Раменский район, деревня Клишева, ул. Школьная, д. 90 FAILED
 [main] INFO TestSearch - Run 4308 from 12623. Case Московская область г. Коломна, ул. Зайцева, д. 11
 [main] INFO TestSearch - Run 4309 from 12623. Case Московская область г. Коломна, ул. Октябрьской революции, д. 277
 [main] INFO TestSearch - Run 4310 from 12623. Case Московская область г. Коломна, пр.Кирова, д. 49
 [main] INFO TestSearch - Run 4311 from 12623. Case Московская область Раменский район, деревня Клишева, ул. Школьная, д. 90
+[main] WARN TestSearch - 	Location: FAILED
+[main] WARN TestSearch - 	Case Московская область Раменский район, деревня Клишева, ул. Школьная, д. 90 FAILED
 [main] INFO TestSearch - Run 4312 from 12623. Case Московская область г. Коломна, ул. Шавырина, д. 5
 [main] INFO TestSearch - Run 4313 from 12623. Case Московская область г. Коломна, ул. Ленина, д. 1
 [main] WARN TestSearch - 	Location: FAILED
@@ -6721,6 +6717,8 @@
 [main] WARN TestSearch - 	Case Московская область Воскресенский район, п. Белоозерский, ул. 50 лет Октября, 6 FAILED
 [main] INFO TestSearch - Run 4333 from 12623. Case Московская область г. Королев, ул. Сакко и Ванцетти, дом 28
 [main] INFO TestSearch - Run 4334 from 12623. Case Московская область Щёлковский район, г. Щёлковоо, ул. Заречная, д. 82
+[main] WARN TestSearch - 	Location: FAILED
+[main] WARN TestSearch - 	Case Московская область Щёлковский район, г. Щёлковоо, ул. Заречная, д. 82 FAILED
 [main] INFO TestSearch - Run 4335 from 12623. Case Московская область Щёлковский район, г. Щелково, ул. 8 Марта, д. 11
 [main] WARN TestSearch - 	Location: FAILED
 [main] WARN TestSearch - 	Case Московская область Щёлковский район, г. Щелково, ул. 8 Марта, д. 11 FAILED
@@ -6744,6 +6742,8 @@
 [main] WARN TestSearch - 	Case Московская область Щёлковский район, г. Щёлковоо. ул. Комсомольская, д. За FAILED
 [main] INFO TestSearch - Run 4346 from 12623. Case Московская область Щёлковский район, г. Щелково, ул. Заречная, д. 82
 [main] INFO TestSearch - Run 4347 from 12623. Case Московская область Щёлковский район, г. Щёлковоо, ул. Талсинская, д. 4а
+[main] WARN TestSearch - 	Location: FAILED
+[main] WARN TestSearch - 	Case Московская область Щёлковский район, г. Щёлковоо, ул. Талсинская, д. 4а FAILED
 [main] INFO TestSearch - Run 4348 from 12623. Case Московская область Щёлковский район, г. Щелково-3, ул. Супруна (2 этаж)
 [main] WARN TestSearch - 	Location: FAILED
 [main] WARN TestSearch - 	Case Московская область Щёлковский район, г. Щелково-3, ул. Супруна (2 этаж) FAILED
@@ -6755,8 +6755,6 @@
 [main] WARN TestSearch - 	Location: FAILED
 [main] WARN TestSearch - 	Case Московская область г. Королев, ул. Октябрьская, дом 10 FAILED
 [main] INFO TestSearch - Run 4352 from 12623. Case Московская область Щёлковский район, г. Щёлковоо, ул. Советская, д. 3
-[main] WARN TestSearch - 	Location: FAILED
-[main] WARN TestSearch - 	Case Московская область Щёлковский район, г. Щёлковоо, ул. Советская, д. 3 FAILED
 [main] INFO TestSearch - Run 4353 from 12623. Case Московская область Мытищинский район, г. Мытищи, улица Академика Каргина, дом 36, корп. 2
 [main] WARN TestSearch - 	Location: FAILED
 [main] WARN TestSearch - 	Case Московская область Мытищинский район, г. Мытищи, улица Академика Каргина, дом 36, корп. 2 FAILED
@@ -6802,8 +6800,6 @@
 [main] WARN TestSearch - 	Location: FAILED
 [main] WARN TestSearch - 	Case Московская область г. Балашиха, микрорайон Заря, ул. Советская, 11 FAILED
 [main] INFO TestSearch - Run 4373 from 12623. Case Московская область г. Балашиха, ул. Беликова, 10
-[main] WARN TestSearch - 	Location: FAILED
-[main] WARN TestSearch - 	Case Московская область г. Балашиха, ул. Беликова, 10 FAILED
 [main] INFO TestSearch - Run 4374 from 12623. Case Московская область г. Балашиха, ул. Белякова, 10
 [main] INFO TestSearch - Run 4375 from 12623. Case Московская область г. Балашиха, ул. Солнечная, 10
 [main] INFO TestSearch - Run 4376 from 12623. Case Московская область г. Балашиха, ул. Солнечная, 10
@@ -6896,8 +6892,6 @@
 [main] INFO TestSearch - Run 4425 from 12623. Case Московская область г. Егорьевск, ул. Советская, д. 174
 [main] INFO TestSearch - Run 4426 from 12623. Case Московская область г. Егорьевск, ул. Софьи Перовской, д. 101 а
 [main] INFO TestSearch - Run 4427 from 12623. Case Московская область г. Егорьевск, 1-й микрорайон, д. 69
-[main] WARN TestSearch - 	Location: FAILED
-[main] WARN TestSearch - 	Case Московская область г. Егорьевск, 1-й микрорайон, д. 69 FAILED
 [main] INFO TestSearch - Run 4428 from 12623. Case Московская область г. Королев, Кооперативный пр-д, дом 1
 [main] WARN TestSearch - 	Location: FAILED
 [main] WARN TestSearch - 	Case Московская область г. Королев, Кооперативный пр-д, дом 1 FAILED
@@ -7023,11 +7017,17 @@
 [main] INFO TestSearch - Run 4496 from 12623. Case Московская область г. Химки, ул. Лавочкина д. 7
 [main] INFO TestSearch - Run 4497 from 12623. Case Московская область г. Химки, Молодежный проезд, д. 5
 [main] INFO TestSearch - Run 4498 from 12623. Case Московская область Солнечногорский район, рабочий поселок Менделееве, улица Куйбышева, дом № 7
+[main] WARN TestSearch - 	Location: FAILED
+[main] WARN TestSearch - 	Case Московская область Солнечногорский район, рабочий поселок Менделееве, улица Куйбышева, дом № 7 FAILED
 [main] INFO TestSearch - Run 4499 from 12623. Case Московская область Солнечногорский район, г. Солнечногорск, улица Дзержинского, дом № 5
 [main] INFO TestSearch - Run 4500 from 12623. Case Московская область г. Юбилейный, улица Школьный проезд, дом 2
 [main] INFO TestSearch - Run 4501 from 12623. Case Московская область г. Королев, Болшевское шоссе, дом 2
 [main] INFO TestSearch - Run 4502 from 12623. Case Московская область г. Королев, мкр. Болшево, ул. Школьная, дом 19
+[main] WARN TestSearch - 	Location: FAILED
+[main] WARN TestSearch - 	Case Московская область г. Королев, мкр. Болшево, ул. Школьная, дом 19 FAILED
 [main] INFO TestSearch - Run 4503 from 12623. Case Московская область г. Королев, мкр. Болшево, ул. Школьная, дом 19
+[main] WARN TestSearch - 	Location: FAILED
+[main] WARN TestSearch - 	Case Московская область г. Королев, мкр. Болшево, ул. Школьная, дом 19 FAILED
 [main] INFO TestSearch - Run 4504 from 12623. Case Московская область г. Королев, мкр. Первомайский, ул. Советская, дом 18
 [main] INFO TestSearch - Run 4505 from 12623. Case Московская область г. Королев, ул. Ленина, дом 2
 [main] INFO TestSearch - Run 4506 from 12623. Case Московская область г. Королев, ул. Циолковского, дом 24
@@ -7048,8 +7048,12 @@
 [main] INFO TestSearch - Run 4519 from 12623. Case Московская область г. Балашиха, микрорайон Авиаторов, ул. Летная, 7
 [main] INFO TestSearch - Run 4520 from 12623. Case Московская область г. Балашиха, микрорайон Авиаторов, ул. Летная, 7
 [main] INFO TestSearch - Run 4521 from 12623. Case Московская область г. Балашиха, микрорайон Салтыковка, Мирской проезд, 12
+[main] WARN TestSearch - 	Location: FAILED
+[main] WARN TestSearch - 	Case Московская область г. Балашиха, микрорайон Салтыковка, Мирской проезд, 12 FAILED
 [main] INFO TestSearch - Run 4522 from 12623. Case Московская область г. Реутов, Юбилейный проспект, д. 58
 [main] INFO TestSearch - Run 4523 from 12623. Case Московская область г. Балашиха, микрорайон Салтыковка, Мирской проезд, 12
+[main] WARN TestSearch - 	Location: FAILED
+[main] WARN TestSearch - 	Case Московская область г. Балашиха, микрорайон Салтыковка, Мирской проезд, 12 FAILED
 [main] INFO TestSearch - Run 4524 from 12623. Case Московская область г. Реутов, Юбилейный проспект, д. 58
 [main] INFO TestSearch - Run 4525 from 12623. Case Московская область г. Реутов, Юбилейный проспект, д. 15а
 [main] INFO TestSearch - Run 4526 from 12623. Case Московская область г. Орехово-Зуево, ул. Набережная, д.15
@@ -7195,6 +7199,8 @@
 [main] INFO TestSearch - Run 4594 from 12623. Case Московская область Луховицкий район, г. Луховицы, ул. Пушкина, д. 132
 [main] INFO TestSearch - Run 4595 from 12623. Case Московская область поселок Власиха, ул. Солнечная д. 1А
 [main] INFO TestSearch - Run 4596 from 12623. Case Московская область поселок Власиха, мкрн. Школьный, д. 1А
+[main] WARN TestSearch - 	Location: FAILED
+[main] WARN TestSearch - 	Case Московская область поселок Власиха, мкрн. Школьный, д. 1А FAILED
 [main] INFO TestSearch - Run 4597 from 12623. Case Московская область г. Красноармейск, ул.Новая Жизнь, д. 1А
 [main] INFO TestSearch - Run 4598 from 12623. Case Московская область поселок Власиха, ул. Солнечная д. 1А
 [main] INFO TestSearch - Run 4599 from 12623. Case Московская область Одинцовский район, поселок ВНИИССОК, улица Дружбы, дом № 11
@@ -7275,6 +7281,8 @@
 [main] WARN TestSearch - 	Location: FAILED
 [main] WARN TestSearch - 	Case Московская область Пушкинский район, г. Пушкино, микрорайон Дзержинец, дом 10 а FAILED
 [main] INFO TestSearch - Run 4658 from 12623. Case Московская область Пушкинский район, г. Пушкино, микрорайон Клязьма, ул. Кольцовская, дом 2
+[main] WARN TestSearch - 	Location: FAILED
+[main] WARN TestSearch - 	Case Московская область Пушкинский район, г. Пушкино, микрорайон Клязьма, ул. Кольцовская, дом 2 FAILED
 [main] INFO TestSearch - Run 4659 from 12623. Case Московская область Пушкинский район, г. Пушкино, 2-й Некрасовский проезд, дом 4
 [main] INFO TestSearch - Run 4660 from 12623. Case Московская область Мытищинский район, г. Мытищи, Новомытищинский проспект, дом 82, корп. 10
 [main] INFO TestSearch - Run 4661 from 12623. Case Московская область Мытищинский район, г. Мытищи, Юбилейная улица, дом 42, корп. 2
@@ -7690,6 +7698,8 @@
 [main] INFO TestSearch - Run 4927 from 12623. Case Нижегородская область город Дзержинск, ул.Октябрьская,52
 [main] INFO TestSearch - Run 4928 from 12623. Case Нижегородская область город Дзержинск, пр.Ленина,79
 [main] INFO TestSearch - Run 4929 from 12623. Case Нижегородская область город Дзержинск, пр.Ленина,5
+[main] WARN TestSearch - 	Location: FAILED
+[main] WARN TestSearch - 	Case Нижегородская область город Дзержинск, пр.Ленина,5 FAILED
 [main] INFO TestSearch - Run 4930 from 12623. Case Нижегородская область город Дзержинск, ул.Щорса,3
 [main] INFO TestSearch - Run 4931 from 12623. Case Нижегородская область город Дзержинск, ул.Буденного, 19, корпус 2
 [main] INFO TestSearch - Run 4932 from 12623. Case Нижегородская область город Дзержинск, ул.Патоличева, 31-а
@@ -8540,8 +8550,14 @@
 [main] INFO TestSearch - Run 5509 from 12623. Case Нижегородская область г. Нижний Новгород, ул. Красносормовская, 4б
 [main] INFO TestSearch - Run 5510 from 12623. Case Нижегородская область г. Нижний Новгород, ул. Красносормовская, 4б
 [main] INFO TestSearch - Run 5511 from 12623. Case Нижегородская область г. Нижний Новгород, ул. Маршала Малиновского, 12
+[main] WARN TestSearch - 	Location: FAILED
+[main] WARN TestSearch - 	Case Нижегородская область г. Нижний Новгород, ул. Маршала Малиновского, 12 FAILED
 [main] INFO TestSearch - Run 5512 from 12623. Case Нижегородская область г. Нижний Новгород, ул. Маршала Малиновского, 12
+[main] WARN TestSearch - 	Location: FAILED
+[main] WARN TestSearch - 	Case Нижегородская область г. Нижний Новгород, ул. Маршала Малиновского, 12 FAILED
 [main] INFO TestSearch - Run 5513 from 12623. Case Нижегородская область г. Нижний Новгород, ул. Маршала Малиновского, 12
+[main] WARN TestSearch - 	Location: FAILED
+[main] WARN TestSearch - 	Case Нижегородская область г. Нижний Новгород, ул. Маршала Малиновского, 12 FAILED
 [main] INFO TestSearch - Run 5514 from 12623. Case Нижегородская область г. Нижний Новгород, ул. Свирская, 20
 [main] INFO TestSearch - Run 5515 from 12623. Case Нижегородская область г. Нижний Новгород, ул. Вождей революции, 29
 [main] INFO TestSearch - Run 5516 from 12623. Case Нижегородская область г. Нижний Новгород, ул. Вождей революции, 29
@@ -8605,6 +8621,8 @@
 [main] WARN TestSearch - 	Case Нижегородская область г. Нижний Новгород, шоссе Казанское, 12 FAILED
 [main] INFO TestSearch - Run 5571 from 12623. Case Нижегородская область г. Нижний Новгород, поселок Черепичный, 9
 [main] INFO TestSearch - Run 5572 from 12623. Case Нижегородская область г. Нижний Новгород, ул. Маршала Малиновского, 12
+[main] WARN TestSearch - 	Location: FAILED
+[main] WARN TestSearch - 	Case Нижегородская область г. Нижний Новгород, ул. Маршала Малиновского, 12 FAILED
 [main] INFO TestSearch - Run 5573 from 12623. Case Нижегородская область г. Нижний Новгород, бульвар 60-летия Октября, 5а
 [main] INFO TestSearch - Run 5574 from 12623. Case Нижегородская область г. Нижний Новгород, ул. Родионова, 190
 [main] WARN TestSearch - 	Location: FAILED
@@ -8636,8 +8654,6 @@
 [main] INFO TestSearch - Run 5593 from 12623. Case Нижегородская область г. Нижний Новгород, ул. Меднолитейная, 1а
 [main] INFO TestSearch - Run 5594 from 12623. Case Нижегородская область г. Нижний Новгород, ул. Баренца, 7
 [main] INFO TestSearch - Run 5595 from 12623. Case Нижегородская область г. Нижний Новгород, ул. 3-я Ямская, 1
-[main] WARN TestSearch - 	Location: FAILED
-[main] WARN TestSearch - 	Case Нижегородская область г. Нижний Новгород, ул. 3-я Ямская, 1 FAILED
 [main] INFO TestSearch - Run 5596 from 12623. Case Нижегородская область г. Нижний Новгород, Южное шоссе, 24г
 [main] INFO TestSearch - Run 5597 from 12623. Case Нижегородская область г. Нижний Новгород, проспект Кораблестроителей, 25а
 [main] INFO TestSearch - Run 5598 from 12623. Case Нижегородская область г. Нижний Новгород, ул. Верхне-Печерская, 5а
@@ -8745,8 +8761,6 @@
 [main] WARN TestSearch - 	Case Новгородская область Великий Новгород, Большая Санкт-Петербургская ул., д. 118, корп. 3 FAILED
 [main] INFO TestSearch - Run 5679 from 12623. Case Новгородская область Великий Новгород, Большая Санкт-Петербургская ул., д. 94
 [main] INFO TestSearch - Run 5680 from 12623. Case Новгородская область Великий Новгород, ул. Яковлева, д. 15
-[main] WARN TestSearch - 	Location: FAILED
-[main] WARN TestSearch - 	Case Новгородская область Великий Новгород, ул. Яковлева, д. 15 FAILED
 [main] INFO TestSearch - Run 5681 from 12623. Case Новгородская область Великий Новгород, ул. Щусева, д. 10, корп. 1
 [main] INFO TestSearch - Run 5682 from 12623. Case Новгородская область Великий Новгород, микрорайон Кречевицы, д. 79
 [main] WARN TestSearch - 	Location: FAILED
@@ -8781,8 +8795,6 @@
 [main] INFO TestSearch - Run 5704 from 12623. Case Новгородская область Великий Новгород, ул. Кочетова, д. 29, корп. 3
 [main] INFO TestSearch - Run 5705 from 12623. Case Новгородская область Великий Новгород, ул. Кочетова, д. 23, корп. 2
 [main] INFO TestSearch - Run 5706 from 12623. Case Новгородская область Великий Новгород, ул. Ломоносова, д. 22а
-[main] WARN TestSearch - 	Location: FAILED
-[main] WARN TestSearch - 	Case Новгородская область Великий Новгород, ул. Ломоносова, д. 22а FAILED
 [main] INFO TestSearch - Run 5707 from 12623. Case Новгородская область Великий Новгород, Псковская ул., д. 44, корп. 2
 [main] INFO TestSearch - Run 5708 from 12623. Case Новгородская область Великий Новгород, Псковская ул., д. 50, корп. 2
 [main] WARN TestSearch - 	Location: FAILED
@@ -8890,8 +8902,6 @@
 [main] WARN TestSearch - 	Location: FAILED
 [main] WARN TestSearch - 	Case Новгородская область Великий Новгород, Московская ул., д. 30 FAILED
 [main] INFO TestSearch - Run 5771 from 12623. Case Новгородская область Старорусский район, г. Старая Русса, ул. Минеральная, д. 36
-[main] WARN TestSearch - 	Location: FAILED
-[main] WARN TestSearch - 	Case Новгородская область Старорусский район, г. Старая Русса, ул. Минеральная, д. 36 FAILED
 [main] INFO TestSearch - Run 5772 from 12623. Case Новгородская область Великий Новгород, ул. Свободы, д. 6
 [main] INFO TestSearch - Run 5773 from 12623. Case Новгородская область Великий Новгород, Большая Санкт-Петербургская ул., д. 94
 [main] INFO TestSearch - Run 5774 from 12623. Case Новгородская область Великий Новгород, Большая Московская ул., д. 37/9
@@ -8920,6 +8930,8 @@
 [main] WARN TestSearch - 	Case Новгородская область Великий Новгород, ул. Свободы, д. 14, корп. 2 FAILED
 [main] INFO TestSearch - Run 5786 from 12623. Case Новгородская область Великий Новгород, ул. Коровникова, д. 15, корп. 2
 [main] INFO TestSearch - Run 5787 from 12623. Case Новгородская область Старорусский район, г. Старая Русса, ул. Карла Маркса, д. 24
+[main] WARN TestSearch - 	Location: FAILED
+[main] WARN TestSearch - 	Case Новгородская область Старорусский район, г. Старая Русса, ул. Карла Маркса, д. 24 FAILED
 [main] INFO TestSearch - Run 5788 from 12623. Case Новгородская область Старорусский район, г. Старая Русса, ул. Минеральная, д. 62
 [main] WARN TestSearch - 	FAILED Empty answer
 [main] WARN TestSearch - 	Case Новгородская область Старорусский район, г. Старая Русса, ул. Минеральная, д. 62 FAILED
@@ -9144,8 +9156,6 @@
 [main] INFO TestSearch - Run 5957 from 12623. Case Оренбургская область г. Оренбург, ул. Минская, 1
 [main] INFO TestSearch - Run 5958 from 12623. Case Оренбургская область г. Оренбург, ул. Ноябрьская, 41
 [main] INFO TestSearch - Run 5959 from 12623. Case Оренбургская область г. Оренбург, ул. Оpджоникидзе, 226
-[main] WARN TestSearch - 	Location: FAILED
-[main] WARN TestSearch - 	Case Оренбургская область г. Оренбург, ул. Оpджоникидзе, 226 FAILED
 [main] INFO TestSearch - Run 5960 from 12623. Case Оренбургская область г. Сорочинск, 2 микрорайон, 36А
 [main] WARN TestSearch - 	Location: FAILED
 [main] WARN TestSearch - 	Case Оренбургская область г. Сорочинск, 2 микрорайон, 36А FAILED
@@ -9365,8 +9375,6 @@
 [main] INFO TestSearch - Run 6102 from 12623. Case Орловская область г. Орел, ул. Покровская, д. 8
 [main] INFO TestSearch - Run 6103 from 12623. Case Орловская область г. Орел, ул. Наб. Дубровинского, д. 40
 [main] INFO TestSearch - Run 6104 from 12623. Case Орловская область г. Орел, ул. 6-й Орловской дивизии, д. 25
-[main] WARN TestSearch - 	Location: FAILED
-[main] WARN TestSearch - 	Case Орловская область г. Орел, ул. 6-й Орловской дивизии, д. 25 FAILED
 [main] INFO TestSearch - Run 6105 from 12623. Case Орловская область г. Орел, ул. Комсомольская, д. 261А
 [main] INFO TestSearch - Run 6106 from 12623. Case Орловская область г. Орел, ул. Комсомольская, д. 182
 [main] WARN TestSearch - 	FAILED Empty answer
@@ -9620,8 +9628,6 @@
 [main] INFO TestSearch - Run 6319 from 12623. Case Ростовская область город Ростов-на-Дону, ул.Кропоткина,31
 [main] INFO TestSearch - Run 6320 from 12623. Case Ростовская область город Ростов-на-Дону, ул.Кропоткина,31
 [main] INFO TestSearch - Run 6321 from 12623. Case Ростовская область город Ростов-на-Дону, ул.2-й Пятилетки,10
-[main] WARN TestSearch - 	Location: FAILED
-[main] WARN TestSearch - 	Case Ростовская область город Ростов-на-Дону, ул.2-й Пятилетки,10 FAILED
 [main] INFO TestSearch - Run 6322 from 12623. Case Ростовская область город Ростов-на-Дону, ул.Вятская,27
 [main] INFO TestSearch - Run 6323 from 12623. Case Ростовская область город Ростов-на-Дону, пер.Днепровский,116
 [main] WARN TestSearch - 	Location: FAILED
@@ -9634,11 +9640,7 @@
 [main] INFO TestSearch - Run 6329 from 12623. Case Ростовская область город Ростов-на-Дону, ул.Вятская,27
 [main] INFO TestSearch - Run 6330 from 12623. Case Ростовская область город Ростов-на-Дону, ул.Орбитальная,50/1
 [main] INFO TestSearch - Run 6331 from 12623. Case Ростовская область город Ростов-на-Дону, ул.2-й Пятилетки,10
-[main] WARN TestSearch - 	Location: FAILED
-[main] WARN TestSearch - 	Case Ростовская область город Ростов-на-Дону, ул.2-й Пятилетки,10 FAILED
 [main] INFO TestSearch - Run 6332 from 12623. Case Ростовская область город Ростов-на-Дону, ул.2-й Пятилетки,10
-[main] WARN TestSearch - 	Location: FAILED
-[main] WARN TestSearch - 	Case Ростовская область город Ростов-на-Дону, ул.2-й Пятилетки,10 FAILED
 [main] INFO TestSearch - Run 6333 from 12623. Case Ростовская область город Ростов-на-Дону, ул.2-я Володарская,78
 [main] WARN TestSearch - 	Location: FAILED
 [main] WARN TestSearch - 	Case Ростовская область город Ростов-на-Дону, ул.2-я Володарская,78 FAILED
@@ -9736,7 +9738,11 @@
 [main] INFO TestSearch - Run 6387 from 12623. Case Рязанская область Шиловский район, р. п. Шилово, ул. Спасская, д. 58
 [main] INFO TestSearch - Run 6388 from 12623. Case Рязанская область город Рязань, ул. 2-я Линия, дом 25
 [main] INFO TestSearch - Run 6389 from 12623. Case Рязанская область город Рязань, ул. 12-я Линия, дом 1г
+[main] WARN TestSearch - 	Location: FAILED
+[main] WARN TestSearch - 	Case Рязанская область город Рязань, ул. 12-я Линия, дом 1г FAILED
 [main] INFO TestSearch - Run 6390 from 12623. Case Рязанская область город Рязань, ул. 12-я Линия, дом 1г
+[main] WARN TestSearch - 	Location: FAILED
+[main] WARN TestSearch - 	Case Рязанская область город Рязань, ул. 12-я Линия, дом 1г FAILED
 [main] INFO TestSearch - Run 6391 from 12623. Case Рязанская область город Рязань, Первомайский просп., дом 62 корп. 1
 [main] INFO TestSearch - Run 6392 from 12623. Case Рязанская область город Рязань, Первомайский просп., дом 68
 [main] INFO TestSearch - Run 6393 from 12623. Case Рязанская область город Рязань, Первомайский просп., дом 68
@@ -10018,7 +10024,7 @@
 [main] INFO TestSearch - Run 6583 from 12623. Case Саратовская область г. Саратов, ул. им. Мичурина И. В., 16
 [main] INFO TestSearch - Run 6584 from 12623. Case Саратовская область г. Саратов, ул. им. Мичурина И. В., 16
 [main] INFO TestSearch - Run 6585 from 12623. Case Сахалинская область Поронайский район, г. Поронайск, ул. 2-я Восточная, 29
-[main] WARN TestSearch - 	Location: FAILED
+[main] WARN TestSearch - 	FAILED Empty answer
 [main] WARN TestSearch - 	Case Сахалинская область Поронайский район, г. Поронайск, ул. 2-я Восточная, 29 FAILED
 [main] INFO TestSearch - Run 6586 from 12623. Case Сахалинская область Поронайский район, г. Поронайск, ул. Гагарина, 38
 [main] WARN TestSearch - 	FAILED Empty answer
@@ -10515,6 +10521,8 @@
 [main] INFO TestSearch - Run 6990 from 12623. Case Смоленская область г. Гагарин, мкрн. Лесной, ул. Михайлюкова, д. 7
 [main] INFO TestSearch - Run 6991 from 12623. Case Смоленская область Глинковский район, с. Глинка, ул. Ленина, д. 5Б
 [main] INFO TestSearch - Run 6992 from 12623. Case Смоленская область г. Дорогобуж Смоленской области, ул. Лермонтова, д. 18
+[main] WARN TestSearch - 	Location: FAILED
+[main] WARN TestSearch - 	Case Смоленская область г. Дорогобуж Смоленской области, ул. Лермонтова, д. 18 FAILED
 [main] INFO TestSearch - Run 6993 from 12623. Case Смоленская область Дорогобужский район, пос. Верхнеднепровский, ул. Комсомольская, д. 18
 [main] INFO TestSearch - Run 6994 from 12623. Case Смоленская область Дорогобужский район, пос. Верхнеднепровский, ул. Советская, д. 1
 [main] INFO TestSearch - Run 6995 from 12623. Case Смоленская область Дорогобужский район, пос. Верхнеднепровский, ул. Молодежная, д. 19
@@ -11027,11 +11035,7 @@
 [main] INFO TestSearch - Run 7338 from 12623. Case Тверская область г. Тверь, Спортивный переулок, 12
 [main] INFO TestSearch - Run 7339 from 12623. Case Тверская область г. Тверь, проспект Чайковского, 70
 [main] INFO TestSearch - Run 7340 from 12623. Case Тверская область г. Тверь, улица 1-я Суворова, 19
-[main] WARN TestSearch - 	Location: FAILED
-[main] WARN TestSearch - 	Case Тверская область г. Тверь, улица 1-я Суворова, 19 FAILED
 [main] INFO TestSearch - Run 7341 from 12623. Case Тверская область г. Тверь, улица 1-я Суворова, 19
-[main] WARN TestSearch - 	Location: FAILED
-[main] WARN TestSearch - 	Case Тверская область г. Тверь, улица 1-я Суворова, 19 FAILED
 [main] INFO TestSearch - Run 7342 from 12623. Case Тверская область г. Тверь, Волоколамский проспект, 10
 [main] INFO TestSearch - Run 7343 from 12623. Case Тверская область г. Тверь, Волоколамский проспект, 20
 [main] INFO TestSearch - Run 7344 from 12623. Case Тверская область г. Тверь, улица Советская, 21
@@ -11092,6 +11096,8 @@
 [main] INFO TestSearch - Run 7389 from 12623. Case Тверская область г. Тверь, проспект Ленина, 16
 [main] INFO TestSearch - Run 7390 from 12623. Case Тверская область г. Тверь, ул. Громова, 1
 [main] INFO TestSearch - Run 7391 from 12623. Case Тверская область г. Тверь, поселок Элеватор, улица Центральная, 7
+[main] WARN TestSearch - 	Location: FAILED
+[main] WARN TestSearch - 	Case Тверская область г. Тверь, поселок Элеватор, улица Центральная, 7 FAILED
 [main] INFO TestSearch - Run 7392 from 12623. Case Тверская область г. Тверь, улица Орджоникидзе, 32
 [main] INFO TestSearch - Run 7393 from 12623. Case Тверская область г. Тверь, улица Линейная, 81
 [main] INFO TestSearch - Run 7394 from 12623. Case Тверская область г. Тверь, проспект 50 лет Октября, 3
@@ -11440,8 +11446,6 @@
 [main] WARN TestSearch - 	Case Тульская область г. Тула, ул. Металлургов, д. 70, корп. 2 FAILED
 [main] INFO TestSearch - Run 7616 from 12623. Case Тульская область г. Тула, ул. Фрунзе, д. 18
 [main] INFO TestSearch - Run 7617 from 12623. Case Тульская область г. Тула, ул. Ф. Энгельса, д. 89
-[main] WARN TestSearch - 	Location: FAILED
-[main] WARN TestSearch - 	Case Тульская область г. Тула, ул. Ф. Энгельса, д. 89 FAILED
 [main] INFO TestSearch - Run 7618 from 12623. Case Тульская область г. Тула, ул. Демонстрации, д. 6
 [main] INFO TestSearch - Run 7619 from 12623. Case Тульская область г. Тула, ул. Демонстрации, д. 6
 [main] INFO TestSearch - Run 7620 from 12623. Case Тульская область г. Тула, ул. Демонстрации, д. 6
@@ -11460,7 +11464,7 @@
 [main] INFO TestSearch - Run 7631 from 12623. Case Тульская область г. Узловая, ул. Горняцкая, д. 1
 [main] INFO TestSearch - Run 7632 from 12623. Case Тульская область г. Узловая, ул. Тульская, д. 13
 [main] INFO TestSearch - Run 7633 from 12623. Case Тульская область г. Узловая, квартал 5-я Пятилетка, ул. Центральная, д. 6а
-[main] WARN TestSearch - 	Location: FAILED
+[main] WARN TestSearch - 	FAILED Empty answer
 [main] WARN TestSearch - 	Case Тульская область г. Узловая, квартал 5-я Пятилетка, ул. Центральная, д. 6а FAILED
 [main] INFO TestSearch - Run 7634 from 12623. Case Тульская область г. Новомосковск, ул. Калинина, д. 24
 [main] INFO TestSearch - Run 7635 from 12623. Case Тульская область г. Новомосковск, ул. Московская, д. 9
@@ -11686,8 +11690,6 @@
 [main] WARN TestSearch - 	Location: FAILED
 [main] WARN TestSearch - 	Case Ульяновская область г. Димитровград, ул.Рабочая, 2 FAILED
 [main] INFO TestSearch - Run 7779 from 12623. Case Ульяновская область город Ульяновск, ул. 1-я Линия, д. 5
-[main] WARN TestSearch - 	Location: FAILED
-[main] WARN TestSearch - 	Case Ульяновская область город Ульяновск, ул. 1-я Линия, д. 5 FAILED
 [main] INFO TestSearch - Run 7780 from 12623. Case Ульяновская область город Ульяновск, ул. Академика Сахарова, д. 11
 [main] INFO TestSearch - Run 7781 from 12623. Case Ульяновская область город Ульяновск, ул. Шоферов, д. 16
 [main] INFO TestSearch - Run 7782 from 12623. Case Ульяновская область город Ульяновск, ул. Тельмана, д. 38
@@ -13409,6 +13411,8 @@
 [main] WARN TestSearch - 	Case Ярославская область г. Переславль-Залесский, мкр. Чкаловский FAILED
 [main] INFO TestSearch - Run 9075 from 12623. Case Ярославская область Ростовский район, п.Семибратово, ул.Окружная, д.5
 [main] INFO TestSearch - Run 9076 from 12623. Case Ярославская область Любимский район, д.Ермаково, ул.Центральная, дом 12
+[main] WARN TestSearch - 	Location: FAILED
+[main] WARN TestSearch - 	Case Ярославская область Любимский район, д.Ермаково, ул.Центральная, дом 12 FAILED
 [main] INFO TestSearch - Run 9077 from 12623. Case Ярославская область г. Ярославль, ул. Терешковой, д. 20
 [main] INFO TestSearch - Run 9078 from 12623. Case Ярославская область г.Гаврилов-Ям, ул. Кирова,13
 [main] INFO TestSearch - Run 9079 from 12623. Case Ярославская область Ростовский район, п.Семибратово, ул.Мира, д.6
@@ -13465,8 +13469,6 @@
 [main] INFO TestSearch - Run 9116 from 12623. Case Москва ул. Ладожская, д. 4/6
 [main] INFO TestSearch - Run 9117 from 12623. Case Москва Садовническая ул., 68
 [main] INFO TestSearch - Run 9118 from 12623. Case Москва 2-й Красносельский пер., д. 18
-[main] WARN TestSearch - 	Location: FAILED
-[main] WARN TestSearch - 	Case Москва 2-й Красносельский пер., д. 18 FAILED
 [main] INFO TestSearch - Run 9119 from 12623. Case Москва Трехгорный Б. пер., д. 3
 [main] WARN TestSearch - 	Location: FAILED
 [main] WARN TestSearch - 	Case Москва Трехгорный Б. пер., д. 3 FAILED
@@ -13476,11 +13478,7 @@
 [main] INFO TestSearch - Run 9121 from 12623. Case Москва Большой Кондратьевский пер., 3
 [main] INFO TestSearch - Run 9122 from 12623. Case Москва Протопоповский пер., д.5
 [main] INFO TestSearch - Run 9123 from 12623. Case Москва Звенигородская 2-я ул., 8
-[main] WARN TestSearch - 	Location: FAILED
-[main] WARN TestSearch - 	Case Москва Звенигородская 2-я ул., 8 FAILED
 [main] INFO TestSearch - Run 9124 from 12623. Case Москва Звенигородская 2-я ул., 8
-[main] WARN TestSearch - 	Location: FAILED
-[main] WARN TestSearch - 	Case Москва Звенигородская 2-я ул., 8 FAILED
 [main] INFO TestSearch - Run 9125 from 12623. Case Москва Шмитовский пр., 26
 [main] INFO TestSearch - Run 9126 from 12623. Case Москва ул. Библиотечная, д.29
 [main] INFO TestSearch - Run 9127 from 12623. Case Москва Котельническая наб., д.1/15, корп. Б, п. 3
@@ -13494,16 +13492,12 @@
 [main] INFO TestSearch - Run 9135 from 12623. Case Москва Товарищеский пер., д.21
 [main] INFO TestSearch - Run 9136 from 12623. Case Москва 2-я Звенигородская ул., д. 13, с. 41
 [main] INFO TestSearch - Run 9137 from 12623. Case Москва 2-я Черногрязскаяул., д. 7, стр. 1
-[main] WARN TestSearch - 	Location: FAILED
+[main] WARN TestSearch - 	FAILED Empty answer
 [main] WARN TestSearch - 	Case Москва 2-я Черногрязскаяул., д. 7, стр. 1 FAILED
 [main] INFO TestSearch - Run 9138 from 12623. Case Москва 1-я Миусская ул., д. 4
 [main] INFO TestSearch - Run 9139 from 12623. Case Москва Улица Александра Невского, дом 4
 [main] INFO TestSearch - Run 9140 from 12623. Case Москва 4-й Лесной пер., д. 6
-[main] WARN TestSearch - 	Location: FAILED
-[main] WARN TestSearch - 	Case Москва 4-й Лесной пер., д. 6 FAILED
 [main] INFO TestSearch - Run 9141 from 12623. Case Москва Обыденский 2-й пер., д. 9
-[main] WARN TestSearch - 	Location: FAILED
-[main] WARN TestSearch - 	Case Москва Обыденский 2-й пер., д. 9 FAILED
 [main] INFO TestSearch - Run 9142 from 12623. Case Москва Улица Долгоруковская, дом 26
 [main] WARN TestSearch - 	Location: FAILED
 [main] WARN TestSearch - 	Case Москва Улица Долгоруковская, дом 26 FAILED
@@ -13523,12 +13517,10 @@
 [main] INFO TestSearch - Run 9150 from 12623. Case Москва Комсомольский просп., дом 43
 [main] INFO TestSearch - Run 9151 from 12623. Case Москва Тружеников 1-й пер., дом 18
 [main] INFO TestSearch - Run 9152 from 12623. Case Москва Неопалимовский 1-й, пер., дом 10а
-[main] WARN TestSearch - 	Location: FAILED
+[main] WARN TestSearch - 	FAILED Empty answer
 [main] WARN TestSearch - 	Case Москва Неопалимовский 1-й, пер., дом 10а FAILED
 [main] INFO TestSearch - Run 9153 from 12623. Case Москва Фрунзенская 3-я ул., дом 5
 [main] INFO TestSearch - Run 9154 from 12623. Case Москва Вражский 1-й пep., дом 4
-[main] WARN TestSearch - 	Location: FAILED
-[main] WARN TestSearch - 	Case Москва Вражский 1-й пep., дом 4 FAILED
 [main] INFO TestSearch - Run 9155 from 12623. Case Москва Усачева ул., дом 50
 [main] INFO TestSearch - Run 9156 from 12623. Case Москва Пречистенка ул., дом 22
 [main] INFO TestSearch - Run 9157 from 12623. Case Москва Плющиха ул., дом 39
@@ -13694,8 +13686,6 @@
 [main] INFO TestSearch - Run 9279 from 12623. Case Москва 4-й Новомихалковский пр., 9а
 [main] INFO TestSearch - Run 9280 from 12623. Case Москва 4-й Новомихалковский пр., д. 9а
 [main] INFO TestSearch - Run 9281 from 12623. Case Москва 3-й Михалковский пер., д. 16
-[main] WARN TestSearch - 	Location: FAILED
-[main] WARN TestSearch - 	Case Москва 3-й Михалковский пер., д. 16 FAILED
 [main] INFO TestSearch - Run 9282 from 12623. Case Москва Фестивальная ул., д. 4 корпус 2
 [main] INFO TestSearch - Run 9283 from 12623. Case Москва Михалковская ул., д. 14
 [main] INFO TestSearch - Run 9284 from 12623. Case Москва Матроса Железняка бульвар, д. 22к1
@@ -13933,8 +13923,6 @@
 [main] INFO TestSearch - Run 9476 from 12623. Case Москва улица Новгородская, д. 12
 [main] INFO TestSearch - Run 9477 from 12623. Case Москва улица Новгородская, д. 12
 [main] INFO TestSearch - Run 9478 from 12623. Case Москва ул. 2-я Напрудная. д. 17А
-[main] WARN TestSearch - 	Location: FAILED
-[main] WARN TestSearch - 	Case Москва ул. 2-я Напрудная. д. 17А FAILED
 [main] INFO TestSearch - Run 9479 from 12623. Case Москва улица Угличская, д. 6а
 [main] INFO TestSearch - Run 9480 from 12623. Case Москва ул. Коминтерна, д. 52
 [main] INFO TestSearch - Run 9481 from 12623. Case Москва ул. Таймырская, д. 3
@@ -13989,7 +13977,7 @@
 [main] INFO TestSearch - Run 9512 from 12623. Case Москва Алтуфьевское шоссе, д. 24А
 [main] INFO TestSearch - Run 9513 from 12623. Case Москва Алтуфьевское шоссе, д. 13, корп. 2
 [main] INFO TestSearch - Run 9514 from 12623. Case Москва улица 1-я Останкинская, дом 29
-[main] WARN TestSearch - 	Location: FAILED
+[main] WARN TestSearch - 	FAILED Empty answer
 [main] WARN TestSearch - 	Case Москва улица 1-я Останкинская, дом 29 FAILED
 [main] INFO TestSearch - Run 9515 from 12623. Case Москва улица Кондратюка, д. 5
 [main] INFO TestSearch - Run 9516 from 12623. Case Москва улица Кондратюка, д. 5
@@ -14085,8 +14073,6 @@
 [main] INFO TestSearch - Run 9588 from 12623. Case Москва улица Амундсена, д. 2
 [main] INFO TestSearch - Run 9589 from 12623. Case Москва улица Амундсена, д. 11, корпус 3
 [main] INFO TestSearch - Run 9590 from 12623. Case Москва 1-й Ботанический проезд, д. 2
-[main] WARN TestSearch - 	Location: FAILED
-[main] WARN TestSearch - 	Case Москва 1-й Ботанический проезд, д. 2 FAILED
 [main] INFO TestSearch - Run 9591 from 12623. Case Москва улица Седова, д. 12
 [main] INFO TestSearch - Run 9592 from 12623. Case Москва Игарский пр., д. 8
 [main] WARN TestSearch - 	Location: FAILED
@@ -14105,8 +14091,6 @@
 [main] INFO TestSearch - Run 9604 from 12623. Case Москва 9-я Северная линия, дом № 1, корпус 2
 [main] INFO TestSearch - Run 9605 from 12623. Case Москва 9-я Северная линия, дом № 1, корпус 2
 [main] INFO TestSearch - Run 9606 from 12623. Case Москва 3-я Северная линия, дом № 17
-[main] WARN TestSearch - 	Location: FAILED
-[main] WARN TestSearch - 	Case Москва 3-я Северная линия, дом № 17 FAILED
 [main] INFO TestSearch - Run 9607 from 12623. Case Москва Ясный проезд, дом № 21
 [main] INFO TestSearch - Run 9608 from 12623. Case Москва Ясный проезд, дом № 21
 [main] INFO TestSearch - Run 9609 from 12623. Case Москва Челобитьевское шоссе, дом №2
@@ -14175,8 +14159,6 @@
 [main] INFO TestSearch - Run 9654 from 12623. Case Москва улица Палехская, дом 8
 [main] INFO TestSearch - Run 9655 from 12623. Case Москва улица Палехская, дом 8
 [main] INFO TestSearch - Run 9656 from 12623. Case Москва 2-я Гражданская ул., д. 8
-[main] WARN TestSearch - 	Location: FAILED
-[main] WARN TestSearch - 	Case Москва 2-я Гражданская ул., д. 8 FAILED
 [main] INFO TestSearch - Run 9657 from 12623. Case Москва ул. Палехская, д. 10
 [main] INFO TestSearch - Run 9658 from 12623. Case Москва ул. Палехская, д. 10
 [main] INFO TestSearch - Run 9659 from 12623. Case Москва ул. Палехская, д. 137
@@ -14218,6 +14200,8 @@
 [main] INFO TestSearch - Run 9689 from 12623. Case Москва Улица Кетчерская, дом№ 10а
 [main] INFO TestSearch - Run 9690 from 12623. Case Москва Улица Реутовская, дом № 16а
 [main] INFO TestSearch - Run 9691 from 12623. Case Москва Ул. 13-я Парковая д. 18А
+[main] WARN TestSearch - 	Location: FAILED
+[main] WARN TestSearch - 	Case Москва Ул. 13-я Парковая д. 18А FAILED
 [main] INFO TestSearch - Run 9692 from 12623. Case Москва Улица Косинская, дом № 28а
 [main] INFO TestSearch - Run 9693 from 12623. Case Москва Улица Косинская, дом № 10а
 [main] INFO TestSearch - Run 9694 from 12623. Case Москва Улица Косинская, дом № 10а
@@ -14226,7 +14210,11 @@
 [main] INFO TestSearch - Run 9697 from 12623. Case Москва Улица Красный Казанец, дом № 3а
 [main] INFO TestSearch - Run 9698 from 12623. Case Москва Улица Красный Казанец, дом № 3а
 [main] INFO TestSearch - Run 9699 from 12623. Case Москва Ул. 13-я Парковая, д. 18А
+[main] WARN TestSearch - 	Location: FAILED
+[main] WARN TestSearch - 	Case Москва Ул. 13-я Парковая, д. 18А FAILED
 [main] INFO TestSearch - Run 9700 from 12623. Case Москва Ул. 13-я Парковая, д. 18А
+[main] WARN TestSearch - 	Location: FAILED
+[main] WARN TestSearch - 	Case Москва Ул. 13-я Парковая, д. 18А FAILED
 [main] INFO TestSearch - Run 9701 from 12623. Case Москва Улица Косинская, дом № 28а
 [main] INFO TestSearch - Run 9702 from 12623. Case Москва Сиреневый бульвар, д. 58А
 [main] INFO TestSearch - Run 9703 from 12623. Case Москва Сиреневый бульвар, д. 58А
@@ -14359,8 +14347,6 @@
 [main] INFO TestSearch - Run 9812 from 12623. Case Москва ул. 7-я Парковая, 1А
 [main] INFO TestSearch - Run 9813 from 12623. Case Москва ул. 7-я Парковая, 1А
 [main] INFO TestSearch - Run 9814 from 12623. Case Москва ул. 8-я Парковая, д. 9/15
-[main] WARN TestSearch - 	Location: FAILED
-[main] WARN TestSearch - 	Case Москва ул. 8-я Парковая, д. 9/15 FAILED
 [main] INFO TestSearch - Run 9815 from 12623. Case Москва ул. 4-я Парковая, д. 12, к. 1
 [main] INFO TestSearch - Run 9816 from 12623. Case Москва просп. Измайловский, д. 53
 [main] INFO TestSearch - Run 9817 from 12623. Case Москва просп. Измайловский, д. 53
@@ -14369,8 +14355,6 @@
 [main] INFO TestSearch - Run 9820 from 12623. Case Москва ул. Никитинская, д 7
 [main] INFO TestSearch - Run 9821 from 12623. Case Москва ул. Никитинская, д. 4а
 [main] INFO TestSearch - Run 9822 from 12623. Case Москва ул. 5-я Парковая, д. 21
-[main] WARN TestSearch - 	Location: FAILED
-[main] WARN TestSearch - 	Case Москва ул. 5-я Парковая, д. 21 FAILED
 [main] INFO TestSearch - Run 9823 from 12623. Case Москва бульв. Сиреневый, д. 30, к. 1
 [main] INFO TestSearch - Run 9824 from 12623. Case Москва бульв. Сиреневый, д. 20
 [main] INFO TestSearch - Run 9825 from 12623. Case Москва ул. Муромская, д. 1а
@@ -14382,11 +14366,7 @@
 [main] WARN TestSearch - 	Case Москва ул. Оренбургская, д. 15а FAILED
 [main] INFO TestSearch - Run 9828 from 12623. Case Москва Измайловский бульвар, д. 19
 [main] INFO TestSearch - Run 9829 from 12623. Case Москва ул. 5-я Парковая, д. 10
-[main] WARN TestSearch - 	Location: FAILED
-[main] WARN TestSearch - 	Case Москва ул. 5-я Парковая, д. 10 FAILED
 [main] INFO TestSearch - Run 9830 from 12623. Case Москва ул. 6-я Парковая, д. 19
-[main] WARN TestSearch - 	Location: FAILED
-[main] WARN TestSearch - 	Case Москва ул. 6-я Парковая, д. 19 FAILED
 [main] INFO TestSearch - Run 9831 from 12623. Case Москва ул. Верхняя Первомайская, 47
 [main] INFO TestSearch - Run 9832 from 12623. Case Москва ул. Лухмановская, д. 26а
 [main] INFO TestSearch - Run 9833 from 12623. Case Москва ул. Лухмановская, д. 26а
@@ -14484,8 +14464,6 @@
 [main] WARN TestSearch - 	Case Москва ул. Плющева, Д.13А FAILED
 [main] INFO TestSearch - Run 9914 from 12623. Case Москва ул. 3-я Владимирская, д.12А
 [main] INFO TestSearch - Run 9915 from 12623. Case Москва ул. 3-я Владимирская, д. 5
-[main] WARN TestSearch - 	Location: FAILED
-[main] WARN TestSearch - 	Case Москва ул. 3-я Владимирская, д. 5 FAILED
 [main] INFO TestSearch - Run 9916 from 12623. Case Москва ул. 3-я Владимирская, д. 5
 [main] INFO TestSearch - Run 9917 from 12623. Case Москва ул. 3-я Владимирская, д.26А
 [main] INFO TestSearch - Run 9918 from 12623. Case Москва ул. 3-я Владимирская, Д.26А
@@ -14508,11 +14486,7 @@
 [main] INFO TestSearch - Run 9935 from 12623. Case Москва ул. 2-я Владимирская, д. 22а
 [main] INFO TestSearch - Run 9936 from 12623. Case Москва ул. 2-я Владимирская, д. 22а
 [main] INFO TestSearch - Run 9937 from 12623. Case Москва ул. 1-я Владимирская, д. 20
-[main] WARN TestSearch - 	Location: FAILED
-[main] WARN TestSearch - 	Case Москва ул. 1-я Владимирская, д. 20 FAILED
 [main] INFO TestSearch - Run 9938 from 12623. Case Москва ул. 1-я Владимирская, д. 20
-[main] WARN TestSearch - 	Location: FAILED
-[main] WARN TestSearch - 	Case Москва ул. 1-я Владимирская, д. 20 FAILED
 [main] INFO TestSearch - Run 9939 from 12623. Case Москва 1-й Зборовский переулок, д. 3
 [main] INFO TestSearch - Run 9940 from 12623. Case Москва 1-й Зборовский переулок, д. 3
 [main] INFO TestSearch - Run 9941 from 12623. Case Москва ул. 2-я Пугачевская, д. 6
@@ -14520,7 +14494,11 @@
 [main] WARN TestSearch - 	Case Москва ул. 2-я Пугачевская, д. 6 FAILED
 [main] INFO TestSearch - Run 9942 from 12623. Case Москва ул. 2-я Пугачевская, д. 7
 [main] INFO TestSearch - Run 9943 from 12623. Case Москва ул. 2-я Пугачевская, д. 10
+[main] WARN TestSearch - 	Location: FAILED
+[main] WARN TestSearch - 	Case Москва ул. 2-я Пугачевская, д. 10 FAILED
 [main] INFO TestSearch - Run 9944 from 12623. Case Москва ул. 2-я Пугачевская, д. 10
+[main] WARN TestSearch - 	Location: FAILED
+[main] WARN TestSearch - 	Case Москва ул. 2-я Пугачевская, д. 10 FAILED
 [main] INFO TestSearch - Run 9945 from 12623. Case Москва 5 Парковая ул., дом 49
 [main] INFO TestSearch - Run 9946 from 12623. Case Москва 5 Парковая ул., дом 62
 [main] WARN TestSearch - 	Location: FAILED
@@ -14592,8 +14570,6 @@
 [main] INFO TestSearch - Run 9995 from 12623. Case Москва Щелковское шоссе, дом 58а
 [main] INFO TestSearch - Run 9996 from 12623. Case Москва Хлобыстова ул., д. 14 к. 3
 [main] INFO TestSearch - Run 9997 from 12623. Case Москва 9-я ул. Соколиной горы, д. 17
-[main] WARN TestSearch - 	Location: FAILED
-[main] WARN TestSearch - 	Case Москва 9-я ул. Соколиной горы, д. 17 FAILED
 [main] INFO TestSearch - Run 9998 from 12623. Case Москва 8-я ул. Соколиной горы, д. 5
 [main] WARN TestSearch - 	Location: FAILED
 [main] WARN TestSearch - 	Case Москва 8-я ул. Соколиной горы, д. 5 FAILED
@@ -14825,11 +14801,7 @@
 [main] INFO TestSearch - Run 10200 from 12623. Case Москва Мячковский бульв., д. 21
 [main] INFO TestSearch - Run 10201 from 12623. Case Москва Мячковский бульв., д. 21
 [main] INFO TestSearch - Run 10202 from 12623. Case Москва 1-я Вольская улица, д. 5
-[main] WARN TestSearch - 	Location: FAILED
-[main] WARN TestSearch - 	Case Москва 1-я Вольская улица, д. 5 FAILED
 [main] INFO TestSearch - Run 10203 from 12623. Case Москва 1-я Вольская улица, д. 5
-[main] WARN TestSearch - 	Location: FAILED
-[main] WARN TestSearch - 	Case Москва 1-я Вольская улица, д. 5 FAILED
 [main] INFO TestSearch - Run 10204 from 12623. Case Москва 1 -я Вольская улица, д. 9, корп. 3
 [main] INFO TestSearch - Run 10205 from 12623. Case Москва 1-я Вольская улица, д. 9, корп. 3
 [main] INFO TestSearch - Run 10206 from 12623. Case Москва 1-я Вольская улица, д. 22, корп. 2
@@ -14864,11 +14836,7 @@
 [main] INFO TestSearch - Run 10231 from 12623. Case Москва ул. Полбина, д. 44
 [main] INFO TestSearch - Run 10232 from 12623. Case Москва ул. Полбина, д. 44
 [main] INFO TestSearch - Run 10233 from 12623. Case Москва 1й Курьяновский пр., д. 14
-[main] WARN TestSearch - 	Location: FAILED
-[main] WARN TestSearch - 	Case Москва 1й Курьяновский пр., д. 14 FAILED
 [main] INFO TestSearch - Run 10234 from 12623. Case Москва 1й Курьяновский пр., д. 14
-[main] WARN TestSearch - 	Location: FAILED
-[main] WARN TestSearch - 	Case Москва 1й Курьяновский пр., д. 14 FAILED
 [main] INFO TestSearch - Run 10235 from 12623. Case Москва ул. Гурьянова. д. 33
 [main] INFO TestSearch - Run 10236 from 12623. Case Москва ул. Гурьянова, д. 2 кор. 6
 [main] INFO TestSearch - Run 10237 from 12623. Case Москва Подъемная ул., д. 15
@@ -14897,25 +14865,15 @@
 [main] INFO TestSearch - Run 10258 from 12623. Case Москва ул. Гурьянова, д. 15
 [main] INFO TestSearch - Run 10259 from 12623. Case Москва ул. Гурьянова, д. 33
 [main] INFO TestSearch - Run 10260 from 12623. Case Москва улица 1-я Новокузьминская, дом №21
-[main] WARN TestSearch - 	Location: FAILED
-[main] WARN TestSearch - 	Case Москва улица 1-я Новокузьминская, дом №21 FAILED
 [main] INFO TestSearch - Run 10261 from 12623. Case Москва улица 1-я Новокузьминская, дом №21
-[main] WARN TestSearch - 	Location: FAILED
-[main] WARN TestSearch - 	Case Москва улица 1-я Новокузьминская, дом №21 FAILED
 [main] INFO TestSearch - Run 10262 from 12623. Case Москва улица 1-я Новокузьминская, дом №20, корпус 4
 [main] INFO TestSearch - Run 10263 from 12623. Case Москва улица 1-я Новокузьминская, дом №21
-[main] WARN TestSearch - 	Location: FAILED
-[main] WARN TestSearch - 	Case Москва улица 1-я Новокузьминская, дом №21 FAILED
 [main] INFO TestSearch - Run 10264 from 12623. Case Москва улица 12-я Новокузьминская, дом №6, корпус 2
 [main] INFO TestSearch - Run 10265 from 12623. Case Москва улица 12-я Новокузьминская, дом №6, корпус 2
 [main] INFO TestSearch - Run 10266 from 12623. Case Москва проезд 1-й Вешняковский, дом №6/10
 [main] INFO TestSearch - Run 10267 from 12623. Case Москва проезд 1-й Вешняковский, дом №6/10
 [main] INFO TestSearch - Run 10268 from 12623. Case Москва проезд 4-й Вешняковский, дом №1
-[main] WARN TestSearch - 	Location: FAILED
-[main] WARN TestSearch - 	Case Москва проезд 4-й Вешняковский, дом №1 FAILED
 [main] INFO TestSearch - Run 10269 from 12623. Case Москва проезд 4-й Вешняковский, дом №1
-[main] WARN TestSearch - 	Location: FAILED
-[main] WARN TestSearch - 	Case Москва проезд 4-й Вешняковский, дом №1 FAILED
 [main] INFO TestSearch - Run 10270 from 12623. Case Москва Волжский б-р, д. 6 корп. 4
 [main] INFO TestSearch - Run 10271 from 12623. Case Москва улица Зеленодольская, дом №7, корпус 4
 [main] INFO TestSearch - Run 10272 from 12623. Case Москва улица Васильцовский стан, дом №4
@@ -14934,13 +14892,13 @@
 [main] INFO TestSearch - Run 10283 from 12623. Case Москва 1-я ул. Текстильщиков д. 5/8
 [main] INFO TestSearch - Run 10284 from 12623. Case Москва 1-я ул. Текстильщиков, д. 5/8
 [main] INFO TestSearch - Run 10285 from 12623. Case Москва 11-я ул. Текстильщиков, д. 6
+[main] WARN TestSearch - 	Location: FAILED
+[main] WARN TestSearch - 	Case Москва 11-я ул. Текстильщиков, д. 6 FAILED
 [main] INFO TestSearch - Run 10286 from 12623. Case Москва 11-я ул. Текстильщиков, д. 6
+[main] WARN TestSearch - 	Location: FAILED
+[main] WARN TestSearch - 	Case Москва 11-я ул. Текстильщиков, д. 6 FAILED
 [main] INFO TestSearch - Run 10287 from 12623. Case Москва 1-я ул. Текстильщиков, д. 16
-[main] WARN TestSearch - 	Location: FAILED
-[main] WARN TestSearch - 	Case Москва 1-я ул. Текстильщиков, д. 16 FAILED
 [main] INFO TestSearch - Run 10288 from 12623. Case Москва 1-я ул. Текстильщиков, д. 16
-[main] WARN TestSearch - 	Location: FAILED
-[main] WARN TestSearch - 	Case Москва 1-я ул. Текстильщиков, д. 16 FAILED
 [main] INFO TestSearch - Run 10289 from 12623. Case Москва ул. Новоостаповская д. 10
 [main] INFO TestSearch - Run 10290 from 12623. Case Москва ул. 1-я Дубровская д. 16
 [main] WARN TestSearch - 	Location: FAILED
@@ -14975,8 +14933,6 @@
 [main] INFO TestSearch - Run 10316 from 12623. Case Москва Педагогическая улица, д. 3
 [main] INFO TestSearch - Run 10317 from 12623. Case Москва Педагогическая улица, д. 3
 [main] INFO TestSearch - Run 10318 from 12623. Case Москва ул. 5-я Кожуховская д. 15
-[main] WARN TestSearch - 	Location: FAILED
-[main] WARN TestSearch - 	Case Москва ул. 5-я Кожуховская д. 15 FAILED
 [main] INFO TestSearch - Run 10319 from 12623. Case Москва ул. 6-я Кожуховская д. 8
 [main] INFO TestSearch - Run 10320 from 12623. Case Москва 3-й Кожуховский пр. д. 3А
 [main] INFO TestSearch - Run 10321 from 12623. Case Москва 3-й Кожуховский пр. д. ЗА
@@ -14988,17 +14944,9 @@
 [main] INFO TestSearch - Run 10325 from 12623. Case Москва ул. Трофимова д. 27 к. 2
 [main] INFO TestSearch - Run 10326 from 12623. Case Москва ул. Петра Романова д. 6
 [main] INFO TestSearch - Run 10327 from 12623. Case Москва 3-я Радиальная улица, д. 8
-[main] WARN TestSearch - 	Location: FAILED
-[main] WARN TestSearch - 	Case Москва 3-я Радиальная улица, д. 8 FAILED
 [main] INFO TestSearch - Run 10328 from 12623. Case Москва 2-й Южнопортовый пр. д. 11
-[main] WARN TestSearch - 	Location: FAILED
-[main] WARN TestSearch - 	Case Москва 2-й Южнопортовый пр. д. 11 FAILED
 [main] INFO TestSearch - Run 10329 from 12623. Case Москва 2-й Южнопортовый пр. д. 11
-[main] WARN TestSearch - 	Location: FAILED
-[main] WARN TestSearch - 	Case Москва 2-й Южнопортовый пр. д. 11 FAILED
 [main] INFO TestSearch - Run 10330 from 12623. Case Москва ул. 1-я Машиностроения, д. 16
-[main] WARN TestSearch - 	Location: FAILED
-[main] WARN TestSearch - 	Case Москва ул. 1-я Машиностроения, д. 16 FAILED
 [main] INFO TestSearch - Run 10331 from 12623. Case Москва ул. Петра Романова д. 16
 [main] WARN TestSearch - 	Location: FAILED
 [main] WARN TestSearch - 	Case Москва ул. Петра Романова д. 16 FAILED
@@ -15083,14 +15031,8 @@
 [main] INFO TestSearch - Run 10398 from 12623. Case Москва Паромная улица, д. 5, корп. 3
 [main] INFO TestSearch - Run 10399 from 12623. Case Москва 5-й Рощинский пр., д. д.4
 [main] INFO TestSearch - Run 10400 from 12623. Case Москва 5-й Рощинский пр., д. д.4
-[main] WARN TestSearch - 	Location: FAILED
-[main] WARN TestSearch - 	Case Москва 5-й Рощинский пр., д. д.4 FAILED
 [main] INFO TestSearch - Run 10401 from 12623. Case Москва 3-й Павловский пер., д. 14
-[main] WARN TestSearch - 	Location: FAILED
-[main] WARN TestSearch - 	Case Москва 3-й Павловский пер., д. 14 FAILED
 [main] INFO TestSearch - Run 10402 from 12623. Case Москва 3-й Павловский пер., д. 14
-[main] WARN TestSearch - 	Location: FAILED
-[main] WARN TestSearch - 	Case Москва 3-й Павловский пер., д. 14 FAILED
 [main] INFO TestSearch - Run 10403 from 12623. Case Москва ул. Хавская, д.15
 [main] INFO TestSearch - Run 10404 from 12623. Case Москва ул. Хавская, д.15
 [main] INFO TestSearch - Run 10405 from 12623. Case Москва ул. Дербеневская, д.13
@@ -15142,8 +15084,6 @@
 [main] INFO TestSearch - Run 10439 from 12623. Case Москва ул. Шаболовка, д.39
 [main] INFO TestSearch - Run 10440 from 12623. Case Москва Ореховый бульвар 37-4
 [main] INFO TestSearch - Run 10441 from 12623. Case Москва 2-й Тульский пер., д. 4/8
-[main] WARN TestSearch - 	Location: FAILED
-[main] WARN TestSearch - 	Case Москва 2-й Тульский пер., д. 4/8 FAILED
 [main] INFO TestSearch - Run 10442 from 12623. Case Москва ул. Стасовой, 8
 [main] INFO TestSearch - Run 10443 from 12623. Case Москва ул. Орджоникидзе, д.15
 [main] INFO TestSearch - Run 10444 from 12623. Case Москва ул. Мусы Джалиля, д. 7, к. 5
@@ -16859,14 +16799,12 @@
 [main] WARN TestSearch - 	Location: FAILED
 [main] WARN TestSearch - 	Case Москва п. Щапово, д. 23 FAILED
 [main] INFO TestSearch - Run 11796 from 12623. Case Москва Красногвардейская 3-я ул., д. 1
-[main] WARN TestSearch - 	Location: FAILED
-[main] WARN TestSearch - 	Case Москва Красногвардейская 3-я ул., д. 1 FAILED
 [main] INFO TestSearch - Run 11797 from 12623. Case Москва ул. 2-я Пятилетка, 18а
-[main] WARN TestSearch - 	Location: FAILED
+[main] WARN TestSearch - 	FAILED Empty answer
 [main] WARN TestSearch - 	Case Москва ул. 2-я Пятилетка, 18а FAILED
 [main] INFO TestSearch - Run 11798 from 12623. Case Москва Народная ул., д.11/2
 [main] INFO TestSearch - Run 11799 from 12623. Case Москва ул. 2-я Пятилетка, 18а
-[main] WARN TestSearch - 	Location: FAILED
+[main] WARN TestSearch - 	FAILED Empty answer
 [main] WARN TestSearch - 	Case Москва ул. 2-я Пятилетка, 18а FAILED
 [main] INFO TestSearch - Run 11800 from 12623. Case Москва Кленовый б-р, д. 21
 [main] INFO TestSearch - Run 11801 from 12623. Case Москва б-р Дмитрия Донского, дом 6, корп. 1
@@ -16957,12 +16895,8 @@
 [main] WARN TestSearch - 	Location: FAILED
 [main] WARN TestSearch - 	Case Москва п. завода Мосрентген, д. 38 FAILED
 [main] INFO TestSearch - Run 11870 from 12623. Case Москва ул. 1-я Владимирская, д. 20
-[main] WARN TestSearch - 	Location: FAILED
-[main] WARN TestSearch - 	Case Москва ул. 1-я Владимирская, д. 20 FAILED
 [main] INFO TestSearch - Run 11871 from 12623. Case Москва Лиственничная аллея, д. 12Б
 [main] INFO TestSearch - Run 11872 from 12623. Case Москва ул. 1-я Владимирская, д. 20
-[main] WARN TestSearch - 	Location: FAILED
-[main] WARN TestSearch - 	Case Москва ул. 1-я Владимирская, д. 20 FAILED
 [main] INFO TestSearch - Run 11873 from 12623. Case Москва Бирюлевская улица, д. 28
 [main] INFO TestSearch - Run 11874 from 12623. Case Москва Красина ул., 27
 [main] INFO TestSearch - Run 11875 from 12623. Case Москва Михалковская ул., 13а
@@ -16992,7 +16926,7 @@
 [main] INFO TestSearch - Run 11891 from 12623. Case Москва Михалковская ул., д. 14
 [main] INFO TestSearch - Run 11892 from 12623. Case Москва Матроса Железняка бульвар, 12
 [main] INFO TestSearch - Run 11893 from 12623. Case Москва ул. 2-я Пятилетка, 18а
-[main] WARN TestSearch - 	Location: FAILED
+[main] WARN TestSearch - 	FAILED Empty answer
 [main] WARN TestSearch - 	Case Москва ул. 2-я Пятилетка, 18а FAILED
 [main] INFO TestSearch - Run 11894 from 12623. Case Москва ул. Новый Арбат, д. 36/9
 [main] WARN TestSearch - 	Location: FAILED
@@ -17009,6 +16943,8 @@
 [main] WARN TestSearch - 	Case Москва улица 4-я Новокузьминская, дом №3 FAILED
 [main] INFO TestSearch - Run 11901 from 12623. Case Москва Старокаширское шоссе, дом № 2, корпус 11
 [main] INFO TestSearch - Run 11902 from 12623. Case Москва улица 4-я Новокузьминская, дом №3
+[main] WARN TestSearch - 	Location: FAILED
+[main] WARN TestSearch - 	Case Москва улица 4-я Новокузьминская, дом №3 FAILED
 [main] INFO TestSearch - Run 11903 from 12623. Case Москва улица 1-я Новокузьминская, дом №20, корпус 4
 [main] INFO TestSearch - Run 11904 from 12623. Case Москва Петровско-Разумовская аллея д.12А, стр.1
 [main] INFO TestSearch - Run 11905 from 12623. Case Москва Батайский пр., д. 23
@@ -17046,7 +16982,7 @@
 [main] INFO TestSearch - Run 11931 from 12623. Case Москва Капотня, 5 квартал, дом 28
 [main] INFO TestSearch - Run 11932 from 12623. Case Москва Капотня, 5 квартал, дом 28
 [main] INFO TestSearch - Run 11933 from 12623. Case Москва улица 1-я Останкинская, д. 29
-[main] WARN TestSearch - 	Location: FAILED
+[main] WARN TestSearch - 	FAILED Empty answer
 [main] WARN TestSearch - 	Case Москва улица 1-я Останкинская, д. 29 FAILED
 [main] INFO TestSearch - Run 11934 from 12623. Case Москва корп. 1016
 [main] INFO TestSearch - Run 11935 from 12623. Case Москва пр-т Вернадского, д. 101, корп. 5
@@ -17060,8 +16996,6 @@
 [main] WARN TestSearch - 	Case Москва ул. Веерная, д. 5-3 FAILED
 [main] INFO TestSearch - Run 11942 from 12623. Case Москва пр-т Вернадского, д.127, корп. 2
 [main] INFO TestSearch - Run 11943 from 12623. Case Москва ул. 2-я Напрудная. д. 17А
-[main] WARN TestSearch - 	Location: FAILED
-[main] WARN TestSearch - 	Case Москва ул. 2-я Напрудная. д. 17А FAILED
 [main] INFO TestSearch - Run 11944 from 12623. Case Москва Севастопольский пр-т, дом 51
 [main] INFO TestSearch - Run 11945 from 12623. Case Москва ул. Островитянова, дом 53, корп. 4
 [main] INFO TestSearch - Run 11946 from 12623. Case Москва Улица Лобачевского, дом 66б
@@ -17088,7 +17022,7 @@
 [main] WARN TestSearch - 	Location: FAILED
 [main] WARN TestSearch - 	Case Москва Трифоновская ул., д.57 с. 1 FAILED
 [main] INFO TestSearch - Run 11963 from 12623. Case Москва улица 1-я Останкинская, д. 29
-[main] WARN TestSearch - 	Location: FAILED
+[main] WARN TestSearch - 	FAILED Empty answer
 [main] WARN TestSearch - 	Case Москва улица 1-я Останкинская, д. 29 FAILED
 [main] INFO TestSearch - Run 11964 from 12623. Case Москва ул. Бехтерева, д. 51
 [main] INFO TestSearch - Run 11965 from 12623. Case Москва ул. Академика Капицы, дом 14А
@@ -17123,7 +17057,7 @@
 [main] INFO TestSearch - Run 11990 from 12623. Case Москва ул. Академика Капицы, дом 14А
 [main] INFO TestSearch - Run 11991 from 12623. Case Москва ул. Вильнюсская, дом 12
 [main] INFO TestSearch - Run 11992 from 12623. Case Москва ул. 2-я Пятилетка, 18а
-[main] WARN TestSearch - 	Location: FAILED
+[main] WARN TestSearch - 	FAILED Empty answer
 [main] WARN TestSearch - 	Case Москва ул. 2-я Пятилетка, 18а FAILED
 [main] INFO TestSearch - Run 11993 from 12623. Case Москва Севастопольский пр-т, дом 51, корп. 5
 [main] INFO TestSearch - Run 11994 from 12623. Case Москва Газопровод ул., д. 5А
@@ -17168,8 +17102,6 @@
 [main] INFO TestSearch - Run 12029 from 12623. Case Москва 5-й пр-д Подбельского, д. 2
 [main] INFO TestSearch - Run 12030 from 12623. Case Москва Переяславская Б. ул., д. 15
 [main] INFO TestSearch - Run 12031 from 12623. Case Москва 2-й Сельскохозяйственный проезд, д. 4
-[main] WARN TestSearch - 	Location: FAILED
-[main] WARN TestSearch - 	Case Москва 2-й Сельскохозяйственный проезд, д. 4 FAILED
 [main] INFO TestSearch - Run 12032 from 12623. Case Москва 3-й Лихачевский пер., 2А
 [main] INFO TestSearch - Run 12033 from 12623. Case Москва Улица Маршала Соколовского, дом № 10
 [main] INFO TestSearch - Run 12034 from 12623. Case Москва Студенческая ул., 29
@@ -17183,6 +17115,8 @@
 [main] INFO TestSearch - Run 12040 from 12623. Case Москва ул. Голубинская, дом 5, корп. 2
 [main] INFO TestSearch - Run 12041 from 12623. Case Москва б-р Яна Райниса, д. 4, корп. 2
 [main] INFO TestSearch - Run 12042 from 12623. Case Москва Ул. 11-я Парковая д. 36
+[main] WARN TestSearch - 	Location: FAILED
+[main] WARN TestSearch - 	Case Москва Ул. 11-я Парковая д. 36 FAILED
 [main] INFO TestSearch - Run 12043 from 12623. Case Москва ул. Алексея Дикого, д. 18А
 [main] INFO TestSearch - Run 12044 from 12623. Case Москва ул.Новочеремушкинская, дом 3
 [main] INFO TestSearch - Run 12045 from 12623. Case Москва ул. Кржижановского, дом 4А
@@ -17221,12 +17155,8 @@
 [main] INFO TestSearch - Run 12072 from 12623. Case Москва Кленовый б-р, д. 21
 [main] INFO TestSearch - Run 12073 from 12623. Case Москва корпус 1556
 [main] INFO TestSearch - Run 12074 from 12623. Case Москва проезд 1-й Тушинский, дом № 13
-[main] WARN TestSearch - 	Location: FAILED
-[main] WARN TestSearch - 	Case Москва проезд 1-й Тушинский, дом № 13 FAILED
 [main] INFO TestSearch - Run 12075 from 12623. Case Москва 3-й Митинский переулок, дом 12 корпус 1
 [main] INFO TestSearch - Run 12076 from 12623. Case Москва 2-й Карачаровский пр-д, д. 1
-[main] WARN TestSearch - 	Location: FAILED
-[main] WARN TestSearch - 	Case Москва 2-й Карачаровский пр-д, д. 1 FAILED
 [main] INFO TestSearch - Run 12077 from 12623. Case Москва Тихорецкий бульвар, д. 8А
 [main] INFO TestSearch - Run 12078 from 12623. Case Москва ул. Красноказарменная д. 11
 [main] INFO TestSearch - Run 12079 from 12623. Case Москва ул, Толбухина, д. 10, к.4
@@ -17243,13 +17173,9 @@
 [main] INFO TestSearch - Run 12086 from 12623. Case Москва Филевская Б. ул., 39
 [main] INFO TestSearch - Run 12087 from 12623. Case Москва ул. 1905 года, д. 8
 [main] INFO TestSearch - Run 12088 from 12623. Case Москва ул. 2-я Напрудная. д. 17А
-[main] WARN TestSearch - 	Location: FAILED
-[main] WARN TestSearch - 	Case Москва ул. 2-я Напрудная. д. 17А FAILED
 [main] INFO TestSearch - Run 12089 from 12623. Case Москва ул. Чечулина, д. 28
 [main] INFO TestSearch - Run 12090 from 12623. Case Москва ул. Средняя Первомайская, д. 8/10
 [main] INFO TestSearch - Run 12091 from 12623. Case Москва 1-й Хорошевский проезд, дом 8
-[main] WARN TestSearch - 	Location: FAILED
-[main] WARN TestSearch - 	Case Москва 1-й Хорошевский проезд, дом 8 FAILED
 [main] INFO TestSearch - Run 12092 from 12623. Case Москва ул. Вавилова, дом 51
 [main] WARN TestSearch - 	Location: FAILED
 [main] WARN TestSearch - 	Case Москва ул. Вавилова, дом 51 FAILED
@@ -17294,8 +17220,6 @@
 [main] INFO TestSearch - Run 12119 from 12623. Case Москва Филевская М. ул., 26
 [main] INFO TestSearch - Run 12120 from 12623. Case Москва Большой Афанасьевский переулок, д. 27, стр. 1
 [main] INFO TestSearch - Run 12121 from 12623. Case Москва ул. 2-я Радиаторская, д. 9
-[main] WARN TestSearch - 	Location: FAILED
-[main] WARN TestSearch - 	Case Москва ул. 2-я Радиаторская, д. 9 FAILED
 [main] INFO TestSearch - Run 12122 from 12623. Case Москва Могильцевский Б. пер., дом 4
 [main] INFO TestSearch - Run 12123 from 12623. Case Москва г. Троицк, Академическая площадь, д. 3
 [main] WARN TestSearch - 	Location: FAILED
@@ -17308,8 +17232,6 @@
 [main] WARN TestSearch - 	Location: FAILED
 [main] WARN TestSearch - 	Case Москва Дмитровское ш., д. 45а FAILED
 [main] INFO TestSearch - Run 12127 from 12623. Case Москва ул. 1-я Парковая, д. 12
-[main] WARN TestSearch - 	Location: FAILED
-[main] WARN TestSearch - 	Case Москва ул. 1-я Парковая, д. 12 FAILED
 [main] INFO TestSearch - Run 12128 from 12623. Case Москва Дмитровское шоссе, дом №165Е, корпус 8
 [main] INFO TestSearch - Run 12129 from 12623. Case Москва Дмитровское шоссе, дом №165Е, корпус 8
 [main] WARN TestSearch - 	Location: FAILED
@@ -17512,8 +17434,6 @@
 [main] INFO TestSearch - Run 12269 from 12623. Case Москва ул. Большая Пироговская, д. 4, стр. 1
 [main] INFO TestSearch - Run 12270 from 12623. Case Москва 5-я ул. Соколиной Горы, д. 14а
 [main] INFO TestSearch - Run 12271 from 12623. Case Москва 9-я ул. Соколиной Горы, д. 12
-[main] WARN TestSearch - 	Location: FAILED
-[main] WARN TestSearch - 	Case Москва 9-я ул. Соколиной Горы, д. 12 FAILED
 [main] INFO TestSearch - Run 12272 from 12623. Case Москва ул. Фортунатовская, д. 1
 [main] INFO TestSearch - Run 12273 from 12623. Case Москва ул. Матросская Тишина, д. 18
 [main] INFO TestSearch - Run 12274 from 12623. Case Москва ул. Матросская Тишина, д. 18
@@ -17624,10 +17544,10 @@
 [main] INFO TestSearch - Run 12339 from 12623. Case Москва ул. Пехотная, д. 3
 [main] INFO TestSearch - Run 12340 from 12623. Case Москва ул. Вилиса Лациса, д. 4
 [main] INFO TestSearch - Run 12341 from 12623. Case Москва ул. 4-я Тверская-Ямская, д. 16
-[main] WARN TestSearch - 	Location: FAILED
-[main] WARN TestSearch - 	Case Москва ул. 4-я Тверская-Ямская, д. 16 FAILED
 [main] INFO TestSearch - Run 12342 from 12623. Case Москва ул. Щукинская, д. 20
 [main] INFO TestSearch - Run 12343 from 12623. Case Москва Сходненский туп., д. 1
+[main] WARN TestSearch - 	Location: FAILED
+[main] WARN TestSearch - 	Case Москва Сходненский туп., д. 1 FAILED
 [main] INFO TestSearch - Run 12344 from 12623. Case Москва 1-й Силикатный пр., д. 11, корп. 1
 [main] INFO TestSearch - Run 12345 from 12623. Case Москва г. Зеленоград, Медицинский комплекс
 [main] WARN TestSearch - 	Location: FAILED
@@ -17656,8 +17576,6 @@
 [main] WARN TestSearch - 	Location: FAILED
 [main] WARN TestSearch - 	Case Москва ул. Барболина, д. 3 FAILED
 [main] INFO TestSearch - Run 12359 from 12623. Case Москва 8-я улица Текстильщиков, д. 2
-[main] WARN TestSearch - 	Location: FAILED
-[main] WARN TestSearch - 	Case Москва 8-я улица Текстильщиков, д. 2 FAILED
 [main] INFO TestSearch - Run 12360 from 12623. Case Москва Каширское ш., д. 34
 [main] INFO TestSearch - Run 12361 from 12623. Case Москва Федеративный просп., д. 17
 [main] WARN TestSearch - 	Location: FAILED
@@ -17673,8 +17591,6 @@
 [main] INFO TestSearch - Run 12366 from 12623. Case Москва ул. Шоссейная, д. 92
 [main] INFO TestSearch - Run 12367 from 12623. Case Москва Волгоградский проспект‚ д. 168
 [main] INFO TestSearch - Run 12368 from 12623. Case Москва Капотня, 2-й квартал, д. 16
-[main] WARN TestSearch - 	Location: FAILED
-[main] WARN TestSearch - 	Case Москва Капотня, 2-й квартал, д. 16 FAILED
 [main] INFO TestSearch - Run 12369 from 12623. Case Москва Волочаевская ул.‚ д. 36
 [main] WARN TestSearch - 	Location: FAILED
 [main] WARN TestSearch - 	Case Москва Волочаевская ул.‚ д. 36 FAILED
@@ -17743,8 +17659,6 @@
 [main] INFO TestSearch - Run 12408 from 12623. Case Москва улица Маломосковская, дом 7
 [main] INFO TestSearch - Run 12409 from 12623. Case Москва Семеновская наб., д. 3/1, корп. 5
 [main] INFO TestSearch - Run 12410 from 12623. Case Москва ул. 6-я Кожуховская д. 8
-[main] WARN TestSearch - 	Location: FAILED
-[main] WARN TestSearch - 	Case Москва ул. 6-я Кожуховская д. 8 FAILED
 [main] INFO TestSearch - Run 12411 from 12623. Case Москва п. завода Мосрентген, ул. Героя России Соломатина
 [main] WARN TestSearch - 	Location: FAILED
 [main] WARN TestSearch - 	Case Москва п. завода Мосрентген, ул. Героя России Соломатина FAILED
@@ -17756,6 +17670,8 @@
 [main] INFO TestSearch - Run 12417 from 12623. Case Москва ул. Изумрудная, д. 13, корпус 3
 [main] INFO TestSearch - Run 12418 from 12623. Case Москва 5-й Котельнический пер., д. 8, стр. 1
 [main] INFO TestSearch - Run 12419 from 12623. Case Москва Ул. 16-я Парковая, д. 11, стр. 2
+[main] WARN TestSearch - 	Location: FAILED
+[main] WARN TestSearch - 	Case Москва Ул. 16-я Парковая, д. 11, стр. 2 FAILED
 [main] INFO TestSearch - Run 12420 from 12623. Case Москва ул. Главмосстроя, д. 28
 [main] INFO TestSearch - Run 12421 from 12623. Case Москва ул. Хавская, д. 5
 [main] INFO TestSearch - Run 12422 from 12623. Case Москва Березовая аллея д. 7А
@@ -17834,8 +17750,6 @@
 [main] INFO TestSearch - Run 12479 from 12623. Case Москва Большой Козихинский переулок, д. 5, стр. 1
 [main] INFO TestSearch - Run 12480 from 12623. Case Москва Причальный пр., д. 7, стр. 1
 [main] INFO TestSearch - Run 12481 from 12623. Case Москва ул. 2-я Дубровская, д. 3
-[main] WARN TestSearch - 	Location: FAILED
-[main] WARN TestSearch - 	Case Москва ул. 2-я Дубровская, д. 3 FAILED
 [main] INFO TestSearch - Run 12482 from 12623. Case Москва ул. Новорогожская, д. 18, стр. 1
 [main] INFO TestSearch - Run 12483 from 12623. Case Москва Новорогожская ул., д.9
 [main] INFO TestSearch - Run 12484 from 12623. Case Москва ул. 2-я Дубровская, д. 3
@@ -17919,8 +17833,6 @@
 [main] WARN TestSearch - 	Location: FAILED
 [main] WARN TestSearch - 	Case Москва ул. Правды, д. 3а FAILED
 [main] INFO TestSearch - Run 12542 from 12623. Case Москва ул. 2-я Радиаторская, д. 9
-[main] WARN TestSearch - 	Location: FAILED
-[main] WARN TestSearch - 	Case Москва ул. 2-я Радиаторская, д. 9 FAILED
 [main] INFO TestSearch - Run 12543 from 12623. Case Москва Керамический проезд, д. 47а
 [main] INFO TestSearch - Run 12544 from 12623. Case Москва ул. Краснопролетарская, д. 6А, стр. 1
 [main] INFO TestSearch - Run 12545 from 12623. Case Москва 3-й Самотечный пер., д. 14, стр. 1
@@ -17932,14 +17844,10 @@
 [main] WARN TestSearch - 	Case Москва 1-й Боткинский пр-д, д. 9 FAILED
 [main] INFO TestSearch - Run 12550 from 12623. Case Москва ул. 3-я Радиаторская, д. 8а
 [main] INFO TestSearch - Run 12551 from 12623. Case Москва пер. 3-й Новоподмосковный, д. 7
-[main] WARN TestSearch - 	Location: FAILED
-[main] WARN TestSearch - 	Case Москва пер. 3-й Новоподмосковный, д. 7 FAILED
 [main] INFO TestSearch - Run 12552 from 12623. Case Москва ул. 3ои и Александра Космодемьянских, д. 4А
 [main] INFO TestSearch - Run 12553 from 12623. Case Москва ул. Дубнинская, д. 18б
 [main] INFO TestSearch - Run 12554 from 12623. Case Москва ул. Дубнинская, д. 18б
 [main] INFO TestSearch - Run 12555 from 12623. Case Москва пер. 3-й Новоподмосковный, д. 7
-[main] WARN TestSearch - 	Location: FAILED
-[main] WARN TestSearch - 	Case Москва пер. 3-й Новоподмосковный, д. 7 FAILED
 [main] INFO TestSearch - Run 12556 from 12623. Case Москва ул. Дубнинская, д. 18а
 [main] INFO TestSearch - Run 12557 from 12623. Case Москва Авангардная ул., д. 11А
 [main] INFO TestSearch - Run 12558 from 12623. Case Москва Ул. Фестивальная, д. 42
@@ -17982,6 +17890,8 @@
 [main] INFO TestSearch - Run 12591 from 12623. Case Москва ул. Талдомская, д. 13А
 [main] INFO TestSearch - Run 12592 from 12623. Case Москва ул. Базовская, д. 20А, стр. 2
 [main] INFO TestSearch - Run 12593 from 12623. Case Москва Нижнелихоборский 3-й пр., д.1, стр. 16
+[main] WARN TestSearch - 	Location: FAILED
+[main] WARN TestSearch - 	Case Москва Нижнелихоборский 3-й пр., д.1, стр. 16 FAILED
 [main] INFO TestSearch - Run 12594 from 12623. Case Москва ул. Базовская, д. 20А, стр. 2
 [main] INFO TestSearch - Run 12595 from 12623. Case Москва ул. Базовская, д. 20А, стр. 1
 [main] INFO TestSearch - Run 12596 from 12623. Case Москва ул. Базовская, д. 20А, стр. 1
@@ -18026,5 +17936,5 @@
 [main] INFO TestSearch - Run 12623 from 12623. Case Чукотский автономный округ Городской округ Анадырь, г. Анадырь, ул. Отке, 25
 [main] WARN TestSearch - 	FAILED Empty answer
 [main] WARN TestSearch - 	Case Чукотский автономный округ Городской округ Анадырь, г. Анадырь, ул. Отке, 25 FAILED
-[main] WARN TestSearch - 2702 from 12623 are failed
+[main] WARN TestSearch - 2657 from 12623 are failed
 [main] WARN TestSearch - FAILED Search UIKs

@@ -1,0 +1,9 @@
+([\d])+\-?(я|й|ой|ий) => ///
+
+#8-я улица Ленина
+${SU.lowerCase(groups[1])}-${SU.lowerCase(groups[2])}
+
+#8я улица Ленина
+${SU.lowerCase(groups[1])}${SU.lowerCase(groups[2])}
+
+///

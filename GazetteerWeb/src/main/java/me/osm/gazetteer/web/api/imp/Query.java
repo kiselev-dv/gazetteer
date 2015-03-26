@@ -7,16 +7,19 @@ import java.util.List;
 
 public class Query {
 	
+	private String original;
+	
 	private List<QToken> tokens;
 	
-	public Query(List<QToken> tokens) {
+	public Query(List<QToken> tokens, String original) {
 		this.tokens = tokens;
+		this.original = original;
 	}
 
 	public Query head() {
 		
 		if(this.tokens.size() > 1) {
-			return new Query(this.tokens.subList(0, this.tokens.size() - 1));
+			return new Query(this.tokens.subList(0, this.tokens.size() - 1), original);
 		}
 		
 		return null;
@@ -24,7 +27,7 @@ public class Query {
 
 	public Query tail() {
 		if(tokens.size() > 0) {
-			return new Query(Collections.singletonList(tokens.get(tokens.size() - 1)));
+			return new Query(Collections.singletonList(tokens.get(tokens.size() - 1)), original);
 		}
 		
 		return null;
@@ -85,7 +88,7 @@ public class Query {
 				r.add(t);
 			}
 		}
-		return new Query(r);
+		return new Query(r, original);
 	}
 
 	public Query required() {
@@ -95,7 +98,17 @@ public class Query {
 				r.add(t);
 			}
 		}
-		return new Query(r);
+		return new Query(r, original);
+	}
+
+	public Query woFuzzy() {
+		List<QToken> r = new ArrayList<QToken>();
+		for(QToken t : this.tokens) {
+			if(!t.isFuzzied()) {
+				r.add(t);
+			}
+		}
+		return new Query(r, original);
 	}
 
 	public Query woNumbers() {
@@ -105,7 +118,7 @@ public class Query {
 				r.add(t);
 			}
 		}
-		return new Query(r);
+		return new Query(r, original);
 	}
 
 	public String print() {
@@ -121,6 +134,10 @@ public class Query {
 		}
 		
 		return sb.substring(1);
+	}
+
+	public String getOriginal() {
+		return original;
 	}
 	
 }

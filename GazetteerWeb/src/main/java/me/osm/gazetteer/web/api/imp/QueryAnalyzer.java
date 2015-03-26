@@ -1,13 +1,20 @@
 package me.osm.gazetteer.web.api.imp;
 
+import java.io.File;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import me.osm.gazetteer.web.Main;
+import me.osm.gazetteer.web.imp.Replacer;
+import me.osm.gazetteer.web.utils.ReplacersCompiler;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -25,6 +32,11 @@ public class QueryAnalyzer {
 	public static Pattern optRegexp = null;
 	static {
 		readOptionals();
+	}
+	
+	public static final List<Replacer> searchReplacers = new ArrayList<>();
+	static {
+		ReplacersCompiler.compile(searchReplacers, new File("config/replacers/requiredSearchReplacers"));
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -56,19 +68,33 @@ public class QueryAnalyzer {
 		}
 	}
 	
-	//TODO: сделать настраиваемым
 	public Query getQuery(String q) {
 		
 		if(null == q) {
 			return null;
 		}
 		
-		q = transform(q);
-		
 		q = StringUtils.replaceChars(q, removeChars, null);
 
 		q = q.toLowerCase();
+		
+		//TODO: get from ES config 
 		q = StringUtils.replaceChars(q, "ё", "е");
+
+		LinkedHashMap<String, Collection<String>> groups = new LinkedHashMap<>();
+		for(Replacer r : searchReplacers) {
+			groups.putAll(r.replaceGroups(q));
+		}
+		
+		HashMap<String, String> groupAliases = new HashMap<>();
+		
+		int i = 0;
+		for(Entry<String, Collection<String>> gk : groups.entrySet()) {
+			String alias = "GROUP" + i++;
+			groupAliases.put(alias, gk.getKey());
+
+			q = StringUtils.replace(q, gk.getKey(), alias);
+		}
 		
 		Set<String> matchedOptTokens = new HashSet<>();
 
@@ -87,6 +113,13 @@ public class QueryAnalyzer {
 		List<QToken> result = new ArrayList<QToken>(tokens.length);
 
 		for(String t : tokens) {
+
+			List<String> variants = new ArrayList<>();
+			if(StringUtils.startsWith(t, "GROUP")) {
+				String groupKey = groupAliases.get(t);
+				t = groupKey;
+				variants = new ArrayList<>(groups.get(groupKey));
+			}
 			
 			String withoutNumbers = StringUtils.replaceChars(t, "0123456789", "");
 			
@@ -96,18 +129,14 @@ public class QueryAnalyzer {
 					|| (!hasNumbers && withoutNumbers.length() < 3)
 					|| matchedOptTokens.contains(t);
 			
-			result.add(new QToken(t, hasNumbers, numbersOnly, optional));
+			result.add(new QToken(t, variants, hasNumbers, numbersOnly, optional));
 		}
 		
-		Query query = new Query(result);
+		Query query = new Query(result, q);
 		
 		log.trace("Query: {}", query.print());
 		
 		return query;
-	}
-
-	protected String transform(String q) {
-		return q;
 	}
 	
 }
