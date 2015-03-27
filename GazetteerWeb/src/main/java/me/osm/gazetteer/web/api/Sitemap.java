@@ -27,7 +27,7 @@ public class Sitemap {
 	private static final int pageSize = Main.config().getSiteMapMapgeSize();
 	
 	private static final Pattern p = Pattern.compile(".*sitemap([0-9]+)\\.xml(\\.gz)?");
-	private Configuration config;
+	private Configuration config = Main.config();
 	
 	public void read(Request req, Response res)	{
 		
