@@ -27,7 +27,7 @@ public class Sitemap {
 	private static final int pageSize = Main.config().getSiteMapMapgeSize();
 	
 	private static final Pattern p = Pattern.compile(".*sitemap([0-9]+)\\.xml(\\.gz)?");
-	private Configuration config = Main.config();
+	private static final Configuration config = Main.config();
 	
 	public void read(Request req, Response res)	{
 		
@@ -71,7 +71,7 @@ public class Sitemap {
 		SearchRequestBuilder searchQ = client.prepareSearch("gazetteer")
 				.setTypes(IndexHolder.LOCATION)
 				.setNoFields()
-				.setQuery(QueryBuilders.matchAllQuery())
+				.setQuery(QueryBuilders.termsQuery("type", config.listSiteMapTypes()))
 				.setExplain(false);
 		
 		searchQ.setSize(pageSize);
@@ -84,7 +84,9 @@ public class Sitemap {
 		for(SearchHit hit : searchResponse.getHits().getHits()) {
 			
 			String id = hit.getId();
-			if(StringUtils.startsWith(id, "adrpnt") || StringUtils.startsWith(id, "poipnt")) {
+			if(StringUtils.startsWith(id, "adrpnt") || StringUtils.startsWith(id, "poipnt") 
+					|| StringUtils.startsWith(id, "hghway")) {
+				
 				id = StringUtils.substringBefore(id, "--");
 			}
 			
@@ -97,7 +99,9 @@ public class Sitemap {
 	public static void renderIndex(SitemapRender render) throws UnsupportedEncodingException {
 		Client client = ESNodeHodel.getClient();
 		
-		CountResponse countResponse = client.prepareCount("gazetteer").setQuery(QueryBuilders.matchAllQuery()).get();
+		CountResponse countResponse = client.prepareCount("gazetteer")
+				.setTypes(IndexHolder.LOCATION)
+				.setQuery(QueryBuilders.termsQuery("type", config.listSiteMapTypes())).get();
 		
 		long count = countResponse.getCount();
 		

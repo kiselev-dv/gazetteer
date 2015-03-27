@@ -1,7 +1,10 @@
 package me.osm.gazetteer.web;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Properties;
 
+import org.apache.commons.lang3.StringUtils;
 import org.restexpress.Format;
 import org.restexpress.RestExpress;
 
@@ -27,6 +30,7 @@ public class Configuration extends org.restexpress.util.Environment
 	private String removeCharacters = "#?%*№@$\"\'";
 	private boolean resendRequestOnFail = true;
 	private int siteMapMapgeSize = 45000;
+	private List<String> siteMapTypes = Arrays.asList("poipnt");
 	
 	@Override
 	protected void fillValues(Properties p)
@@ -45,6 +49,7 @@ public class Configuration extends org.restexpress.util.Environment
 		this.removeCharacters = p.getProperty("query_remove_characters", "#?%*№@$\"\'");
 		this.resendRequestOnFail = !"false".equals(p.getProperty("resend_request_on_fail", "true"));
 		this.siteMapMapgeSize = Integer.parseInt(p.getProperty("sitemap_page_size", "45000"));
+		this.siteMapTypes = Arrays.asList(StringUtils.split(p.getProperty("sitemap_types", "poipnt"), " ,;"));
 	}
 
 	public String getDefaultFormat()
@@ -104,5 +109,9 @@ public class Configuration extends org.restexpress.util.Environment
 	
 	public int getSiteMapMapgeSize() {
 		return siteMapMapgeSize;
+	}
+	
+	public List<String> listSiteMapTypes() {
+		return siteMapTypes;
 	}
 }
