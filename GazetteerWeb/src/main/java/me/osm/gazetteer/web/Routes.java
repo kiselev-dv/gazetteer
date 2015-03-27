@@ -103,7 +103,7 @@ public class Routes {
 				.noSerialization();
 		}
 		
-		server.uri(root + "/sitemap.*", new Sitemap(config))
+		server.uri(root + "/sitemap.*", new Sitemap())
 			.method(HttpMethod.GET)
 			.flag(Flags.Auth.PUBLIC_ROUTE)
 			.noSerialization();

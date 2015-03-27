@@ -6,6 +6,7 @@ import java.util.regex.Pattern;
 
 import me.osm.gazetteer.web.Configuration;
 import me.osm.gazetteer.web.ESNodeHodel;
+import me.osm.gazetteer.web.Main;
 import me.osm.gazetteer.web.api.imp.SitemapRender;
 import me.osm.gazetteer.web.api.imp.XMLSitemapRender;
 import me.osm.gazetteer.web.imp.IndexHolder;
@@ -23,14 +24,10 @@ import org.restexpress.Request;
 import org.restexpress.Response;
 
 public class Sitemap {
-	private static final int PAGE_SIZE = 45000;
+	private static final int pageSize = Main.config().getSiteMapMapgeSize();
 	
 	private static final Pattern p = Pattern.compile(".*sitemap([0-9]+)\\.xml(\\.gz)?");
 	private Configuration config;
-	
-	public Sitemap(Configuration config) {
-		this.config = config;
-	}
 	
 	public void read(Request req, Response res)	{
 		
@@ -77,8 +74,8 @@ public class Sitemap {
 				.setQuery(QueryBuilders.matchAllQuery())
 				.setExplain(false);
 		
-		searchQ.setSize(PAGE_SIZE);
-		searchQ.setFrom(page * PAGE_SIZE);
+		searchQ.setSize(pageSize);
+		searchQ.setFrom(page * pageSize);
 		
 		SearchResponse searchResponse = searchQ.get();
 		
@@ -106,7 +103,7 @@ public class Sitemap {
 		
 		render.indexBegin();
 		
-		for(int i = 0; i <= count / PAGE_SIZE; i++) {
+		for(int i = 0; i <= count / pageSize; i++) {
 			render.page(i);
 		}
 		

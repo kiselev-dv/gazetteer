@@ -26,6 +26,7 @@ public class Configuration extends org.restexpress.util.Environment
 	private String qAnalyzerTokenSeparators = ", -;.\"()[]№#";
 	private String removeCharacters = "#?%*№@$\"\'";
 	private boolean resendRequestOnFail = true;
+	private int siteMapMapgeSize = 45000;
 	
 	@Override
 	protected void fillValues(Properties p)
@@ -43,6 +44,7 @@ public class Configuration extends org.restexpress.util.Environment
 		this.qAnalyzerTokenSeparators = p.getProperty("query_token_separators", ", -;.\"()[]№#");
 		this.removeCharacters = p.getProperty("query_remove_characters", "#?%*№@$\"\'");
 		this.resendRequestOnFail = !"false".equals(p.getProperty("resend_request_on_fail", "true"));
+		this.siteMapMapgeSize = Integer.parseInt(p.getProperty("sitemap_page_size", "45000"));
 	}
 
 	public String getDefaultFormat()
@@ -100,4 +102,7 @@ public class Configuration extends org.restexpress.util.Environment
 		return resendRequestOnFail;
 	}
 	
+	public int getSiteMapMapgeSize() {
+		return siteMapMapgeSize;
+	}
 }
