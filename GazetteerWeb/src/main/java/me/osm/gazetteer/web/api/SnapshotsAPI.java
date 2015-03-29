@@ -69,27 +69,34 @@ public class SnapshotsAPI {
 		try	{
 			if(StringUtils.contains(req.getPath(), "_escaped_fragment_=")) {
 				String parameters = StringUtils.substringAfter(req.getPath(), "_escaped_fragment_=");
-				Map<String, String> args = parseArgs(parameters);
-				
-				//index page snapshot
-				if(parameters.isEmpty()) {
+
+				if(StringUtils.remove(parameters, '/').isEmpty()) {
 					renderIndexSnapshot(res);
+					return;
 				}
-				else if(args.get("index_page") != null) {
-					int page = Integer.parseInt(args.get("index_page"));
-					renderSitemapPage(page, res);
+				
+				if(StringUtils.contains(parameters, "/id/")) {
+					String[] fids = StringUtils.substringsBetween(parameters, "id/", "/details");
+					if(fids.length > 0) {
+						JSONObject feature = FeatureAPI.getFeature(fids[0], true);
+						
+						if(feature != null) {
+							renderFeatureSnapshot(res, feature);
+						}
+						else {
+							res.setResponseCode(404);
+						}
+					}
 				}
-				//feature snapshot
 				else {
-					JSONObject feature = FeatureAPI.getFeature(args.get("fid"), true);
+					Map<String, String> args = parseArgs(parameters);
 					
-					if(feature != null) {
-						renderFeatureSnapshot(res, feature);
-					}
-					else {
-						res.setResponseCode(404);
+					if(args.get("index_page") != null) {
+						int page = Integer.parseInt(args.get("index_page"));
+						renderSitemapPage(page, res);
 					}
 				}
+				
 			}
 			//catalog snapshot
 			else if(StringUtils.contains(req.getPath(), "hierarchy/")) {
@@ -168,6 +175,8 @@ public class SnapshotsAPI {
 	}
 
 	private Map<String, String> parseArgs(String parameters) {
+
+		
 		Map<String, String> res = new HashMap<String, String>();
 		
 		try {
@@ -184,6 +193,7 @@ public class SnapshotsAPI {
 				res.put(parr[0], parr[1]);
 			}
 		}
+		
 		return res;
 	}
 }

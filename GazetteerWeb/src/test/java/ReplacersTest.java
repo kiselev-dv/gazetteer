@@ -1,4 +1,6 @@
 import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -13,9 +15,12 @@ import org.junit.Test;
 
 public class ReplacersTest {
 
+	private Importer importer;
+
 	@Before
 	public void setUp() throws Exception {
 		OSMDocSinglton.initialize("jar");
+		importer = new Importer(null, false);
 	}
 
 	@After
@@ -37,79 +42,69 @@ public class ReplacersTest {
 
 	@Test
 	public void testNumber() {
-		Importer importer = new Importer(null, false);
-		
-		try {
-			String[] asArray = importer.fuzzyHousenumberIndex("123").toArray(new String[]{});
-			assertArrayEquals(new String[]{"123"}, asArray);
-		}
-		catch (Exception e) {
-			throw new RuntimeException(e);
-		}
+		String[] asArray = importer.fuzzyHousenumberIndex("123").toArray(new String[]{});
+		assertArrayEquals(new String[]{"123"}, asArray);
 	}
 
 	@Test
 	public void testNumberAndLetter() {
-		Importer importer = new Importer(null, false);
+		Set<String> set = new HashSet<String>(importer.fuzzyHousenumberIndex("15A"));
 		
-		try {
-			Set<String> set = new HashSet<String>(importer.fuzzyHousenumberIndex("15A"));
-			
-			assert set.contains("15A");
-			assert set.contains("15a");
-			assert set.contains("15");
-		}
-		catch (Exception e) {
-			throw new RuntimeException(e);
-		}
+		assertTrue(set.contains("15A"));
+		assertTrue(set.contains("15a"));
 	}
 
 	@Test
 	public void testNumberWithSlash() {
-		Importer importer = new Importer(null, false);
+		Set<String> set = new HashSet<String>(importer.fuzzyHousenumberIndex("15/123"));
+		assertTrue(set.contains("15/123"));
+		assertTrue(set.contains("15"));
 		
-		try {
-			Set<String> set = new HashSet<String>(importer.fuzzyHousenumberIndex("15/123"));
-			
-			assert set.contains("15/123");
-			assert set.contains("15");
-			
-			set = new HashSet<String>(importer.fuzzyHousenumberIndex("15A/123"));
-			assert set.contains("15A/123");
-			assert set.contains("15a");
-		}
-		catch (Exception e) {
-			throw new RuntimeException(e);
-		}
+		set = new HashSet<String>(importer.fuzzyHousenumberIndex("15A/123"));
+		assertTrue(set.contains("15A/123"));
+		assertTrue(set.contains("15a"));
 	}
 
 	@Test
 	public void testNumberAndLetterWithSuffix() {
-		Importer importer = new Importer(null, false);
+		Set<String> set = new HashSet<String>(importer.fuzzyHousenumberIndex("15Aк1"));
 		
-		try {
-			Set<String> set = new HashSet<String>(importer.fuzzyHousenumberIndex("д. 15Aк1"));
-			
-			assert set.contains("д. 15Aк1");
-			assert set.contains("15");
-			assert set.contains("15a");
-			assert set.contains("15a к1");
-			
-			set = new HashSet<String>(importer.fuzzyHousenumberIndex("д. 15строение1"));
-			
-			assert set.contains("15");
-			assert !set.contains("15c");
-			assert set.contains("15a c1");
+		assertTrue(set.contains("15Aк1"));
+		assertTrue(set.contains("15a"));
+		assertTrue(set.contains("15a к1"));
+		
+		set = new HashSet<String>(importer.fuzzyHousenumberIndex("15 строение1a"));
+		
+		assertTrue(set.contains("15 строение 1a"));
+		assertTrue(set.contains("15 строение1a"));
+		assertTrue(set.contains("15 с1a"));
+		assertTrue(set.contains("15с1a"));
+		assertTrue(set.contains("15 1a"));
+		
+		assertFalse(set.contains("15с"));
 
-			set = new HashSet<String>(importer.fuzzyHousenumberIndex("д. 15с1"));
-			
-			assert set.contains("15");
-			assert !set.contains("15c");
-			assert set.contains("15 c1");
-		}
-		catch (Exception e) {
-			throw new RuntimeException(e);
-		}
+		set = new HashSet<String>(importer.fuzzyHousenumberIndex("15 стр.1б"));
+		
+		assertTrue(set.contains("15 стр.1б"));
+		assertTrue(set.contains("15 с1б"));
+		assertTrue(set.contains("15с1б"));
+		
+		assertFalse(set.contains("15с"));
+
+		set = new HashSet<String>(importer.fuzzyHousenumberIndex("15к1"));
+		
+		assertTrue(set.contains("15к1"));
+		assertTrue(set.contains("15 к1"));
+		
+		assertFalse(set.contains("15к"));
+	}
+
+	@Test
+	public void testNumberAndLetterTire() {
+		Set<String> set = new HashSet<String>(importer.fuzzyHousenumberIndex("д. 15-a"));
+		
+		assertTrue(set.contains("д. 15-a"));
+		assertTrue(set.contains("15a"));
 	}
 	
 }

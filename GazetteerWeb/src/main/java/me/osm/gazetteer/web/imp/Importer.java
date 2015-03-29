@@ -79,8 +79,6 @@ public class Importer extends BackgroundExecutableTask {
 		this.buildingsGeometry = buildingsGeometry;
 		
 		this.filePath = source;
-		client = ESNodeHodel.getClient();
-		bulkRequest = client.prepareBulk();
 		
 		weighter = new DefaultWeightBuilder();
 		ReplacersCompiler.compile(replasers, new File("config/replacers/hnIndexReplasers"));
@@ -100,6 +98,9 @@ public class Importer extends BackgroundExecutableTask {
 
 	@Override
 	public void executeTask() throws AbortedException {
+		
+		client = ESNodeHodel.getClient();
+		bulkRequest = client.prepareBulk();
 		
 		IndicesExistsResponse response = new IndicesExistsRequestBuilder(
 				client.admin().indices()).setIndices("gazetteer").execute()
@@ -260,7 +261,11 @@ public class Importer extends BackgroundExecutableTask {
 			try {
 				Collection<String> replace = replacer.replace(optString);
 				if(replace != null) {
-					result.addAll(replace);
+					for(String s : replace) {
+						if(StringUtils.isNotBlank(s) && !"null".equals(s)) {
+							result.add(s);
+						}
+					}
 				}
 			}
 			catch (Exception e) {
