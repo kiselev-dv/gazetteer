@@ -8,3 +8,13 @@ ${SU.lowerCase(groups[1])}
 ${SU.lowerCase(groups[1])}/${SU.lowerCase(groups[3])}
 
 ///
+
+[\d]+([\wa-юА-ЮёЁ]) => ///
+
+#lat to cyr
+${SU.replaceChars(groups[0], "abcdefgiklmnoptvxy", "абсдефгиклмнортвху")}
+
+#cyr to lat
+${SU.replaceChars(groups[0], "абсдефгиклмнортвху", "abcdefgiklmnoptvxy")}
+
+///

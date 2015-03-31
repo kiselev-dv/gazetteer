@@ -1,3 +1,4 @@
+package me.osm.gazetteerweb.test;
 import java.io.IOException;
 import java.net.DatagramSocket;
 import java.net.ServerSocket;

@@ -35,6 +35,7 @@ import org.elasticsearch.common.geo.GeoPoint;
 import org.elasticsearch.common.lucene.search.function.CombineFunction;
 import org.elasticsearch.common.unit.Fuzziness;
 import org.elasticsearch.index.query.BoolQueryBuilder;
+import org.elasticsearch.index.query.DisMaxQueryBuilder;
 import org.elasticsearch.index.query.FilterBuilder;
 import org.elasticsearch.index.query.FilterBuilders;
 import org.elasticsearch.index.query.FuzzyQueryBuilder;
@@ -484,7 +485,14 @@ public class SearchAPI {
 			int i = 1;
 			for(String variant : reversed) {
 				numberQ.should(QueryBuilders.termQuery("housenumber", variant).boost(i++ * 20)); 
-				numberQ.should(QueryBuilders.matchQuery("search", variant).boost(i++ * 10));
+			}
+			numberQ.should(QueryBuilders.matchQuery("search", housenumbers).boost(10));
+			
+			// if there is more then one number term, boost query over street names.
+			// for example in query "City, 8 march, 24" text part should be boosted. 
+			int streetNumberMultiplyer = numbers == 1 ? 10 : i++ * 30;
+			if(numbers > 1) {
+				numberQ.should(QueryBuilders.matchQuery("street_name", housenumbers).boost(streetNumberMultiplyer));
 			}
 			
 			resultQuery.must(numberQ.boost(10));
@@ -552,9 +560,13 @@ public class SearchAPI {
 				
 				if(t.isFuzzied()) {
 					// In strict version one of the term variants must appears in search field
-					requiredQ.should(QueryBuilders.disMaxQuery().boost(20)
-							.add(QueryBuilders.termsQuery("search", t.getVariants()).boost(1))
-							.add(QueryBuilders.termsQuery("street_name", t.getVariants()).boost(10)));
+					DisMaxQueryBuilder variantsQ = QueryBuilders.disMaxQuery().boost(20);
+					requiredQ.should(variantsQ);
+					
+					for(String s : t.getVariants()) {
+						variantsQ.add(QueryBuilders.matchQuery("search", s).boost(1));
+						variantsQ.add(QueryBuilders.matchQuery("street_name", s).boost(10));
+					}
 				}
 				else {
 					// In strict version term must appear in document's search field
@@ -562,10 +574,10 @@ public class SearchAPI {
 				}
 			}
 			else {
-				Object term = t.toString();
+				String term = t.toString();
 				
 				if(t.isFuzzied()) {
-					term = t.getVariants();
+					term = StringUtils.join(t.getVariants(), ' ');
 				}
 				
 				// In not strict variant term must appears in search field or in name of nearby street

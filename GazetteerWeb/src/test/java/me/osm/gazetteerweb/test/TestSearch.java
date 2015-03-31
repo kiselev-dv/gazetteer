@@ -1,3 +1,4 @@
+package me.osm.gazetteerweb.test;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -31,9 +32,9 @@ public class TestSearch {
 
 			TestSearch me = new TestSearch();
 
-			//me.doTest("test_cityes.json");
-			//me.doTest("test_addresses.json");
-			me.doTest("test_uik.json");
+			//me.doTest("/test_cityes.json");
+			//me.doTest("/test_addresses.json");
+			me.doTest("/test_uik.json");
 
 		} catch (Exception e) {
 			e.printStackTrace();

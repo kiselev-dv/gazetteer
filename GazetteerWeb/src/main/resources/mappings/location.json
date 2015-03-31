@@ -77,13 +77,13 @@
                     "type": "string",
                     "index": "analyzed",
                     "index_analyzer": "suggest_synonyms",
-                    "search_analyzer": "standard"
+                    "search_analyzer": "whitespace"
                 },
                 "alt_names": {
                     "type": "string",
                     "index": "analyzed",
                     "index_analyzer": "suggest_synonyms",
-                    "search_analyzer": "standard"
+                    "search_analyzer": "whitespace"
                 },
                 "name_trans": {
                 	"type": "object",
@@ -287,7 +287,7 @@
             "type": "string",
             "index": "analyzed",
             "index_analyzer": "suggest_synonyms",
-            "search_analyzer": "standard"
+            "search_analyzer": "whitespace"
         },
         "street_name_trans": {
         	"type": "object",
@@ -297,7 +297,7 @@
             "type": "string",
             "index": "analyzed",
             "index_analyzer": "suggest_synonyms",
-            "search_analyzer": "standard"
+            "search_analyzer": "whitespace"
         },
         "housenumber": {
         	"type": "string",
