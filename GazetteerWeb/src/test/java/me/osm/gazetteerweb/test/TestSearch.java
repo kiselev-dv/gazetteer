@@ -123,6 +123,25 @@ public class TestSearch {
 			}
 		}
 
+		if(caze.has("first_page")) {
+			
+			for(int i = 0; i < 20; i++) {
+				JSONObject fr = getNthResult(answer, i);
+
+				if(fr == null) {
+					return false;
+				}
+				
+				JSONObject check = caze.getJSONObject("first_result");
+				
+				if(firstResultCheck(fr, check)) {
+					return true;
+				}
+			}
+			
+			return false;
+		}
+
 		return true;
 	}
 
@@ -208,6 +227,25 @@ public class TestSearch {
 		}
 
 		return features.optJSONObject(0);
+	}
+
+	private JSONObject getNthResult(JSONObject answer, int index) {
+		if(answer == null) {
+			return null;
+		}
+		
+		JSONArray features = answer.optJSONArray("features");
+		
+		if(features == null) {
+			log.error("Answer doesnt have features");
+			return null;
+		}
+		
+		if(features.length() > index) {
+			return features.optJSONObject(index);
+		}
+
+		return null;
 	}
 
 	private JSONObject getRequestResult(JSONObject jsonObject) {
