@@ -1,3 +1,19 @@
+[main] INFO org.elasticsearch.node - [Meltdown] version[1.4.0], pid[11800], build[bc94bd8/2014-11-05T14:26:12Z]
+[main] INFO org.elasticsearch.node - [Meltdown] initializing ...
+[main] INFO org.elasticsearch.plugins - [Meltdown] loaded [], sites []
+[main] INFO org.elasticsearch.script - [Meltdown] compiling script file [/opt/osm/gazetteer/GazetteerWeb/config/scripts/score.expression]
+[main] INFO org.elasticsearch.script - [Meltdown] compiling script file [/opt/osm/gazetteer/GazetteerWeb/config/scripts/score_with_distance.expression]
+[main] WARN org.elasticsearch.script - [Meltdown] failed to load/compile script [score_with_distance]
+[main] INFO org.elasticsearch.node - [Meltdown] initialized
+[main] INFO org.elasticsearch.node - [Meltdown] starting ...
+[main] INFO org.elasticsearch.transport - [Meltdown] bound_address {inet[/0:0:0:0:0:0:0:0:9300]}, publish_address {inet[/192.168.224.198:9300]}
+[main] INFO org.elasticsearch.discovery - [Meltdown] OSM-Gazetteer/5T_-dOEuRlyvsx7_9k988Q
+[elasticsearch[Meltdown][clusterService#updateTask][T#1]] INFO org.elasticsearch.cluster.service - [Meltdown] new_master [Meltdown][5T_-dOEuRlyvsx7_9k988Q][dkiselev-N73SV][inet[/192.168.224.198:9300]], reason: zen-disco-join (elected_as_master)
+[main] INFO org.elasticsearch.http - [Meltdown] bound_address {inet[/0:0:0:0:0:0:0:0:9200]}, publish_address {inet[/192.168.224.198:9200]}
+[main] INFO org.elasticsearch.node - [Meltdown] started
+[elasticsearch[Meltdown][clusterService#updateTask][T#1]] INFO org.elasticsearch.gateway - [Meltdown] recovered [1] indices into cluster_state
+Define routes with web root: /api
+Gazetteer Web server listening on port 8080
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run Search UIKs
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 1 from 8275. Case Москва Борисовские пруды улица, д. 36, корп. 2
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2 from 8275. Case Республика Башкортостан город Уфа, ул. М.Ферина, д. 19/1
@@ -16,7 +32,7 @@
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 15 from 8275. Case Республика Башкортостан город Уфа, ул. Пушкина, 103А
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 16 from 8275. Case Республика Башкортостан город Уфа, ул. Ленина, 3
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 17 from 8275. Case Республика Башкортостан город Уфа, ул. Тукаева, 39
-[main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Республика Башкортостан город Уфа, ул. Цветы Башкирии, 2/3 
+[main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Республика Башкортостан город Уфа, ул. Цветы Башкирии, 2/3 Цветы башкирии - это поселок рядом с Уфой а не улица
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 19 from 8275. Case Республика Башкортостан город Уфа, ул. Посадская, 26
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Республика Башкортостан город Уфа, ул. Демская, 2 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 21 from 8275. Case Республика Башкортостан город Уфа, ул. Менделеева, 41
@@ -99,8 +115,6 @@
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 96 from 8275. Case Республика Карелия г. Олонец, ул. Полевая, д. 41
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 97 from 8275. Case Республика Карелия г. Олонец, ул. Карла Маркса, д. 3а
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 98 from 8275. Case Республика Карелия г. Олонец, ул. Урицкого, д. 4а
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Республика Карелия г. Олонец, ул. Урицкого, д. 4а FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 99 from 8275. Case Республика Карелия г. Олонец, ул. Урицкого, д. 9
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 100 from 8275. Case Республика Карелия г. Олонец, ул. Красноармейская, д. 19
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 101 from 8275. Case Республика Марий Эл г. Йошкар-Ола, ул. Осипенко, 46
@@ -126,7 +140,6 @@
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 121 from 8275. Case Республика Саха (Якутия) г. Якутск, ул. Ярославского, 27
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 122 from 8275. Case Республика Саха (Якутия) г. Якутск, ул. Дзержинского, 5
 [main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Республика Саха (Якутия) г. Якутск, ул. Дзержинского, 5 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 123 from 8275. Case Республика Саха (Якутия) г. Якутск, ул. Ярославского, 21
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 124 from 8275. Case Республика Саха (Якутия) г. Якутск, ул. Дзержинского, 55
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 125 from 8275. Case Республика Татарстан г. Нижнекамск, пр. Мира, 16
@@ -160,7 +173,6 @@
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 153 from 8275. Case Республика Хакасия город Абакан, улица Тельмана, 98Б
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 154 from 8275. Case Республика Хакасия город Абакан, улица Ивана Ярыгина, 43
 [main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Республика Хакасия город Абакан, улица Ивана Ярыгина, 43 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 155 from 8275. Case Республика Хакасия город Абакан, проспект Дружбы Народов, 21
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 156 from 8275. Case Республика Хакасия город Абакан, улица Комарова, 12
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 157 from 8275. Case Республика Хакасия город Абакан, улица Комарова, 15
@@ -240,9 +252,7 @@
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 225 from 8275. Case Алтайский край г. Барнаул, проезд Северный Власихинский, 64
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Алтайский край г. Барнаул, пер. Ядринцева, 136 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 227 from 8275. Case Алтайский край г. Барнаул, пр-кт Красноармейский, 94
-[main] INFO me.osm.gazetteerweb.test.TestSearch - Run 228 from 8275. Case Алтайский край г. Барнаул, пр-кт Коммунаров, 100
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Алтайский край г. Барнаул, пр-кт Коммунаров, 100 FAILED
+[main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Алтайский край г. Барнаул, пр-кт Коммунаров, 100 В осм адреса нет
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 229 from 8275. Case Алтайский край г. Барнаул, ул. Червонная, 8
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 230 from 8275. Case Алтайский край г. Барнаул, ул. Антона Петрова, 130
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 231 from 8275. Case Алтайский край г. Барнаул, пр-кт Ленина, 148
@@ -347,8 +357,6 @@
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 330 from 8275. Case Алтайский край г. Рубцовск, ул. Алтайская, д. 179
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 331 from 8275. Case Алтайский край г. Рубцовск, ул. Рихарда Зорге, д. 157
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 332 from 8275. Case Алтайский край г. Рубцовск, ул. Одесская, д. 6
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Алтайский край г. Рубцовск, ул. Одесская, д. 6 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 333 from 8275. Case Алтайский край Алтайский район, с. Алтайское, ул. Советская, 97
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 334 from 8275. Case Алтайский край г. Бийск, ул. В. Максимовой, 13
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 335 from 8275. Case Алтайский край Михайловский район, с. Михайловское, ул. К. Маркса, д. 41
@@ -1586,8 +1594,6 @@
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Калужская область г. Обнинск, пр. Ленина, д. 153 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Калужская область г. Калуга, пер. Дорожный, 5 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 1423 from 8275. Case Калужская область г. Калуга, ул. Новослободская, 25
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Калужская область г. Калуга, ул. Новослободская, 25 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Калужская область г. Калуга, ул. Тарутинская, 70/1 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Калужская область г. Калуга, ул. Кубяка, 1 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Калужская область г. Калуга, б-р Моторостроителей, 16 
@@ -1673,17 +1679,6 @@
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Калужская область г. Калуга, ул. Баженова, 2 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Калужская область г. Калуга, ул. Луначарского, 16 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 1498 from 8275. Case Калужская область г. Калуга, пер. Воскресенский, 4
-java.io.IOException: Server returned HTTP response code: 500 for URL: http://localhost:8080/api/location/_search?q=%D0%9A%D0%B0%D0%BB%D1%83%D0%B6%D1%81%D0%BA%D0%B0%D1%8F+%D0%BE%D0%B1%D0%BB%D0%B0%D1%81%D1%82%D1%8C+%D0%B3.+%D0%9A%D0%B0%D0%BB%D1%83%D0%B3%D0%B0%2C+%D0%BF%D0%B5%D1%80.+%D0%92%D0%BE%D1%81%D0%BA%D1%80%D0%B5%D1%81%D0%B5%D0%BD%D1%81%D0%BA%D0%B8%D0%B9%2C+4&explain=true
-	at sun.net.www.protocol.http.HttpURLConnection.getInputStream(HttpURLConnection.java:1627)
-	at java.net.URL.openStream(URL.java:1037)
-	at me.osm.gazetteerweb.test.TestSearch.get(TestSearch.java:243)
-	at me.osm.gazetteerweb.test.TestSearch.getRequestResult(TestSearch.java:226)
-	at me.osm.gazetteerweb.test.TestSearch.doCase(TestSearch.java:90)
-	at me.osm.gazetteerweb.test.TestSearch.doTest(TestSearch.java:58)
-	at me.osm.gazetteerweb.test.TestSearch.main(TestSearch.java:37)
-[main] ERROR me.osm.gazetteerweb.test.TestSearch - failed to get answer
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	FAILED Empty answer
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Калужская область г. Калуга, пер. Воскресенский, 4 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Калужская область г. Калуга, ул. Кутузова, 22 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Калужская область г. Калуга, ул. Беляева, 2 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Калужская область г. Калуга, ул. Николо-Козинская, 68 
@@ -1961,8 +1956,6 @@ java.io.IOException: Server returned HTTP response code: 500 for URL: http://loc
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 1749 from 8275. Case Костромская область г. Кострома, Кинешемское шоссе, 15
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Костромская область г. Кострома, ул. Фестивальная, 31 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 1751 from 8275. Case Костромская область г. Кострома, ул. Новоселов, 11
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Костромская область г. Кострома, ул. Новоселов, 11 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Костромская область г. Кострома, ул. Советская, 111В 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Костромская область г. Кострома, ул. Советская, 115 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Костромская область г. Кострома, ул. Смоленская, 28А 
@@ -2638,11 +2631,7 @@ java.io.IOException: Server returned HTTP response code: 500 for URL: http://loc
 [main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
 [main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Московская область г. Лобня, ул.Научный городок, д.4 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2366 from 8275. Case Московская область г. Электросталь, ул . Тевосяна, дом 23
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Московская область г. Электросталь, ул . Тевосяна, дом 23 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2367 from 8275. Case Московская область г. Электросталь, ул. Тевосяна, дом 23
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Московская область г. Электросталь, ул. Тевосяна, дом 23 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Московская область г. Королев, мкр. Текстильщик, ул. Советская, дом 8 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2369 from 8275. Case Московская область Сергиево-Посадский район, г. Краснозаводск. ул. 1 Мая. д. 28
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Московская область г. Королев, мкр. Текстильщик, ул. Молодежная, дом 7 
@@ -2902,17 +2891,6 @@ java.io.IOException: Server returned HTTP response code: 500 for URL: http://loc
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2598 from 8275. Case Московская область г. Балашиха, ул. Разина, 2
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2599 from 8275. Case Московская область Одинцовский район, город Одинцово, улица Маршала Жукова, дом № 38
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2600 from 8275. Case Московская область Воскресенский район, пос. Белоозерский, ул. 60 лет Октября, 8
-java.io.IOException: Server returned HTTP response code: 500 for URL: http://localhost:8080/api/location/_search?q=%D0%9C%D0%BE%D1%81%D0%BA%D0%BE%D0%B2%D1%81%D0%BA%D0%B0%D1%8F+%D0%BE%D0%B1%D0%BB%D0%B0%D1%81%D1%82%D1%8C+%D0%92%D0%BE%D1%81%D0%BA%D1%80%D0%B5%D1%81%D0%B5%D0%BD%D1%81%D0%BA%D0%B8%D0%B9+%D1%80%D0%B0%D0%B9%D0%BE%D0%BD%2C+%D0%BF%D0%BE%D1%81.+%D0%91%D0%B5%D0%BB%D0%BE%D0%BE%D0%B7%D0%B5%D1%80%D1%81%D0%BA%D0%B8%D0%B9%2C+%D1%83%D0%BB.+60+%D0%BB%D0%B5%D1%82+%D0%9E%D0%BA%D1%82%D1%8F%D0%B1%D1%80%D1%8F%2C+8&explain=true
-	at sun.net.www.protocol.http.HttpURLConnection.getInputStream(HttpURLConnection.java:1627)
-	at java.net.URL.openStream(URL.java:1037)
-	at me.osm.gazetteerweb.test.TestSearch.get(TestSearch.java:243)
-	at me.osm.gazetteerweb.test.TestSearch.getRequestResult(TestSearch.java:226)
-	at me.osm.gazetteerweb.test.TestSearch.doCase(TestSearch.java:90)
-	at me.osm.gazetteerweb.test.TestSearch.doTest(TestSearch.java:58)
-	at me.osm.gazetteerweb.test.TestSearch.main(TestSearch.java:37)
-[main] ERROR me.osm.gazetteerweb.test.TestSearch - failed to get answer
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	FAILED Empty answer
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Московская область Воскресенский район, пос. Белоозерский, ул. 60 лет Октября, 8 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Московская область г. Рошаль ул. Карла Маркса, д. 1 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2602 from 8275. Case Московская область г. Домодедово, ул. Коломийца, д. 9
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Московская область Егорьевский район, село Починки, ул. Молодежная, д. 4 
@@ -3021,8 +2999,6 @@ java.io.IOException: Server returned HTTP response code: 500 for URL: http://loc
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Московская область г. Звенигород, В. Посадское шоссе, дом 1. 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2701 from 8275. Case Московская область Раменский район, г. Раменское, ул. Чугунова, д. 10А
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2702 from 8275. Case Московская область г. Серпухов, ул. Новослободская, дом № 2
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Московская область г. Серпухов, ул. Новослободская, дом № 2 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Московская область Ленинский район, деревня Калиновка, дом 89 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Московская область Люберецкий район, пос. Малаховка, ул. Грибоедова, д. 1 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2705 from 8275. Case Московская область Жуковский, ул. Дугина, д. 16
@@ -3322,17 +3298,6 @@ java.io.IOException: Server returned HTTP response code: 500 for URL: http://loc
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2975 from 8275. Case Московская область Щёлковский район, г. Щёлково, ул. Пушкина, д. 22
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Московская область г. Королев, ул. Октябрьская, дом 10 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2977 from 8275. Case Московская область Воскресенский район, г. Воскресенск, ул. Победы, 25
-java.io.IOException: Server returned HTTP response code: 500 for URL: http://localhost:8080/api/location/_search?q=%D0%9C%D0%BE%D1%81%D0%BA%D0%BE%D0%B2%D1%81%D0%BA%D0%B0%D1%8F+%D0%BE%D0%B1%D0%BB%D0%B0%D1%81%D1%82%D1%8C+%D0%92%D0%BE%D1%81%D0%BA%D1%80%D0%B5%D1%81%D0%B5%D0%BD%D1%81%D0%BA%D0%B8%D0%B9+%D1%80%D0%B0%D0%B9%D0%BE%D0%BD%2C+%D0%B3.+%D0%92%D0%BE%D1%81%D0%BA%D1%80%D0%B5%D1%81%D0%B5%D0%BD%D1%81%D0%BA%2C+%D1%83%D0%BB.+%D0%9F%D0%BE%D0%B1%D0%B5%D0%B4%D1%8B%2C+25&explain=true
-	at sun.net.www.protocol.http.HttpURLConnection.getInputStream(HttpURLConnection.java:1627)
-	at java.net.URL.openStream(URL.java:1037)
-	at me.osm.gazetteerweb.test.TestSearch.get(TestSearch.java:243)
-	at me.osm.gazetteerweb.test.TestSearch.getRequestResult(TestSearch.java:226)
-	at me.osm.gazetteerweb.test.TestSearch.doCase(TestSearch.java:90)
-	at me.osm.gazetteerweb.test.TestSearch.doTest(TestSearch.java:58)
-	at me.osm.gazetteerweb.test.TestSearch.main(TestSearch.java:37)
-[main] ERROR me.osm.gazetteerweb.test.TestSearch - failed to get answer
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	FAILED Empty answer
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Московская область Воскресенский район, г. Воскресенск, ул. Победы, 25 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2978 from 8275. Case Московская область Щёлковский район, г. Щелково, ул. Центральная, д. 55
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Московская область Щёлковский район, г. Щёлковоо, ул. Талсинская, д. 60 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Московская область Щёлковский район, г. Щёлковоо, Пролетарский проспект, д. 6а 
@@ -3555,29 +3520,9 @@ java.io.IOException: Server returned HTTP response code: 500 for URL: http://loc
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 3179 from 8275. Case Московская область Одинцовский район, город Голицыно, проспект Керамиков, дом № 98
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 3180 from 8275. Case Московская область Одинцовский район, дачный поселок Лесной городок, улица Грибовская, дом № 6
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 3181 from 8275. Case Московская область Воскресенский район, г. Воскресенск, ул. Кагана, 21
-java.io.IOException: Server returned HTTP response code: 500 for URL: http://localhost:8080/api/location/_search?q=%D0%9C%D0%BE%D1%81%D0%BA%D0%BE%D0%B2%D1%81%D0%BA%D0%B0%D1%8F+%D0%BE%D0%B1%D0%BB%D0%B0%D1%81%D1%82%D1%8C+%D0%92%D0%BE%D1%81%D0%BA%D1%80%D0%B5%D1%81%D0%B5%D0%BD%D1%81%D0%BA%D0%B8%D0%B9+%D1%80%D0%B0%D0%B9%D0%BE%D0%BD%2C+%D0%B3.+%D0%92%D0%BE%D1%81%D0%BA%D1%80%D0%B5%D1%81%D0%B5%D0%BD%D1%81%D0%BA%2C+%D1%83%D0%BB.+%D0%9A%D0%B0%D0%B3%D0%B0%D0%BD%D0%B0%2C+21&explain=true
-	at sun.net.www.protocol.http.HttpURLConnection.getInputStream(HttpURLConnection.java:1627)
-	at java.net.URL.openStream(URL.java:1037)
-	at me.osm.gazetteerweb.test.TestSearch.get(TestSearch.java:243)
-	at me.osm.gazetteerweb.test.TestSearch.getRequestResult(TestSearch.java:226)
-	at me.osm.gazetteerweb.test.TestSearch.doCase(TestSearch.java:90)
-	at me.osm.gazetteerweb.test.TestSearch.doTest(TestSearch.java:58)
-	at me.osm.gazetteerweb.test.TestSearch.main(TestSearch.java:37)
-[main] ERROR me.osm.gazetteerweb.test.TestSearch - failed to get answer
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	FAILED Empty answer
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Московская область Воскресенский район, г. Воскресенск, ул. Кагана, 21 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 3182 from 8275. Case Московская область г. Дедовск, ул. Гагарина. Д. 6
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 3183 from 8275. Case Московская область Воскресенский район, с. Федино, д.18-а
-java.io.IOException: Server returned HTTP response code: 500 for URL: http://localhost:8080/api/location/_search?q=%D0%9C%D0%BE%D1%81%D0%BA%D0%BE%D0%B2%D1%81%D0%BA%D0%B0%D1%8F+%D0%BE%D0%B1%D0%BB%D0%B0%D1%81%D1%82%D1%8C+%D0%92%D0%BE%D1%81%D0%BA%D1%80%D0%B5%D1%81%D0%B5%D0%BD%D1%81%D0%BA%D0%B8%D0%B9+%D1%80%D0%B0%D0%B9%D0%BE%D0%BD%2C+%D1%81.+%D0%A4%D0%B5%D0%B4%D0%B8%D0%BD%D0%BE%2C+%D0%B4.18-%D0%B0&explain=true
-	at sun.net.www.protocol.http.HttpURLConnection.getInputStream(HttpURLConnection.java:1627)
-	at java.net.URL.openStream(URL.java:1037)
-	at me.osm.gazetteerweb.test.TestSearch.get(TestSearch.java:243)
-	at me.osm.gazetteerweb.test.TestSearch.getRequestResult(TestSearch.java:226)
-	at me.osm.gazetteerweb.test.TestSearch.doCase(TestSearch.java:90)
-	at me.osm.gazetteerweb.test.TestSearch.doTest(TestSearch.java:58)
-	at me.osm.gazetteerweb.test.TestSearch.main(TestSearch.java:37)
-[main] ERROR me.osm.gazetteerweb.test.TestSearch - failed to get answer
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	FAILED Empty answer
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
 [main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Московская область Воскресенский район, с. Федино, д.18-а FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Московская область Воскресенский район, г. Воскресенск, ул. Андреса, 16 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 3185 from 8275. Case Московская область Красногорский район, п. Нахабино, ул. Институтская, д. 1
@@ -4077,8 +4022,6 @@ java.io.IOException: Server returned HTTP response code: 500 for URL: http://loc
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 3637 from 8275. Case Нижегородская область г. Нижний Новгород, ул. Героя Шапошникова, 10
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 3638 from 8275. Case Нижегородская область г. Нижний Новгород, пр. Гагарина, 41
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 3639 from 8275. Case Нижегородская область г. Нижний Новгород, ул. Академика Лебедева, 3
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Нижегородская область г. Нижний Новгород, ул. Академика Лебедева, 3 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 3640 from 8275. Case Нижегородская область г. Нижний Новгород, ул. Маршала Жукова, 18
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 3641 from 8275. Case Нижегородская область г. Нижний Новгород, ул. Кащенко, 23
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 3642 from 8275. Case Нижегородская область г. Нижний Новгород, ул. Полевая, 4
@@ -4308,8 +4251,6 @@ java.io.IOException: Server returned HTTP response code: 500 for URL: http://loc
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Новгородская область Старорусский район, г. Старая Русса, ул. Ленинградская, д. 11 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Новгородская область Новгородский район, д. Сырково, ул. Пролетарская, д. 7а 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 3850 from 8275. Case Новосибирская область улица Попова, 12
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Новосибирская область улица Попова, 12 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 3851 from 8275. Case Новосибирская область город Бердск,  улица Комсомольская,  № 31
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 3852 from 8275. Case Новосибирская область город Бердск,  улица Комсомольская,  № 29
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Новосибирская область г.Новосибирск,  ул. Фрунзе,  63/1 
@@ -4318,15 +4259,11 @@ java.io.IOException: Server returned HTTP response code: 500 for URL: http://loc
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Новосибирская область г.Новосибирск,  ул. Кропоткина, 265 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Новосибирская область г.Новосибирск,  ул. Кропоткина,  126/2 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 3858 from 8275. Case Новосибирская область г.Новосибирск,  ул. Кропоткина, 323
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Новосибирская область г.Новосибирск,  ул. Кропоткина, 323 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Новосибирская область г.Новосибирск,  ул. Кропоткина,  132/2 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Новосибирская область г.Новосибирск,  ул. Достоевского, 27 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Новосибирская область г. Новосибирск, Красный проспект, 72 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Новосибирская область г.Новосибирск, ул. Некрасова, 84 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 3863 from 8275. Case Новосибирская область г.Новосибирск,  ул. Некрасова, 82
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Новосибирская область г.Новосибирск,  ул. Некрасова, 82 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Новосибирская область г.Новосибирск,  ул. Достоевского, 77 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Новосибирская область г.Новосибирск,  Красный проспект, 75 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Новосибирская область г.Новосибирск,  ул. Чехова, 271 
@@ -4342,14 +4279,10 @@ java.io.IOException: Server returned HTTP response code: 500 for URL: http://loc
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Новосибирская область г.Новосибирск,  ул. Селезнёва, 46 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Новосибирская область г.Новосибирск,  ул. Гоголя,  35а 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 3878 from 8275. Case Новосибирская область г. Новосибирск, ул. Некрасова, 4
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Новосибирская область г. Новосибирск, ул. Некрасова, 4 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Новосибирская область г.Новосибирск,  ул. Линейная, 223 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Новосибирская область г. Новосибирск,  ул. Селезнёва, 46 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Новосибирская область г.Новосибирск,  ул. Каменская, 56 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 3882 from 8275. Case Новосибирская область г.Новосибирск,  ул. Советская, 93
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Новосибирская область г.Новосибирск,  ул. Советская, 93 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 3883 from 8275. Case Омская область г. Омск, ул. 70 лет Октября, 20, корп. 3
 [main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
 [main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Омская область г. Омск, ул. 70 лет Октября, 20, корп. 3 FAILED
@@ -4630,8 +4563,6 @@ java.io.IOException: Server returned HTTP response code: 500 for URL: http://loc
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 4142 from 8275. Case Псковская область г. Великие Луки, ул. Гастелло, дом 8
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 4143 from 8275. Case Псковская область г. Великие Луки, улица Винатовского, дом 10/2
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 4144 from 8275. Case Псковская область г. Великие Луки, улица Новосокольническая, дом 1
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Псковская область г. Великие Луки, улица Новосокольническая, дом 1 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 4145 from 8275. Case Псковская область г. Великие Луки, улица Парковая, дом 2
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 4146 from 8275. Case Псковская область г. Великие Луки, улица Парковая, дом 4
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 4147 from 8275. Case Псковская область г. Великие Луки, улица Зеленая, дом 6
@@ -4793,12 +4724,8 @@ java.io.IOException: Server returned HTTP response code: 500 for URL: http://loc
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Рязанская область город Рязань, ул. Тимакова, дом 7 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 4296 from 8275. Case Рязанская область город Рязань, ул. Советской Армии, дом 15а
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 4297 from 8275. Case Рязанская область город Рязань, ул. Новоселов, дом 17 корп. 1
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Рязанская область город Рязань, ул. Новоселов, дом 17 корп. 1 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 4298 from 8275. Case Рязанская область город Рязань, Касимовское шоссе, дом 38б
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 4299 from 8275. Case Рязанская область город Рязань, ул. Новоселов, дом 6а
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Рязанская область город Рязань, ул. Новоселов, дом 6а FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 4300 from 8275. Case Рязанская область город Рязань, ул. Советской Армии,  дом 24 корп. 1
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 4301 from 8275. Case Рязанская область город Рязань, ул. Тимуровцев, дом 4
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 4302 from 8275. Case Рязанская область город Рязань, ул. Есенина, дом 57
@@ -4894,8 +4821,6 @@ java.io.IOException: Server returned HTTP response code: 500 for URL: http://loc
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 4386 from 8275. Case Рязанская область город Рязань, ул. Солнечная, дом 6
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 4387 from 8275. Case Рязанская область город Рязань, ул. Электрозаводская, дом 56
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 4388 from 8275. Case Рязанская область город Рязань, ул. Новоселов, дом 28
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Рязанская область город Рязань, ул. Новоселов, дом 28 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 4389 from 8275. Case Рязанская область город Рязань, ул. Зубковой, дом 28а
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 4390 from 8275. Case Рязанская область город Рязань, ул. Зубковой, дом 30 корп. 2
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 4391 from 8275. Case Рязанская область город Рязань, ул. Ленинского Комсомола, дом 7
@@ -4912,8 +4837,6 @@ java.io.IOException: Server returned HTTP response code: 500 for URL: http://loc
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 4400 from 8275. Case Рязанская область город Рязань, ул. Семинарская, дом 46
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 4401 from 8275. Case Рязанская область город Рязань, ул. Циолковского, дом 22
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 4402 from 8275. Case Рязанская область город Рязань, ул. Новоселов, дом 58
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Рязанская область город Рязань, ул. Новоселов, дом 58 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 4403 from 8275. Case Рязанская область город Рязань, 1-я ул. Механизаторов, дом 25а
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Рязанская область Рязанский район, с. Поляны 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Рязанская область Шиловский район, р. п. Шилово, пл. Советская д. 3 
@@ -5494,17 +5417,6 @@ java.io.IOException: Server returned HTTP response code: 500 for URL: http://loc
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 4914 from 8275. Case Тверская область Сандовский район, поселок Сандово, улица Советская, дом 13а
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 4915 from 8275. Case Тверская область Сандовский район, поселок Сандово, улица Школьная, дом 1
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 4916 from 8275. Case Тверская область г. Тверь, Третьяковский переулок, 17
-java.io.IOException: Server returned HTTP response code: 500 for URL: http://localhost:8080/api/location/_search?q=%D0%A2%D0%B2%D0%B5%D1%80%D1%81%D0%BA%D0%B0%D1%8F+%D0%BE%D0%B1%D0%BB%D0%B0%D1%81%D1%82%D1%8C+%D0%B3.+%D0%A2%D0%B2%D0%B5%D1%80%D1%8C%2C+%D0%A2%D1%80%D0%B5%D1%82%D1%8C%D1%8F%D0%BA%D0%BE%D0%B2%D1%81%D0%BA%D0%B8%D0%B9+%D0%BF%D0%B5%D1%80%D0%B5%D1%83%D0%BB%D0%BE%D0%BA%2C+17&explain=true
-	at sun.net.www.protocol.http.HttpURLConnection.getInputStream(HttpURLConnection.java:1627)
-	at java.net.URL.openStream(URL.java:1037)
-	at me.osm.gazetteerweb.test.TestSearch.get(TestSearch.java:243)
-	at me.osm.gazetteerweb.test.TestSearch.getRequestResult(TestSearch.java:226)
-	at me.osm.gazetteerweb.test.TestSearch.doCase(TestSearch.java:90)
-	at me.osm.gazetteerweb.test.TestSearch.doTest(TestSearch.java:58)
-	at me.osm.gazetteerweb.test.TestSearch.main(TestSearch.java:37)
-[main] ERROR me.osm.gazetteerweb.test.TestSearch - failed to get answer
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	FAILED Empty answer
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Тверская область г. Тверь, Третьяковский переулок, 17 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 4917 from 8275. Case Тверская область г. Тверь, улица Новая Заря, 23
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 4918 from 8275. Case Тверская область г. Тверь, улица Дачная, 73
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 4919 from 8275. Case Тверская область г. Тверь, улица Соминка, 65
@@ -5800,8 +5712,6 @@ java.io.IOException: Server returned HTTP response code: 500 for URL: http://loc
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Тульская область г. Богородицк, ул. Л. Толстого, д. 5 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Тульская область г. Богородицк, ул. Ф. Энгельса, д. 36 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 5195 from 8275. Case Тульская область г. Донской, ул. Первомайская, д. 1
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Тульская область г. Донской, ул. Первомайская, д. 1 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 5196 from 8275. Case Тульская область г. Донской, ул. Ленина д. 8
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 5197 from 8275. Case Тульская область г. Донской, ул. Ленина, д. 7
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 5198 from 8275. Case Тульская область Воловский район, п. Волово, ул. имени Хрунова, дом 4
@@ -5987,8 +5897,6 @@ java.io.IOException: Server returned HTTP response code: 500 for URL: http://loc
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 5364 from 8275. Case Ульяновская область город Ульяновск, ул. 40-летия Победы, д. 3
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Ульяновская область город Ульяновск, б-р Фестивальный, д.18 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 5366 from 8275. Case Ульяновская область город Ульяновск, б-р Новосондецкий, д. 20
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Ульяновская область город Ульяновск, б-р Новосондецкий, д. 20 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Ульяновская область город Ульяновск, б-р Фестивальный, д. 18 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Ульяновская область город Ульяновск, ул. Камышинская, д.32 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Ульяновская область город Ульяновск, ул. Лихачева, д. 12 
@@ -7326,10 +7234,8 @@ java.io.IOException: Server returned HTTP response code: 500 for URL: http://loc
 [main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
 [main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Москва ул. Байкальская, д. 44 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 6589 from 8275. Case Москва ул. Новосибирская, д. 8А
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Москва ул. Новосибирская, д. 8А FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 6590 from 8275. Case Москва ул. Новосибирская, д. ЗА
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	FAILED Empty answer
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
 [main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Москва ул. Новосибирская, д. ЗА FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 6591 from 8275. Case Москва ул. Хабаровская, д. 4А
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 6592 from 8275. Case Москва ул. Хабаровская, д. 8А
@@ -7392,8 +7298,6 @@ java.io.IOException: Server returned HTTP response code: 500 for URL: http://loc
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 6645 from 8275. Case Москва ул. Святоозерская, д. 17
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 6646 from 8275. Case Москва ул. Рудневка, д. 10
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 6647 from 8275. Case Москва ул. Медведева, д. 6
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Москва ул. Медведева, д. 6 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 6648 from 8275. Case Москва ул. Лухмановская, д. 10а
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 6649 from 8275. Case Москва Открытое шоссе, д. 29А
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 6650 from 8275. Case Москва ул. Вербная, д. 4
@@ -7774,34 +7678,12 @@ java.io.IOException: Server returned HTTP response code: 500 for URL: http://loc
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 6981 from 8275. Case Москва Лебедянская улица, д. 26, корп. 4
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 6982 from 8275. Case Москва Булатниковская ул., д. 1А
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 6983 from 8275. Case Москва Востряковский пр-д, д. 13А
-java.io.IOException: Server returned HTTP response code: 500 for URL: http://localhost:8080/api/location/_search?q=%D0%9C%D0%BE%D1%81%D0%BA%D0%B2%D0%B0+%D0%92%D0%BE%D1%81%D1%82%D1%80%D1%8F%D0%BA%D0%BE%D0%B2%D1%81%D0%BA%D0%B8%D0%B9+%D0%BF%D1%80-%D0%B4%2C+%D0%B4.+13%D0%90&explain=true
-	at sun.net.www.protocol.http.HttpURLConnection.getInputStream(HttpURLConnection.java:1627)
-	at java.net.URL.openStream(URL.java:1037)
-	at me.osm.gazetteerweb.test.TestSearch.get(TestSearch.java:243)
-	at me.osm.gazetteerweb.test.TestSearch.getRequestResult(TestSearch.java:226)
-	at me.osm.gazetteerweb.test.TestSearch.doCase(TestSearch.java:90)
-	at me.osm.gazetteerweb.test.TestSearch.doTest(TestSearch.java:58)
-	at me.osm.gazetteerweb.test.TestSearch.main(TestSearch.java:37)
-[main] ERROR me.osm.gazetteerweb.test.TestSearch - failed to get answer
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	FAILED Empty answer
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Москва Востряковский пр-д, д. 13А FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 6984 from 8275. Case Москва Братеевская улица, д. 23, корп. 4
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 6985 from 8275. Case Москва Паромная улица, д. 5, корп. 3
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 6986 from 8275. Case Москва Ключевая улица, д. 6, корп. 2
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 6987 from 8275. Case Москва Борисовские пруды улица, д. 12, корп. 2
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 6988 from 8275. Case Москва Братеевская улица, д. 8, корп. 2
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 6989 from 8275. Case Москва Востряковский пр-д, д. 5Б
-java.io.IOException: Server returned HTTP response code: 500 for URL: http://localhost:8080/api/location/_search?q=%D0%9C%D0%BE%D1%81%D0%BA%D0%B2%D0%B0+%D0%92%D0%BE%D1%81%D1%82%D1%80%D1%8F%D0%BA%D0%BE%D0%B2%D1%81%D0%BA%D0%B8%D0%B9+%D0%BF%D1%80-%D0%B4%2C+%D0%B4.+5%D0%91&explain=true
-	at sun.net.www.protocol.http.HttpURLConnection.getInputStream(HttpURLConnection.java:1627)
-	at java.net.URL.openStream(URL.java:1037)
-	at me.osm.gazetteerweb.test.TestSearch.get(TestSearch.java:243)
-	at me.osm.gazetteerweb.test.TestSearch.getRequestResult(TestSearch.java:226)
-	at me.osm.gazetteerweb.test.TestSearch.doCase(TestSearch.java:90)
-	at me.osm.gazetteerweb.test.TestSearch.doTest(TestSearch.java:58)
-	at me.osm.gazetteerweb.test.TestSearch.main(TestSearch.java:37)
-[main] ERROR me.osm.gazetteerweb.test.TestSearch - failed to get answer
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	FAILED Empty answer
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Москва Востряковский пр-д, д. 5Б FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 6990 from 8275. Case Москва Борисовские пруды улица, д. 20, корп. 3
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 6991 from 8275. Case Москва Братеевская улица, д. 18
 [main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
@@ -7819,6 +7701,8 @@ java.io.IOException: Server returned HTTP response code: 500 for URL: http://loc
 [main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
 [main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Москва ул. Павловская, д.8А FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7002 from 8275. Case Москва ул. Восточная, д.4
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Москва ул. Восточная, д.4 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7003 from 8275. Case Москва ул. Лобанова, д.3
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7004 from 8275. Case Москва 1й Кожуховский пр., д.17
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Москва Даниловская наб., д.6 
@@ -8021,14 +7905,10 @@ java.io.IOException: Server returned HTTP response code: 500 for URL: http://loc
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7180 from 8275. Case Москва ул. Болотниковская, дом 52, корп. 3
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7181 from 8275. Case Москва ул. Вавилова, дом 44, корп.2
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7182 from 8275. Case Москва ул. Одесская, дом 13
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Москва ул. Одесская, дом 13 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7183 from 8275. Case Москва Ломоносовский пр-т, дом 4, корп. 4
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7184 from 8275. Case Москва Ломоносовский пр-т, дом 4, корп. 3
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7185 from 8275. Case Москва Ленинский пр-т, дом 65
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7186 from 8275. Case Москва ул. Одесская, дом 16, корп. 2
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Москва ул. Одесская, дом 16, корп. 2 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7187 from 8275. Case Москва ул. Малая Юшуньская, дом 4
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7188 from 8275. Case Москва Ломоносовский пр-т, дом 13
 [main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
@@ -8866,11 +8746,32 @@ java.io.IOException: Server returned HTTP response code: 500 for URL: http://loc
 [main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
 [main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Москва улица В. Петушкова, дома 23, корпус № 1 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7919 from 8275. Case Москва ул. 1905 года, д. 8
+java.lang.NullPointerException
+	at java.util.ArrayList.<init>(ArrayList.java:164)
+	at me.osm.gazetteer.web.api.imp.QueryAnalyzer.getQuery(QueryAnalyzer.java:121)
+	at me.osm.gazetteer.web.api.SearchAPI.read(SearchAPI.java:183)
+	at me.osm.gazetteer.web.api.SearchAPI.read(SearchAPI.java:142)
+	at sun.reflect.GeneratedMethodAccessor23.invoke(Unknown Source)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:606)
+	at org.restexpress.route.Route.invoke(Route.java:208)
+	at org.restexpress.route.Action.invoke(Action.java:65)
+	at org.restexpress.pipeline.DefaultRequestHandler.messageReceived(DefaultRequestHandler.java:127)
+	at org.jboss.netty.channel.SimpleChannelUpstreamHandler.handleUpstream(SimpleChannelUpstreamHandler.java:70)
+	at org.jboss.netty.channel.DefaultChannelPipeline.sendUpstream(DefaultChannelPipeline.java:564)
+	at org.jboss.netty.channel.DefaultChannelPipeline$DefaultChannelHandlerContext.sendUpstream(DefaultChannelPipeline.java:791)
+	at org.jboss.netty.handler.execution.ChannelUpstreamEventRunnable.doRun(ChannelUpstreamEventRunnable.java:43)
+	at org.jboss.netty.handler.execution.ChannelEventRunnable.run(ChannelEventRunnable.java:67)
+	at org.jboss.netty.handler.execution.OrderedMemoryAwareThreadPoolExecutor$ChildExecutor.run(OrderedMemoryAwareThreadPoolExecutor.java:314)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+	at java.lang.Thread.run(Thread.java:745)
+GET http://localhost:8080/api/location/_search?q=%D0%9C%D0%BE%D1%81%D0%BA%D0%B2%D0%B0+%D1%83%D0%BB.+1905+%D0%B3%D0%BE%D0%B4%D0%B0%2C+%D0%B4.+8&explain=true responded with 500 Internal Server Error
 java.io.IOException: Server returned HTTP response code: 500 for URL: http://localhost:8080/api/location/_search?q=%D0%9C%D0%BE%D1%81%D0%BA%D0%B2%D0%B0+%D1%83%D0%BB.+1905+%D0%B3%D0%BE%D0%B4%D0%B0%2C+%D0%B4.+8&explain=true
 	at sun.net.www.protocol.http.HttpURLConnection.getInputStream(HttpURLConnection.java:1627)
 	at java.net.URL.openStream(URL.java:1037)
-	at me.osm.gazetteerweb.test.TestSearch.get(TestSearch.java:243)
-	at me.osm.gazetteerweb.test.TestSearch.getRequestResult(TestSearch.java:226)
+	at me.osm.gazetteerweb.test.TestSearch.get(TestSearch.java:281)
+	at me.osm.gazetteerweb.test.TestSearch.getRequestResult(TestSearch.java:264)
 	at me.osm.gazetteerweb.test.TestSearch.doCase(TestSearch.java:90)
 	at me.osm.gazetteerweb.test.TestSearch.doTest(TestSearch.java:58)
 	at me.osm.gazetteerweb.test.TestSearch.main(TestSearch.java:37)
@@ -8950,8 +8851,6 @@ java.io.IOException: Server returned HTTP response code: 500 for URL: http://loc
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Москва Волоцкой переулок, дом 15 корпус 2 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Москва п. Ватутинки-1, д. 43а 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7986 from 8275. Case Москва ул. Новослободская, д. 47
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Москва ул. Новослободская, д. 47 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Москва ул. Б. Очаковская, д. 1, корп. 1 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7988 from 8275. Case Москва Стандартная улица, дом 2
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7989 from 8275. Case Москва Ленинградское шоссе, д. 13а
@@ -9190,8 +9089,6 @@ java.io.IOException: Server returned HTTP response code: 500 for URL: http://loc
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 8184 from 8275. Case Москва ул. Новорогожская, д. 18, стр. 1
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 8185 from 8275. Case Москва Новорогожская ул., д.9
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 8186 from 8275. Case Москва Новослободская ул., д. 38, стр. 1
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Москва Новослободская ул., д. 38, стр. 1 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 8187 from 8275. Case Москва ул. Хамовнический вал, д. 6
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 8188 from 8275. Case Москва ул. Госпитальный вал, дом 1А, корп. 1
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 8189 from 8275. Case Москва Комсомольская пл.,  д. 4, стр. 1
@@ -9227,8 +9124,6 @@ java.io.IOException: Server returned HTTP response code: 500 for URL: http://loc
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Москва ул. Рабочая, д. 12 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Москва ул. Талалихина, д. 33 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 8221 from 8275. Case Москва ул. Новослободская, д. 57, стр. 1
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Москва ул. Новослободская, д. 57, стр. 1 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 8222 from 8275. Case Москва Малый Палашевский переулок, д. 3
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 8223 from 8275. Case Москва Старопименовский пер., д. 5
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 8224 from 8275. Case Москва Ленинградский пр-т, д.46
@@ -9289,5 +9184,9 @@ java.io.IOException: Server returned HTTP response code: 500 for URL: http://loc
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Ненецкий автономный округ г. Нарьян-Мар, проезд капитана Матросова, д. 1 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Чукотский автономный округ Городской округ Анадырь, г. Анадырь, ул. Ленина, 23 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Чукотский автономный округ Городской округ Анадырь, г. Анадырь, ул. Отке, 25 
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 467 from 8275 are failed
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 431 from 8275 are failed
 [main] WARN me.osm.gazetteerweb.test.TestSearch - FAILED Search UIKs
+[Thread-1] INFO org.elasticsearch.node - [Meltdown] stopping ...
+[Thread-1] INFO org.elasticsearch.node - [Meltdown] stopped
+[Thread-1] INFO org.elasticsearch.node - [Meltdown] closing ...
+[Thread-1] INFO org.elasticsearch.node - [Meltdown] closed

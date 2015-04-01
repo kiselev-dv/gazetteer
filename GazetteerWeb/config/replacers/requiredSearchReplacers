@@ -14,6 +14,8 @@ ${SU.lowerCase(groups[1])}${SU.lowerCase(groups[2])}
 
 ${SU.lowerCase(groups[1])}лет
 ${SU.lowerCase(groups[1])}летия
+${SU.lowerCase(groups[1])}-лет
+${SU.lowerCase(groups[1])}-летия
 ${SU.lowerCase(groups[1])} лет
 ${SU.lowerCase(groups[1])} летия
 
