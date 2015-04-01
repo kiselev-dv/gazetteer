@@ -132,7 +132,7 @@ public class TestSearch {
 					return false;
 				}
 				
-				JSONObject check = caze.getJSONObject("first_result");
+				JSONObject check = caze.getJSONObject("first_page");
 				
 				if(firstResultCheck(fr, check)) {
 					return true;
