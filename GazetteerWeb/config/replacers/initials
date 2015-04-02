@@ -1,0 +1,20 @@
+# Прегодятся при индексации улиц, при поиске же лучше не использовать. Начинают матчиться г. Екатеринбург
+
+([а-яА-Я]\.)[\s]*([а-яА-Я]\.)?[\s]*([а-яА-Я]+) => ///
+
+# Ленин
+${groups[3].trim()}
+
+# В. И. Ленин
+${groups[1]} ${SU.stripToEmpty(groups[2]?:"" + " ")}${groups[3]}
+
+# В И Ленин
+${groups[1].substring(0, 1)} ${SU.stripToEmpty(groups[2]?.substring(0, 1)?:"" + " ")}${groups[3]}
+
+# В.И.Ленин
+${groups[1]}${SU.stripToEmpty(groups[2])}${groups[3]}
+
+# В.И. Ленин
+${groups[1]}${SU.stripToEmpty(groups[2])} ${groups[3]}
+
+///

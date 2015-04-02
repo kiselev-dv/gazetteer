@@ -39,6 +39,7 @@ import org.elasticsearch.index.query.DisMaxQueryBuilder;
 import org.elasticsearch.index.query.FilterBuilder;
 import org.elasticsearch.index.query.FilterBuilders;
 import org.elasticsearch.index.query.FuzzyQueryBuilder;
+import org.elasticsearch.index.query.MatchQueryBuilder;
 import org.elasticsearch.index.query.OrFilterBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -501,7 +502,15 @@ public class SearchAPI {
 		for(QToken token : query.listToken()) {
 	
 			if(token.isOptional()) {
-				resultQuery.should(QueryBuilders.matchQuery("search", token.toString()));
+				
+				MatchQueryBuilder option = QueryBuilders.matchQuery("search", token.toString());
+				
+				//Optional but may be important
+				if(token.toString().length() > 3) {
+					option.boost(5);
+				}
+				
+				resultQuery.should(option);
 			}
 			else if(token.isNumbersOnly()) {
 				
