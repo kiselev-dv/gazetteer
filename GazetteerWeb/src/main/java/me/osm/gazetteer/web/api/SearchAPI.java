@@ -12,6 +12,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import me.osm.gazetteer.web.ESNodeHodel;
@@ -20,6 +21,7 @@ import me.osm.gazetteer.web.api.imp.QToken;
 import me.osm.gazetteer.web.api.imp.Query;
 import me.osm.gazetteer.web.api.imp.QueryAnalyzer;
 import me.osm.gazetteer.web.api.utils.APIUtils;
+import me.osm.gazetteer.web.api.utils.BuildSearchQContext;
 import me.osm.gazetteer.web.api.utils.Paginator;
 import me.osm.gazetteer.web.imp.IndexHolder;
 import me.osm.gazetteer.web.imp.Replacer;
@@ -249,9 +251,10 @@ public class SearchAPI {
 			Double lat, Double lon, Set<String> refs, Query query) {
 		
 		BoolQueryBuilder q = null;
+		BuildSearchQContext buildSearchQContext = new BuildSearchQContext();
 		
 		if(query != null) {
-			q = getSearchQuerry(query, strict);
+			q = getSearchQuerry(query, strict, buildSearchQContext);
 		}
 		else {
 			q = QueryBuilders.boolQuery();
@@ -266,8 +269,12 @@ public class SearchAPI {
 		}
 		
 		QueryBuilder qb = poiClass.isEmpty() ? QueryBuilders.filteredQuery(q, createPoiFilter(query)) : q;
-		
-		qb = rescore(qb, lat, lon, poiClass, false);
+
+		boolean sortByHNVariants = false;
+		if(buildSearchQContext.getHousenumberVariants() != null) {
+			sortByHNVariants = buildSearchQContext.getHousenumberVariants().size() == 1;
+		}
+		qb = rescore(qb, lat, lon, poiClass, sortByHNVariants);
 		
 		List<String> bbox = getList(request, BBOX_HEADER);
 		if(!bbox.isEmpty() && bbox.size() == 4) {
@@ -408,7 +415,7 @@ public class SearchAPI {
 		if(shortHNFirst) {
 			String script = "def s = doc['housenumber'].values.size(); \n return (s == 0 ? 1 : 100/s)";
 			
-			qb.add(ScoreFunctionBuilders.scriptFunction(script, "groovy").setWeight(0.001f));
+			qb.add(ScoreFunctionBuilders.scriptFunction(script, "groovy").setWeight(0.1f));
 		}
 		
 		return qb;
@@ -438,14 +445,15 @@ public class SearchAPI {
 	 * 
 	 * @param query analyzed user query
 	 * @param strict create strict request
+	 * @param buildSearchQContext context (will be filled with some additional info)
 	 * 
 	 * @return query builder
 	 * */
-	public BoolQueryBuilder getSearchQuerry(Query query, boolean strict) {
+	public BoolQueryBuilder getSearchQuerry(Query query, boolean strict, BuildSearchQContext buildSearchQContext) {
 		
 		BoolQueryBuilder resultQuery = QueryBuilders.boolQuery();
 		
-		mainSearchQ(query, resultQuery, strict);
+		mainSearchQ(query, resultQuery, strict, buildSearchQContext);
 		
 		resultQuery.disableCoord(true);
 		resultQuery.mustNot(QueryBuilders.termQuery("weight", 0));
@@ -461,7 +469,7 @@ public class SearchAPI {
 	 * @param resultQuery parent query
 	 * @param strict create strict version of query
 	 * */
-	public void mainSearchQ(Query query, BoolQueryBuilder resultQuery, boolean strict) {
+	public void mainSearchQ(Query query, BoolQueryBuilder resultQuery, boolean strict, BuildSearchQContext context) {
 		
 		int numbers = query.countNumeric();
 		
@@ -471,6 +479,7 @@ public class SearchAPI {
 		
 		// Try to find housenumbers using hnSearchReplacers
 		Collection<String> housenumbers = fuzzyNumbers(query.woFuzzy().toString());
+		context.setHousenumberVariants(housenumbers);
 
 		// If those numbers were found
 		// Add those numbers into subquery

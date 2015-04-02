@@ -183,8 +183,6 @@
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 178 from 8275. Case Алтайский край г. Барнаул, ул. Панфиловцев, 13
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 179 from 8275. Case Алтайский край г. Барнаул, ул. Панфиловцев, 8
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 180 from 8275. Case Алтайский край г. Барнаул, ул. А. Петрова, 150
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Алтайский край г. Барнаул, ул. А. Петрова, 150 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 181 from 8275. Case Алтайский край г. Барнаул, ул. Шукшина, 30
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 182 from 8275. Case Алтайский край г. Барнаул, ул. Солнечная Поляна, 11
 [main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
@@ -391,8 +389,6 @@
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Архангельская область г. Архангельск, пр. Ленинградский, 17 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Архангельская область г. Архангельск, пр. Обводный канал, 2 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 380 from 8275. Case Архангельская область г. Архангельск, ул. Тимме, 1
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Архангельская область г. Архангельск, ул. Тимме, 1 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Архангельская область г. Архангельск, ул. Прокопия Галушина, 25 корп.1 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 382 from 8275. Case Архангельская область г. Архангельск, пр. Ленинградский, 324
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Архангельская область г. Архангельск, ул. Урицкого, 68 корп.3 
@@ -1351,8 +1347,6 @@
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Иркутская область город Иркутск, ул. Красного Восстания, 2 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 1257 from 8275. Case Иркутская область город Иркутск, мкр. Радужный, 34а (1 подъезд)
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 1258 from 8275. Case Иркутская область город Иркутск, мкр. Юбилейный, 100
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Иркутская область город Иркутск, мкр. Юбилейный, 100 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Иркутская область город Иркутск, ул. Ржанова, 29 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Иркутская область город Иркутск, просп. Маршала Жукова, 36 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Иркутская область город Иркутск, ул. Алмазная, 18 
@@ -2187,6 +2181,8 @@
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Московская область г. Дубна, ул. Ленина, 39а 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2041 from 8275. Case Московская область г. Дубна, ул. Энтузиастов, 9
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2042 from 8275. Case Московская область Люберецкий район, пос. Малаховка, ул . Шоссейная, д. 33
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Московская область Люберецкий район, пос. Малаховка, ул . Шоссейная, д. 33 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2043 from 8275. Case Московская область г. Клин, ул. Папивина, д. 1/20
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2044 from 8275. Case Московская область г. Дмитров, ул. Загорская, д. 64
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Московская область Озёрский район, г. Озёры микрорайон имени маршала Катукова, 
@@ -2600,6 +2596,8 @@
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2427 from 8275. Case Московская область Жуковский, ул. Гудкова, д. 7а
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2428 from 8275. Case Московская область г. Дубна, ул. Сахарова, 17
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2429 from 8275. Case Московская область г. Железнодорожный, ул. Свободы, дом № 4
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Московская область г. Железнодорожный, ул. Свободы, дом № 4 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2430 from 8275. Case Московская область г. Подольск, ул. Свердлова, 48а
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Московская область г. Подольск, ул. Большая Серпуховская, 2/24 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2432 from 8275. Case Московская область г. Подольск, ул. Маштакова, 7
@@ -2957,6 +2955,8 @@
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2754 from 8275. Case Московская область Жуковский, ул. Лесная д. 7
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2755 from 8275. Case Московская область г. Истра, ул. Кирова, д. 61
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2756 from 8275. Case Московская область г. Подольск, ул. Кирова, 38
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Московская область г. Подольск, ул. Кирова, 38 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Московская область Дмитровский район, городское поселение Яхрома, ул. Ленина, д. 42 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2758 from 8275. Case Московская область г. Дзержинский, ул. Спортивная, д. 3б
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2759 from 8275. Case Московская область г. Балашиха, ул. Кудаковского, 1
@@ -4523,8 +4523,6 @@
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 4238 from 8275. Case Ростовская область город Ростов-на-Дону, ул.2-й Пятилетки,10
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 4239 from 8275. Case Ростовская область город Ростов-на-Дону, ул.Вятская,27
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 4240 from 8275. Case Ростовская область город Ростов-на-Дону, пер.Днепровский,116
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Ростовская область город Ростов-на-Дону, пер.Днепровский,116 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 4241 from 8275. Case Ростовская область город Ростов-на-Дону, пер.Днепровский,131
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Ростовская область г. Ростов-на-Дону, пл. Свободы, 1 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 4243 from 8275. Case Ростовская область город Ростов-на-Дону, ул.Коммунаров,34
@@ -4635,8 +4633,6 @@
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 4346 from 8275. Case Рязанская область город Рязань, ул. Интернациональная, дом 5д
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 4347 from 8275. Case Рязанская область город Рязань, ул. Бирюзова, дом 23а
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 4348 from 8275. Case Рязанская область город Рязань, ул. Интернациональная, дом 27
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Рязанская область город Рязань, ул. Интернациональная, дом 27 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 4349 from 8275. Case Рязанская область город Рязань, ул. Октябрьская, дом 5
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 4350 from 8275. Case Рязанская область город Рязань, ул. Октябрьская, дом 56а
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 4351 from 8275. Case Рязанская область город Рязань, ул. Пирогова, дом 11
@@ -5211,8 +5207,6 @@
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 4862 from 8275. Case Тверская область город Вышний Волочек, ул. Ямская, д. 98А
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Тверская область город Вышний Волочек, ул. Льва Толстого, д. 105-а 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 4864 from 8275. Case Тверская область г. Тверь, улица Учительская, 6
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Тверская область г. Тверь, улица Учительская, 6 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 4865 from 8275. Case Тверская область Конаковский район, г. Конаково, ул. Гагарина, 31
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 4866 from 8275. Case Тверская область Конаковский район, г. Конаково, ул. пр. Ленина, 28
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 4867 from 8275. Case Тверская область Конаковский район, г. Конаково, пр. Ленина, 28
@@ -6735,6 +6729,8 @@
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 6312 from 8275. Case Москва Песчаная 2-я ул., д. 4А
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 6313 from 8275. Case Москва Новопесчаная ул., д. 15
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 6314 from 8275. Case Москва Дмитровский пр., д.10
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Москва Дмитровский пр., д.10 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 6315 from 8275. Case Москва ул. Вучетича, д. 6
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 6316 from 8275. Case Москва ул. Вучетича, д. 3/1
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 6317 from 8275. Case Москва ул. Флотская, 11
@@ -7031,8 +7027,6 @@
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 6592 from 8275. Case Москва ул. Хабаровская, д. 8А
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 6593 from 8275. Case Москва ул. Уссурийская, д. 12
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 6594 from 8275. Case Москва ул. Камчатская, д. 8
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Москва ул. Камчатская, д. 8 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 6595 from 8275. Case Москва ул. Камчатская, д. 10
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 6596 from 8275. Case Москва ул. Алтайская, д. 26А
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 6597 from 8275. Case Москва ш. Энтузиастов, д. 96г
@@ -7094,8 +7088,6 @@
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 6651 from 8275. Case Москва ул. Оренбургская, д. 15б
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 6652 from 8275. Case Москва Открытое шоссе, д. 23Б
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 6653 from 8275. Case Москва Открытое шоссе, д. 25
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Москва Открытое шоссе, д. 25 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 6654 from 8275. Case Москва Открытое шоссе, д. 24 к. 35
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 6655 from 8275. Case Москва ул.Полимерная, д.7а
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 6656 from 8275. Case Москва Зеленый просп., д.75
@@ -7191,6 +7183,8 @@
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 6734 from 8275. Case Москва ул. Зверинецкая, д. 25
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 6735 from 8275. Case Москва Щелковское шоссе, дом 82б
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 6736 from 8275. Case Москва 15-я Парковая ул., дом 52
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Москва 15-я Парковая ул., дом 52 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Москва 15-я Парковая ул., дом 46 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 6738 from 8275. Case Москва ул. Ткацкая, д. 47
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 6739 from 8275. Case Москва Семёновская пл., д. 4
@@ -7504,6 +7498,8 @@
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7035 from 8275. Case Москва Садовники улица, дом № 12
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7036 from 8275. Case Москва Коломенский проезд, дом № 16
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7037 from 8275. Case Москва Садовники улица, дом № 15
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Москва Садовники улица, дом № 15 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7038 from 8275. Case Москва Садовники улица, дом № 13
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7039 from 8275. Case Москва Высокая улица, дом № 6
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7040 from 8275. Case Москва Каширское шоссе, дом № 15
@@ -8042,8 +8038,6 @@
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Москва Дубравная улица, дом 41 корпус 4 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Москва Барышиха улица, дом 29 корпус 1 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7541 from 8275. Case Москва 3-й Митинский переулок, дом 12
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Москва 3-й Митинский переулок, дом 12 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7542 from 8275. Case Москва Мичуринский пр-т, 54, к. 3
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7543 from 8275. Case Москва Митинская улица, дом 14
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Москва Митинская улица, дом 48 корпус 2 
@@ -8188,8 +8182,6 @@
 [main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Москва корпус 142 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Москва корпус 163 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7681 from 8275. Case Москва корпус 2011
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Москва корпус 2011 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7682 from 8275. Case Москва корпус 1642
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7683 from 8275. Case Москва Березовая аллея д. 7А
 [main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
@@ -8203,8 +8195,6 @@
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7688 from 8275. Case Москва корпус 529
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Москва корпус 621а 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7690 from 8275. Case Москва корпус 359
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Москва корпус 359 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7691 from 8275. Case Москва корп. 1017
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7692 from 8275. Case Москва корп. 1214
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7693 from 8275. Case Москва корп. 1115
@@ -8218,8 +8208,6 @@
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Москва корп. 1140 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Москва корп. 818 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7701 from 8275. Case Москва Корп. 844
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Москва Корп. 844 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Москва п. Ватутинки-1 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Москва дер. Марушкино, ул. Липовая аллея, д. 6 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7704 from 8275. Case Москва д. п. Кокошкино, ул. Дачная, д. 3а
@@ -8427,8 +8415,6 @@
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7882 from 8275. Case Москва Соловьиный пр-д, д. 4, корп. 2
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7883 from 8275. Case Москва ул. Мусы Джалиля, д. 29, к. 2
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7884 from 8275. Case Москва 8-я ул. Текстильщиков, д. 14
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Москва 8-я ул. Текстильщиков, д. 14 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7885 from 8275. Case Москва Б. Академическая ул., д. 77а, стр. 1
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7886 from 8275. Case Москва 3-й Митинский переулок, дом 12 корпус 1
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7887 from 8275. Case Москва п. Киевский, д. 24
@@ -8476,12 +8462,12 @@ java.io.IOException: Server returned HTTP response code: 500 for URL: http://loc
 [main] WARN me.osm.gazetteerweb.test.TestSearch - 	FAILED Empty answer
 [main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Москва ул. 1905 года, д. 8 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7920 from 8275. Case Москва 1-й Хорошевский проезд, дом 8
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Москва 1-й Хорошевский проезд, дом 8 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Москва ул. Вавилова, дом 51 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7922 from 8275. Case Москва Улица Удальцова, дом 40
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7923 from 8275. Case Москва Рублевское ш., д. 24, корп. 3
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7924 from 8275. Case Москва Ул. 16-я Парковая д. 16
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Москва Ул. 16-я Парковая д. 16 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7925 from 8275. Case Москва ул. Б.Черемушкинская, 32-2
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Москва улица 3-я Новоостанкинская, д. 6 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7927 from 8275. Case Москва ул. Большая Почтовая, дом № 18/20, кор.18
@@ -8567,8 +8553,6 @@ java.io.IOException: Server returned HTTP response code: 500 for URL: http://loc
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 8007 from 8275. Case Москва Талдомская ул., д. 6
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 8008 from 8275. Case Москва ул. Шарикоподшипниковская, д. 3
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 8009 from 8275. Case Москва Загородное шоссе, 2
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Москва Загородное шоссе, 2 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 8010 from 8275. Case Москва Ленинский проспект, 27
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 8011 from 8275. Case Москва ул. Донская, 43
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 8012 from 8275. Case Москва пер. Мамоновский, д. 7
@@ -8576,8 +8560,6 @@ java.io.IOException: Server returned HTTP response code: 500 for URL: http://loc
 [main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
 [main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Москва ул. Петровка, д. 38‚ корп. 8 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 8014 from 8275. Case Москва пер. Абрикосовский, д. 2
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Москва пер. Абрикосовский, д. 2 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 8015 from 8275. Case Москва ул. Россолимо, д. 11, корп А
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 8016 from 8275. Case Москва ул. Большая Пироговская, д. 4, стр. 1
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 8017 from 8275. Case Москва 5-я ул. Соколиной Горы, д. 14а
@@ -8618,6 +8600,8 @@ java.io.IOException: Server returned HTTP response code: 500 for URL: http://loc
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 8048 from 8275. Case Москва ул. 11-я Парковая, д. 32/61
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 8049 from 8275. Case Москва ул. Нижняя Первомайская, д. 70
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 8050 from 8275. Case Москва Сиреневый бул., д. 6
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Москва Сиреневый бул., д. 6 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 8051 from 8275. Case Москва ул. Вилюйская, д. 4, корп. 1
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 8052 from 8275. Case Москва ул. Верещагина, д. 7
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 8053 from 8275. Case Москва ул. Правобережная, д. 6-а
@@ -8652,8 +8636,6 @@ java.io.IOException: Server returned HTTP response code: 500 for URL: http://loc
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 8080 from 8275. Case Москва ул. Сосновая, д. 11
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 8081 from 8275. Case Москва ул. Щукинская, д. 1
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 8082 from 8275. Case Москва ул. Маршала Новикова, д. 23
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Москва ул. Маршала Новикова, д. 23 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 8083 from 8275. Case Москва ул. Пехотная, д. 3
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 8084 from 8275. Case Москва ул. Вилиса Лациса, д. 4
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 8085 from 8275. Case Москва ул. 4-я Тверская-Ямская, д. 16
@@ -8679,6 +8661,8 @@ java.io.IOException: Server returned HTTP response code: 500 for URL: http://loc
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 8103 from 8275. Case Москва 8-я улица Текстильщиков, д. 2
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 8104 from 8275. Case Москва Каширское ш., д. 34
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 8105 from 8275. Case Москва Федеративный просп., д. 17
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Москва Федеративный просп., д. 17 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 8106 from 8275. Case Москва ул. Новогиреевская, д. 1
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 8107 from 8275. Case Москва Загородное шоссе, 18а
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 8108 from 8275. Case Москва Каширское ш., д. 34А
@@ -8855,5 +8839,5 @@ java.io.IOException: Server returned HTTP response code: 500 for URL: http://loc
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Ненецкий автономный округ г. Нарьян-Мар, проезд капитана Матросова, д. 1 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Чукотский автономный округ Городской округ Анадырь, г. Анадырь, ул. Ленина, 23 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Чукотский автономный округ Городской округ Анадырь, г. Анадырь, ул. Отке, 25 
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 285 from 8275 are failed
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 277 from 8275 are failed
 [main] WARN me.osm.gazetteerweb.test.TestSearch - FAILED Search UIKs

@@ -8,6 +8,7 @@ import java.util.List;
 
 import me.osm.gazetteer.web.ESNodeHodel;
 import me.osm.gazetteer.web.api.imp.Query;
+import me.osm.gazetteer.web.api.utils.BuildSearchQContext;
 import me.osm.gazetteer.web.imp.IndexHolder;
 
 import org.apache.commons.lang3.StringUtils;
@@ -42,7 +43,7 @@ public class SuggestAPI extends SearchAPI {
 	}
 	
 	@Override
-	public BoolQueryBuilder getSearchQuerry(Query querry, boolean strict) {
+	public BoolQueryBuilder getSearchQuerry(Query querry, boolean strict, BuildSearchQContext context) {
 		
 		
 		BoolQueryBuilder searchQuerry = QueryBuilders.boolQuery();
@@ -64,7 +65,7 @@ public class SuggestAPI extends SearchAPI {
 			.mustNot(QueryBuilders.termQuery("weight", 0));
 		}
 		else {
-			super.mainSearchQ(head, searchQuerry, strict);
+			super.mainSearchQ(head, searchQuerry, strict, context);
 			searchQuerry.must(prefQ);
 		}
 		
