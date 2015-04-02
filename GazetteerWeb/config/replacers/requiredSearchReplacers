@@ -1,4 +1,4 @@
-([\d]+)\-?(я|й|ой|ий) => ///
+([\d]+)\-?(я|й|ой|ий|ый) => ///
 
 #8-я улица Ленина
 ${SU.lowerCase(groups[1])}-${SU.lowerCase(groups[2])}
@@ -10,7 +10,7 @@ ${SU.lowerCase(groups[1])}${SU.lowerCase(groups[2])}
 
 #50-летия Победы
 #50летия Победы
-([\d]+)[ -]?(летия|лет) => ///
+([\d]+)[ -]?(летия|лет)\b => ///
 
 ${SU.lowerCase(groups[1])}лет
 ${SU.lowerCase(groups[1])}летия
@@ -21,9 +21,19 @@ ${SU.lowerCase(groups[1])} летия
 
 ///
 
+#1905 года
+([\d]+)[ -]?(года)\b => ///
+
+${SU.lowerCase(groups[1])}
+${SU.lowerCase(groups[1])}года
+${SU.lowerCase(groups[1])}-го года
+${SU.lowerCase(groups[1])}го года
+
+///
+
 
 #8го марта, 20-ти бакинских коммисаров
-([\d]+)[ -]?(го|ти) => ///
+([\d]+)[ -]?(го|ти|ых)\b => ///
 
 #8 марта
 ${SU.lowerCase(groups[1])}

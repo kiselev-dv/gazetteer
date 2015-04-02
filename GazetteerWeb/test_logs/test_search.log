@@ -1,3 +1,18 @@
+[main] INFO org.elasticsearch.node - [Baphomet] version[1.4.0], pid[18223], build[bc94bd8/2014-11-05T14:26:12Z]
+[main] INFO org.elasticsearch.node - [Baphomet] initializing ...
+[main] INFO org.elasticsearch.plugins - [Baphomet] loaded [], sites []
+[main] INFO org.elasticsearch.script - [Baphomet] compiling script file [/opt/osm/gazetteer/GazetteerWeb/config/scripts/hn_count.groovy]
+[main] INFO org.elasticsearch.script - [Baphomet] compiling script file [/opt/osm/gazetteer/GazetteerWeb/config/scripts/score.expression]
+[main] INFO org.elasticsearch.node - [Baphomet] initialized
+[main] INFO org.elasticsearch.node - [Baphomet] starting ...
+[main] INFO org.elasticsearch.transport - [Baphomet] bound_address {inet[/0:0:0:0:0:0:0:0:9300]}, publish_address {inet[/192.168.224.198:9300]}
+[main] INFO org.elasticsearch.discovery - [Baphomet] OSM-Gazetteer/HUEryQLOTzWFZ7dYGybB8A
+[elasticsearch[Baphomet][clusterService#updateTask][T#1]] INFO org.elasticsearch.cluster.service - [Baphomet] new_master [Baphomet][HUEryQLOTzWFZ7dYGybB8A][dkiselev-N73SV][inet[/192.168.224.198:9300]], reason: zen-disco-join (elected_as_master)
+[main] INFO org.elasticsearch.http - [Baphomet] bound_address {inet[/0:0:0:0:0:0:0:0:9200]}, publish_address {inet[/192.168.224.198:9200]}
+[main] INFO org.elasticsearch.node - [Baphomet] started
+[elasticsearch[Baphomet][clusterService#updateTask][T#1]] INFO org.elasticsearch.gateway - [Baphomet] recovered [1] indices into cluster_state
+Define routes with web root: /api
+Gazetteer Web server listening on port 8080
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run Search UIKs
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 1 from 8275. Case Москва Борисовские пруды улица, д. 36, корп. 2
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2 from 8275. Case Республика Башкортостан город Уфа, ул. М.Ферина, д. 19/1
@@ -8385,8 +8400,6 @@
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7856 from 8275. Case Москва ул. Обручева, дом 11, корп. 1
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7857 from 8275. Case Москва Академика Миллионщикова улица, 20
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7858 from 8275. Case Москва 1-ый Нагатинский проезд, дом № 16
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Москва 1-ый Нагатинский проезд, дом № 16 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7859 from 8275. Case Москва ул. Плеханова, д.5Б
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7860 from 8275. Case Москва Федеративный просп., д. 37а
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7861 from 8275. Case Москва 16 Парковая ул., дом 20
@@ -8450,17 +8463,6 @@
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7917 from 8275. Case Москва ул. Вавилова, дом 25-1
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7918 from 8275. Case Москва улица В. Петушкова, дома 23, корпус № 1
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7919 from 8275. Case Москва ул. 1905 года, д. 8
-java.io.IOException: Server returned HTTP response code: 500 for URL: http://localhost:8080/api/location/_search?q=%D0%9C%D0%BE%D1%81%D0%BA%D0%B2%D0%B0+%D1%83%D0%BB.+1905+%D0%B3%D0%BE%D0%B4%D0%B0%2C+%D0%B4.+8&explain=true
-	at sun.net.www.protocol.http.HttpURLConnection.getInputStream(HttpURLConnection.java:1627)
-	at java.net.URL.openStream(URL.java:1037)
-	at me.osm.gazetteerweb.test.TestSearch.get(TestSearch.java:281)
-	at me.osm.gazetteerweb.test.TestSearch.getRequestResult(TestSearch.java:264)
-	at me.osm.gazetteerweb.test.TestSearch.doCase(TestSearch.java:90)
-	at me.osm.gazetteerweb.test.TestSearch.doTest(TestSearch.java:58)
-	at me.osm.gazetteerweb.test.TestSearch.main(TestSearch.java:37)
-[main] ERROR me.osm.gazetteerweb.test.TestSearch - failed to get answer
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	FAILED Empty answer
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Москва ул. 1905 года, д. 8 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7920 from 8275. Case Москва 1-й Хорошевский проезд, дом 8
 [main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
 [main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Москва 1-й Хорошевский проезд, дом 8 FAILED
@@ -8595,13 +8597,10 @@ java.io.IOException: Server returned HTTP response code: 500 for URL: http://loc
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 8045 from 8275. Case Москва ул. Стартовая, д. 4
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 8046 from 8275. Case Москва 3-я Парковая ул., д. 51
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 8047 from 8275. Case Москва ул. Вешняковская, д. 23
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Москва ул. Вешняковская, д. 23 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 8048 from 8275. Case Москва ул. 11-я Парковая, д. 32/61
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 8049 from 8275. Case Москва ул. Нижняя Первомайская, д. 70
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 8050 from 8275. Case Москва Сиреневый бул., д. 6
 [main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Москва Сиреневый бул., д. 6 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 8051 from 8275. Case Москва ул. Вилюйская, д. 4, корп. 1
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 8052 from 8275. Case Москва ул. Верещагина, д. 7
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 8053 from 8275. Case Москва ул. Правобережная, д. 6-а
@@ -8839,5 +8838,9 @@ java.io.IOException: Server returned HTTP response code: 500 for URL: http://loc
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Ненецкий автономный округ г. Нарьян-Мар, проезд капитана Матросова, д. 1 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Чукотский автономный округ Городской округ Анадырь, г. Анадырь, ул. Ленина, 23 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Чукотский автономный округ Городской округ Анадырь, г. Анадырь, ул. Отке, 25 
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 277 from 8275 are failed
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 273 from 8275 are failed
 [main] WARN me.osm.gazetteerweb.test.TestSearch - FAILED Search UIKs
+[Thread-1] INFO org.elasticsearch.node - [Baphomet] stopping ...
+[Thread-1] INFO org.elasticsearch.node - [Baphomet] stopped
+[Thread-1] INFO org.elasticsearch.node - [Baphomet] closing ...
+[Thread-1] INFO org.elasticsearch.node - [Baphomet] closed
