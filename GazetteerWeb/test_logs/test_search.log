@@ -710,16 +710,10 @@
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Белгородская область г. Белгород, улица Менделеева, 4 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Белгородская область г. Белгород, улица Железнякова, 4 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 673 from 8275. Case Белгородская область Старооскольский городской округ, г. Старый Оскол, микрорайон Студенческий, 4
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Белгородская область Старооскольский городской округ, г. Старый Оскол, микрорайон Студенческий, 4 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 674 from 8275. Case Белгородская область г. Белгород, улица Железнодорожная, 26
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 675 from 8275. Case Белгородская область Старооскольский городской округ, г. Старый Оскол, микрорайон Парковый, 27а
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Белгородская область Старооскольский городской округ, г. Старый Оскол, микрорайон Парковый, 27а FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Белгородская область г. Белгород, улица Королева, 5 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 677 from 8275. Case Белгородская область Старооскольский городской округ, г. Старый Оскол, микрорайон Студенческий, 5а
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Белгородская область Старооскольский городской округ, г. Старый Оскол, микрорайон Студенческий, 5а FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Белгородская область г. Белгород, улица Шаландина, 5 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Белгородская область г. Белгород, улица Костюкова, 13 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Белгородская область г. Белгород, улица Шаландина, 13 
@@ -1871,8 +1865,6 @@
 [main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
 [main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Костромская область г. Кострома, ул. Центральная, 50 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 1744 from 8275. Case Костромская область г. Кострома, микрорайон Черноречье, 2
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Костромская область г. Кострома, микрорайон Черноречье, 2 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Костромская область г. Кострома, Кинешемское шоссе, 25 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Костромская область г. Кострома, Кинешемское шоссе, 25/1 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Костромская область г. Кострома, Кинешемское шоссе, 23 
@@ -1917,8 +1909,6 @@
 [main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
 [main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Костромская область г. Кострома, микрорайон Юбилейный, 24А FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 1782 from 8275. Case Костромская область г. Кострома, микрорайон Черноречье, 23
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Костромская область г. Кострома, микрорайон Черноречье, 23 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 1783 from 8275. Case Костромская область Судиславский район, п. Судиславль, ул. Шаховское шоссе, 3
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Костромская область г. Кострома, ул. Бульварная, 21 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Костромская область г. Кострома, ул. Ленина, 3 
@@ -2753,6 +2743,8 @@
 [main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
 [main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Московская область г. Подольск, ул. Батырева, 2/7 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2558 from 8275. Case Московская область Коломенский район, поселок Сергиевский, ул. Центральная, д. 24
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Московская область Коломенский район, поселок Сергиевский, ул. Центральная, д. 24 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Московская область Сергиево-Посадский район, г. Сергиев Посад, ул. Птицеградская. 2 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2560 from 8275. Case Московская область г. Химки, ул. М.Рубцовой, д. 4
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2561 from 8275. Case Московская область г. Королев, ул. Калининградская, дом 12
@@ -5031,6 +5023,8 @@
 [main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
 [main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Смоленская область г. Сафоново, микрорайон-2, д. 18 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 4690 from 8275. Case Смоленская область г. Сафоново, микрорайон-1, д. 11а
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Смоленская область г. Сафоново, микрорайон-1, д. 11а FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 4691 from 8275. Case Смоленская область г. Сафоново, ул. Кутузова, д. 1
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 4692 from 8275. Case Смоленская область г. Сафоново, ул. Советская, д. 76
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 4693 from 8275. Case Смоленская область Сычевский район, город Сычевка, улица Станционное Шоссе, д.15а
@@ -8861,5 +8855,5 @@ java.io.IOException: Server returned HTTP response code: 500 for URL: http://loc
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Ненецкий автономный округ г. Нарьян-Мар, проезд капитана Матросова, д. 1 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Чукотский автономный округ Городской округ Анадырь, г. Анадырь, ул. Ленина, 23 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Чукотский автономный округ Городской округ Анадырь, г. Анадырь, ул. Отке, 25 
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 288 from 8275 are failed
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 285 from 8275 are failed
 [main] WARN me.osm.gazetteerweb.test.TestSearch - FAILED Search UIKs

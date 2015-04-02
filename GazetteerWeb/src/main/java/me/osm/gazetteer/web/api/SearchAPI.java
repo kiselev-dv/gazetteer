@@ -39,7 +39,7 @@ import org.elasticsearch.index.query.DisMaxQueryBuilder;
 import org.elasticsearch.index.query.FilterBuilder;
 import org.elasticsearch.index.query.FilterBuilders;
 import org.elasticsearch.index.query.FuzzyQueryBuilder;
-import org.elasticsearch.index.query.MatchQueryBuilder;
+import org.elasticsearch.index.query.MultiMatchQueryBuilder;
 import org.elasticsearch.index.query.OrFilterBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -267,7 +267,7 @@ public class SearchAPI {
 		
 		QueryBuilder qb = poiClass.isEmpty() ? QueryBuilders.filteredQuery(q, createPoiFilter(query)) : q;
 		
-		qb = rescore(qb, lat, lon, poiClass);
+		qb = rescore(qb, lat, lon, poiClass, false);
 		
 		List<String> bbox = getList(request, BBOX_HEADER);
 		if(!bbox.isEmpty() && bbox.size() == 4) {
@@ -388,7 +388,8 @@ public class SearchAPI {
 	 * 
 	 * @return Builder with rescored query
 	 * */
-	private static QueryBuilder rescore(QueryBuilder q, Double lat, Double lon, Set<String> poiClass) {
+	private static QueryBuilder rescore(QueryBuilder q, Double lat, 
+			Double lon, Set<String> poiClass, boolean shortHNFirst) {
 		
 		FunctionScoreQueryBuilder qb = 
 				QueryBuilders.functionScoreQuery(q)
@@ -403,6 +404,12 @@ public class SearchAPI {
 		qb.add(ScoreFunctionBuilders.fieldValueFactorFunction("weight").setWeight(0.005f));
 		
 		qb.add(ScoreFunctionBuilders.scriptFunction("score", "expression").setWeight(1));
+
+		if(shortHNFirst) {
+			String script = "def s = doc['housenumber'].values.size(); \n return (s == 0 ? 1 : 100/s)";
+			
+			qb.add(ScoreFunctionBuilders.scriptFunction(script, "groovy").setWeight(0.001f));
+		}
 		
 		return qb;
 	}
@@ -503,7 +510,7 @@ public class SearchAPI {
 	
 			if(token.isOptional()) {
 				
-				MatchQueryBuilder option = QueryBuilders.matchQuery("search", token.toString());
+				MultiMatchQueryBuilder option = QueryBuilders.multiMatchQuery(token.toString(), "search", "nearest_neighbour.name");
 				
 				//Optional but may be important
 				if(token.toString().length() > 3) {
@@ -575,6 +582,7 @@ public class SearchAPI {
 					for(String s : t.getVariants()) {
 						variantsQ.add(QueryBuilders.matchQuery("search", s).boost(1));
 						variantsQ.add(QueryBuilders.matchQuery("street_name", s).boost(10));
+						variantsQ.add(QueryBuilders.matchQuery("nearest_neighbour.name", s).boost(5));
 					}
 				}
 				else {
@@ -592,6 +600,7 @@ public class SearchAPI {
 				// In not strict variant term must appears in search field or in name of nearby street
 				// Also add fuzzines
 				QueryBuilder search = QueryBuilders.fuzzyQuery("search", term).boost(20);
+				QueryBuilder nearestN = QueryBuilders.matchQuery("nearest_neighbour.name", term).boost(10);
 				QueryBuilder nearestS = QueryBuilders.matchQuery("nearby_streets.name", term).boost(0.2f);
 				
 				if(!t.isFuzzied()) {
@@ -599,7 +608,10 @@ public class SearchAPI {
 					((FuzzyQueryBuilder) search).fuzziness(Fuzziness.ONE);
 				}
 				
-				requiredQ.should(QueryBuilders.disMaxQuery().add(search).add(nearestS).tieBreaker(0.4f));
+				requiredQ.should(QueryBuilders.disMaxQuery().tieBreaker(0.4f)
+						.add(search)
+						.add(nearestS)
+						.add(nearestN));
 				
 			}
 		}

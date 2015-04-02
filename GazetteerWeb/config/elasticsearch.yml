@@ -1,2 +1,3 @@
-script.disable_dynamic: true
+script.disable_dynamic: false
+script.groovy.sandbox.enabled: true
 #discovery.zen.ping.unicast=tr1.nowtaxi.ru
