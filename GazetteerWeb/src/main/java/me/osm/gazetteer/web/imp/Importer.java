@@ -176,14 +176,16 @@ public class Importer extends BackgroundExecutableTask {
 
 	private void executeBulk() {
 		
-		if(curentBulkRequest != null) {
+		if(curentBulkRequest != null && !curentBulkRequest.isDone()) {
 			BulkResponse bulkResponse = curentBulkRequest.actionGet();
 			if (bulkResponse.hasFailures()) {
 				log.error(bulkResponse.buildFailureMessage());
 			}
 		}
-
-		curentBulkRequest = bulkRequest.execute();
+		
+		if(bulkRequest.numberOfActions() > 0) {
+			curentBulkRequest = bulkRequest.execute();
+		}
 	}
 
 	private String processLine(String line) {

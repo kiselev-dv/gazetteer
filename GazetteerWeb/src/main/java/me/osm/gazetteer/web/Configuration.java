@@ -31,6 +31,7 @@ public class Configuration extends org.restexpress.util.Environment
 	private boolean resendRequestOnFail = true;
 	private int siteMapMapgeSize = 45000;
 	private List<String> siteMapTypes = Arrays.asList("poipnt");
+	private int executionQueueSize = 5;
 	
 	@Override
 	protected void fillValues(Properties p)
@@ -38,7 +39,7 @@ public class Configuration extends org.restexpress.util.Environment
 		this.name = p.getProperty(NAME_PROPERTY, RestExpress.DEFAULT_NAME);
 		this.port = Integer.parseInt(p.getProperty(PORT_PROPERTY, String.valueOf(RestExpress.DEFAULT_PORT)));
 		this.defaultFormat = p.getProperty(DEFAULT_FORMAT_PROPERTY, Format.JSON);
-		this.siteXMLFeatureURL = p.getProperty(SITE_FEATURE_URL, "/#!/map?fid={id}");
+		this.siteXMLFeatureURL = p.getProperty(SITE_FEATURE_URL, "/#!/ru/id/{id}/details");
 		this.serveStatic = "true".equals(p.getProperty("serve_static", "false"));
 		this.root = p.getProperty("web_root", "");
 		this.host = p.getProperty("sitemap_host_root", "");
@@ -50,6 +51,7 @@ public class Configuration extends org.restexpress.util.Environment
 		this.resendRequestOnFail = !"false".equals(p.getProperty("resend_request_on_fail", "true"));
 		this.siteMapMapgeSize = Integer.parseInt(p.getProperty("sitemap_page_size", "45000"));
 		this.siteMapTypes = Arrays.asList(StringUtils.split(p.getProperty("sitemap_types", "poipnt"), " ,;"));
+		this.executionQueueSize = Integer.parseInt(p.getProperty("execution_queue_size", "5"));
 	}
 
 	public String getDefaultFormat()
@@ -113,5 +115,9 @@ public class Configuration extends org.restexpress.util.Environment
 	
 	public List<String> listSiteMapTypes() {
 		return siteMapTypes;
+	}
+
+	public int getExecutionQueueSize() {
+		return executionQueueSize;
 	}
 }

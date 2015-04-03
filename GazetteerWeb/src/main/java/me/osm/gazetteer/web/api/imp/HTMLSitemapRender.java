@@ -16,7 +16,7 @@ public class HTMLSitemapRender extends ASitemapRender {
 		String featureURL = StringUtils.replace(featureUrlTemplate, "{id}", id);
 		featureURL = hostName + featureURL;
 		
-		sb.append("    <li><a href=\"/#!/map?fid=" + id + "\">" + id + "</a></li>\n");
+		sb.append("    <li><a href=\"/#!/ru/id/" + id + "/details\">" + id + "</a></li>\n");
 	}
 	
 	@Override

@@ -1,12 +1,16 @@
 <div class="address" itemprop="address">
 <%
+import org.apache.commons.lang3.StringUtils;
+
 	def first = true;
 	subj.address.parts.each { part -> 
 		if (part.name != null && part.name != "") { %>
 			<span class="addr-part-${part.lvl}">
-			<% if(part.lnk != null) { %>
+			<%
+			def lnkType = StringUtils.substringBefore(part.lnk, "-"); 
+			if(part.lnk != null && ("adrpnt".equals(lnkType) || "hghway".equals(lnkType)) ) { %>
 					${(first ? "" : "<span class='addr-part-delim'>&nbsp;</span>")}
-					<a href="${HTML_ROOT}#!/map?fid=${part.lnk}&details">${part.name}</a>
+					<a href="${HTML_ROOT}#!/ru/id/${part.lnk}/details">${part.name}</a>
 			<%}
 			else { %>
 				<span>${part.name}</span>
