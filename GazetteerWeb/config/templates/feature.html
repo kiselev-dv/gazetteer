@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html>
 	<head> <% if(f.name != null) { %>
 		<title>${f.name}</title><%}%>
@@ -8,18 +9,16 @@
 			
 			${RENDER.callTemplate('poi-types', f, f)}
 			
-			<p>
 			<h4>${RENDER.tr("templates.feature.address")}</h4>
 			<% for(address in f.addresses) { %>
 				${RENDER.callTemplate('address', f, address)}
 			<%}%>
-			</p>
 			
 			${RENDER.callTemplate('poi-more-tags', f, f)}
 		</div>
 		 
 		${RENDER.callTemplate('poi-related', f, f)}
 		
-		<a href="${HTML_ROOT}#!/map?fid=${f.feature_id}">${RENDER.tr("templates.feature.showOnMap")}</a>
+		<a href="${HTML_ROOT}#!/ru/id/${f.feature_id}">${RENDER.tr("templates.feature.showOnMap")}</a>
 	</body>
 </html>

@@ -2,12 +2,17 @@ import me.osm.gazetteer.web.api.imp.SnapshotRender;
 import groovy.text.SimpleTemplateEngine;
 import groovy.json.JsonSlurper;
 import me.osm.gazetteer.web.utils.OSMDocSinglton;
+
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.LoggerFactory;
+
 import me.osm.osmdoc.model.Tag.TagValueType;
 
 import java.util.Locale;
 
 class HTMLSnapshotRender implements SnapshotRender {
+	
+	def log = LoggerFactory.getLogger("HTMLSnapshotRender");
 	
 	def engine = new SimpleTemplateEngine();
 	
@@ -56,13 +61,19 @@ class HTMLSnapshotRender implements SnapshotRender {
 	@Override
 	public String render(String json, String templateName) {
 		def jsonObj = new JsonSlurper().parseText(json);
-		return templates[templateName].make([
+		def result = templates[templateName].make([
 			"f":jsonObj, 
 			"HTML_ROOT": "/", 
 			"RENDER":this, 
 			"OSM_DOC": osmdoc, 
 			"LOCALE": locale
 		]).toString();
+	
+		if(StringUtils.contains(result, "map?fid=AU")) {
+			log.debug("template: {}, feature: {}", templateName, json);
+		}
+		
+		return result;
 	}
 	
 	public String tr(String key) {

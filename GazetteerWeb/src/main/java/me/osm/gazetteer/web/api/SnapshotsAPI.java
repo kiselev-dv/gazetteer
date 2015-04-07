@@ -76,16 +76,17 @@ public class SnapshotsAPI {
 				}
 				
 				if(StringUtils.contains(parameters, "/id/")) {
-					String[] fids = StringUtils.substringsBetween(parameters, "id/", "/details");
-					if(fids.length > 0) {
-						JSONObject feature = FeatureAPI.getFeature(fids[0], true);
-						
-						if(feature != null) {
-							renderFeatureSnapshot(res, feature);
-						}
-						else {
-							res.setResponseCode(404);
-						}
+					String id = StringUtils.substringAfter(parameters, "/id/");
+					id = StringUtils.substringBefore(id, "/details");
+					
+					JSONObject feature = FeatureAPI.getFeature(id, true);
+					
+					if(feature != null) {
+						renderFeatureSnapshot(res, feature);
+					}
+					else {
+						res.setResponseCode(404);
+						return;
 					}
 				}
 				else {
@@ -94,6 +95,19 @@ public class SnapshotsAPI {
 					if(args.get("index_page") != null) {
 						int page = Integer.parseInt(args.get("index_page"));
 						renderSitemapPage(page, res);
+						return;
+					}
+					
+					if(args.get("fid") != null) {
+						JSONObject feature = FeatureAPI.getFeature(args.get("fid"), true);
+						
+						if(feature != null) {
+							renderFeatureSnapshot(res, feature);
+						}
+						else {
+							res.setResponseCode(404);
+							return;
+						}
 					}
 				}
 				
