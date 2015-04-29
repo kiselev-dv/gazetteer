@@ -3,6 +3,7 @@ package me.osm.gazetteer.web.api.imp;
 import me.osm.gazetteer.web.Configuration;
 
 import org.apache.commons.lang3.StringUtils;
+import org.json.JSONObject;
 
 public class HTMLSitemapRender extends ASitemapRender {
 
@@ -12,7 +13,7 @@ public class HTMLSitemapRender extends ASitemapRender {
 
 
 	@Override
-	public void feature(String id) {
+	public void feature(String id, JSONObject obj) {
 		String featureURL = StringUtils.replace(featureUrlTemplate, "{id}", id);
 		featureURL = hostName + featureURL;
 		

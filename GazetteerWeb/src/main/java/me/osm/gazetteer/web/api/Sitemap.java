@@ -1,6 +1,7 @@
 package me.osm.gazetteer.web.api;
 
 import java.io.UnsupportedEncodingException;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -18,8 +19,10 @@ import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.SearchHitField;
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.buffer.ChannelBuffers;
+import org.json.JSONObject;
 import org.restexpress.Request;
 import org.restexpress.Response;
 
@@ -70,7 +73,8 @@ public class Sitemap {
 		
 		SearchRequestBuilder searchQ = client.prepareSearch("gazetteer")
 				.setTypes(IndexHolder.LOCATION)
-				.setNoFields()
+				.addField("id")
+				.addField("timestamp")
 				.setQuery(QueryBuilders.termsQuery("type", config.listSiteMapTypes()))
 				.setExplain(false);
 		
@@ -90,7 +94,11 @@ public class Sitemap {
 				id = StringUtils.substringBefore(id, "--");
 			}
 			
-			render.feature(id);
+			JSONObject obj = new JSONObject();
+			for(Map.Entry<String, SearchHitField> field : hit.getFields().entrySet()) {
+				obj.put(field.getKey(), field.getValue().getValue().toString()); 
+			}
+			render.feature(id, obj);
 		}
 		
 		render.pageEnd();

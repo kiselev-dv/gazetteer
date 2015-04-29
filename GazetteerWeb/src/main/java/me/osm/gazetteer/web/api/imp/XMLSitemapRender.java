@@ -1,8 +1,12 @@
 package me.osm.gazetteer.web.api.imp;
 
+import java.util.Date;
+
 import me.osm.gazetteer.web.Configuration;
 
 import org.apache.commons.lang3.StringUtils;
+import org.elasticsearch.common.joda.time.DateTime;
+import org.json.JSONObject;
 
 public class XMLSitemapRender extends ASitemapRender {
 
@@ -21,12 +25,16 @@ public class XMLSitemapRender extends ASitemapRender {
 	}
 
 	@Override
-	public void feature(String id) {
+	public void feature(String id, JSONObject obj) {
 		String featureURL = StringUtils.replace(featureUrlTemplate, "{id}", id);
 		featureURL = hostName + featureURL;
 		
 		sb.append("    <url>\n");
 		sb.append("        <loc>").append(featureURL).append("</loc>");
+		if(obj.has("timestamp")) {
+			DateTime dateTime = new DateTime(obj.getString("timestamp"));
+			sb.append("        <lastmod>").append(dateTime.toLocalDate().toString()).append("</lastmod>");
+		}
 		sb.append("    </url>\n");
 	}
 	
