@@ -52,7 +52,9 @@ public class SuggestAPI extends SearchAPI {
 		
 		Query tail = querry.tail();
 		if(tail.countNumeric() == 1) {
-			prefQ = QueryBuilders.matchQuery("search", tail.toString());
+			prefQ = QueryBuilders.disMaxQuery()
+					.add(QueryBuilders.termQuery("housenumber", tail.toString()))
+					.add(QueryBuilders.matchQuery("search", tail.toString()));
 		}
 		else {
 			prefQ = QueryBuilders.prefixQuery("name.text", tail.toString());
