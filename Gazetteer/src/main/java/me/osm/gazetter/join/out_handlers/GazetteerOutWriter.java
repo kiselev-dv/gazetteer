@@ -268,6 +268,16 @@ public class GazetteerOutWriter extends AddressPerRowJOHBase  {
 	}
 	
 	@Override
+	protected void handleHighwayNetAddrRow(JSONObject object, JSONObject address,
+			String stripe) {
+		
+		JSONFeature result = new JSONFeature();
+		fillObject(result, address, object);
+		println(result.toString());
+		flush();
+	}
+	
+	@Override
 	protected void handlePlaceBoundaryAddrRow(JSONObject object, JSONObject address,
 			String stripe) {
 		
@@ -358,6 +368,10 @@ public class GazetteerOutWriter extends AddressPerRowJOHBase  {
 		JSONObject centroid = getCentroid(jsonObject, ftype);
 		if(centroid != null) {
 			result.put(GAZETTEER_SCHEME_CENTER_POINT, centroid);
+		}
+		
+		if(FeatureTypes.HIGHWAY_NET_FEATURE_TYPE.equals(ftype)) {
+			result.put("members", jsonObject.get("members"));
 		}
 		
 		if(fullGeometry) {
@@ -468,11 +482,14 @@ public class GazetteerOutWriter extends AddressPerRowJOHBase  {
 					jsonObject.getJSONObject(GeoJsonWriter.GEOMETRY)
 						.getJSONArray(GeoJsonWriter.COORDINATES));
 			
-			Coordinate c = new LocatePoint(ls, 0.5).getPoint();
+			Coordinate c = new LocatePoint(ls, ls.getLength() * 0.5).getPoint();
 			result.put("lon", c.x);
 			result.put("lat", c.y);
 		}
-		else {
+		else if (jsonObject.has("center_point")) {
+			return jsonObject.getJSONObject("center_point");
+		}
+		else{
 			JSONArray coords = jsonObject.getJSONObject(GeoJsonWriter.GEOMETRY)
 					.getJSONArray(GeoJsonWriter.COORDINATES);
 			

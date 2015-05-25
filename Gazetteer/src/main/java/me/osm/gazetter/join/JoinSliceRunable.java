@@ -3,6 +3,7 @@ package me.osm.gazetter.join;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -28,18 +29,22 @@ import me.osm.gazetter.addresses.sorters.StreetHNCityComparator;
 import me.osm.gazetter.join.PoiAddrJoinBuilder.BestFitAddresses;
 import me.osm.gazetter.join.out_handlers.JoinOutHandler;
 import me.osm.gazetter.join.util.JoinFailuresHandler;
+import me.osm.gazetter.join.util.JsonObjectWrapper;
 import me.osm.gazetter.join.util.MemorySupervizor;
 import me.osm.gazetter.join.util.MemorySupervizor.InsufficientMemoryException;
 import me.osm.gazetter.striper.FeatureTypes;
 import me.osm.gazetter.striper.GeoJsonWriter;
 import me.osm.gazetter.striper.JSONFeature;
 import me.osm.gazetter.utils.FileUtils;
+import me.osm.gazetter.utils.HilbertCurveHasher;
+import me.osm.gazetter.utils.LocatePoint;
 import me.osm.gazetter.utils.FileUtils.LineHandler;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DurationFormatUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.json.JSONWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -111,7 +116,7 @@ public class JoinSliceRunable implements Runnable {
 	// dependancies --------------------------------------------------------------------------------
 	private final PoiAddrJoinBuilder poiAddrJoinBuilder = new PoiAddrJoinBuilder();
 	private final AddressesParser addressesParser = Options.get().getAddressesParser();
-	private final NamesMatcher namesMatcher = Options.get().getNamesMatcher();
+	final NamesMatcher namesMatcher = Options.get().getNamesMatcher();
 	private final AddrLevelsComparator addrLevelComparator;
 	
 	// misc
@@ -547,6 +552,114 @@ public class JoinSliceRunable implements Runnable {
 		
 	}
 
+	/**
+	 * Find unique streets' addresses
+	 * */
+	private void createStreetsNetworks() {
+		List<JSONObject> streetParts = new ArrayList<>(); 
+		
+		Iterator<JSONObject> iterator = streets.iterator();
+		while(iterator.hasNext()) {
+			JSONObject jsonObject = iterator.next();
+			
+			JSONArray boundaries = jsonObject.optJSONArray("boundaries");
+			if(boundaries != null) {
+				for(int i = 0; i < boundaries.length(); i++) {
+					JSONObject b = boundaries.getJSONObject(i);
+					long bhash = b.getLong("boundariesHash");
+
+					JSONFeature hghway = new JSONFeature(jsonObject, new String[]{"id", "properties", "geometry"});
+					hghway.put("boundariesHash", bhash);
+					hghway.put("boundaries", new JSONArray(Arrays.asList(b)));
+					
+					streetParts.add(hghway);
+				}
+			}
+			
+			iterator.remove();
+		}
+		
+		Collections.sort(streetParts, StreetsSorterByNameAndBoundaries.INSTANCE);
+		
+		if(streetParts.size() > 1) {
+			List<JSONObject> streetsNetBunch = new ArrayList<>();
+
+			JSONObject prev = streetParts.get(0);
+			streetsNetBunch.add(prev);
+			
+			for(int i = 1; i < streetParts.size(); i++) {
+				JSONObject next = streetParts.get(i);
+				
+				int compare = StreetsSorterByNameAndBoundaries.INSTANCE.compare(prev, next);
+			
+				// Equals
+				if(compare == 0) {
+					streetsNetBunch.add(next);
+				}
+				else {
+					joinStreetsNet(streetsNetBunch);
+					streetsNetBunch.clear();
+					streetsNetBunch.add(next);
+				}
+				prev = next;
+			}
+			
+			if(!streetsNetBunch.isEmpty()) {
+				joinStreetsNet(streetsNetBunch);
+			}
+		}
+	}
+
+	private void joinStreetsNet(List<JSONObject> streetsNetBunch) {
+		if(!streetsNetBunch.isEmpty()) {
+			JSONObject first = streetsNetBunch.get(0);
+			JSONFeature hghnet = new JSONFeature(first);
+			
+			JSONObject cp = new JSONObject();
+			cp.put("type", "Point");
+			
+			LineString ls = GeoJsonWriter.getLineStringGeometry(
+					first.getJSONObject(GeoJsonWriter.GEOMETRY)
+						.getJSONArray(GeoJsonWriter.COORDINATES));
+			
+			Coordinate c = new LocatePoint(ls, ls.getLength() * 0.5).getPoint();
+			cp.put("lon", c.x);
+			cp.put("lat", c.y);
+			
+			long hash = HilbertCurveHasher.encode(cp.getDouble("lon"), cp.getDouble("lat"));
+			
+			String name = AddressesUtils.filterNameTags(first).get("name");
+			
+			String nameHash = StringUtils.replaceChars(
+					String.valueOf(name.hashCode()), '-', 'm');
+			
+			String id = "hghnet" + "-" + String.format("%010d", hash) + 
+					"-" + nameHash;
+			
+			hghnet.put("id", id);
+			hghnet.put("feature_id", id);
+			hghnet.put("type", "hghnet");
+			hghnet.put("ftype", "hghnet");
+
+			hghnet.put("center_point", cp);
+
+			hghnet.remove("full_geometry");
+			hghnet.remove("geometry");
+			
+			JSONArray members = new JSONArray();
+			for(JSONObject o : streetsNetBunch) {
+				members.put(o.getString("id"));
+			}
+			
+			hghnet.put("members", members);
+			
+			GeoJsonWriter.addTimestamp(hghnet);
+			GeoJsonWriter.addMD5(hghnet);
+			
+			handleOut(hghnet);
+		}
+	}
+
 	private void joinNeighbourPlaces(List<JSONObject> places,
 			List<JSONObject> placesVoronoi) {
 
@@ -886,6 +999,8 @@ public class JoinSliceRunable implements Runnable {
 			}
 			
 			s = debug("write out neighboursVoronoi", s);
+			
+			createStreetsNetworks();
 		}
 		catch (Exception e) {
 			throw new RuntimeException(e);

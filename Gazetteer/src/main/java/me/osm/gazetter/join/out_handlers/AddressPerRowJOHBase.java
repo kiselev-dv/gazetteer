@@ -55,6 +55,10 @@ public abstract class AddressPerRowJOHBase extends SingleWriterJOHBase {
 		if(FeatureTypes.HIGHWAY_FEATURE_TYPE.equals(ftype)) {
 			handleHighwayAddrRow(object, address, stripe);
 		}
+
+		if(FeatureTypes.HIGHWAY_NET_FEATURE_TYPE.equals(ftype)) {
+			handleHighwayNetAddrRow(object, address, stripe);
+		}
 		
 		if(FeatureTypes.JUNCTION_FTYPE.equals(ftype)) {
 			handleHighwaysJunction(object, address, stripe);
@@ -103,6 +107,14 @@ public abstract class AddressPerRowJOHBase extends SingleWriterJOHBase {
 	}
 	
 	/**
+	 * Override to process Highways networks
+	 * */
+	protected void handleHighwayNetAddrRow(JSONObject object, JSONObject address,
+			String stripe) {
+		
+	}
+	
+	/**
 	 * Override to process Highways Junctions
 	 * */
 	protected void handleHighwaysJunction(JSONObject object,
@@ -142,6 +154,17 @@ public abstract class AddressPerRowJOHBase extends SingleWriterJOHBase {
 		}
 		
 		else if(FeatureTypes.HIGHWAY_FEATURE_TYPE.equals(ftype)) {
+			JSONArray boundaries = jsonObject.optJSONArray("boundaries");
+			if(boundaries != null) {
+				List<JSONObject> result = new ArrayList<JSONObject>();
+				for(int i = 0; i < boundaries.length(); i++) {
+					result.add(boundaries.getJSONObject(i));
+				}
+				return result;
+			}
+		}
+
+		else if(FeatureTypes.HIGHWAY_NET_FEATURE_TYPE.equals(ftype)) {
 			JSONArray boundaries = jsonObject.optJSONArray("boundaries");
 			if(boundaries != null) {
 				List<JSONObject> result = new ArrayList<JSONObject>();

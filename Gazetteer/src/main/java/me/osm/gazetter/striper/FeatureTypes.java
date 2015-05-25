@@ -13,4 +13,5 @@ public class FeatureTypes {
 	public static final String ADDR_NODE_2_BUILDING = "adnbdg";
 	public static final String POI_2_BUILDING = "poibdg";
 	public static final String ASSOCIATED_STREET = "ascstr";
+	public static final String HIGHWAY_NET_FEATURE_TYPE = "hghnet";
 }

@@ -57,14 +57,31 @@ public final class JSONFeature extends JSONObject {
 		return keys.iterator();
 	}
 	
+	/**
+	 * Instanciate copy (not deep, only direct children will be copied) 
+	 * */
 	public JSONFeature (JSONObject obj) {
 		super(obj, JSONObject.getNames(obj));
 	}
+
+	/**
+	 * Instanciate copy (not deep, only direct children will be copied)
+	 * but copy only provided keys 
+	 * */
+	public JSONFeature (JSONObject obj, String[] keys) {
+		super(obj, JSONObject.getNames(obj));
+	}
 	
+	/**
+	 * Default constructor
+	 * */
 	public JSONFeature() {
 		super();
 	}
 	
+	/**
+	 * Copy id and tags
+	 * */
 	public static JSONObject asRefer(JSONObject feature) {
 		JSONObject result = new JSONObject();
 		result.put("id", feature.getString("id"));
@@ -72,6 +89,9 @@ public final class JSONFeature extends JSONObject {
 		return result;
 	}
 
+	/**
+	 * Copy id and tags for collection
+	 * */
 	public static List<JSONObject> asRefers(Collection<JSONObject> features) {
 		List<JSONObject> result = new ArrayList<>();
 		if(features != null) {
@@ -82,6 +102,9 @@ public final class JSONFeature extends JSONObject {
 		return result;
 	}
 
+	/**
+	 * Copy id and tags for collection
+	 * */
 	public static List<JSONObject> asRefers(JSONArray features) {
 		List<JSONObject> result = new ArrayList<>();
 		if(features != null) {
