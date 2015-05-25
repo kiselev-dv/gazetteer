@@ -1,7 +1,5 @@
 package me.osm.gazetteer.web.api.imp;
 
-import java.util.Date;
-
 import me.osm.gazetteer.web.Configuration;
 
 import org.apache.commons.lang3.StringUtils;

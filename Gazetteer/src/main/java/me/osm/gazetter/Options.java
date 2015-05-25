@@ -27,7 +27,6 @@ import me.osm.gazetter.addresses.sorters.StreetHNCityComparator;
 import me.osm.gazetter.join.out_handlers.GazetteerOutWriter;
 import me.osm.gazetter.join.out_handlers.JoinOutHandler;
 import me.osm.gazetter.join.out_handlers.PrintJoinOutHandler;
-import me.osm.gazetter.out.CSVOutLineHandler;
 import me.osm.gazetter.out.CSVOutWriter;
 
 import org.apache.commons.lang3.StringUtils;
@@ -90,33 +89,6 @@ public class Options {
 		AddressesParser adrParser = getAddrParser(groovyFormatter, sorting, skippInFullText, findLangs);
 		
 		instance = new Options(sorting, adrParser, new NamesMatcherImpl(), findLangs);
-	}
-
-	private static CSVOutLineHandler getCSVHandler(String csvOutLineHandlerFile) {
-		
-		try {
-			
-			if(StringUtils.isNotEmpty(csvOutLineHandlerFile)) {
-				GroovyClassLoader gcl = new GroovyClassLoader(Options.class.getClassLoader());
-				try
-				{
-					Class<?> clazz = gcl.parseClass(new File(csvOutLineHandlerFile));
-					Object aScript = clazz.newInstance();
-					
-					if(aScript instanceof CSVOutLineHandler) {
-						return (CSVOutLineHandler) aScript;
-					}
-				}
-				finally {
-					gcl.close();
-				}
-			}
-		}
-		catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-		
-		return null;
 	}
 
 	private static AddressesParser getAddrParser(String groovyFormatter, AddrLevelsSorting sorting, 

@@ -21,6 +21,7 @@ public class AddressesSchemesParserImpl implements AddressesSchemesParser {
 	
 	private static final Logger log = LoggerFactory.getLogger(AddressesSchemesParserImpl.class);
 	
+	@SuppressWarnings("unchecked")
 	@Override
 	public List<JSONObject> parseSchemes(JSONObject properties) {
 		
@@ -141,12 +142,14 @@ public class AddressesSchemesParserImpl implements AddressesSchemesParser {
 				JSONObject addr = JSONFeature.copy(obj);
 				result.add(addr);
 
-				for(int i = 2;;i++) {
+				for(int i = 2; true; i++) {
 					if(obj.has("addr:housenumber" + i)) {
 						addr = JSONFeature.copy(obj);
 						addr.put("addr:housenumber", obj.get("addr:housenumber" + i));
 					}
-					break;
+					else {
+						break;
+					}
 				}
 			}
 			else {

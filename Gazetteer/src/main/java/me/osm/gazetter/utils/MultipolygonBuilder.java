@@ -151,7 +151,10 @@ public class MultipolygonBuilder {
      * An exception indicating an error while joining ways to multipolygon rings.
      */
     public static class JoinedPolygonCreationException extends RuntimeException {
-        /**
+        
+		private static final long serialVersionUID = 2418483422593897394L;
+
+		/**
          * Constructs a new {@code JoinedPolygonCreationException}.
          * @param message the detail message. The detail message is saved for
          *                later retrieval by the {@link #getMessage()} method

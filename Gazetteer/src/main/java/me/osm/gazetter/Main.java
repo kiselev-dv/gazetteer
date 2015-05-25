@@ -78,8 +78,6 @@ public class Main {
 	private static Subparser slice;
 	private static Subparser join;
 	private static Subparser update;
-	private static Subparser outCSV;
-	private static Subparser outGazetteer;
 	private static Subparser man;
 	private static Subparser diff;
 
@@ -298,9 +296,6 @@ public class Main {
 		System.out.print("\n\n\nUPDATE\n\n");
 		update.printHelp();
 
-		System.out.print("\n\n\nOUT CSV\n\n");
-		outCSV.printHelp();
-		
 		System.out.print("\n\n\nDIFF\n\n");
 		diff.printHelp();
 	}

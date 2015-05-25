@@ -31,7 +31,6 @@ public class SortAndUpdateTask implements Runnable {
 	public void run() {
 		try {
 			
-			@SuppressWarnings("unchecked")
 			List<String> lines = me.osm.gazetter.utils.FileUtils.readLines(stripeF);
 			
 			Collections.sort(lines, new Comparator<String>() {
