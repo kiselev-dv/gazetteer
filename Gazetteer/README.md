@@ -11,6 +11,8 @@ With next goals in mind:
 Use latest release
 ------------------
 
+You could find binaries here https://github.com/kiselev-dv/gazetteer/releases/
+
 
 Or compile with apache maven
 ------------------
