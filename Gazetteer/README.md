@@ -73,6 +73,11 @@ Addresses stored inside address.parts array and arranged by levels as
 
 See: /GazetteerWeb/src/main/resources/mappings/location.json
 
+Javadoc
+-------
+
+https://kiselev-dv.github.io/gazetteer
+
 Tips and Trics
 --------------
 
