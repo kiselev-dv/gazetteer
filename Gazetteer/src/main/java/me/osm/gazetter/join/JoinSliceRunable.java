@@ -29,22 +29,20 @@ import me.osm.gazetter.addresses.sorters.StreetHNCityComparator;
 import me.osm.gazetter.join.PoiAddrJoinBuilder.BestFitAddresses;
 import me.osm.gazetter.join.out_handlers.JoinOutHandler;
 import me.osm.gazetter.join.util.JoinFailuresHandler;
-import me.osm.gazetter.join.util.JsonObjectWrapper;
 import me.osm.gazetter.join.util.MemorySupervizor;
 import me.osm.gazetter.join.util.MemorySupervizor.InsufficientMemoryException;
 import me.osm.gazetter.striper.FeatureTypes;
 import me.osm.gazetter.striper.GeoJsonWriter;
 import me.osm.gazetter.striper.JSONFeature;
 import me.osm.gazetter.utils.FileUtils;
+import me.osm.gazetter.utils.FileUtils.LineHandler;
 import me.osm.gazetter.utils.HilbertCurveHasher;
 import me.osm.gazetter.utils.LocatePoint;
-import me.osm.gazetter.utils.FileUtils.LineHandler;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DurationFormatUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.json.JSONWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

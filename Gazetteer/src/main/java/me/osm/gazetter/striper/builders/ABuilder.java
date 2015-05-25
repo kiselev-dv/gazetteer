@@ -2,10 +2,6 @@ package me.osm.gazetter.striper.builders;
 
 import gnu.trove.list.TLongList;
 
-import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.List;
-
 
 public abstract class ABuilder implements Builder {
 	

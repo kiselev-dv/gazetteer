@@ -3,8 +3,6 @@ package me.osm.gazetter.addresses;
 import java.util.Map;
 import java.util.Set;
 
-import org.json.JSONObject;
-
 /**
  * Names matching.
  * */

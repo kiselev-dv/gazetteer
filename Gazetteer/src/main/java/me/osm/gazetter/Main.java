@@ -11,7 +11,6 @@ import java.util.List;
 
 import me.osm.gazetter.addresses.AddrLevelsSorting;
 import me.osm.gazetter.join.JoinExecutor;
-import me.osm.gazetter.out.CSVOutWriter;
 import me.osm.gazetter.out.Diff;
 import me.osm.gazetter.sortupdate.SortUpdate;
 import me.osm.gazetter.split.Split;
@@ -19,7 +18,6 @@ import me.osm.gazetter.striper.Slicer;
 import net.sourceforge.argparse4j.ArgumentParsers;
 import net.sourceforge.argparse4j.impl.Arguments;
 import net.sourceforge.argparse4j.impl.action.StoreTrueArgumentAction;
-import net.sourceforge.argparse4j.inf.ArgumentAction;
 import net.sourceforge.argparse4j.inf.ArgumentParser;
 import net.sourceforge.argparse4j.inf.ArgumentParserException;
 import net.sourceforge.argparse4j.inf.Namespace;
