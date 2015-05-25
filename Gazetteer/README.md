@@ -76,14 +76,14 @@ See: /GazetteerWeb/src/main/resources/mappings/location.json
 Tips and Trics
 --------------
 
-1 Speed and memory consumption
+#### 1 Speed and memory consumption
 
-1.a Speedup split
+##### 1.a Speedup split
 
 	# it's faster to use systems bunzip:
 	bzcat country.osm.bz2 | java -jar gazetteer.jar split - none
 
-1.b Memory tweaking
+##### 1.b Memory tweaking
 	
 	# First option is to use --x10 flag for slice
 	# it says to gazetteer to slice data into smaller peaces  
@@ -101,48 +101,48 @@ Tips and Trics
 	# if you still gets OutOfMemory on join stage, try to set down number of threads
 	java -jar gazetteer.jar --threads 2 join --handlers out-gazetteer file.json.gz 
 	
-2 How to get only smth. (Streets only or POI's only and so on).
-```    
-    # Split as always 
-    java -jar gazetteer.jar split country.osm
-
-    # Specify type of data which will be used in slice stage
-    java -jar gazetteer.jar slice boundaries places highways
-    
-    # Join as always
-    java -jar gazetteer.jar join --handlers out-gazetteer file.json.gz
-```   
-3 How to filter data by boundary
-```     	
- 	# Use --check-boundaries boundary1 boundary2 ... Boundaries are combined via and. 
- 	# So result should have boundary1 and boundary2 and so on.
- 	# Boundaries encoded as [r,w]NNNNNNN 
- 	# r for relations, w for ways
- 	# NNNNNNN - relation or way number
-    
-    java -jar gazetteer.jar join --check-boundaries r123456 --handlers out-gazetteer file.json.gz
-    
-    # And remember, if you use --check-boundaries and boundary wasn't parsed during slice stage
-    # results will be empty
-```    
-4 What can I do with broken boundaries (see option 3).    
-```    
+#### 2 How to get only smth. (Streets only or POI's only and so on).
+	    
+	# Split as always 
+	java -jar gazetteer.jar split country.osm
+	
+	# Specify type of data which will be used in slice stage
+	java -jar gazetteer.jar slice boundaries places highways
+	
+	# Join as always
+	java -jar gazetteer.jar join --handlers out-gazetteer file.json.gz
+	   
+#### 3 How to filter data by boundary
+	     	
+	# Use --check-boundaries boundary1 boundary2 ... Boundaries are combined via and. 
+	# So result should have boundary1 and boundary2 and so on.
+	# Boundaries encoded as [r,w]NNNNNNN 
+	# r for relations, w for ways
+	# NNNNNNN - relation or way number
+	
+	java -jar gazetteer.jar join --check-boundaries r123456 --handlers out-gazetteer file.json.gz
+	
+	# And remember, if you use --check-boundaries and boundary wasn't parsed during slice stage
+	# results will be empty
+	    
+#### 4 What can I do with broken boundaries (see option 3).    
+	    
 	# Use --boundaries-fallback-file option.
 	# Fall back file is a simple csv file with 
 	# id, timestamp and geometry (as wkt) of boundaries
-    	
+		
 	# So you could add prebuilded boundary into this file
 	# or use this file for every conversion, in this case
 	# if new version of osm dump has broken boundary multipolygon
 	# old version will be used. And if boundary successfully parsed
 	# and has valid geometry, boundary fallback file will be updated. 
-    	
+		
 	java -jar gazetteer.jar slice --boundaries-fallback-file boundaries.csv
-```	
-5 POI classification.
-```    
+		
+#### 5 POI classification.
+	    
 	# By default poi parsed and filtered according to https://github.com/kiselev-dv/osm-doc 
 	# You could specify your own osm-doc xml via --poi-catalog
-    	
+	
 	java -jar gazetteer.jar slice --poi-catalog osm-doc.xml
-```
+	
