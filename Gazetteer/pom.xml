@@ -88,9 +88,9 @@
 			<version>2.2.2</version>
 		</dependency>
 		<dependency>
-			<groupId>com.google.code.externalsortinginjava</groupId>
-			<artifactId>externalsortinginjava</artifactId>
-			<version>0.1.10-SNAPSHOT</version>
+			<groupId>me.osm.gazetteer</groupId>
+			<artifactId>ExternalSorting</artifactId>
+			<version>0.1.10</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.lucene</groupId>

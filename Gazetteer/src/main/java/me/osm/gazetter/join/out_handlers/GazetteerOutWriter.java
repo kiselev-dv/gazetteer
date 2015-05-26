@@ -873,7 +873,7 @@ public class GazetteerOutWriter extends AddressPerRowJOHBase  {
 			initializeWriter(outFile);
 			
 			ExternalSort.mergeSortedFiles(batch, new BufferedWriter(writer), 
-					new JSONByIdComparator(), Charset.forName("utf-8"), true, true);
+					new JSONByIdComparator(), Charset.forName("utf-8"), true, true, ReduceHighwayNetworks.INSTANCE);
 			
 		}
 		catch (Exception e) {
