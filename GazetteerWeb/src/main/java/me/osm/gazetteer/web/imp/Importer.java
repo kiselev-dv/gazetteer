@@ -11,6 +11,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -46,6 +47,11 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.LineString;
+import com.vividsolutions.jts.operation.linemerge.LineMerger;
+
 public class Importer extends BackgroundExecutableTask {
 	
 	private static final OSMDocFacade FACADE = OSMDocSinglton.get().getFacade();
@@ -69,6 +75,8 @@ public class Importer extends BackgroundExecutableTask {
 	private ListenableActionFuture<BulkResponse> curentBulkRequest;
 	
 	private List<Replacer> replasers = new ArrayList<>(); 
+	
+	private static final GeometryFactory factory = new GeometryFactory();
 	
 	private static class EmptyAddressException extends Exception {
 		private static final long serialVersionUID = 8178453133841622471L;
@@ -190,11 +198,18 @@ public class Importer extends BackgroundExecutableTask {
 
 	private String processLine(String line) {
 		try {
+			
 			JSONObject obj = new JSONObject(line);
+
+			if(doSkip(obj)) {
+				return null;
+			}
 			
 			if(!buildingsGeometry) {
 				obj = filterFullGeometry(obj);
 			}
+			
+			obj = mergeHighwayNetsGeometry(obj);
 			
 			filterAddrPartsNames(obj);
 			
@@ -228,6 +243,40 @@ public class Importer extends BackgroundExecutableTask {
 			return null;
 		}
 		
+	}
+
+	private JSONObject mergeHighwayNetsGeometry(JSONObject jsonObject) {
+		
+		if(jsonObject.getString("type").equals(FeatureTypes.HIGHWAY_NET_FEATURE_TYPE)) {
+			JSONArray geometriesArray = jsonObject.getJSONArray("geometries");
+			
+			List<LineString> lss = new ArrayList<>();
+			for(int i = 0; i < geometriesArray.length(); i++ ) {
+				JSONObject geom = geometriesArray.getJSONObject(i);
+				lss.add(getLineStringGeometry(geom.getJSONArray("coordinates")));
+			}
+			
+			LineMerger merger = new LineMerger();
+			merger.add(lss);
+			
+			@SuppressWarnings("unchecked")
+			Collection<LineString> merged = (Collection<LineString>)merger.getMergedLineStrings();
+			
+			jsonObject.remove("geometries");
+			jsonObject.put("geometry", writeMultiLineString(merged));
+			
+		}
+		
+		return jsonObject;
+	}
+
+	private boolean doSkip(JSONObject obj) {
+		
+		if(obj.getString("type").equals(FeatureTypes.HIGHWAY_FEATURE_TYPE)) {
+			return true;
+		}
+		
+		return false;
 	}
 
 	private void filterAddrPartsNames(JSONObject obj) {
@@ -359,14 +408,50 @@ public class Importer extends BackgroundExecutableTask {
 		return result;
 	}
 
+	
 	private JSONObject filterFullGeometry(JSONObject jsonObject) {
 		
 		if(jsonObject.getString("type").equals(FeatureTypes.ADDR_POINT_FTYPE) || 
 				jsonObject.getString("type").equals(FeatureTypes.POI_FTYPE)) {
 			jsonObject.remove("full_geometry");
 		}
-		
 		return jsonObject;
+	}
+	
+	private JSONObject writeMultiLineString(Collection<LineString> merged) {
+		JSONObject result = new JSONObject();
+		result.put("type", "multilinestring");
+		
+		JSONArray coords = new JSONArray();
+		result.put("coordinates", coords);
+		for(LineString ls : merged) {
+			coords.put(lineStringCoords(ls));
+		}
+		
+		return result;
+	}
+
+	private JSONArray lineStringCoords(LineString ls) {
+		
+		JSONArray result = new JSONArray();
+		
+		Coordinate[] coordinates = ls.getCoordinates();
+		for(Coordinate c : coordinates) {
+			result.put(new JSONArray(Arrays.asList(new double[]{c.x, c.y})));
+		}
+		
+		return result;
+	}
+
+	public static LineString getLineStringGeometry(JSONArray coordsJSON) {
+		Coordinate[] coords = new Coordinate[coordsJSON.length()];
+		
+		for(int i = 0; i < coordsJSON.length(); i++) {
+			JSONArray p = coordsJSON.getJSONArray(i);
+			coords[i] = new Coordinate(p.getDouble(0), p.getDouble(1));
+		}
+		
+		return factory.createLineString(coords);
 	}
 	
 	public List<Replacer> getReplacers() {

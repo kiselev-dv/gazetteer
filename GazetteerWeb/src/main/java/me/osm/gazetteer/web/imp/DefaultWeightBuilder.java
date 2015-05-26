@@ -14,7 +14,10 @@ public class DefaultWeightBuilder implements ObjectsWeightBuilder {
 		baseLevels.put("poipnt", 1 * 100);
 		baseLevels.put("adrpnt", 2 * 100);
 		baseLevels.put("neighbour", 3 * 100);
-		baseLevels.put("hghway", 4 * 100);
+		
+		//ignore hghways, use hghnets
+		baseLevels.put("hghway", 0);
+		baseLevels.put("hghnet", 4 * 100);
 		baseLevels.put("city", 5 * 100 + 50);
 		baseLevels.put("place:town", 5 * 100 + 40);
 		baseLevels.put("place:village", 5 * 100 + 30);
@@ -59,6 +62,8 @@ public class DefaultWeightBuilder implements ObjectsWeightBuilder {
 		case "adrpnt": return type;
 
 		case "hghway": return type;
+
+		case "hghnet": return type;
 
 		case "nbhdln": return "neighbour";
 		

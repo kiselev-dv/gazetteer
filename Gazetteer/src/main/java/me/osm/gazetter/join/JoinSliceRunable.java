@@ -123,9 +123,6 @@ public class JoinSliceRunable implements Runnable {
 	private AtomicInteger stripesCounter;
 
 	private Set<String> necesaryBoundaries;
-	//private PrintWriter printWriter = null;
-
-	//private File outFile;
 
 	private JoinFailuresHandler failureHandler;
 	
@@ -616,9 +613,9 @@ public class JoinSliceRunable implements Runnable {
 			JSONObject cp = new JSONObject();
 			cp.put("type", "Point");
 			
+			JSONObject geometryJSON = first.getJSONObject(GeoJsonWriter.GEOMETRY);
 			LineString ls = GeoJsonWriter.getLineStringGeometry(
-					first.getJSONObject(GeoJsonWriter.GEOMETRY)
-						.getJSONArray(GeoJsonWriter.COORDINATES));
+					geometryJSON.getJSONArray(GeoJsonWriter.COORDINATES));
 			
 			Coordinate c = new LocatePoint(ls, ls.getLength() * 0.5).getPoint();
 			cp.put("lon", c.x);
@@ -645,11 +642,14 @@ public class JoinSliceRunable implements Runnable {
 			hghnet.remove("geometry");
 			
 			JSONArray members = new JSONArray();
+			JSONArray geometries = new JSONArray();
 			for(JSONObject o : streetsNetBunch) {
 				members.put(o.getString("id"));
+				geometries.put(o.getJSONObject(GeoJsonWriter.GEOMETRY));
 			}
 			
 			hghnet.put("members", members);
+			hghnet.put("geometries", geometries);
 			
 			GeoJsonWriter.addTimestamp(hghnet);
 			GeoJsonWriter.addMD5(hghnet);

@@ -372,6 +372,7 @@ public class GazetteerOutWriter extends AddressPerRowJOHBase  {
 		
 		if(FeatureTypes.HIGHWAY_NET_FEATURE_TYPE.equals(ftype)) {
 			result.put("members", jsonObject.get("members"));
+			result.put("geometries", jsonObject.get("geometries"));
 		}
 		
 		if(fullGeometry) {

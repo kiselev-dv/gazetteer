@@ -228,7 +228,7 @@ public class InverseGeocodeAPI {
 				QueryBuilders.filteredQuery(
 						QueryBuilders.matchAllQuery(),
 						FilterBuilders.andFilter(
-								FilterBuilders.termFilter("type", "hghway"),
+								FilterBuilders.termsFilter("type", "hghway", "hghnet"),
 								FilterBuilders.geoShapeFilter("full_geometry", 
 										ShapeBuilder.newCircleBuilder().center(lon, lat)
 											.radius(r, DistanceUnit.METERS), ShapeRelation.INTERSECTS)

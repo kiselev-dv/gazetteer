@@ -28,9 +28,14 @@ public final class ReduceHighwayNetworks implements Reducer {
 			JSONObject obj1 = new JSONFeature(lastLine);
 			JSONObject obj2 = new JSONFeature(r);
 			
-			JSONArray array = obj1.getJSONArray("members");
+			JSONArray members = obj1.getJSONArray("members");
 			for(int i = 0; i < obj2.getJSONArray("members").length(); i++) {
-				array.put(obj2.getJSONArray("members").get(i));
+				members.put(obj2.getJSONArray("members").get(i));
+			}
+
+			JSONArray geometries = obj1.getJSONArray("geometries");
+			for(int i = 0; i < obj2.getJSONArray("geometries").length(); i++) {
+				geometries.put(obj2.getJSONArray("geometries").get(i));
 			}
 			
 			return obj1.toString();
