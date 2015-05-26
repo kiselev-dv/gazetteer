@@ -13,8 +13,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import me.osm.gazetter.BoundariesFallbacker;
 import me.osm.gazetter.Options;
+import me.osm.gazetter.striper.BoundariesFallbacker;
 import me.osm.gazetter.striper.FeatureTypes;
 import me.osm.gazetter.striper.GeoJsonWriter;
 import me.osm.gazetter.striper.builders.handlers.BoundariesHandler;

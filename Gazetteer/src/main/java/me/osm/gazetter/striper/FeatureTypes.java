@@ -1,5 +1,8 @@
 package me.osm.gazetter.striper;
 
+/**
+ * String constants for features type names
+ * */
 public class FeatureTypes {
 	public static final String ADMIN_BOUNDARY_FTYPE = "admbnd";
 	public static final String PLACE_BOUNDARY_FTYPE = "plcbnd";

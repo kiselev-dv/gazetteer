@@ -14,6 +14,9 @@ import me.osm.gazetter.utils.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Runs reading of nodes, ways and relation files
+ * */
 public class Engine {
 	
 	private static final Logger log = LoggerFactory.getLogger(Engine.class);

@@ -24,25 +24,44 @@ import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream;
 public class FileUtils {
 
 	/**
+	 * Filter for readLines routine.
+	 * 
+	 * Allows to filter lines during the iteration over
+	 * a list of lines from file.
+	 * 
 	 * @see me.osm.gazetter.utils.FileUtils.readLines(File, LineFilter)
 	 * */
 	public static interface LineFilter {
 		
 		/**
 		 * If line isSuitable - it will be passed to LineHandler
+		 * 
+		 * @param s - readed line
 		 * */
 		public boolean isSuitable(String s);
 	}
 
 	/**
+	 * Handles lines in file during the iteration over it.
+	 * 
 	 * @see me.osm.gazetter.utils.FileUtils.handleLines(InputStream, LineHandler)
 	 * */
 	public static interface LineHandler {
+		
+		/**
+		 * @param s - readed line
+		 * */
 		public void handle(String s);
 	}
 
 	/**
 	 * Read file line by line into list of strings
+	 * 
+	 * Lines will be decoded as UTF-8 Strings.
+	 * If file ends with .gz or .bz2 - it will be red with decompression
+	 * 
+	 * @param f - File to be red.
+	 * @returns List of Strings 
 	 * */
 	public static List<String> readLines(File f) throws IOException {
 		return readLines(f, null);
@@ -50,7 +69,10 @@ public class FileUtils {
 
 	/**
 	 * Read InputStream line by line, and pass lines without storing 
-	 * to the LineHandler. 
+	 * to the LineHandler.
+	 * 
+	 * @param f - input stream to read from
+	 * @param handler - lines handler callback 
 	 * */
 	public static void handleLines(InputStream f, LineHandler handler) {
 		BufferedReader bufferedReader = null;
@@ -82,6 +104,9 @@ public class FileUtils {
 	 * to the LineHandler.
 	 * <p>
 	 * If file ends with .gz or .bz2 - it will be readed with decompression
+	 * 
+	 * @param f - file to read
+	 * @param handler - callback interface
 	 * */
 	public static void handleLines(File f, LineHandler handler) throws IOException {
 		try {
@@ -92,7 +117,12 @@ public class FileUtils {
 	}
 
 	/**
-	 * Read all lines in file into the List, with lines filtration. 
+	 * Read all lines in file into the List, with lines filtration.
+	 * 
+	 * If file ends with .gz or .bz2 - it will be readed with decompression
+	 * 
+	 * @param f - file to read
+	 * @param filter - lines filter (will be ignored if it is null) 
 	 * */
 	public static List<String> readLines(File f, final LineFilter filter) throws IOException {
 
@@ -117,6 +147,8 @@ public class FileUtils {
 	 * <p>
 	 * If file name ends with .gz or bz2 stream will be wrapped into
 	 * GZIPInputStream or BZip2CompressorInputStream accordingly.
+	 * 
+	 * @param osmFilePath - file to read
 	 * */
 	public static InputStream getFileIS(File osmFilePath) throws IOException,
 			FileNotFoundException {
@@ -152,6 +184,8 @@ public class FileUtils {
 	 * Try to find exists file with or without .gz name suffix.
 	 * <p>
 	 * If none of them doesn't exists, returns original file.
+	 * 
+	 * @param file to try
 	 * */
 	public static File withGz(File file) {
 		if(file.exists()) {
@@ -176,11 +210,26 @@ public class FileUtils {
 	/**
 	 * Write lines into file.
 	 * If file name ends with .gz - file will be compressed
+	 * 
+	 * @param stripeF - file to write to
+	 * @param lines - lines to be written
 	 * */
 	public static void writeLines(File stripeF, List<String> lines) throws IOException {
+		writeLines(stripeF, lines, false);
+	}
+
+	/**
+	 * Write lines into file.
+	 * If file name ends with .gz - file will be compressed
+	 * 
+	 * @param stripeF - file to write to
+	 * @param lines - lines to be written
+	 * @param append - append or overwrite exists file
+	 * */
+	public static void writeLines(File stripeF, List<String> lines, boolean append) throws IOException {
 		PrintWriter printwriter = null;
 		try {
-			printwriter = getPrintwriter(stripeF, false);
+			printwriter = getPrintwriter(stripeF, append);
 			for(String line : lines) {
 				printwriter.println(line);
 			}

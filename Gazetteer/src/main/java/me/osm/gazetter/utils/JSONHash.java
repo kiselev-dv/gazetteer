@@ -9,8 +9,17 @@ import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+/**
+ * Utility to calculate hashes for JSON objects
+ * */
 public class JSONHash {
 
+	/**
+	 * Write JSON object to string with members and arrays sorting
+	 * 
+	 * @param obj target object
+	 * @param ignoreKeys do not include this keys into result string (may be null)
+	 * */
 	public static String asCanonicalString(Object obj, Set<String> ignoreKeys) {
 		
 		StringBuilder sb = new StringBuilder();
@@ -20,6 +29,7 @@ public class JSONHash {
 		return sb.toString();
 	}
 
+	@SuppressWarnings("unchecked")
 	private static void traverse(Object obj, StringBuilder sb,
 			Set<String> ignoreKeys) {
 		
@@ -32,7 +42,7 @@ public class JSONHash {
 			
 			sb.append("{");
 			for(String key : keys) {
-				if(!ignoreKeys.contains(key)) {
+				if(ignoreKeys == null || !ignoreKeys.contains(key)) {
 					sb.append("\"").append(key).append("\":{")
 						.append(asCanonicalString(object.get(key), ignoreKeys)).append("}");
 				}

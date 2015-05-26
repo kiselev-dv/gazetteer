@@ -35,7 +35,9 @@ Data processed in two steps:
 Stripe (map)
 Join   (reduce)
 
-Also there is a zero step split which splits single osm file into nodes, ways and relations. 
+Also there is a zero step split which splits single osm file into nodes, ways and relations.
+
+See me.osm.gazetter package annotation for more info.
 
 Typical workflow
 ----------------

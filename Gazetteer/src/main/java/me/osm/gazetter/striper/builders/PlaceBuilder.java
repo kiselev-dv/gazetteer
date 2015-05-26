@@ -10,10 +10,10 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import me.osm.gazetter.BoundariesFallbacker;
 import me.osm.gazetter.addresses.AddressesUtils;
 import me.osm.gazetter.addresses.NamesMatcher;
 import me.osm.gazetter.addresses.impl.NamesMatcherImpl;
+import me.osm.gazetter.striper.BoundariesFallbacker;
 import me.osm.gazetter.striper.FeatureTypes;
 import me.osm.gazetter.striper.GeoJsonWriter;
 import me.osm.gazetter.striper.JSONFeature;

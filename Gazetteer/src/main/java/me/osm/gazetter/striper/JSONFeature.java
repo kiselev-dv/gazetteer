@@ -11,6 +11,12 @@ import java.util.Set;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+/**
+ * Wrapper around @see JSONObject.
+ * 
+ * Provides copy capabilities and writes features out with certain
+ * order of keys.
+ * */
 public final class JSONFeature extends JSONObject {
 	
 	public static JSONObject copy(JSONObject properties) {

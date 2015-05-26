@@ -5,6 +5,9 @@ import java.util.Properties;
 
 import org.apache.commons.lang3.StringUtils;
 
+/**
+ * Program and libraries versions holder
+ * */
 public class Versions {
 	
 	private static final Properties file = new Properties();

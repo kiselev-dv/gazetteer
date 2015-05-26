@@ -35,6 +35,12 @@ import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
 
+/**
+ * Reeds and writes projects JSON encoded data.
+ * 
+ * Allows to write some technical info, also allows to get some data
+ * without full decomposition of JSON feature.
+ * */
 public class GeoJsonWriter {
 	
 	private static final String GEOMETRY_TYPE = "type";

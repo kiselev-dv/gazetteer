@@ -1,4 +1,4 @@
-package me.osm.gazetter;
+package me.osm.gazetter.striper;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -12,7 +12,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
-import me.osm.gazetter.striper.GeoJsonWriter;
 import me.osm.gazetter.utils.FileUtils;
 import me.osm.gazetter.utils.FileUtils.LineHandler;
 
@@ -26,6 +25,10 @@ import com.google.code.externalsorting.ExternalSort;
 import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.io.WKTReader;
 
+/**
+ * Tracks builded boundaries and provides stored versions
+ * for boundaries which was failed to be built.
+ * */
 public class BoundariesFallbacker {
 	
 	private static final Logger log = LoggerFactory.getLogger(BoundariesFallbacker.class);  
