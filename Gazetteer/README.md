@@ -17,13 +17,14 @@ You could find binaries here https://github.com/kiselev-dv/gazetteer/releases/
 Or compile with apache maven
 ------------------
 
-    #Install kiselev-dv/osm-doc-java
+    # Install kiselev-dv/osm-doc-java
     mvn compile install -f osm-doc-java/pom.xml
     
-    #Install lemire/externalsortinginjava
-    mvn compile install -f lemire/externalsortinginjava
+    # Install kiselev-dv/ExternalSorting
+    # It was forked, so test will fails
+    mvn -Dmaven.test.skip=true compile install -f ExternalSorting/pom.xml
     
-    #Compile and assemble gazetteer
+    # Compile and assemble gazetteer
     mvn clean compile assembly:single -f Gazetteer/pom.xml
     
   
