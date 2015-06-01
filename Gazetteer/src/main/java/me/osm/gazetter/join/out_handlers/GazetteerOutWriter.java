@@ -869,12 +869,13 @@ public class GazetteerOutWriter extends AddressPerRowJOHBase  {
 			
 			List<File> batch = ExternalSort.sortInBatch(fbr, file.length(), new JSONByIdComparator(), 
 					ExternalSort.DEFAULTMAXTEMPFILES, ExternalSort.estimateAvailableMemory(), 
-					Charset.forName("utf-8"), null, true, 0, true);
+					Charset.forName("utf-8"), null, true, 0, true, ReduceHighwayNetworks.INSTANCE);
 			
 			initializeWriter(outFile);
 			
 			ExternalSort.mergeSortedFiles(batch, new BufferedWriter(writer), 
-					new JSONByIdComparator(), Charset.forName("utf-8"), true, true, ReduceHighwayNetworks.INSTANCE);
+					new JSONByIdComparator(), Charset.forName("utf-8"), true, true, 
+					ReduceHighwayNetworks.INSTANCE);
 			
 		}
 		catch (Exception e) {
