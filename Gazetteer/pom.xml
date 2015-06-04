@@ -69,7 +69,7 @@
 		<dependency>
 			<groupId>me.osm.osm-doc</groupId>
 			<artifactId>osm-doc-java</artifactId>
-			<version>0.10-SNAPSHOT</version>
+			<version>0.10</version>
 		</dependency>
 		<dependency>
 			<groupId>junit</groupId>
