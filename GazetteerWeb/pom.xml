@@ -61,7 +61,7 @@
 		<dependency>
 			<groupId>org.elasticsearch</groupId>
 			<artifactId>elasticsearch</artifactId>
-			<version>1.4.0</version>
+			<version>1.4.4</version>
 		</dependency>
 		<!-- Needed for geo_shape type mapping in ES -->
 		<dependency>

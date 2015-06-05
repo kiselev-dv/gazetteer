@@ -22,10 +22,12 @@ import java.util.zip.GZIPInputStream;
 
 import me.osm.gazetteer.web.ESNodeHodel;
 import me.osm.gazetteer.web.FeatureTypes;
+import me.osm.gazetteer.web.Main;
 import me.osm.gazetteer.web.executions.AbortedException;
 import me.osm.gazetteer.web.executions.BackgroundExecutorFacade.BackgroundExecutableTask;
 import me.osm.gazetteer.web.utils.OSMDocSinglton;
 import me.osm.gazetteer.web.utils.ReplacersCompiler;
+import me.osm.gazetteer.web.utils.TranslitUtil;
 import me.osm.osmdoc.localization.L10n;
 import me.osm.osmdoc.model.Feature;
 import me.osm.osmdoc.read.OSMDocFacade;
@@ -263,7 +265,8 @@ public class Importer extends BackgroundExecutableTask {
 			Collection<LineString> merged = (Collection<LineString>)merger.getMergedLineStrings();
 			
 			jsonObject.remove("geometries");
-			jsonObject.put("geometry", writeMultiLineString(merged));
+			jsonObject.getJSONObject("center_point").remove("type");
+			jsonObject.put("full_geometry", writeMultiLineString(merged));
 			
 		}
 		
@@ -332,7 +335,23 @@ public class Importer extends BackgroundExecutableTask {
 		shortText = StringUtils.remove(shortText, ",");
 		shortText = StringUtils.replace(shortText, "-", " ");
 		
+		shortText += addTransliteration(shortText);
+		
 		return shortText;
+	}
+
+	private String addTransliteration(String text) {
+		
+		StringBuilder sb = new StringBuilder();
+		
+		for(String term : StringUtils.split(text, Main.config().getQueryAnalyzerSeparators())) {
+			String translit = TranslitUtil.translit(term);
+			if(!term.equals(translit)) {
+				sb.append(" ").append(translit);
+			}
+		}
+		
+		return sb.toString();
 	}
 
 	private String getSearchText(JSONObject obj) throws EmptyAddressException {
@@ -437,7 +456,7 @@ public class Importer extends BackgroundExecutableTask {
 		
 		Coordinate[] coordinates = ls.getCoordinates();
 		for(Coordinate c : coordinates) {
-			result.put(new JSONArray(Arrays.asList(new double[]{c.x, c.y})));
+			result.put(new double[]{c.x, c.y});
 		}
 		
 		return result;

@@ -290,7 +290,7 @@ public class SearchAPI {
 				.setQuery(qb)
 				.setExplain(explain);
 		
-		searchRequest.addAggregation(AggregationBuilders.terms("highways").field("name"));
+		//searchRequest.addAggregation(AggregationBuilders.terms("highways").field("name"));
 		
 		searchRequest.addSort(SortBuilders.scoreSort());
 
