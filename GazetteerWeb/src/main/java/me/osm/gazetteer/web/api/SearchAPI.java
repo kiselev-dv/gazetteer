@@ -22,6 +22,7 @@ import me.osm.gazetteer.web.api.imp.QueryAnalyzer;
 import me.osm.gazetteer.web.api.utils.APIUtils;
 import me.osm.gazetteer.web.api.utils.BuildSearchQContext;
 import me.osm.gazetteer.web.api.utils.Paginator;
+import me.osm.gazetteer.web.api.utils.RequestUtils;
 import me.osm.gazetteer.web.imp.IndexHolder;
 import me.osm.gazetteer.web.imp.Replacer;
 import me.osm.gazetteer.web.utils.OSMDocSinglton;
@@ -125,6 +126,12 @@ public class SearchAPI {
 	 * */
 	public static final String PARTS_HEADER = "parts";
 	
+	/**
+	 * Don't search for POIs
+	 * */
+	public static final String ADDRESSES_ONLY_HEADER = "only_address";
+	
+	
 	/*
 	 * Search and fuzzy housenumbers
 	 * */
@@ -170,12 +177,12 @@ public class SearchAPI {
 		
 		Set<String> refs = getSet(request, REFERENCES_HEADER);
 		
-		boolean strictRequested = request.getHeader(STRICT_SEARCH_HEADER) != null && 
-				Boolean.parseBoolean(request.getHeader(STRICT_SEARCH_HEADER));
+		boolean strictRequested = RequestUtils.getBooleanHeader(request, STRICT_SEARCH_HEADER, false);
 		
-		boolean fullGeometry = request.getHeader(FULL_GEOMETRY_HEADER) != null 
-				&& "true".equals(request.getParameter(FULL_GEOMETRY_HEADER));
+		boolean fullGeometry = RequestUtils.getBooleanHeader(request, FULL_GEOMETRY_HEADER, false);
 
+		boolean addressesOnly = RequestUtils.getBooleanHeader(request, ADDRESSES_ONLY_HEADER, false);
+		
 		try {
 			
 			if(querryString == null && poiClass.isEmpty() && types.isEmpty() && refs.isEmpty()) {
@@ -185,7 +192,9 @@ public class SearchAPI {
 			Query query = queryAnalyzer.getQuery(querryString);
 			
 			List<JSONObject> poiType = null;
-			if(query != null) {
+			
+			//don't look for poi type if we search only for addresses 
+			if(query != null && !addressesOnly) {
 				poiType = findPoiClass(query);
 			}
 			
@@ -193,7 +202,7 @@ public class SearchAPI {
 			boolean strict = strictRequested ? true : !resendedAfterFail;
 			
 			SearchRequestBuilder searchRequest = buildSearchRequest(request, strict,
-					explain, types, poiClass,
+					explain, types, poiClass, addressesOnly,
 					lat, lon, refs, query);
 			
 			Paginator.applyPaging(request, searchRequest);
@@ -238,16 +247,19 @@ public class SearchAPI {
 	 * @param explain add query results explanations
 	 * @param types restrict query with types (poipnt, adrpnt and so on)
 	 * @param poiClass restrict query with poi classes
+	 * @param addressesOnly 
 	 * @param lat latitude of user's viewport center 
 	 * @param lon longitude of user's viewport center 
 	 * @param refs restrict request with refs 
 	 * @param query analyzed query 
+	 * @param addressesOnly don't search for POIs
 	 * 
 	 * @return ElasticSearch SearchRequest
 	 * */
 	public SearchRequestBuilder buildSearchRequest(Request request, boolean strict,
 			boolean explain, Set<String> types, Set<String> poiClass, 
-			Double lat, Double lon, Set<String> refs, Query query) {
+			boolean addressesOnly, Double lat, Double lon, 
+			Set<String> refs, Query query) {
 		
 		BoolQueryBuilder q = null;
 		BuildSearchQContext buildSearchQContext = new BuildSearchQContext();
@@ -267,7 +279,19 @@ public class SearchAPI {
 			q.must(QueryBuilders.termsQuery("poi_class", poiClass));
 		}
 		
-		QueryBuilder qb = poiClass.isEmpty() ? QueryBuilders.filteredQuery(q, createPoiFilter(query)) : q;
+		if(addressesOnly) {
+			q.mustNot(QueryBuilders.termQuery("type", "poipnt"));
+		}
+		
+		// if poiClass.isEmpty() try to search over objcts names
+		// Otherwise q should contains filters over poi types
+		QueryBuilder qb = null;
+		if(poiClass.isEmpty() && !addressesOnly) {
+			qb = QueryBuilders.filteredQuery(q, createPoiFilter(query));
+		}
+		else {
+			qb = q;
+		}
 
 		boolean sortByHNVariants = false;
 		if(buildSearchQContext.getHousenumberVariants() != null) {
@@ -289,8 +313,6 @@ public class SearchAPI {
 				.prepareSearch("gazetteer").setTypes(IndexHolder.LOCATION)
 				.setQuery(qb)
 				.setExplain(explain);
-		
-		//searchRequest.addAggregation(AggregationBuilders.terms("highways").field("name"));
 		
 		searchRequest.addSort(SortBuilders.scoreSort());
 

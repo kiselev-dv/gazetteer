@@ -76,5 +76,32 @@ public final class RequestUtils {
 		
 		return null;
 	}
+
+	/**
+	 * Parses boolean request header.
+	 * 
+	 * If header is absent, returns default value.
+	 * 
+	 * <pre>
+	 * request	def     result
+	 * null		true    true
+	 * null		false   false
+	 * true		*		true
+	 * false	*		false
+	 * asd		true	true
+	 * xzc		false	false		
+	 * 
+	 * </pre>
+	 * */
+	public static boolean getBooleanHeader(Request request,
+			String header, boolean def) {
+
+		String head = request.getHeader(header);
+		if(header == null) {
+			return def;
+		}
+
+		return def ?  (! "false".equalsIgnoreCase(head) ) : ( "true".equalsIgnoreCase(head) );
+	}
 	
 }
