@@ -80,11 +80,22 @@ public class Importer extends BackgroundExecutableTask {
 	
 	private static final GeometryFactory factory = new GeometryFactory();
 	
+	private Transliterator transliterator = null;
+	
 	private static class EmptyAddressException extends Exception {
 		private static final long serialVersionUID = 8178453133841622471L;
 	}
 
 	public Importer(String source, boolean buildingsGeometry) {
+		
+		String trClass = Main.config().getTransliteratorClass();
+		try {
+			this.transliterator = (Transliterator) Class.forName(trClass).newInstance();
+		}
+		catch (Exception e) {
+			log.warn("Couldn't initialize transliterator {}", trClass);
+			this.transliterator = new ApacheASCIIFoldTransliterator();
+		}
 		
 		this.buildingsGeometry = buildingsGeometry;
 		
@@ -345,7 +356,7 @@ public class Importer extends BackgroundExecutableTask {
 		StringBuilder sb = new StringBuilder();
 		
 		for(String term : StringUtils.split(text, Main.config().getQueryAnalyzerSeparators())) {
-			String translit = TranslitUtil.translit(term);
+			String translit = transliterator.transliterate(term);
 			if(!term.equals(translit)) {
 				sb.append(" ").append(translit);
 			}

@@ -4,6 +4,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 
+import me.osm.gazetteer.web.imp.ApacheASCIIFoldTransliterator;
+
 import org.apache.commons.lang3.StringUtils;
 import org.restexpress.Format;
 import org.restexpress.RestExpress;
@@ -32,6 +34,7 @@ public class Configuration extends org.restexpress.util.Environment
 	private int siteMapMapgeSize = 45000;
 	private List<String> siteMapTypes = Arrays.asList("poipnt");
 	private int executionQueueSize = 5;
+	private String transliteratorClass = ApacheASCIIFoldTransliterator.class.getName();
 	
 	@Override
 	protected void fillValues(Properties p)
@@ -52,6 +55,7 @@ public class Configuration extends org.restexpress.util.Environment
 		this.siteMapMapgeSize = Integer.parseInt(p.getProperty("sitemap_page_size", "45000"));
 		this.siteMapTypes = Arrays.asList(StringUtils.split(p.getProperty("sitemap_types", "poipnt"), " ,;"));
 		this.executionQueueSize = Integer.parseInt(p.getProperty("execution_queue_size", "5"));
+		this.transliteratorClass = p.getProperty("transliterator_class", transliteratorClass);
 	}
 
 	public String getDefaultFormat()
@@ -119,5 +123,9 @@ public class Configuration extends org.restexpress.util.Environment
 
 	public int getExecutionQueueSize() {
 		return executionQueueSize;
+	}
+
+	public String getTransliteratorClass() {
+		return transliteratorClass;
 	}
 }
