@@ -3,12 +3,14 @@ package me.osm.gazetteer.web.api;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 
 import me.osm.gazetteer.web.ESNodeHodel;
 import me.osm.gazetteer.web.api.imp.Query;
 import me.osm.gazetteer.web.api.utils.BuildSearchQContext;
+import me.osm.gazetteer.web.api.utils.RequestUtils;
 import me.osm.gazetteer.web.imp.IndexHolder;
 
 import org.apache.commons.lang3.StringUtils;
@@ -33,7 +35,11 @@ public class SuggestAPI extends SearchAPI {
 		
 		String querryString = StringUtils.stripToNull(request.getHeader(Q_HEADER));
 		Query query = queryAnalyzer.getQuery(querryString);
-		List<JSONObject> type = suggestPoiType(query);
+
+		boolean addressesOnly = RequestUtils.getBooleanHeader(request, SearchAPI.ADDRESSES_ONLY_HEADER, false);
+		
+		@SuppressWarnings("unchecked")
+		List<JSONObject> type = addressesOnly ? Collections.EMPTY_LIST : suggestPoiType(query);
 
 		JSONObject answer = super.read(request, response);
 		
