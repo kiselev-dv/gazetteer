@@ -39,7 +39,7 @@ public class FileWriteDao implements WriteDao {
 					boolean useGZ = Options.get().isCompress();
 
 					File file = new File(dir.getAbsolutePath() + "/" + key + (useGZ ? ".gz" : ""));
-					if(!file.exists()) {
+					if(file.exists()) {
 						file.createNewFile();
 					}
 					

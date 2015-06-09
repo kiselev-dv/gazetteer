@@ -484,8 +484,16 @@ public class GazetteerOutWriter extends AddressPerRowJOHBase  {
 						.getJSONArray(GeoJsonWriter.COORDINATES));
 			
 			Coordinate c = new LocatePoint(ls, ls.getLength() * 0.5).getPoint();
+
+			if(Double.isInfinite(c.x) || 
+			   Double.isInfinite(c.y))
+			{
+				return null;
+			}
+			
 			result.put("lon", c.x);
 			result.put("lat", c.y);
+			
 		}
 		else if (jsonObject.has("center_point")) {
 			return jsonObject.getJSONObject("center_point");
@@ -493,6 +501,12 @@ public class GazetteerOutWriter extends AddressPerRowJOHBase  {
 		else{
 			JSONArray coords = jsonObject.getJSONObject(GeoJsonWriter.GEOMETRY)
 					.getJSONArray(GeoJsonWriter.COORDINATES);
+			
+			if(Double.isInfinite(coords.getDouble(0)) || 
+			   Double.isInfinite(coords.getDouble(1)))
+			{
+				return null;
+			}
 			
 			result.put("lon", coords.getDouble(0));
 			result.put("lat", coords.getDouble(1));

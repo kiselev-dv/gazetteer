@@ -35,6 +35,7 @@ import me.osm.gazetter.striper.readers.RelationsReader.Relation.RelationMember;
 import me.osm.gazetter.striper.readers.RelationsReader.Relation.RelationMember.ReferenceType;
 import me.osm.gazetter.striper.readers.WaysReader.Way;
 import me.osm.gazetter.utils.GeometryUtils;
+import me.osm.gazetter.utils.HilbertCurveHasher;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.lang3.time.DurationFormatUtils;
@@ -408,23 +409,26 @@ public class Slicer implements BoundariesHandler,
 		JSONObject meta = new JSONObject();
 		meta.put("id", nodeID);
 		meta.put("type", "node");
-		String fid = GeoJsonWriter.getId(FeatureTypes.JUNCTION_FTYPE, pnt, meta);
-		String n = getFilePrefix(pnt.getX());
-		
-		@SuppressWarnings("unchecked")
-		JSONObject r = GeoJsonWriter.createFeature(fid, FeatureTypes.JUNCTION_FTYPE, Collections.EMPTY_MAP, pnt, meta);
-		r.put("ways", new JSONArray(highways));
-		GeoJsonWriter.addTimestamp(r);
-		
-		String geoJSONString = r.toString();
-		
-		assert GeoJsonWriter.getId(geoJSONString).equals(fid) 
+		if(HilbertCurveHasher.encode(pnt.getX(), pnt.getY()) != 0 ) {
+			String fid = GeoJsonWriter.getId(FeatureTypes.JUNCTION_FTYPE, pnt, meta);
+			String n = getFilePrefix(pnt.getX());
+			
+			@SuppressWarnings("unchecked")
+			JSONObject r = GeoJsonWriter.createFeature(fid, FeatureTypes.JUNCTION_FTYPE, Collections.EMPTY_MAP, pnt, meta);
+			
+			r.put("ways", new JSONArray(highways));
+			GeoJsonWriter.addTimestamp(r);
+			
+			String geoJSONString = r.toString();
+			
+			assert GeoJsonWriter.getId(geoJSONString).equals(fid) 
 			: "Failed getId for " + geoJSONString;
-
-		assert GeoJsonWriter.getFtype(geoJSONString).equals(FeatureTypes.JUNCTION_FTYPE) 
+			
+			assert GeoJsonWriter.getFtype(geoJSONString).equals(FeatureTypes.JUNCTION_FTYPE) 
 			: "Failed getFtype for " + geoJSONString;
-		
-		writeOut(geoJSONString, n);
+			
+			writeOut(geoJSONString, n);
+		}
 	}
 
 	@Override
