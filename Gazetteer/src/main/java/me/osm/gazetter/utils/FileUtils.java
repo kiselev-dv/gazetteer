@@ -174,13 +174,13 @@ public class FileUtils {
 	 * */
 	public static PrintWriter getPrintWriter(File file, boolean append) throws IOException {
 		
+		if(file.getName().endsWith(".gz") && file.exists() && append) {
+			throw new IllegalArgumentException("Can't append to gzipped file");
+		}
+
 		OutputStream os = new FileOutputStream(file, append);
 		if(file.getName().endsWith(".gz")) {
 			os = new GZIPOutputStream(os);
-			
-			if(file.exists() && append) {
-				throw new IllegalArgumentException("Can't append to gzipped file");
-			}
 		}
 		
 		return new PrintWriter(new OutputStreamWriter(os, "UTF8"));
