@@ -31,21 +31,20 @@ public class FileWriteDao implements WriteDao {
 
 	private PrintWriter getWriter(String key) throws IOException {
 
+		boolean useGZ = Options.get().isCompress();
+
 		PrintWriter pw = writers.get(key);
 		if(pw == null) {
 			synchronized(writers) {
 				pw = writers.get(key);
 				if(pw == null) {
-					boolean useGZ = Options.get().isCompress();
 
 					File file = new File(dir.getAbsolutePath() + "/" + key + (useGZ ? ".gz" : ""));
+					pw = FileUtils.getPrintWriterWithGZAppendTrick(file, true);
 
 					if(!file.exists()) {
 						file.createNewFile();
 					}
-					
-					// we can't append to gzipped file 
-					pw = FileUtils.getPrintWriter(file, true && !useGZ);
 					
 					writers.put(key, pw);
 				}

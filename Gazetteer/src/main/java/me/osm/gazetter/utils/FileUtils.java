@@ -10,6 +10,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.io.PipedReader;
+import java.io.PipedWriter;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
@@ -245,6 +247,36 @@ public class FileUtils {
 			}
 		}
 		
+	}
+
+	public static PrintWriter getPrintWriterWithGZAppendTrick(File file, boolean append) throws IOException {
+		
+		if(!file.getName().endsWith(".gz") || !append || !file.exists()) {
+			return getPrintWriter(file, append);
+		}
+		
+		//rename old
+		File tmp = new File(file.getAbsolutePath() + ".t.gz");
+		file.renameTo(tmp);
+		
+		//create new
+		file.createNewFile();
+
+		//rewrite ( Damn, Java why can't you just append to exist gzip archive)
+		final PrintWriter writer = getPrintWriter(file, false);
+		handleLines(tmp, new LineHandler() {
+			
+			@Override
+			public void handle(String s) {
+				writer.println(s);
+			}
+			
+		});
+		
+		//delete temp file
+		tmp.delete();
+		
+		return writer;
 	}
 
 }
