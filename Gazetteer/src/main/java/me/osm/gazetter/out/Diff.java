@@ -29,7 +29,7 @@ public class Diff {
 				this.out = new PrintWriter(System.out);
 			}
 			else {
-				this.out = FileUtils.getPrintwriter(new File(out), false);
+				this.out = FileUtils.getPrintWriter(new File(out), false);
 			}
 		}
 		catch (Exception e) {

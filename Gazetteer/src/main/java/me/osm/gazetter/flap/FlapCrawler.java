@@ -26,7 +26,7 @@ public class FlapCrawler {
 		long counter = 0;
 		
 		try {
-			PrintWriter printwriter = FileUtils.getPrintwriter(new File(outFile), false);
+			PrintWriter printwriter = FileUtils.getPrintWriter(new File(outFile), false);
 			
 			while (true) {
 				String url = StringUtils.replace(urlTemplate, "{city}", city);

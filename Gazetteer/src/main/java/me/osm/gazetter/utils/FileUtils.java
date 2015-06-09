@@ -170,11 +170,15 @@ public class FileUtils {
 	 * @param file - file to write into
 	 * @param append - append or overwrite file content
 	 * */
-	public static PrintWriter getPrintwriter(File file, boolean append) throws IOException {
+	public static PrintWriter getPrintWriter(File file, boolean append) throws IOException {
 		
 		OutputStream os = new FileOutputStream(file, append);
 		if(file.getName().endsWith(".gz")) {
 			os = new GZIPOutputStream(os);
+			
+			if(file.exists() && append) {
+				throw new IllegalArgumentException("Can't append to gzipped file");
+			}
 		}
 		
 		return new PrintWriter(new OutputStreamWriter(os, "UTF8"));
@@ -229,7 +233,7 @@ public class FileUtils {
 	public static void writeLines(File stripeF, List<String> lines, boolean append) throws IOException {
 		PrintWriter printwriter = null;
 		try {
-			printwriter = getPrintwriter(stripeF, append);
+			printwriter = getPrintWriter(stripeF, append);
 			for(String line : lines) {
 				printwriter.println(line);
 			}

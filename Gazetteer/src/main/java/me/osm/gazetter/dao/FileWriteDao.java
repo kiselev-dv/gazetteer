@@ -39,11 +39,14 @@ public class FileWriteDao implements WriteDao {
 					boolean useGZ = Options.get().isCompress();
 
 					File file = new File(dir.getAbsolutePath() + "/" + key + (useGZ ? ".gz" : ""));
-					if(file.exists()) {
+
+					if(!file.exists()) {
 						file.createNewFile();
 					}
 					
-					pw = FileUtils.getPrintwriter(file, !useGZ);
+					// we can't append to gzipped file 
+					pw = FileUtils.getPrintWriter(file, true && !useGZ);
+					
 					writers.put(key, pw);
 				}
 			}

@@ -904,7 +904,7 @@ public class GazetteerOutWriter extends AddressPerRowJOHBase  {
 			Collection<JSONObject> usage = ((ExportTagsStatisticCollector)tagStatistics).asJson();
 			
 			try {
-				PrintWriter printwriter = FileUtils.getPrintwriter(new File(tagStatPath), false);
+				PrintWriter printwriter = FileUtils.getPrintWriter(new File(tagStatPath), false);
 				
 				for(JSONObject jo : usage) {
 					printwriter.println(jo.toString());

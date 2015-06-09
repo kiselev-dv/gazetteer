@@ -59,12 +59,12 @@ public class Split implements LineHandler {
 			
 			String suffix = compress ? ".gz" : "";
 			
-			nodePW = FileUtils.getPrintwriter(new File(destFolder.getAbsolutePath() 
+			nodePW = FileUtils.getPrintWriter(new File(destFolder.getAbsolutePath() 
 					+ "/" + "nodes.osm" + suffix), append);
 			
-			wayPW = FileUtils.getPrintwriter(new File(destFolder.getAbsolutePath() 
+			wayPW = FileUtils.getPrintWriter(new File(destFolder.getAbsolutePath() 
 					+ "/" + "ways.osm" + suffix), append);
-			relPW = FileUtils.getPrintwriter(new File(destFolder.getAbsolutePath() 
+			relPW = FileUtils.getPrintWriter(new File(destFolder.getAbsolutePath() 
 					+ "/" + "rels.osm" + suffix), append);
 		}
 		catch (Exception e) {

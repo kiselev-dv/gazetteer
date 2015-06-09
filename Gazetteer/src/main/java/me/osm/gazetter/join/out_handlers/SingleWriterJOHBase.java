@@ -25,7 +25,7 @@ public abstract class SingleWriterJOHBase implements JoinOutHandler {
 	protected void initializeWriter(String string) {
 		try {
 			if(string != null && !string.equals("-")) {
-				writer = FileUtils.getPrintwriter(new File(string), false);
+				writer = FileUtils.getPrintWriter(new File(string), false);
 			}
 		}
 		catch(Exception e) {
