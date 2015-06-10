@@ -18,7 +18,6 @@ var searchData=
   ['sortupdate',['sortupdate',['../namespaceme_1_1osm_1_1gazetter_1_1sortupdate.html',1,'me::osm::gazetter']]],
   ['split',['split',['../namespaceme_1_1osm_1_1gazetter_1_1split.html',1,'me::osm::gazetter']]],
   ['striper',['striper',['../namespaceme_1_1osm_1_1gazetter_1_1striper.html',1,'me::osm::gazetter']]],
-  ['test',['test',['../namespaceme_1_1osm_1_1gazetter_1_1test.html',1,'me::osm::gazetter']]],
   ['util',['util',['../namespaceme_1_1osm_1_1gazetter_1_1join_1_1util.html',1,'me::osm::gazetter::join']]],
   ['utils',['utils',['../namespaceme_1_1osm_1_1gazetter_1_1utils.html',1,'me::osm::gazetter']]]
 ];

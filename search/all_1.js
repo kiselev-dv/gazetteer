@@ -11,7 +11,7 @@ var searchData=
   ['boundariesbuilder',['BoundariesBuilder',['../classme_1_1osm_1_1gazetter_1_1striper_1_1builders_1_1BoundariesBuilder.html',1,'me::osm::gazetter::striper::builders']]],
   ['boundariesbuilder',['BoundariesBuilder',['../classme_1_1osm_1_1gazetter_1_1striper_1_1builders_1_1BoundariesBuilder.html#a52095b769d5fbdbc4c325c6602490785',1,'me::osm::gazetter::striper::builders::BoundariesBuilder']]],
   ['boundariesbuilder_2ejava',['BoundariesBuilder.java',['../BoundariesBuilder_8java.html',1,'']]],
-  ['boundariesfallbacker',['BoundariesFallbacker',['../classme_1_1osm_1_1gazetter_1_1BoundariesFallbacker.html',1,'me::osm::gazetter']]],
+  ['boundariesfallbacker',['BoundariesFallbacker',['../classme_1_1osm_1_1gazetter_1_1striper_1_1BoundariesFallbacker.html',1,'me::osm::gazetter::striper']]],
   ['boundariesfallbacker_2ejava',['BoundariesFallbacker.java',['../BoundariesFallbacker_8java.html',1,'']]],
   ['boundarieshandler',['BoundariesHandler',['../interfaceme_1_1osm_1_1gazetter_1_1striper_1_1builders_1_1handlers_1_1BoundariesHandler.html',1,'me::osm::gazetter::striper::builders::handlers']]],
   ['boundarieshandler_2ejava',['BoundariesHandler.java',['../BoundariesHandler_8java.html',1,'']]],
@@ -25,7 +25,7 @@ var searchData=
   ['buildutils',['BuildUtils',['../classme_1_1osm_1_1gazetter_1_1striper_1_1builders_1_1BuildUtils.html',1,'me::osm::gazetter::striper::builders']]],
   ['buildutils_2ejava',['BuildUtils.java',['../BuildUtils_8java.html',1,'']]],
   ['buildwaygeometry',['buildWayGeometry',['../classme_1_1osm_1_1gazetter_1_1striper_1_1builders_1_1BuildUtils.html#a9057f3e2401e7bbf2e8d164591cf53df',1,'me::osm::gazetter::striper::builders::BuildUtils']]],
-  ['bytebufferlist',['ByteBufferList',['../classme_1_1osm_1_1gazetter_1_1utils_1_1binary_1_1ByteBufferList.html#a0a16d50286fb18042790495cc2c03cf8',1,'me::osm::gazetter::utils::binary::ByteBufferList']]],
   ['bytebufferlist',['ByteBufferList',['../classme_1_1osm_1_1gazetter_1_1utils_1_1binary_1_1ByteBufferList.html',1,'me::osm::gazetter::utils::binary']]],
+  ['bytebufferlist',['ByteBufferList',['../classme_1_1osm_1_1gazetter_1_1utils_1_1binary_1_1ByteBufferList.html#a0a16d50286fb18042790495cc2c03cf8',1,'me::osm::gazetter::utils::binary::ByteBufferList']]],
   ['bytebufferlist_2ejava',['ByteBufferList.java',['../ByteBufferList_8java.html',1,'']]]
 ];

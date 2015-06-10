@@ -4,7 +4,6 @@ var searchData=
   ['secondlongfieldcomparator',['SecondLongFieldComparator',['../classme_1_1osm_1_1gazetter_1_1striper_1_1builders_1_1Builder_1_1SecondLongFieldComparator.html',1,'me::osm::gazetter::striper::builders::Builder']]],
   ['singlewriterjohbase',['SingleWriterJOHBase',['../classme_1_1osm_1_1gazetter_1_1join_1_1out__handlers_1_1SingleWriterJOHBase.html',1,'me::osm::gazetter::join::out_handlers']]],
   ['slicer',['Slicer',['../classme_1_1osm_1_1gazetter_1_1striper_1_1Slicer.html',1,'me::osm::gazetter::striper']]],
-  ['slicertest',['SlicerTest',['../classme_1_1osm_1_1gazetter_1_1test_1_1SlicerTest.html',1,'me::osm::gazetter::test']]],
   ['sortandupdatetask',['SortAndUpdateTask',['../classme_1_1osm_1_1gazetter_1_1sortupdate_1_1SortAndUpdateTask.html',1,'me::osm::gazetter::sortupdate']]],
   ['sortupdate',['SortUpdate',['../classme_1_1osm_1_1gazetter_1_1sortupdate_1_1SortUpdate.html',1,'me::osm::gazetter::sortupdate']]],
   ['split',['Split',['../classme_1_1osm_1_1gazetter_1_1split_1_1Split.html',1,'me::osm::gazetter::split']]],
