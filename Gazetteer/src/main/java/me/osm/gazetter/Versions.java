@@ -19,5 +19,8 @@ public class Versions {
 		}
 	}
 	
-	public static final String gazetteer = StringUtils.replace(file.getProperty("app.version"), "-SNAPSHOT", "b") ;
+	public static final String gazetteer = StringUtils.replace(file.getProperty("app.version"), "-SNAPSHOT", "b");
+	public static final String jts = file.getProperty("jts.version");
+	public static final String osmdoc = file.getProperty("osmdoc.version");
+	public static final String groovy = file.getProperty("groovy.version");
 }

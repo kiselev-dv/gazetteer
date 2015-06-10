@@ -173,7 +173,7 @@ public class Main {
 		ArgumentParser parser = getArgumentsParser();
 
 		if(args.length > 0 && ("-v".equals(args[0]) || "--version".equals(args[0]))) {
-			parser.printVersion();
+			printVersion("--version".equals(args[0]));
 			return;
 		}
 		
@@ -181,7 +181,7 @@ public class Main {
 			Namespace namespace = parser.parseArgs(args);
 			
 			if(namespace.getBoolean("version")) {
-				parser.printVersion();
+				printVersion(true);
 				return;
 			}
 			
@@ -279,6 +279,24 @@ public class Main {
 			System.exit(1);
 		} 
 		
+	}
+
+	/**
+	 * Print version of gazetteer to stdout
+	 *
+	 * @param full print versions of major dependancies
+	 * */
+	private static void printVersion(boolean full) {
+		
+		if(full) {
+			System.out.println("Gazetteer: " + Versions.gazetteer);
+			System.out.println("Java Topology Syte: " + Versions.jts);
+			System.out.println("Osm Doc Java: " + Versions.osmdoc);
+			System.out.println("Groovy runtime: " + Versions.groovy);
+		}
+		else {
+			System.out.println(Versions.gazetteer);
+		}
 	}
 
 	private static void printFullHelp(ArgumentParser parser) {
