@@ -169,10 +169,21 @@ public class Main {
 		initLog(args);
 		log = LoggerFactory.getLogger(Main.class);
 		
+		
 		ArgumentParser parser = getArgumentsParser();
+
+		if(args.length > 0 && ("-v".equals(args[0]) || "--version".equals(args[0]))) {
+			parser.printVersion();
+			return;
+		}
 		
 		try {
 			Namespace namespace = parser.parseArgs(args);
+			
+			if(namespace.getBoolean("version")) {
+				parser.printVersion();
+				return;
+			}
 			
 			String thrds = namespace.get("threads");
 			Integer threads = thrds == null ? null : Integer.valueOf(thrds); 
@@ -238,7 +249,6 @@ public class Main {
 					System.out.println("Predefined handlers are: " + StringUtils.join(Options.getPredefinedOutHandlers(), ", "));
 					System.exit(1);
 				}
-//				Options.get().setPOICatalogPath(namespace.getString(POI_CATALOG_VAL));
 				
 				new JoinExecutor(new HashSet(list(namespace.getList("check_boundaries"))))
 					.run(namespace.getString(DATA_DIR_VAL), 
@@ -343,22 +353,29 @@ public class Main {
 	private static ArgumentParser getArgumentsParser() {
 		ArgumentParser parser = ArgumentParsers.newArgumentParser("gazetter")
                 .defaultHelp(true)
-                .description("Create alphabetical index of osm file features");
+                .description("Create alphabetical index of osm file features.");
 
 		parser.version(Versions.gazetteer);
 		
-		parser.addArgument("--threads").required(false).help("set number of threads avaible");
+		parser.addArgument("--threads").required(false)
+			.help("set number of threads avaible. By default will be used runtime.availableProcessors value.");
 		
 		parser.addArgument(NO_COMPRESS_OPT).required(false).action(Arguments.storeFalse())
 			.help("Do not cmpress tepmlorary stored data")
 			.setDefault(Boolean.TRUE);
 		
-        parser.addArgument(DATA_DIR_OPT).required(false).
-                help("Use folder as data storage.").setDefault("data");
+        parser.addArgument(DATA_DIR_OPT).required(false)
+        	.help("Use this folder as data storage.")
+        	.setDefault("data");
         
         parser.addArgument(LOG_OPT).required(false).setDefault("WARN");
         parser.addArgument(LOG_FILE_OPT).required(false);
         parser.addArgument(LOG_PREFIX_OPT).required(false);
+
+        parser.addArgument("--version", "-v").required(false)
+        	.help("Print version and exit.")
+        	.action(Arguments.storeTrue())
+        	.setDefault(Boolean.FALSE);
         
         Subparsers subparsers = parser.addSubparsers();
 		

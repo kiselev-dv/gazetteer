@@ -19,5 +19,5 @@ public class Versions {
 		}
 	}
 	
-	public static final String gazetteer = StringUtils.remove(file.getProperty("app.version"), "-SNAPSHOT") ;
+	public static final String gazetteer = StringUtils.replace(file.getProperty("app.version"), "-SNAPSHOT", "b") ;
 }
