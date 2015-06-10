@@ -425,7 +425,13 @@ public class Importer extends BackgroundExecutableTask {
 		List<Feature> classes = new ArrayList<Feature>();
 		for(int i = 0; i < poiClasses.length(); i++) {
 			String classCode = poiClasses.getString(i);
-			classes.add(FACADE.getFeature(classCode));
+			Feature poiClass = FACADE.getFeature(classCode);
+			if(poiClass != null) {
+				classes.add(poiClass);
+			}
+			else {
+				log.warn("Couldn't find poi class for code {}", classCode);
+			}
 		}
 		
 		for(Feature f : classes) {
