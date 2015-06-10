@@ -249,7 +249,27 @@ public class FileUtils {
 		
 	}
 
+	/**
+	 * Creates PrintWriter for file.
+	 *
+	 * Wrap file with GZipOutput stream if file name ends with .gz
+	 * 
+	 * In case of append is true, and file is *.gz
+	 * rewrites data into file to append via GZipOutputStream correctly.
+	 * 
+	 * @param file file to write to. New file will be created if provided doesn't exists.
+	 * @param append append to exists file or override it if append is false
+	 *  
+	 * */
 	public static PrintWriter getPrintWriterWithGZAppendTrick(File file, boolean append) throws IOException {
+	
+		/* 
+		 * There are JZlib library, which theoretically allows to append into
+		 * exists gzip file. But I haven't give it a try yet.
+		 * 
+		 * So code down below isn't an optimal solution,
+		 * especially for large files. 
+		 */
 		
 		if(!file.getName().endsWith(".gz") || !append || !file.exists()) {
 			return getPrintWriter(file, append);
