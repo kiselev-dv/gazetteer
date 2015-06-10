@@ -284,7 +284,7 @@ public class Main {
 	/**
 	 * Print version of gazetteer to stdout
 	 *
-	 * @param full print versions of major dependancies
+	 * @param full print versions of major dependencies
 	 * */
 	private static void printVersion(boolean full) {
 		
