@@ -1,7 +1,5 @@
 package me.osm.gazetteer.web.api.utils;
 
-import java.util.Collection;
-
 import me.osm.gazetteer.web.api.AnswerDetalization;
 
 import org.apache.commons.lang3.StringEscapeUtils;
