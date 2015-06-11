@@ -2,7 +2,6 @@ package me.osm.gazetteer.web.api;
 
 import java.lang.reflect.Field;
 
-import me.osm.gazetteer.web.Main;
 import me.osm.gazetteer.web.api.meta.Endpoint;
 import me.osm.gazetteer.web.api.meta.Metadata;
 import me.osm.gazetteer.web.api.meta.Parameter;

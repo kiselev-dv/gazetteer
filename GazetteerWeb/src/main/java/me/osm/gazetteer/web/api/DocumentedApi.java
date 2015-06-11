@@ -1,8 +1,8 @@
 package me.osm.gazetteer.web.api;
 
-import org.restexpress.domain.metadata.UriMetadata;
-
 import me.osm.gazetteer.web.api.meta.Endpoint;
+
+import org.restexpress.domain.metadata.UriMetadata;
 
 public interface DocumentedApi {
 

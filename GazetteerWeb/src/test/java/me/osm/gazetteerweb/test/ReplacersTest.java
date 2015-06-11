@@ -1,7 +1,7 @@
 package me.osm.gazetteerweb.test;
 import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.*;
 
 import java.util.HashSet;
 import java.util.Set;
