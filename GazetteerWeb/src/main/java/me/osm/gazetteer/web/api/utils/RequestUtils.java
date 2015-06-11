@@ -6,6 +6,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import me.osm.gazetteer.web.api.AnswerDetalization;
+
 import org.apache.commons.lang3.StringUtils;
 import org.restexpress.Request;
 
@@ -102,6 +104,21 @@ public final class RequestUtils {
 		}
 
 		return def ?  (! "false".equalsIgnoreCase(head) ) : ( "true".equalsIgnoreCase(head) );
+	}
+
+	public static <E extends Enum<E>> E getEnumHeader(Request request, String header, Class<E> clazz,  E defaultValue) {
+		
+		String hv = request.getHeader(header);
+		if(hv != null) {
+			try {
+				return (E)Enum.valueOf(clazz, StringUtils.upperCase(hv));
+			}
+			catch (IllegalArgumentException e) {
+				return defaultValue;
+			}
+		}
+		
+		return defaultValue;
 	}
 	
 }

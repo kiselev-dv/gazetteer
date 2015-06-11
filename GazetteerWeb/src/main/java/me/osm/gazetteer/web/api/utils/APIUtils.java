@@ -1,15 +1,20 @@
 package me.osm.gazetteer.web.api.utils;
 
+import java.util.Collection;
+
+import me.osm.gazetteer.web.api.AnswerDetalization;
+
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.search.SearchHit;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 public class APIUtils {
 	
 	public static JSONObject encodeSearchResult(SearchResponse searchResponse, 
-			boolean fullGeometry, boolean explain) {
+			boolean fullGeometry, boolean explain, AnswerDetalization detalization) {
 		
 		JSONObject result = new JSONObject();
 		result.put("result", "success");
@@ -21,12 +26,23 @@ public class APIUtils {
 		
 		for(SearchHit hit : searchResponse.getHits().getHits()) {
 			JSONObject feature = new JSONObject(hit.getSource());
+
+			if(detalization == AnswerDetalization.SHORT) {
+				JSONObject source = feature;
+				feature = new JSONObject();
+				
+				feature.put("id", source.getString("id"));
+				feature.put("center_point", source.getJSONObject("center_point"));
+				feature.put("address", getAddressText(source));
+			}
 			
 			if(!fullGeometry) {
 				feature.remove("full_geometry");
 			}
 			
-			feature.put("_hit_score", hit.getScore());
+			if(detalization != AnswerDetalization.SHORT) { 
+				feature.put("_hit_score", hit.getScore());
+			}
 			
 			features.put(feature);
 		}
@@ -41,6 +57,15 @@ public class APIUtils {
 		}
 		
 		return result;
+	}
+
+	private static String getAddressText(JSONObject source) {
+		try {
+			return source.getJSONObject("address").getString("text");
+		}
+		catch (JSONException e) {
+			return null;
+		}
 	}
 	
 }

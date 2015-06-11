@@ -138,6 +138,11 @@ public class SearchAPI implements DocumentedApi{
 	 * Don't search for POIs
 	 * */
 	public static final String ADDRESSES_ONLY_HEADER = "only_address";
+
+	/**
+	 * How many details should contains answer.
+	 * */
+	public static final String ANSWER_DETALIZATION_HEADER = "detalization";
 	
 	
 	/*
@@ -191,6 +196,9 @@ public class SearchAPI implements DocumentedApi{
 
 		boolean addressesOnly = RequestUtils.getBooleanHeader(request, ADDRESSES_ONLY_HEADER, false);
 		
+		AnswerDetalization detalization = RequestUtils.getEnumHeader(request, 
+				ANSWER_DETALIZATION_HEADER, AnswerDetalization.class, AnswerDetalization.FULL);
+		
 		try {
 			
 			if(querryString == null && poiClass.isEmpty() && types.isEmpty() && refs.isEmpty()) {
@@ -224,7 +232,7 @@ public class SearchAPI implements DocumentedApi{
 			}
 			
 			JSONObject answer = APIUtils.encodeSearchResult(
-					searchResponse,	fullGeometry, explain);
+					searchResponse,	fullGeometry, explain, detalization);
 			
 			answer.put("request", request.getHeader(Q_HEADER));
 			if(poiType != null && !poiType.isEmpty()) {
@@ -770,6 +778,8 @@ public class SearchAPI implements DocumentedApi{
 			  + "Switch off distance score if absent."));
 		meta.getUrlParameters().add(new Parameter(ADDRESSES_ONLY_HEADER, 
 				"Search only for addresses, don't search for POIs."));
+		meta.getUrlParameters().add(new Parameter(ANSWER_DETALIZATION_HEADER, 
+				"How many details should contains answer. full/short"));
 		
 		return meta;
 	}
