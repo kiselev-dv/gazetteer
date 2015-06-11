@@ -5,6 +5,8 @@ import java.util.LinkedHashMap;
 import java.util.Map.Entry;
 
 import me.osm.gazetteer.web.ESNodeHodel;
+import me.osm.gazetteer.web.api.meta.Endpoint;
+import me.osm.gazetteer.web.api.meta.Parameter;
 import me.osm.gazetteer.web.imp.IndexHolder;
 import me.osm.gazetteer.web.utils.OSMDocSinglton;
 import me.osm.osmdoc.model.Feature;
@@ -24,8 +26,9 @@ import org.elasticsearch.search.aggregations.bucket.terms.Terms.Bucket;
 import org.json.JSONObject;
 import org.restexpress.Request;
 import org.restexpress.Response;
+import org.restexpress.domain.metadata.UriMetadata;
 
-public class StatisticAPI {
+public class StatisticAPI implements DocumentedApi {
 	
 	public JSONObject read(Request request, Response response) {
 		
@@ -78,6 +81,17 @@ public class StatisticAPI {
 		}
 		
 		return result;
+	}
+
+	@Override
+	public Endpoint getMeta(UriMetadata uriMetadata) {
+		Endpoint meta = new Endpoint(uriMetadata.getPattern(), "Tag values statistics", 
+				"Tag values statistics for parsed tags.");
+		
+		meta.getPathParameters().add(new Parameter("poi-class", 
+				"Poi class code."));
+		
+		return meta;
 	}
 	
 }

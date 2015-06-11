@@ -4,6 +4,7 @@ import me.osm.gazetteer.web.api.FeatureAPI;
 import me.osm.gazetteer.web.api.ImportLocations;
 import me.osm.gazetteer.web.api.ImportOSMDoc;
 import me.osm.gazetteer.web.api.InverseGeocodeAPI;
+import me.osm.gazetteer.web.api.MetaInfoAPI;
 import me.osm.gazetteer.web.api.OSMDocAPI;
 import me.osm.gazetteer.web.api.SearchAPI;
 import me.osm.gazetteer.web.api.Sitemap;
@@ -25,6 +26,10 @@ public class Routes {
 		String root = config.getWebRoot();
 
 		System.out.println("Define routes with web root: " + root);
+		
+		server.uri(root + "/info.{format}",
+				new MetaInfoAPI(server))
+				.method(HttpMethod.GET);
 		
 		server.uri(root + "/location/_import",
 				new ImportLocations())
@@ -72,7 +77,6 @@ public class Routes {
 		server.uri(root + "/osmdoc/_import",
 				new ImportOSMDoc())
 				.method(HttpMethod.GET)
-				.flag(Flags.Auth.PUBLIC_ROUTE)
 				.parameter(Parameters.Cache.MAX_AGE, 3600);
 
 		server.uri(root + "/osmdoc/statistic/tagvalues/{poi_class}",

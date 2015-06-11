@@ -10,6 +10,7 @@ import me.osm.gazetteer.web.ESNodeHodel;
 import me.osm.gazetteer.web.Main;
 import me.osm.gazetteer.web.api.imp.SitemapRender;
 import me.osm.gazetteer.web.api.imp.XMLSitemapRender;
+import me.osm.gazetteer.web.api.meta.Endpoint;
 import me.osm.gazetteer.web.imp.IndexHolder;
 
 import org.apache.commons.lang3.StringUtils;
@@ -25,8 +26,10 @@ import org.jboss.netty.buffer.ChannelBuffers;
 import org.json.JSONObject;
 import org.restexpress.Request;
 import org.restexpress.Response;
+import org.restexpress.domain.metadata.UriMetadata;
 
-public class Sitemap {
+public class Sitemap implements DocumentedApi {
+	
 	private static final int pageSize = Main.config().getSiteMapMapgeSize();
 	
 	private static final Pattern p = Pattern.compile(".*sitemap([0-9]+)\\.xml(\\.gz)?");
@@ -120,6 +123,15 @@ public class Sitemap {
 		}
 		
 		render.indexEnd();
+	}
+
+	@Override
+	public Endpoint getMeta(UriMetadata uriMetadata) {
+		
+		Endpoint meta = new Endpoint(uriMetadata.getPattern(), "sitemap", 
+				"Generates sitemap and sitemap_index files.");
+		
+		return meta;
 	}
 	
 }

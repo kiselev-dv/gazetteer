@@ -9,6 +9,7 @@ import java.util.List;
 
 import me.osm.gazetteer.web.ESNodeHodel;
 import me.osm.gazetteer.web.api.imp.Query;
+import me.osm.gazetteer.web.api.meta.Endpoint;
 import me.osm.gazetteer.web.api.utils.BuildSearchQContext;
 import me.osm.gazetteer.web.api.utils.RequestUtils;
 import me.osm.gazetteer.web.imp.IndexHolder;
@@ -25,6 +26,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.restexpress.Request;
 import org.restexpress.Response;
+import org.restexpress.domain.metadata.UriMetadata;
 
 
 public class SuggestAPI extends SearchAPI {
@@ -110,6 +112,14 @@ public class SuggestAPI extends SearchAPI {
 		return types;
 	}
 	
-	
+	@Override
+	public Endpoint getMeta(UriMetadata uriMetadata) {
+		Endpoint meta = super.getMeta(uriMetadata);
+		
+		meta.setName("Suggest location");
+		meta.setDescription("Performs prefix 'search on type' search among locations.");
+		
+		return meta;
+	}
 	
 }

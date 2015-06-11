@@ -8,6 +8,8 @@ import java.util.Locale;
 import java.util.Set;
 
 import me.osm.gazetteer.web.ESNodeHodel;
+import me.osm.gazetteer.web.api.meta.Endpoint;
+import me.osm.gazetteer.web.api.meta.Parameter;
 import me.osm.gazetteer.web.imp.IndexHolder;
 import me.osm.gazetteer.web.utils.FileUtils;
 import me.osm.gazetteer.web.utils.FileUtils.LineHandler;
@@ -22,8 +24,9 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.restexpress.Request;
 import org.restexpress.Response;
+import org.restexpress.domain.metadata.UriMetadata;
 
-public class ImportOSMDoc {
+public class ImportOSMDoc implements DocumentedApi {
 	
 	public JSONObject read(Request request, Response response){
 		
@@ -97,5 +100,17 @@ public class ImportOSMDoc {
 		bulk.execute().actionGet();
 		
 		return result;
+	}
+
+	@Override
+	public Endpoint getMeta(UriMetadata uriMetadata) {
+		Endpoint meta = new Endpoint(uriMetadata.getPattern(), "OSM Doc Import", 
+				"Imports POI classification.");
+		
+		meta.getUrlParameters().add(new Parameter("source", 
+				"Path to osmdoc catalog folder or xml. "
+			  + "Password protected endpoint."));
+		
+		return meta;
 	}
 }

@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Set;
 
 import me.osm.gazetteer.web.ESNodeHodel;
+import me.osm.gazetteer.web.api.meta.Endpoint;
+import me.osm.gazetteer.web.api.meta.Parameter;
 import me.osm.gazetteer.web.imp.IndexHolder;
 
 import org.elasticsearch.action.search.SearchRequestBuilder;
@@ -24,8 +26,12 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.restexpress.Request;
 import org.restexpress.Response;
+import org.restexpress.domain.metadata.UriMetadata;
 
-public class FeatureAPI {
+/**
+ * Returns full information about object.
+ * */
+public class FeatureAPI implements DocumentedApi {
 	
 	public JSONObject read(Request request, Response response) 
 			throws IOException {
@@ -310,5 +316,18 @@ public class FeatureAPI {
 		"housenumber",
 		"refs"
 	};
+
+	@Override
+	public Endpoint getMeta(UriMetadata uriMetadata) {
+		
+		Endpoint meta = new Endpoint(uriMetadata.getPattern(), "Location read", 
+				"Returns full information about object.");
+		
+		meta.getPathParameters().add(new Parameter("id", "Object id (required)."));
+		meta.getPathParameters().add(new Parameter("_related", 
+				"Return data for related object."));
+		
+		return meta;
+	}
 
 }

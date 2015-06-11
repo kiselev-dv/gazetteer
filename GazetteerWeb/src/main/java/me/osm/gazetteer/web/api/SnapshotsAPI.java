@@ -12,14 +12,17 @@ import java.util.Map;
 import me.osm.gazetteer.web.Configuration;
 import me.osm.gazetteer.web.api.imp.HTMLSitemapRender;
 import me.osm.gazetteer.web.api.imp.SnapshotRender;
+import me.osm.gazetteer.web.api.meta.Endpoint;
+import me.osm.gazetteer.web.api.meta.Parameter;
 import me.osm.gazetteer.web.utils.OSMDocSinglton;
 
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONObject;
 import org.restexpress.Request;
 import org.restexpress.Response;
+import org.restexpress.domain.metadata.UriMetadata;
 
-public class SnapshotsAPI {
+public class SnapshotsAPI implements DocumentedApi {
 	
 	private String featureURLBase = "/";
 
@@ -209,5 +212,15 @@ public class SnapshotsAPI {
 		}
 		
 		return res;
+	}
+
+	@Override
+	public Endpoint getMeta(UriMetadata uriMetadata) {
+		
+		Endpoint meta = new Endpoint(uriMetadata.getPattern(), "HTML Snapshots", 
+				"Generate HTML Snapshot of features for search engines crawlers. "
+			  + "Feature id will be extracted from path.");
+		
+		return meta;
 	}
 }

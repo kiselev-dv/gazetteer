@@ -19,6 +19,8 @@ import me.osm.gazetteer.web.Main;
 import me.osm.gazetteer.web.api.imp.QToken;
 import me.osm.gazetteer.web.api.imp.Query;
 import me.osm.gazetteer.web.api.imp.QueryAnalyzer;
+import me.osm.gazetteer.web.api.meta.Endpoint;
+import me.osm.gazetteer.web.api.meta.Parameter;
 import me.osm.gazetteer.web.api.utils.APIUtils;
 import me.osm.gazetteer.web.api.utils.BuildSearchQContext;
 import me.osm.gazetteer.web.api.utils.Paginator;
@@ -48,16 +50,21 @@ import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.functionscore.FunctionScoreQueryBuilder;
 import org.elasticsearch.index.query.functionscore.ScoreFunctionBuilders;
 import org.elasticsearch.search.SearchHit;
-import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.sort.SortBuilders;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.restexpress.Request;
 import org.restexpress.Response;
+import org.restexpress.domain.metadata.UriMetadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class SearchAPI {
+public class SearchAPI implements DocumentedApi{
+
+	/**
+	 * OSM Doc hierarchy name.
+	 * */
+	private static final String HIERARCHY_CODE_HEADER = "hierarchy";
 
 	/**
 	 * Create strict query.
@@ -123,6 +130,7 @@ public class SearchAPI {
 	
 	/**
 	 * Use it, if you have separate addresses parts texts, to search over.
+	 * Not Supported yet.
 	 * */
 	public static final String PARTS_HEADER = "parts";
 	
@@ -167,7 +175,7 @@ public class SearchAPI {
 		String querryString = StringUtils.stripToNull(request.getHeader(Q_HEADER));
 		
 		Set<String> types = getSet(request, TYPE_HEADER);
-		String hname = request.getHeader("hierarchy");
+		String hname = request.getHeader(HIERARCHY_CODE_HEADER);
 		
 		Set<String> poiClass = getSet(request, POI_CLASS_HEADER);
 		addPOIGroups(request, poiClass, hname);
@@ -718,6 +726,52 @@ public class SearchAPI {
 		}
 		
 		return result;
+	}
+
+	@Override
+	public Endpoint getMeta(UriMetadata uriMetadata) {
+		
+		Endpoint meta = new Endpoint(uriMetadata.getPattern(), "locations search", 
+				"Searches for objects.");
+		
+		meta.getUrlParameters().add(new Parameter(Q_HEADER, "Querry text"));
+		meta.getUrlParameters().add(new Parameter(STRICT_SEARCH_HEADER, 
+				"Create strict query. Default value is false."));
+		meta.getUrlParameters().add(new Parameter(EXPLAIN_HEADER, 
+				"Explain search results score. Default value is false."));
+		meta.getUrlParameters().add(new Parameter(TYPE_HEADER, 
+				"Type of feature. [adrpnt, poipnt, hghnet, plcpnt, admbnd]"
+			  + " Multiple values are combined via OR."));
+		meta.getUrlParameters().add(new Parameter(FULL_GEOMETRY_HEADER, 
+				"Include or not full geometry of object. Default is not include."));
+		meta.getUrlParameters().add(new Parameter(BBOX_HEADER, 
+				"Search inside given BBOX only. [west, south, east, north]"));
+		meta.getUrlParameters().add(new Parameter(POI_CLASS_HEADER, 
+				"Look for pois of exact types. May contains multiple values. "
+			  + "Codes are searched among poi hierarchy provided via '" + HIERARCHY_CODE_HEADER + "'"));
+		meta.getUrlParameters().add(new Parameter(POI_GROUP_HEADER, 
+				"Look for pois of exact types "
+			  + "(Groups will be expanded and merged with '" + POI_CLASS_HEADER + "' header). "
+			  + "May contains multiple values. "
+			  + "Codes are searched among poi hierarchy provided via '" + HIERARCHY_CODE_HEADER + "'"));
+		meta.getUrlParameters().add(new Parameter(HIERARCHY_CODE_HEADER, 
+				"Code of OSM Doc hierarchy. Used for POI types search."));
+		meta.getUrlParameters().add(new Parameter(LAT_HEADER, 
+				"Latitude of map center, used for distance scoring. "
+			  + "Switch off distance score if absent."));
+		meta.getUrlParameters().add(new Parameter(LON_HEADER, 
+				"Longitude of map center, used for distance scoring. "
+			  + "Switch off distance score if absent."));
+		meta.getUrlParameters().add(new Parameter(REFERENCES_HEADER, 
+				"Features id's of higher objects to filter results. "
+			  + "In other words will search over those object, "
+			  + "which have provided boundaries or street as part of address. " 
+	          + "Array members will be added using OR."
+			  + "Switch off distance score if absent."));
+		meta.getUrlParameters().add(new Parameter(ADDRESSES_ONLY_HEADER, 
+				"Search only for addresses, don't search for POIs."));
+		
+		return meta;
 	}
 
 }

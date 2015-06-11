@@ -10,6 +10,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import me.osm.gazetteer.web.ESNodeHodel;
+import me.osm.gazetteer.web.api.meta.Endpoint;
+import me.osm.gazetteer.web.api.meta.Parameter;
 import me.osm.gazetteer.web.api.utils.RequestUtils;
 import me.osm.gazetteer.web.utils.GeometryUtils;
 
@@ -29,6 +31,7 @@ import org.elasticsearch.search.sort.SortBuilders;
 import org.json.JSONObject;
 import org.restexpress.Request;
 import org.restexpress.Response;
+import org.restexpress.domain.metadata.UriMetadata;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
@@ -38,8 +41,14 @@ import com.vividsolutions.jts.geom.Point;
 /**
  * Inverse geocode API
  * */
-public class InverseGeocodeAPI {
+public class InverseGeocodeAPI implements DocumentedApi {
 
+	private static final String LARGEST_LEVEL_HEADER = "largest_level";
+	private static final String MAX_NEIGHBOURS_HEADER = "max_neighbours";
+	private static final String RELATED_HEADER = "_related";
+	private static final String LAT_HEADER = "lat";
+	private static final String LON_HEADER = "lon";
+	
 	private static final String ALL_LEVEL = "all";
 	private static final String OBJECTS_LEVEL = "objects";
 	private static final String HIGHWAYS_LEVEL = "highways";
@@ -65,21 +74,21 @@ public class InverseGeocodeAPI {
 		JSONObject result = new JSONObject();
 		
 		// Requested point longitude
-		double lon = RequestUtils.getDoubleHeader("lon", request);
+		double lon = RequestUtils.getDoubleHeader(LON_HEADER, request);
 		
 		// Requested point latitude
-		double lat = RequestUtils.getDoubleHeader("lat", request);
+		double lat = RequestUtils.getDoubleHeader(LAT_HEADER, request);
 		
 		// Add related objects for founded feature or not
-		boolean wRelated = request.getHeader("_related") != null;
+		boolean wRelated = request.getHeader(RELATED_HEADER) != null;
 		
 		// Store full geometry of objects or not
 		boolean fullGeometry = request.getHeader(SearchAPI.FULL_GEOMETRY_HEADER) != null 
 				&& "true".equals(request.getParameter(SearchAPI.FULL_GEOMETRY_HEADER));
 		
 		// No more than this amount of neighbours please 
-		int maxNeighbours = request.getHeader("max_neighbours") == null ? 15 : 
-			Integer.valueOf(request.getHeader("max_neighbours"));
+		int maxNeighbours = request.getHeader(MAX_NEIGHBOURS_HEADER) == null ? 15 : 
+			Integer.valueOf(request.getHeader(MAX_NEIGHBOURS_HEADER));
 		
 		/* How large objects what we are looking for?
 		 * 
@@ -95,8 +104,8 @@ public class InverseGeocodeAPI {
 		 * All objects already have all enclosing boundaries                               
 		 * 
 		 */
-		String largestLevel = request.getHeader("largest_level") == null ? 
-				HIGHWAYS_LEVEL : request.getHeader("largest_level");
+		String largestLevel = request.getHeader(LARGEST_LEVEL_HEADER) == null ? 
+				HIGHWAYS_LEVEL : request.getHeader(LARGEST_LEVEL_HEADER);
 
 		if(largestLevel.equals(HIGHWAYS_LEVEL) && largestLevel.equals(OBJECTS_LEVEL) && largestLevel.equals(ALL_LEVEL)) {
 			largestLevel = HIGHWAYS_LEVEL;
@@ -197,7 +206,7 @@ public class InverseGeocodeAPI {
 		if(wRelated) {
 			JSONObject related = FeatureAPI.getRelated(mainFeature);
 			if(related != null) {
-				mainFeature.put("_related", related);
+				mainFeature.put(RELATED_HEADER, related);
 			}
 		}
 
@@ -439,6 +448,32 @@ public class InverseGeocodeAPI {
 				entry.getValue().remove("full_geometry");
 			}
 		}
+	}
+
+	@Override
+	public Endpoint getMeta(UriMetadata uriMetadata) {
+		Endpoint meta = new Endpoint(uriMetadata.getPattern(), "Inverse geocode", 
+				"Finds address or object by given coorinates.");
+		
+		meta.getPathParameters().add(new Parameter(LAT_HEADER, "latitude"));
+		meta.getPathParameters().add(new Parameter(LON_HEADER, "longitude"));
+		meta.getPathParameters().add(new Parameter(RELATED_HEADER, "Also return related objects."));
+		
+		meta.getUrlParameters().add(new Parameter(LAT_HEADER, 
+				"latitude maybe specified thrue path or via get parameters"));
+		meta.getUrlParameters().add(new Parameter(LON_HEADER, 
+				"longitude maybe specified thrue path or via get parameters"));
+		meta.getUrlParameters().add(new Parameter(LARGEST_LEVEL_HEADER, 
+				OBJECTS_LEVEL + " try to find enclosing poipnt or adrpoint only. " +
+				HIGHWAYS_LEVEL + " if there is no enclosing OBJECTS_LEVEL features, try to find highway. " + 
+				ALL_LEVEL + "if there is no highways, return, at least all enclosing boundaries. "
+			 + "Default level is " + HIGHWAYS_LEVEL));
+		meta.getUrlParameters().add(new Parameter(MAX_NEIGHBOURS_HEADER, 
+				"This API returns enclosed feature and this amount of nearby features. "
+			  + "Default amount is 15. Use 0 turn neighbours search off. "
+			  + "Maximum avaible number is 100."));
+		
+		return meta;
 	}
 	
 }
