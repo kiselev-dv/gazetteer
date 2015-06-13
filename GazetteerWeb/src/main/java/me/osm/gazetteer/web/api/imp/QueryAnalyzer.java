@@ -28,6 +28,8 @@ public class QueryAnalyzer {
 	private static final String tokenSeparators = Main.config().getQueryAnalyzerSeparators();
 	private static final String removeChars = Main.config().getRemoveCharacters();
 	
+	private static final Pattern groupPattern = Pattern.compile("GROUP[0-9]+");
+	
 	public static final Set<String> optionals = new HashSet<String>(); 
 	public static Pattern optRegexp = null;
 	static {
@@ -116,9 +118,19 @@ public class QueryAnalyzer {
 
 			List<String> variants = new ArrayList<>();
 			if(StringUtils.startsWith(t, "GROUP")) {
-				String groupKey = groupAliases.get(t);
-				t = groupKey;
-				variants = new ArrayList<>(groups.get(groupKey));
+				Matcher matcher = groupPattern.matcher(t);
+				if(matcher.find()) {
+					String matched = matcher.group();
+					String groupKey = groupAliases.get(matched);
+					if(groupKey != null) {
+						String tail = StringUtils.remove(t, matched);
+						t = groupKey + tail;
+						variants = new ArrayList<>();
+						for(String var : groups.get(groupKey)) {
+							variants.add(var + tail);
+						}
+					}
+				}
 			}
 			
 			String withoutNumbers = StringUtils.replaceChars(t, "0123456789", "");

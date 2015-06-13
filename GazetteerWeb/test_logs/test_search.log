@@ -1,18 +1,3 @@
-[main] INFO org.elasticsearch.node - [Baphomet] version[1.4.0], pid[18223], build[bc94bd8/2014-11-05T14:26:12Z]
-[main] INFO org.elasticsearch.node - [Baphomet] initializing ...
-[main] INFO org.elasticsearch.plugins - [Baphomet] loaded [], sites []
-[main] INFO org.elasticsearch.script - [Baphomet] compiling script file [/opt/osm/gazetteer/GazetteerWeb/config/scripts/hn_count.groovy]
-[main] INFO org.elasticsearch.script - [Baphomet] compiling script file [/opt/osm/gazetteer/GazetteerWeb/config/scripts/score.expression]
-[main] INFO org.elasticsearch.node - [Baphomet] initialized
-[main] INFO org.elasticsearch.node - [Baphomet] starting ...
-[main] INFO org.elasticsearch.transport - [Baphomet] bound_address {inet[/0:0:0:0:0:0:0:0:9300]}, publish_address {inet[/192.168.224.198:9300]}
-[main] INFO org.elasticsearch.discovery - [Baphomet] OSM-Gazetteer/HUEryQLOTzWFZ7dYGybB8A
-[elasticsearch[Baphomet][clusterService#updateTask][T#1]] INFO org.elasticsearch.cluster.service - [Baphomet] new_master [Baphomet][HUEryQLOTzWFZ7dYGybB8A][dkiselev-N73SV][inet[/192.168.224.198:9300]], reason: zen-disco-join (elected_as_master)
-[main] INFO org.elasticsearch.http - [Baphomet] bound_address {inet[/0:0:0:0:0:0:0:0:9200]}, publish_address {inet[/192.168.224.198:9200]}
-[main] INFO org.elasticsearch.node - [Baphomet] started
-[elasticsearch[Baphomet][clusterService#updateTask][T#1]] INFO org.elasticsearch.gateway - [Baphomet] recovered [1] indices into cluster_state
-Define routes with web root: /api
-Gazetteer Web server listening on port 8080
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run Search UIKs
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 1 from 8275. Case Москва Борисовские пруды улица, д. 36, корп. 2
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2 from 8275. Case Республика Башкортостан город Уфа, ул. М.Ферина, д. 19/1
@@ -169,7 +154,6 @@ Gazetteer Web server listening on port 8080
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 152 from 8275. Case Республика Хакасия город Абакан, улица Зоотехническая, 6
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 153 from 8275. Case Республика Хакасия город Абакан, улица Тельмана, 98Б
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 154 from 8275. Case Республика Хакасия город Абакан, улица Ивана Ярыгина, 43
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 155 from 8275. Case Республика Хакасия город Абакан, проспект Дружбы Народов, 21
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 156 from 8275. Case Республика Хакасия город Абакан, улица Комарова, 12
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 157 from 8275. Case Республика Хакасия город Абакан, улица Комарова, 15
@@ -427,8 +411,6 @@ Gazetteer Web server listening on port 8080
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Архангельская область г. Архангельск, ул. Адмирала Макарова, 33 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Архангельская область г. Архангельск, ул. Дежневцев, 12 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 403 from 8275. Case Архангельская область г. Архангельск, ул. Сурповская, 26
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Архангельская область г. Архангельск, ул. Сурповская, 26 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Архангельская область г. Архангельск, ул. Полярная, 4 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Архангельская область г. Архангельск, ул. Дежневцев, 14 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Архангельская область г. Архангельск, пр. Новгородский, 21 
@@ -494,6 +476,8 @@ Gazetteer Web server listening on port 8080
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Астраханская область г. Астрахань, ул. Советская, 23 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Астраханская область г. Астрахань, ул. Коммунистическая, 35 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 466 from 8275. Case Астраханская область г. Астрахань, ул. Шелгунова, 12
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Астраханская область г. Астрахань, ул. Шелгунова, 12 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Астраханская область г. Астрахань, ул. Академика Королева, 40 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Астраханская область г. Астрахань, ул. Софьи Перовской, 103, к.25 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 469 from 8275. Case Астраханская область г. Астрахань, ул. Студенческая, 4а
@@ -518,8 +502,6 @@ Gazetteer Web server listening on port 8080
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Астраханская область г. Астрахань, ул. Звездная, 41 корп.4 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Астраханская область г. Астрахань, ул. Ахтубинская, 6А 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 490 from 8275. Case Астраханская область г. Астрахань, ул. Авиационная, 14А
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Астраханская область г. Астрахань, ул. Авиационная, 14А FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Астраханская область г. Астрахань, ул. Косм. В. Комарова, 53 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 492 from 8275. Case Астраханская область г. Астрахань, ул. Косм. В. Комарова, 154А
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 493 from 8275. Case Астраханская область г. Астрахань, ул. Косм. В. Комарова, 148
@@ -551,10 +533,10 @@ Gazetteer Web server listening on port 8080
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Астраханская область г. Астрахань, ул. Чкалова, 31 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Астраханская область г. Астрахань, ул. Панфилова, 36 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 519 from 8275. Case Астраханская область г. Астрахань, ул. Безжонова, 103
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Астраханская область г. Астрахань, ул. Безжонова, 103 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Астраханская область г. Астрахань, ул. Немова, 28 корп.2 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 521 from 8275. Case Астраханская область г. Астрахань, ул. Адм. Нахимова, 58
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Астраханская область г. Астрахань, ул. Адм. Нахимова, 58 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 522 from 8275. Case Астраханская область г. Астрахань, ул. Химиков, 5
 [main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
 [main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Астраханская область г. Астрахань, ул. Химиков, 5 FAILED
@@ -611,8 +593,6 @@ Gazetteer Web server listening on port 8080
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 571 from 8275. Case Астраханская область г. Астрахань, ул. Александрова, 3
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Астраханская область г. Астрахань, ул. Верещагина, 59/24 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 573 from 8275. Case Астраханская область г. Астрахань, ул. Ю. Селенского, 15А
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Астраханская область г. Астрахань, ул. Ю. Селенского, 15А FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Астраханская область г. Астрахань, ул. Адмиралтейская, 21 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 575 from 8275. Case Астраханская область г. Астрахань, ул. Анатолия Сергеева,13
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Астраханская область г. Астрахань, ул. Татищева, 4 
@@ -663,8 +643,6 @@ Gazetteer Web server listening on port 8080
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 619 from 8275. Case Белгородская область г. Белгород, улица Некрасова, 17Б
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 620 from 8275. Case Белгородская область г. Белгород, улица Привольная, 16
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 621 from 8275. Case Белгородская область г. Белгород, проспект Б. Хмельницкого, 137
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Белгородская область г. Белгород, проспект Б. Хмельницкого, 137 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Белгородская область г. Белгород, улица Некрасова, 20 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Белгородская область г. Белгород, улица Октябрьская, 26А 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Белгородская область г. Белгород, улица Октябрьская, 58 
@@ -975,6 +953,8 @@ Gazetteer Web server listening on port 8080
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 895 from 8275. Case Вологодская область г. Череповец, ул. Ленина, 111
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 896 from 8275. Case Вологодская область г. Череповец, пр. Строителей, 11Б
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 897 from 8275. Case Вологодская область г. Череповец, пл. Строителей, 1
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Вологодская область г. Череповец, пл. Строителей, 1 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 898 from 8275. Case Вологодская область г. Череповец, пр. Строителей, 30
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 899 from 8275. Case Вологодская область г. Череповец, Клубный проезд, 2
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 900 from 8275. Case Вологодская область г. Череповец, ул. Ленина, 149
@@ -1172,8 +1152,6 @@ Gazetteer Web server listening on port 8080
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Воронежская область город Воронеж, ул. 9 Января, 221д 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Воронежская область город Воронеж, ул. Ломоносова, д. 105 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 1076 from 8275. Case Воронежская область город Воронеж, ул. Тимирязева, д. 8
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Воронежская область город Воронеж, ул. Тимирязева, д. 8 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Воронежская область город Воронеж, ул. Мичурина, д. 1 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Воронежская область город Воронеж, ул. Шишкова, д. 105а 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Воронежская область город Воронеж, ул. Студенческая, д. 10 
@@ -1305,8 +1283,6 @@ Gazetteer Web server listening on port 8080
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Ивановская область Приволжский район, г. Приволжск, ул. 1 Мая, д. 10 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Ивановская область Приволжский район, г. Приволжск, ул. Коминтерновская, д. 36 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 1203 from 8275. Case Иркутская область город Иркутск, ул. Авиастроителей, 30
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Иркутская область город Иркутск, ул. Авиастроителей, 30 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Иркутская область город Иркутск, ул. Макаренко, 4 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Иркутская область город Иркутск, ул. Сибирских партизан, 22 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Иркутская область город Иркутск, ул. Ленинградская, 75 
@@ -1522,6 +1498,8 @@ Gazetteer Web server listening on port 8080
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Калужская область г. Малоярославец, ул. Аузина, д. 1 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 1415 from 8275. Case Калужская область г. Калуга, д. Мстихино, ул. Лесная, 24 к. 1
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 1416 from 8275. Case Калужская область г. Белоусово ул. Калужская, д. 10
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Калужская область г. Белоусово ул. Калужская, д. 10 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 1417 from 8275. Case Калужская область г. Обнинск, ул. Гастелло, д. 17
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 1418 from 8275. Case Калужская область г. Обнинск, ул. Ленина, д. 36
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 1419 from 8275. Case Калужская область г. Обнинск, ул. Ленина, д. 71
@@ -1546,8 +1524,6 @@ Gazetteer Web server listening on port 8080
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Калужская область г. Калуга, ул. Азаровская, 21 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Калужская область г. Калуга, ул. Новослободская, 31 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 1440 from 8275. Case Калужская область г. Калуга, ул. Московская, 311
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Калужская область г. Калуга, ул. Московская, 311 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Калужская область г. Калуга, Грабцевское шоссе, 22а 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Калужская область г. Калуга, ул. Хрустальная, 66 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Калужская область г. Калуга, ул. Льва Толстого, 51 
@@ -1593,8 +1569,6 @@ Gazetteer Web server listening on port 8080
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 1481 from 8275. Case Калужская область г. Обнинск, ул. Звездная, д. 3
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 1482 from 8275. Case Калужская область г. Обнинск, ул. Энгельса, д. 13
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 1483 from 8275. Case Калужская область г. Обнинск, ул. Энгельса, д. 14
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Калужская область г. Обнинск, ул. Энгельса, д. 14 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 1484 from 8275. Case Калужская область г. Обнинск, ул. Калужская, д. 5
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Калужская область г. Калуга, ул. Фридриха Энгельса, 14 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 1486 from 8275. Case Калужская область Бабынинский район, п. Воротынск, ул. Школьная, д. 21
@@ -1792,8 +1766,6 @@ Gazetteer Web server listening on port 8080
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Кировская область город Киров, Орджоникидзе, 13 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 1671 from 8275. Case Кировская область город Киров, мкр. Радужный, пер. Школьный, 3
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 1672 from 8275. Case Кировская область город Киров, ул. Комсомольская,  42
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Кировская область город Киров, ул. Комсомольская,  42 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Кировская область город Киров,  ул. Романа Ердякова, 23 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Кировская область город Киров,  ул. Уральская, 7 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Кировская область город Киров, мкр. Радужный, ул. Индустриальная, 20 
@@ -1805,8 +1777,6 @@ Gazetteer Web server listening on port 8080
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Кировская область город Киров,  ул. Ленинградская, 3 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Кировская область город Киров,  ул. Ленинградская,1 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 1683 from 8275. Case Кировская область город Киров,  ул. Свердлова, 21
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Кировская область город Киров,  ул. Свердлова, 21 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Кировская область город Киров, Горького ул., 20 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 1685 from 8275. Case Кировская область город Киров, ул. Школьная,1
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Кировская область город Киров, Есенина ул., 9 
@@ -1871,8 +1841,6 @@ Gazetteer Web server listening on port 8080
 [main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Костромская область г. Кострома, микрорайон Давыдовский-1, 32 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Костромская область г. Кострома, микрорайон Давыдовский-2, 19 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 1743 from 8275. Case Костромская область г. Кострома, ул. Центральная, 50
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Костромская область г. Кострома, ул. Центральная, 50 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 1744 from 8275. Case Костромская область г. Кострома, микрорайон Черноречье, 2
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Костромская область г. Кострома, Кинешемское шоссе, 25 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Костромская область г. Кострома, Кинешемское шоссе, 25/1 
@@ -1886,11 +1854,11 @@ Gazetteer Web server listening on port 8080
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Костромская область г. Кострома, ул. Смоленская, 28А 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Костромская область г. Кострома, ул. Долматова, 25 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 1756 from 8275. Case Костромская область г. Кострома, ул. Малышковская, 4
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Костромская область г. Кострома, ул. Малышковская, 4 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Костромская область г. Кострома, микрорайон Паново, 9 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 1758 from 8275. Case Костромская область г. Кострома, микрорайон Паново, 12
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 1759 from 8275. Case Костромская область г. Кострома, ул. Суслова, 6
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Костромская область г. Кострома, ул. Суслова, 6 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Костромская область г. Кострома, Березовый проезд, 2 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Костромская область г. Кострома, ул. Фрунзе, 14 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Костромская область г. Кострома, ул. Садовая, 7 
@@ -1936,6 +1904,8 @@ Gazetteer Web server listening on port 8080
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 1798 from 8275. Case Курганская область г. Шадринск, ул. Свердлова, 59
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Курганская область г. Курган, ул. Станционная, 44 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 1800 from 8275. Case Курганская область Каргапольский район, пос. Каргаполье, ул. Сиреневая, 13
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Курганская область Каргапольский район, пос. Каргаполье, ул. Сиреневая, 13 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 1801 from 8275. Case Курганская область Каргапольский район, пос. Каргаполье, ул. Калинина, 25
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Курганская область Каргапольский район, пос. Каргаполье, ул. Ленина, 14 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Курганская область г. Курган, ул. Пичугина, 36 
@@ -2014,8 +1984,6 @@ Gazetteer Web server listening on port 8080
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Ленинградская область Тихвинский район, г. Тихвин, ул. Зайцева, д. 1 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Ленинградская область Бокситогорский район, г. Бокситогорск, ул. Вишнякова, д. 22 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 1876 from 8275. Case Ленинградская область Бокситогорский район, г. Бокситогорск, ул. Комсомольская, д. 5а
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Ленинградская область Бокситогорский район, г. Бокситогорск, ул. Комсомольская, д. 5а FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Ленинградская область Бокситогорский район, г. Бокситогорск, ул. Школьная, д. 13 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Ленинградская область Бокситогорский район, г. Бокситогорск, ул. Южная, д. 23 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Липецкая область г. Липецк, ул. Звездная, д. 12 
@@ -2028,8 +1996,6 @@ Gazetteer Web server listening on port 8080
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 1886 from 8275. Case Липецкая область Грязинский район, г. Грязи, ул. Лихачева, д. 11
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Липецкая область Грязинский район, г. Грязи, ул. Шкатова, д. 1 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 1888 from 8275. Case Липецкая область Грязинский район, г. Грязи, ул. Партизанская, д. 2
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Липецкая область Грязинский район, г. Грязи, ул. Партизанская, д. 2 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Липецкая область Грязинский район, г. Грязи, ул. Осоавиахима, д. 1 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Липецкая область Грязинский район, г. Грязи, ул. 18 Партсъезд, д. 81а 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Липецкая область Грязинский район, г. Грязи, ул. 2-я Чапаева, д. 56 
@@ -2122,6 +2088,8 @@ Gazetteer Web server listening on port 8080
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Московская область г. Лобня, улица Павлика Морозова, д.1 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Московская область Луховицкий район, с. Дединово, ул. Шашина, д. 6 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 1976 from 8275. Case Московская область Озёрский район, г. Озёры, микрорайон-1, дом 7а
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Московская область Озёрский район, г. Озёры, микрорайон-1, дом 7а FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 1977 from 8275. Case Московская область г. Протвино, ул. Гагарина, д. 7
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 1978 from 8275. Case Московская область Раменский район, г. Раменское, ул. Красноармейская, д. 22
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 1979 from 8275. Case Московская область г. Коломна, бульвар 800-летия Коломны, д. 9
@@ -2134,6 +2102,8 @@ Gazetteer Web server listening on port 8080
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 1986 from 8275. Case Московская область г. Железнодорожный, ул. Граничная, дом № 22, стр.1
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Московская область Мытищинский район, г. Мытищи, Силикатная улица, дом 36 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 1988 from 8275. Case Московская область Мытищинский район, г. Мытищи, Силикатная улица, дом 1/9
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Московская область Мытищинский район, г. Мытищи, Силикатная улица, дом 1/9 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Московская область Мытищинский район, г. Мытищи, Силикатная улица, дом 12 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 1990 from 8275. Case Московская область Щёлковский район, г. Щёлковоо, ул. Комсомольская, д. 8а
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Московская область г. Подольск, ул. Быковская, 9 
@@ -2141,8 +2111,6 @@ Gazetteer Web server listening on port 8080
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Московская область Краcногорский район, д. Путилково 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Московская область Краcногорский район, д. Путилково, д. 11 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 1995 from 8275. Case Московская область г. Клин, ул. Ленина, д. 18
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Московская область г. Клин, ул. Ленина, д. 18 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Московская область Солнечногорский район, посёлок Жуково, микрорайон Берёзки 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 1997 from 8275. Case Московская область Одинцовский район, поселок Старый Городок, улица Школьная, дом № 28
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 1998 from 8275. Case Московская область Ногинский район, г. Старая Купавна, Школьный проезд, д. 2
@@ -2164,8 +2132,6 @@ Gazetteer Web server listening on port 8080
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2012 from 8275. Case Московская область г. Реутов, ул. Ленина, д. 2
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Московская область Ногинский район, г. Ногинск, ул. Юбилейная, д. З 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2014 from 8275. Case Московская область Можайский район, город Можайск, улица 20 Января, дом № 19
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Московская область Можайский район, город Можайск, улица 20 Января, дом № 19 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Московская область г. Клин, ул. Чайковского, д. 14 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Московская область Ногинский район, г. Ногинск, ул. 3-го Интернационала, д. 117а 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Московская область г. Лыткарино, проезд Шестакова, стр.2 
@@ -2174,8 +2140,6 @@ Gazetteer Web server listening on port 8080
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Московская область Солнечногорский район, посёлок Лунёво 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Московская область Солнечногорский район, деревня Новая 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2022 from 8275. Case Московская область г. Балашиха, ул. Крупешина, 3
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Московская область г. Балашиха, ул. Крупешина, 3 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2023 from 8275. Case Московская область г. Долгопрудный, Новый бульвар, д. 21, к. 3
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2024 from 8275. Case Московская область Ступинский район, г. Ступино, улица Колхозная, вл. 173
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2025 from 8275. Case Московская область г. Звенигород. Нахабинское шоссе, д. 15
@@ -2269,8 +2233,6 @@ Gazetteer Web server listening on port 8080
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2111 from 8275. Case Московская область г. Дедовск, ул. Ленина, д. 4
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2112 from 8275. Case Московская область Жуковский, ул. Молодежная, д. 10
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2113 from 8275. Case Московская область Люберецкий район, пос. Томилино, ул. Гаршина д. 9-а корп. 5
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Московская область Люберецкий район, пос. Томилино, ул. Гаршина д. 9-а корп. 5 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2114 from 8275. Case Московская область Люберецкий район, пос. Томилино, ул. Гаршика д. 9-а корп. 8
 [main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
 [main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Московская область Люберецкий район, пос. Томилино, ул. Гаршика д. 9-а корп. 8 FAILED
@@ -2289,6 +2251,8 @@ Gazetteer Web server listening on port 8080
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2127 from 8275. Case Московская область Щёлковский район, п. Монино, ул. Авиационная, д. 2а
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2128 from 8275. Case Московская область г. Красноармейск, ул. Академика Янгеля, д. 33
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2129 from 8275. Case Московская область г. Клин, ул. Московская, д. 4
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Московская область г. Клин, ул. Московская, д. 4 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Московская область Волоколамский район, деревня Курьяново, улица Центральная, дом 60 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Московская область г. Лосино-Петровский, ул. Площадь Революции, дом 24 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Московская область Щёлковский район, г. Щёлковоо, ул. Парковая, д. 18 
@@ -2321,8 +2285,6 @@ Gazetteer Web server listening on port 8080
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2157 from 8275. Case Московская область г. Коломна, ул. Шилова, д. 5
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2158 from 8275. Case Московская область г. Коломна, ул. Шилова 5,
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2159 from 8275. Case Московская область г. Подольск, ул. Ватутина, 34
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Московская область г. Подольск, ул. Ватутина, 34 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2160 from 8275. Case Московская область г. Клин, ул. Гагарина, д. 39/2
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Московская область г. Рошаль, ул. Фридриха Энгельса, д.28а 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Московская область г. Рошаль, ул. Фридриха Энгельса, д. 12 
@@ -2342,6 +2304,8 @@ Gazetteer Web server listening on port 8080
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Московская область г. Лыткарино, 5 микрорайон, квартал 1, д.21 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2177 from 8275. Case Московская область г. Подольск, ул. Большая Серпуховская, 20/1
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2178 from 8275. Case Московская область г. Лыткарино, 6 микрорайон, стр. 26
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Московская область г. Лыткарино, 6 микрорайон, стр. 26 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2179 from 8275. Case Московская область г. Лобня, ул.Авиационная 1
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2180 from 8275. Case Московская область г. Лобня, ул.Авиационная д. 1
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Московская область г. Лыткарино, квартал 3-а, дом 11 
@@ -2374,8 +2338,6 @@ Gazetteer Web server listening on port 8080
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2208 from 8275. Case Московская область г. Климовск, ул. Рожкова, д. 6
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2209 from 8275. Case Московская область Люберецкий район, г. Люберцы, Октябрьский проспект, д. 200-а
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2210 from 8275. Case Московская область Рузский район, г. Руза, Микрорайон, д. 19
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Московская область Рузский район, г. Руза, Микрорайон, д. 19 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2211 from 8275. Case Московская область г. Долгопрудный, ул. Дирижабельная, д. 17
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Московская область Люберецкий район, г. Люберцы, Октябрьский проспект, д. 349-а 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2213 from 8275. Case Московская область г. Звенигород, ул. Некрасова, дом № 8
@@ -2435,6 +2397,8 @@ Gazetteer Web server listening on port 8080
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2261 from 8275. Case Московская область Ленинский район, г. Видное, ул. Школьная, дом 55А
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2262 from 8275. Case Московская область г. Серпухов, ул. Ворошилова, дом № 148/2
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2263 from 8275. Case Московская область г. Химки, ул. Школьная, д. 2
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Московская область г. Химки, ул. Школьная, д. 2 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2264 from 8275. Case Московская область г. Химки, ул. Ватутина, д. 2
 [main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
 [main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Московская область г. Химки, ул. Ватутина, д. 2 FAILED
@@ -2444,13 +2408,13 @@ Gazetteer Web server listening on port 8080
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2268 from 8275. Case Московская область Люберецкий район, пос. Красково, ул. 2-я Заводская, д. 11
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2269 from 8275. Case Московская область г. Дубна, ул. Центральная, 23
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2270 from 8275. Case Московская область г. Орехово-Зуево, ул. Бугрова, д. 5
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Московская область г. Орехово-Зуево, ул. Бугрова, д. 5 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Московская область Раменский район, пос. Родники, ул. Центральная, д. З 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Московская область Солнечногорский район, г. Солнечногорск, улица Дзержинского, дом № 21/19 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Московская область г. Ивантеевка, ул. Дзержинского, дом 1 а 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Московская область Одинцовский район, дачный поселок Лесной Городок, улица Фасадная, дом № 10 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2275 from 8275. Case Московская область г. Ивантеевка, ул. Дзержинского, дом 7
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Московская область г. Ивантеевка, ул. Дзержинского, дом 7 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2276 from 8275. Case Московская область Жуковский, ул. Дугина, 19
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Московская область Красногорский район, п. Нахабино, ул. Институтская, д. 10б 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Московская область Красногорский район, п. Нахабино, ул. Институтская, д. 21а 
@@ -2633,6 +2597,8 @@ Gazetteer Web server listening on port 8080
 [main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Московская область поселок Власиха, ул. Маршала Жукова, д. 9 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2446 from 8275. Case Московская область Клинский район, г. Высоковск, ул. Текстильная, д. 4а
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2447 from 8275. Case Московская область Озёрский район, г. Озёры, ул. Ленина, дом 20
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Московская область Озёрский район, г. Озёры, ул. Ленина, дом 20 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2448 from 8275. Case Московская область г. Егорьевск, ул. Советская, д. 193
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2449 from 8275. Case Московская область г. Серпухов, ул. Водонапорная, дом № 6
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Московская область Люберецкий район, пос. Малаховка, ул. Комсомольская, д. 4 
@@ -2680,8 +2646,6 @@ Gazetteer Web server listening on port 8080
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2486 from 8275. Case Московская область Одинцовский район, деревня Ликино, улица Новая, д. 9
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2487 from 8275. Case Московская область г. Дзержинский, проезд Пушкина, д. 2
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2488 from 8275. Case Московская область Серпуховской район, п. Большевик, ул. Ленина, д. 36
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Московская область Серпуховской район, п. Большевик, ул. Ленина, д. 36 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2489 from 8275. Case Московская область г. Химки, Юбилейный пр-т, д. 59
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Московская область г. Дмитров, ул. Комсомольская, д. 17а 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2491 from 8275. Case Московская область Люберецкий район, пос. Малаховка, ул. Шоссейная, д. 40
@@ -2695,6 +2659,8 @@ Gazetteer Web server listening on port 8080
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2499 from 8275. Case Московская область Жуковский, ул. Молодежная, д. 22
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Московская область Красногорский район, п. Нахабино, ул. Совпартшкола 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2501 from 8275. Case Московская область г. Ивантеевка, Центральный проезд, дом 1
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Московская область г. Ивантеевка, Центральный проезд, дом 1 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2502 from 8275. Case Московская область город Черноголовка, ул. Центральная, д. 1
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2503 from 8275. Case Московская область Луховицкий район, г. Луховицы, ул. Мира, д. 12
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2504 from 8275. Case Московская область Луховицкий район, г. Луховицы, ул. Мира, д. 16
@@ -2709,6 +2675,8 @@ Gazetteer Web server listening on port 8080
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Московская область Наро-Фоминский район, г. Апрелевка, ул. Комсомольская, д. 15а 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Московская область Наро-Фоминский район, г. Наро-Фоминск, ул. Комсомольская, 9 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2515 from 8275. Case Московская область г. Железнодорожный, Носовихинское шоссе, дом № 12
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Московская область г. Железнодорожный, Носовихинское шоссе, дом № 12 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2516 from 8275. Case Московская область Ступинский район, г. Ступино, Проспект Победы, вл. 25
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Московская область Сергиево-Посадский район, г. Сергиев Посад-7. Бульвар Свободы д. 5 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2518 from 8275. Case Московская область Пушкинский район, г. Пушкино, ул. Некрасова, дом 3
@@ -2720,7 +2688,7 @@ Gazetteer Web server listening on port 8080
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2524 from 8275. Case Московская область Одинцовский район, город Одинцово, Можайское шоссе, дом № 149
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2525 from 8275. Case Московская область г. Лобня, ул.Победы 18
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2526 from 8275. Case Московская область Раменский район, поселок Родники, ул. Трудовая, д. З
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Type FAILED Unexpected type hghnet
 [main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Московская область Раменский район, поселок Родники, ул. Трудовая, д. З FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Московская область г. Долгопрудный, Лихачевское шоссе, д. 27 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Московская область г. Лосино-Петровский, ул. Октябрьская, дом 12 
@@ -2809,8 +2777,6 @@ Gazetteer Web server listening on port 8080
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Московская область Егорьевский район, село Починки, ул. Молодежная, д. 4 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Московская область Ленинский район, г. Видное, ул. Ольг инская. дом 53 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2605 from 8275. Case Московская область г. Рошаль, ул.Карла Маркса, д. 1
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Московская область г. Рошаль, ул.Карла Маркса, д. 1 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2606 from 8275. Case Московская область Жуковский, ул. Молодежная, д. 9
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2607 from 8275. Case Московская область Егорьевский район, дер. Юрцово, ул. Новая, д. 208
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2608 from 8275. Case Московская область Жуковский, ул. Гризодубовой, д. 12
@@ -2833,6 +2799,8 @@ Gazetteer Web server listening on port 8080
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Московская область Солнечногорский район, г. Солнечногорск, улица Обуховская, дом № 9а 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2626 from 8275. Case Московская область г. Ивантеевка, ул. Смурякова, дом 10
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2627 from 8275. Case Московская область Одинцовский район, р. п. Новоивановское, ул. Агрохимиков, д. 1
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Московская область Одинцовский район, р. п. Новоивановское, ул. Агрохимиков, д. 1 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2628 from 8275. Case Московская область г. Королев, ул. Суворова, дом 19а
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2629 from 8275. Case Московская область г. Коломна, ул. Дзержинского, д. 90
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2630 from 8275. Case Московская область г. Электросталь, проезд Чернышевского, дом 22
@@ -2851,8 +2819,6 @@ Gazetteer Web server listening on port 8080
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2641 from 8275. Case Московская область г. Химки, Куркинское ш., д. 18
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Московская область Раменский район, г. Раменское, ул. 100-й Свирской дивизии, д. 11 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2643 from 8275. Case Московская область г. Котельники, микрорайон «Ковровый», д. 12
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Московская область г. Котельники, микрорайон «Ковровый», д. 12 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Московская область г. Котельники, микрорайон «Силикат», д.32 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2645 from 8275. Case Московская область Щёлковский район, г. Щелково, ул. Талсинская, д. 10
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2646 from 8275. Case Московская область Одинцовский район, поселок ВНИИССОК, улица Дружбы, дом № 11
@@ -2865,6 +2831,8 @@ Gazetteer Web server listening on port 8080
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2653 from 8275. Case Московская область г. Серпухов, ул. Пролетарская, дом №145
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2654 from 8275. Case Московская область г. Коломна, ул. Октябрьской революции, д. 232
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2655 from 8275. Case Московская область г. Орехово-Зуево, ул. Бугрова, д.7
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Московская область г. Орехово-Зуево, ул. Бугрова, д.7 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2656 from 8275. Case Московская область г. Коломна, ул. Октябрьской революции, д. 408
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2657 from 8275. Case Московская область г. Коломна, ул. Октябрьской революции, д. 324
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2658 from 8275. Case Московская область Жуковский, ул. Ломоносова, д.13
@@ -3073,6 +3041,8 @@ Gazetteer Web server listening on port 8080
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2851 from 8275. Case Московская область г. Электросталь, ул. Карла Маркса, дом 23
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Московская область Ленинский район, г. Видное, Клубный переулок, дом 1 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2853 from 8275. Case Московская область Ногинский район, г. Ногинск, ул. Советская, д. 57
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Московская область Ногинский район, г. Ногинск, ул. Советская, д. 57 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2854 from 8275. Case Московская область г. Балашиха, шоссе Энтузиастов, 38
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2855 from 8275. Case Московская область г, Балашиха, проспект Ленина, 20
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2856 from 8275. Case Московская область г. Балашиха, проспект Ленина, 20
@@ -3089,8 +3059,6 @@ Gazetteer Web server listening on port 8080
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Московская область г. Королев, мкр. Первомайский, ул. Советская, дом 5 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2868 from 8275. Case Московская область г. Долгопрудный, ул. Спортивная, д. 2
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2869 from 8275. Case Московская область г. Долгопрудный, мкр. Хлебниково, ул. Станционная, д. 16
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Московская область г. Долгопрудный, мкр. Хлебниково, ул. Станционная, д. 16 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2870 from 8275. Case Московская область г. Королев, ул. Пионерская, дом 8, корп.1
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Московская область г. Королев, ул. Терешковой, дом 1 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2872 from 8275. Case Московская область г. Королев, ул. Гагарина, дом 42
@@ -3121,6 +3089,8 @@ Gazetteer Web server listening on port 8080
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Московская область Солнечногорский район, деревня Голубое 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2898 from 8275. Case Московская область город Черноголовка, пр. Строителей, д. 3
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2899 from 8275. Case Московская область Озёрский район, г. Озёры, пл. Карла Маркса, д.55
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Московская область Озёрский район, г. Озёры, пл. Карла Маркса, д.55 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Московская область Озёрский район, г. Озёры, микрорайон -1 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Московская область Озёрский район, г. Озёры микрорайон имени маршала Катукова 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2902 from 8275. Case Московская область Озёрский район, г. Озёры, ул. Ленина, дом 102
@@ -3256,8 +3226,6 @@ Gazetteer Web server listening on port 8080
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 3022 from 8275. Case Московская область г. Королев, ул. им. 50-летия ВЛКСМ, дом 5/16
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 3023 from 8275. Case Московская область г. Электросталь, ул. Пушкина, дом 23а
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 3024 from 8275. Case Московская область г.Егорьевск, ул. Профсоюзная, д. 24
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Московская область г.Егорьевск, ул. Профсоюзная, д. 24 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 3025 from 8275. Case Московская область г. Егорьевск, ул. Советская, д. 174
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 3026 from 8275. Case Московская область г. Егорьевск, ул. Софьи Перовской, д. 101 а
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 3027 from 8275. Case Московская область г. Егорьевск, 1-й микрорайон, д. 69
@@ -3368,7 +3336,7 @@ Gazetteer Web server listening on port 8080
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Московская область Ногинский район, г. Ногинск, ул. Советской Конституции, д. 58 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Московская область Ногинский район, г. Ногинск, ул. Ремесленная, д. 15 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 3130 from 8275. Case Московская область Ногинский район, г. Ногинск, ул. Кирова, д. З
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Type FAILED Unexpected type hghway
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
 [main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Московская область Ногинский район, г. Ногинск, ул. Кирова, д. З FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 3131 from 8275. Case Московская область Ногинский район, г. Ногинск, ул. Центральная, д. 8
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 3132 from 8275. Case Московская область Одинцовский район, город Одинцово, улица Ново-Спортивная, дом № 14
@@ -3397,8 +3365,6 @@ Gazetteer Web server listening on port 8080
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Московская область Мытищинский район, г. Мытищи, Юбилейная улица, дом 42, корп. 2 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Московская область Мытищинский район, г. Мытищи, улица Семашко, дом 2 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 3157 from 8275. Case Московская область Мытищинский район, г. Мытищи, Новомытищинский проспект, дом 39, корп. З
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Московская область Мытищинский район, г. Мытищи, Новомытищинский проспект, дом 39, корп. З FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Московская область Мытищинский район, г. Мытищи, улица Щербакова, дом 1А 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Московская область Мытищинский район, г. Мытищи, улица Фрунзе, дом 11 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Московская область Мытищинский район, г. Мытищи, Шараповская улица, дом 6, корп. 2 
@@ -3477,8 +3443,6 @@ Gazetteer Web server listening on port 8080
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 3229 from 8275. Case Мурманская область г. Апатиты, ул. Ферсмана, д. 24
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 3230 from 8275. Case Мурманская область г. Апатиты, ул. Ферсмана, д. 14
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 3231 from 8275. Case Мурманская область г. Апатиты, ул. Ферсмана, д. 40а
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Мурманская область г. Апатиты, ул. Ферсмана, д. 40а FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 3232 from 8275. Case Мурманская область г. Апатиты, ул. Зиновьева, д. 5а
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 3233 from 8275. Case Мурманская область г. Апатиты, ул. Зиновьева, д. 18
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 3234 from 8275. Case Мурманская область г. Апатиты, ул. Жемчужная, д. 38
@@ -3496,6 +3460,8 @@ Gazetteer Web server listening on port 8080
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 3246 from 8275. Case Мурманская область г. Кандалакша, ул. Высокая, д. 2
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Мурманская область г. Кандалакша, ул. Кировская аллея, д. 1 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 3248 from 8275. Case Мурманская область г. Кандалакша, ул. 2- я Парковая, д. 11
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Мурманская область г. Кандалакша, ул. 2- я Парковая, д. 11 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 3249 from 8275. Case Мурманская область г. Кандалакша, ул. Чкалова, д. 37
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Мурманская область Кандалакшский район, нп Белое море, д. 6 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 3251 from 8275. Case Мурманская область Кандалакшский район, пгт Зеленоборский, ул. Энергетическая, д. 24а
@@ -3618,8 +3584,6 @@ Gazetteer Web server listening on port 8080
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Нижегородская область город Дзержинск, ул.Гайдара,74-б 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 3361 from 8275. Case Нижегородская область город Саров, ул.Куйбышева, д.25
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 3362 from 8275. Case Нижегородская область город Саров, ул.Шверника,д.19
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Нижегородская область город Саров, ул.Шверника,д.19 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Нижегородская область город Саров, ул.Силкина, д.10к1 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 3364 from 8275. Case Нижегородская область город Саров, ул.Ак. Харитона, д.17
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Нижегородская область город Дзержинск, пос.Бабино 
@@ -3677,13 +3641,13 @@ Gazetteer Web server listening on port 8080
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 3415 from 8275. Case Нижегородская область город Арзамас, ул. Зеленая, 18
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 3416 from 8275. Case Нижегородская область город Арзамас, 11 микрорайон, дом 11
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 3417 from 8275. Case Нижегородская область город Арзамас, ул. 9 Мая, 6
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Нижегородская область город Арзамас, ул. 9 Мая, 6 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Нижегородская область город Арзамас, ул. Мира, 19/1 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 3419 from 8275. Case Нижегородская область город Арзамас, ул. Парковая, 16/1
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 3420 from 8275. Case Нижегородская область город Арзамас, ул. Семашко. 21
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 3421 from 8275. Case Нижегородская область город Арзамас, ул. Пландина, 25
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 3422 from 8275. Case Нижегородская область город Шахунья, улица Советская, дом 15
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Нижегородская область город Шахунья, улица Советская, дом 15 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 3423 from 8275. Case Нижегородская область Кстовский район, г.Кстово, ул.Свободы, д.1
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Нижегородская область Кстовский район, г.Кстово, 3 микрорайон, д.1 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 3425 from 8275. Case Нижегородская область Кстовский район, г.Кстово, ул. Школьная, д.15
@@ -3741,8 +3705,6 @@ Gazetteer Web server listening on port 8080
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 3477 from 8275. Case Нижегородская область г. Нижний Новгород, ул. Строкина, 2
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 3478 from 8275. Case Нижегородская область г. Нижний Новгород, проспект Бусыгина, 18a
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 3479 from 8275. Case Нижегородская область г. Нижний Новгород, ул. Газовская, 18
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Нижегородская область г. Нижний Новгород, ул. Газовская, 18 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 3480 from 8275. Case Нижегородская область г. Нижний Новгород, ул. Васнецова, 20
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 3481 from 8275. Case Нижегородская область г. Нижний Новгород, ул. Краснодонцев, 1а
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 3482 from 8275. Case Нижегородская область г. Нижний Новгород, ул. Южное шоссе, 49а
@@ -3856,6 +3818,8 @@ Gazetteer Web server listening on port 8080
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 3588 from 8275. Case Нижегородская область г. Нижний Новгород, ул. Маршала Казакова, 6
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 3589 from 8275. Case Нижегородская область г. Нижний Новгород, ул. Шаляпина, 25
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 3590 from 8275. Case Нижегородская область г. Нижний Новгород, проспект Героев, 20
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Нижегородская область г. Нижний Новгород, проспект Героев, 20 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 3591 from 8275. Case Нижегородская область г. Нижний Новгород, ул. Шаляпина, 23
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 3592 from 8275. Case Нижегородская область г. Нижний Новгород, ул. Куйбышева, 29
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 3593 from 8275. Case Нижегородская область г. Нижний Новгород, Московское шоссе, 161
@@ -3886,11 +3850,7 @@ Gazetteer Web server listening on port 8080
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 3618 from 8275. Case Нижегородская область г. Нижний Новгород, ул. Народная, 35
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 3619 from 8275. Case Нижегородская область г. Нижний Новгород, ул. Родионова, 201
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 3620 from 8275. Case Нижегородская область г. Нижний Новгород, ул. Верхне-Печерская, 4а
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Нижегородская область г. Нижний Новгород, ул. Верхне-Печерская, 4а FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 3621 from 8275. Case Нижегородская область г. Нижний Новгород, ул. Верхне-Печерская, 3а
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Нижегородская область г. Нижний Новгород, ул. Верхне-Печерская, 3а FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Нижегородская область г. Нижний Новгород, ул. Верхне-Печерская, 5а 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 3623 from 8275. Case Нижегородская область г. Нижний Новгород, ул. Верхне-Печерская, 10
 [main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
@@ -4061,8 +4021,6 @@ Gazetteer Web server listening on port 8080
 [main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Новгородская область Великий Новгород, ул. Ломоносова, д. 22а FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 3786 from 8275. Case Новгородская область Великий Новгород, Псковская ул., д. 44, корп. 2
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 3787 from 8275. Case Новгородская область Великий Новгород, Псковская ул., д. 50, корп. 2
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Новгородская область Великий Новгород, Псковская ул., д. 50, корп. 2 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Новгородская область Великий Новгород, Октябрьская ул., д. 14 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 3789 from 8275. Case Новгородская область Великий Новгород, Октябрьская ул., д. 30
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 3790 from 8275. Case Новгородская область Великий Новгород, ул. Людогоща, д. 4
@@ -4105,8 +4063,6 @@ Gazetteer Web server listening on port 8080
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 3825 from 8275. Case Новгородская область Чудовский район, г. Чудово, Малый переулок, д. 9
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Новгородская область Чудовский район, г. Чудово, ул. Титова, д. 10 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 3827 from 8275. Case Новгородская область Великий Новгород, Большая Санкт-Петербургская ул., д. 46
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Новгородская область Великий Новгород, Большая Санкт-Петербургская ул., д. 46 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Новгородская область Старорусский район, г. Старая Русса, пл. Революции, д. 3 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 3829 from 8275. Case Новгородская область Старорусский район, г. Старая Русса, ул. Володарского, д. 10
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 3830 from 8275. Case Новгородская область Великий Новгород, Большая Московская ул., д. 70
@@ -4178,8 +4134,6 @@ Gazetteer Web server listening on port 8080
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Оренбургская область г. Оренбург, пр-т Гагарина, 45 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 3893 from 8275. Case Оренбургская область г. Оренбург, пр-т Гагарина, 27/1
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 3894 from 8275. Case Оренбургская область г. Оренбург, пр-д Промысловый, 11
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Оренбургская область г. Оренбург, пр-д Промысловый, 11 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Оренбургская область г. Оренбург, ул. Восточная, 15 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Оренбургская область г. Оренбург, ул. Советская, 48 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Оренбургская область г. Оренбург, пр-д Знаменский, 4 
@@ -4201,8 +4155,6 @@ Gazetteer Web server listening on port 8080
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Оренбургская область г. Оренбург, ул. Центральная, 13 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Оренбургская область г. Оренбург, ул. Тобольская, 59А 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 3915 from 8275. Case Оренбургская область г. Орск, пр. Ленина, 32
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Оренбургская область г. Орск, пр. Ленина, 32 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 3916 from 8275. Case Оренбургская область г. Орск, ул. Нефтяников, 2А
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 3917 from 8275. Case Оренбургская область г. Орск, пр. Мира, 16
 [main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
@@ -4253,6 +4205,8 @@ Gazetteer Web server listening on port 8080
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Оренбургская область г. Оренбург, ул. Минская, 1 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Оренбургская область г. Оренбург, ул. Ноябрьская, 41 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 3961 from 8275. Case Оренбургская область г. Оренбург, ул. Оpджоникидзе, 226
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Оренбургская область г. Оренбург, ул. Оpджоникидзе, 226 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Оренбургская область г. Сорочинск, 2 микрорайон, 36А 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 3963 from 8275. Case Оренбургская область г. Бузулук, ул. 1 Линия, 40
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Оренбургская область г. Бузулук, ул. Гая, 35А 
@@ -4447,10 +4401,14 @@ Gazetteer Web server listening on port 8080
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 4149 from 8275. Case Псковская область г. Великие Луки, улица Половская, дом 3
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 4150 from 8275. Case Псковская область г. Великие Луки, проспект Гагарина, дом 5
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 4151 from 8275. Case Псковская область г. Великие Луки, площадь Ленина, дом 3
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Псковская область г. Великие Луки, площадь Ленина, дом 3 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 4152 from 8275. Case Псковская область г. Великие Луки, проспект Октябрьский, дом 28/13
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 4153 from 8275. Case Псковская область г. Великие Луки, улица Пионерская, дом 4
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 4154 from 8275. Case Псковская область г. Великие Луки, улица Комсомольца Зверева, дом 24/27
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 4155 from 8275. Case Псковская область г. Великие Луки, площадь Калинина, дом 6а
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Псковская область г. Великие Луки, площадь Калинина, дом 6а FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 4156 from 8275. Case Псковская область г. Великие Луки, улица Первомайская, дом 16/2
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 4157 from 8275. Case Псковская область г. Великие Луки, проспект Октябрьский, дом 50
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 4158 from 8275. Case Псковская область г. Великие Луки, улица Заслонова, дом 15
@@ -4532,8 +4490,6 @@ Gazetteer Web server listening on port 8080
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 4234 from 8275. Case Ростовская область город Ростов-на-Дону, ул.Малюгиной,212
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 4235 from 8275. Case Ростовская область город Ростов-на-Дону, ул.Мечникова,19А
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 4236 from 8275. Case Ростовская область город Ростов-на-Дону, ул.Фрунзе,12
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Ростовская область город Ростов-на-Дону, ул.Фрунзе,12 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Ростовская область город Ростов-на-Дону, ул.Кропоткина,31 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 4238 from 8275. Case Ростовская область город Ростов-на-Дону, ул.2-й Пятилетки,10
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 4239 from 8275. Case Ростовская область город Ростов-на-Дону, ул.Вятская,27
@@ -4632,8 +4588,6 @@ Gazetteer Web server listening on port 8080
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 4332 from 8275. Case Рязанская область город Рязань, ул. Полетаева, дом 30 корп. 1
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 4333 from 8275. Case Рязанская область г. Сасово, ул. Ленина, 34
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 4334 from 8275. Case Рязанская область г. Сасово, ул. Ленина, 42
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Рязанская область г. Сасово, ул. Ленина, 42 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 4335 from 8275. Case Рязанская область г. Сасово, пр. Свободы, 19а
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 4336 from 8275. Case Рязанская область город Рязань, ул. Островского, дом 33 корп. 1
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Рязанская область Рязанский район, с. Агро-Пустынь 
@@ -4693,6 +4647,8 @@ Gazetteer Web server listening on port 8080
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 4391 from 8275. Case Рязанская область город Рязань, ул. Ленинского Комсомола, дом 7
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 4392 from 8275. Case Рязанская область город Рязань, ул. Семашко, дом 18
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 4393 from 8275. Case Рязанская область город Рязань, ул. Введенская, дом 131
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Рязанская область город Рязань, ул. Введенская, дом 131 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 4394 from 8275. Case Рязанская область город Рязань, ул. Горького, дом 51
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Рязанская область город Рязань, ул. Николодворянская, дом 19/40 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 4396 from 8275. Case Рязанская область город Рязань, пл. Соборная, дом 15
@@ -4715,7 +4671,7 @@ Gazetteer Web server listening on port 8080
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Рязанская область г. Касимов, ул. Большакова, д. 51 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Саратовская область г. Саратов, ул. им. Мичурина И. В., 2/12 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 4411 from 8275. Case Саратовская область г. Саратов, площадь им. Ленина В. И.
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Type FAILED Unexpected type hghway
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
 [main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Саратовская область г. Саратов, площадь им. Ленина В. И. FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Саратовская область г. Саратов, ул. им. Мичурина И. В., 16 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Сахалинская область Поронайский район, г. Поронайск, ул. 2-я Восточная, 29 
@@ -4740,6 +4696,8 @@ Gazetteer Web server listening on port 8080
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 4432 from 8275. Case Свердловская область Екатеринбург, ул. Серафимы Дерябиной, 17а
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 4433 from 8275. Case Свердловская область Екатеринбург, ул. Посадская, 75
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 4434 from 8275. Case Свердловская область Екатеринбург, бульвар Верх-Исетский, 23
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Свердловская область Екатеринбург, бульвар Верх-Исетский, 23 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 4435 from 8275. Case Свердловская область Екатеринбург, ул. Заводская, 36б
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Свердловская область Екатеринбург, ул. Металлургов, 46 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 4437 from 8275. Case Свердловская область Екатеринбург, ул. Ясная, 20
@@ -4875,8 +4833,6 @@ Gazetteer Web server listening on port 8080
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Смоленская область г. Смоленск, ул. Рабочая, д. № 10 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Смоленская область г. Смоленск, ул.12 лет Октября, д. № 9 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 4567 from 8275. Case Смоленская область г. Смоленск, ул. Ударников, д. № 3
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Смоленская область г. Смоленск, ул. Ударников, д. № 3 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 4568 from 8275. Case Смоленская область г. Смоленск, ул. М. Расковой, д. № 11а
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Смоленская область г. Смоленск, ул. Губенко, д. № 26 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Смоленская область г. Смоленск, ул. Гастелло, д. № 8 
@@ -4888,6 +4844,8 @@ Gazetteer Web server listening on port 8080
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Смоленская область г. Смоленск, ул. Нормандия-Неман, д. № 21 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Смоленская область г. Смоленск, ул. Нахимова, д. № 17 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 4578 from 8275. Case Смоленская область г. Смоленск, ул. Парковая, д. № 20
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Смоленская область г. Смоленск, ул. Парковая, д. № 20 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Смоленская область г. Смоленск, ул. Коммунальная, д. № 5 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Смоленская область г. Смоленск, ул. Крупской, д. № 67/1 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Смоленская область г. Смоленск, ул. Румянцева, д. № 7а 
@@ -4964,8 +4922,6 @@ Gazetteer Web server listening on port 8080
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 4642 from 8275. Case Смоленская область г. Вязьма, ул. Московская, д. 6а
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 4643 from 8275. Case Смоленская область г. Вязьма, ул. Московская, д. 14а
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 4644 from 8275. Case Смоленская область г. Духовщина, ул. Смоленская, д.60
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Смоленская область г. Духовщина, ул. Смоленская, д.60 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 4645 from 8275. Case Смоленская область Вяземский район, дер. Кайдаково, ул. Парковая, д. 17
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Смоленская область г. Гагарин, ул. Бахтина, д. 10а 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 4647 from 8275. Case Смоленская область г. Гагарин, ул. Советская, д. 5
@@ -4992,6 +4948,8 @@ Gazetteer Web server listening on port 8080
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 4666 from 8275. Case Смоленская область Новодугинский район, с. Новодугино, ул. Горького, д. 4
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 4667 from 8275. Case Смоленская область г. Рославль, ул. Пролетарская, д. 93
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 4668 from 8275. Case Смоленская область г. Рославль, пер. Димитрова, д. 3-а
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Смоленская область г. Рославль, пер. Димитрова, д. 3-а FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 4669 from 8275. Case Смоленская область г. Рославль, ул. К. Маркса, д. 47-а
 [main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
 [main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Смоленская область г. Рославль, ул. К. Маркса, д. 47-а FAILED
@@ -5000,8 +4958,6 @@ Gazetteer Web server listening on port 8080
 [main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Смоленская область г. Рославль, ул. Первомайская, д. 21-а FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 4671 from 8275. Case Смоленская область г. Рославль, ул. Пролетарская, д. 66
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 4672 from 8275. Case Смоленская область г. Рославль, ул. Каляева, д. 4-а
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Смоленская область г. Рославль, ул. Каляева, д. 4-а FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 4673 from 8275. Case Смоленская область г. Рославль, 17 микрорайон, д. 23
 [main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
 [main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Смоленская область г. Рославль, 17 микрорайон, д. 23 FAILED
@@ -5024,8 +4980,6 @@ Gazetteer Web server listening on port 8080
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 4684 from 8275. Case Смоленская область г. Сафоново, ул. Горняцкая, д. 1
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 4685 from 8275. Case Смоленская область г. Сафоново, ул. Пушкина, д. 14
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 4686 from 8275. Case Смоленская область г. Сафоново, микрорайон-1, д. 7а
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Смоленская область г. Сафоново, микрорайон-1, д. 7а FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 4687 from 8275. Case Смоленская область г. Сафоново, ул. Ковалева, д. 4
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 4688 from 8275. Case Смоленская область г. Сафоново, микрорайон-2, д. 23
 [main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
@@ -5054,8 +5008,6 @@ Gazetteer Web server listening on port 8080
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 4706 from 8275. Case Смоленская область Ярцевский район, г. Ярцево, ул. Кузнецова, д. 56
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 4707 from 8275. Case Смоленская область Ярцевский район, г. Ярцево, Школьный переулок, д. 8
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 4708 from 8275. Case Смоленская область Ярцевский район, г. Ярцево, ул. Макаренко, д. 3
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Смоленская область Ярцевский район, г. Ярцево, ул. Макаренко, д. 3 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 4709 from 8275. Case Смоленская область Ярцевский район, г. Ярцево, ул. Энгельса, д. 1
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 4710 from 8275. Case Смоленская область г. Сафоново, ул. 40 лет Октября, д. 3
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Смоленская область г. Смоленск, ул. Попова, д. № 10а 
@@ -5127,8 +5079,6 @@ Gazetteer Web server listening on port 8080
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 4771 from 8275. Case Смоленская область г. Гагарин, ул. Строителей, д. 50
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Смоленская область г. Смоленск, ул. Революционная, д. № 8 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 4773 from 8275. Case Смоленская область г. Смоленск, ул. Папанина, д. № 1
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Смоленская область г. Смоленск, ул. Папанина, д. № 1 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 4774 from 8275. Case Смоленская область г. Вязьма, ул. 25 Октября, д. 3а
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 4775 from 8275. Case Смоленская область г. Ельня, ул. Кировская д. 1.
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 4776 from 8275. Case Смоленская область Дорогобужский район, пос. Верхнеднепровский, ул. Молодежная, д. 5
@@ -5242,6 +5192,8 @@ Gazetteer Web server listening on port 8080
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Тверская область Конаковский район, пос. Новозавидовский, ул. Моховая, 1 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 4883 from 8275. Case Тверская область Конаковский район, пос. Редкино, ул. Калинина, 4-А
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 4884 from 8275. Case Тверская область Конаковский район, пос. Редкино, ул. Диева, 33-А
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Тверская область Конаковский район, пос. Редкино, ул. Диева, 33-А FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Тверская область Конаковский район, пос. Редкино, пр. Химиков 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Тверская область Краснохолмский район, г. Красный Холм, ул. Калинина, д. 37 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 4887 from 8275. Case Тверская область Кувшиновский район, г. Кувшиново, ул. Бумажников, д. 14
@@ -5425,8 +5377,6 @@ Gazetteer Web server listening on port 8080
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 5059 from 8275. Case Тверская область Конаковский район, г. Конаково, ул. Гагарина, 23
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Тверская область Краснохолмский район, г. Красный Холм, ул. Мясникова, д. 41/13 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 5061 from 8275. Case Тверская область Старицкий район, г. Старица, ул. Советская, д. 8
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Тверская область Старицкий район, г. Старица, ул. Советская, д. 8 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 5062 from 8275. Case Тверская область Конаковский район, г. Конаково, ул. Горького, 3
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Тверская область Лихославльский район, г. Лихославль, ул. Комсомольская д. 66 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 5064 from 8275. Case Тверская область Бологовский район, г. Бологое, ул. Дзержинского, д. 11
@@ -5522,6 +5472,8 @@ Gazetteer Web server listening on port 8080
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 5152 from 8275. Case Тульская область г. Тула, ул. Металлургов, д. 70, корп. 2
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Тульская область г. Тула, ул. Фрунзе, д. 18 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 5154 from 8275. Case Тульская область г. Тула, ул. Ф. Энгельса, д. 89
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Тульская область г. Тула, ул. Ф. Энгельса, д. 89 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 5155 from 8275. Case Тульская область г. Тула, ул. Демонстрации, д. 6
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 5156 from 8275. Case Тульская область г. Алексин, ул. Металлистов, д. 4
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 5157 from 8275. Case Тульская область г. Узловая, ул. Заводская, д. 1а
@@ -5563,6 +5515,8 @@ Gazetteer Web server listening on port 8080
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Тульская область г. Богородицк, ул. Л. Толстого, д. 5 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Тульская область г. Богородицк, ул. Ф. Энгельса, д. 36 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 5195 from 8275. Case Тульская область г. Донской, ул. Первомайская, д. 1
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Тульская область г. Донской, ул. Первомайская, д. 1 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 5196 from 8275. Case Тульская область г. Донской, ул. Ленина д. 8
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 5197 from 8275. Case Тульская область г. Донской, ул. Ленина, д. 7
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 5198 from 8275. Case Тульская область Воловский район, п. Волово, ул. имени Хрунова, дом 4
@@ -5801,6 +5755,8 @@ Gazetteer Web server listening on port 8080
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 5425 from 8275. Case Челябинская область г. Озерск, ул. Матросова, д. 44
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Челябинская область г. Троицк, ул. Серафимовича, д. 7 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 5427 from 8275. Case Челябинская область г. Троицк, ул. Челябинская, д. 2А
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Челябинская область г. Троицк, ул. Челябинская, д. 2А FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 5428 from 8275. Case Челябинская область г. Троицк, ул. Субботина, д. 56
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 5429 from 8275. Case Челябинская область г. Троицк, ул. Путевая, д. 49
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 5430 from 8275. Case Челябинская область г. Троицк, ул. Инженерная, д. 149
@@ -5985,19 +5941,13 @@ Gazetteer Web server listening on port 8080
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Челябинская область г. Челябинск, ул. Пионерская, д. 10А 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Челябинская область г. Челябинск, ул. Чичерина, д. 27Б 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 5607 from 8275. Case Челябинская область г. Челябинск, ул. Российская, д. 23
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Челябинская область г. Челябинск, ул. Российская, д. 23 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Челябинская область г. Челябинск, ул. 3-го Интернационала, д. 61 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 5609 from 8275. Case Челябинская область г. Челябинск, ул. Российская, д. 49А
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Челябинская область г. Челябинск, ул. Российская, д. 49А FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Челябинская область г. Челябинск, пр. Победы, д. 144 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Челябинская область г. Челябинск, Театральный переулок, д. 16А 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Челябинская область г. Челябинск, ул. 60 лет Октября, д. 26 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Челябинская область г. Челябинск, ул. Куйбышева, д. 39 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 5614 from 8275. Case Челябинская область г. Челябинск, ул. Чайковского, д. 20А
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Челябинская область г. Челябинск, ул. Чайковского, д. 20А FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 5615 from 8275. Case Челябинская область г. Челябинск, ул. Кудрявцева, д. 18
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Челябинская область г. Челябинск, ул. Мира, д. 67А 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Челябинская область г. Челябинск, ул. Богдана Хмельницкого, д. 24 
@@ -6152,8 +6102,6 @@ Gazetteer Web server listening on port 8080
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 5760 from 8275. Case Челябинская область г. Троицк, ул. Гагарина, д. 1
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 5761 from 8275. Case Челябинская область г. Троицк, ул. Гагарина, д. 20
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 5762 from 8275. Case Челябинская область г. Троицк, Жиркомбинат, д. 16
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Челябинская область г. Троицк, Жиркомбинат, д. 16 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 5763 from 8275. Case Челябинская область г. Троицк, ул. Ленина, д. 135
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 5764 from 8275. Case Челябинская область Троицкий район, с. Бобровка, ул. Культуры, д. 1
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 5765 from 8275. Case Челябинская область г. Троицк, ул. Гастелло, д. 60
@@ -6163,6 +6111,8 @@ Gazetteer Web server listening on port 8080
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Челябинская область Чесменский район, с. Чесма, ул. Ленина, д. 67 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 5770 from 8275. Case Челябинская область Троицкий район, с. Клястицкое, ул. Школьная, д. 14
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 5771 from 8275. Case Челябинская область Троицкий район, пос. Лебедевка, ул. Центральная, д. 5
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Челябинская область Троицкий район, пос. Лебедевка, ул. Центральная, д. 5 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Челябинская область Троицкий район, пос. Каменная Санарка, ул. Школьная, д. 9А 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Челябинская область Троицкий район, пос. Скалистый, ул. Школьная, д. 11 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Челябинская область Пластовский район, город Пласт, ул. Октябрьская, д. 54 
@@ -6173,8 +6123,6 @@ Gazetteer Web server listening on port 8080
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 5779 from 8275. Case Забайкальский край город Чита, ул. Красной Звезды, 7
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Забайкальский край город Чита, ул. Новобульварная, 60 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 5781 from 8275. Case Забайкальский край город Чита, ул. Геодезическая, 45
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Забайкальский край город Чита, ул. Геодезическая, 45 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 5782 from 8275. Case Забайкальский край город Чита, ул. Богомягкова, 121
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 5783 from 8275. Case Забайкальский край город Чита, ул. Новобульварная, 64
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 5784 from 8275. Case Забайкальский край город Чита, ул. Подгорбунского, 98
@@ -6215,8 +6163,6 @@ Gazetteer Web server listening on port 8080
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Забайкальский край город Чита, улица Балейская, 2 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 5820 from 8275. Case Забайкальский край город Чита, улица Ингодинская, 1
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 5821 from 8275. Case Забайкальский край город Чита, улица Малая, 9
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Забайкальский край город Чита, улица Малая, 9 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 5822 from 8275. Case Забайкальский край город Чита, улица Краснознаменная, 48
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 5823 from 8275. Case Забайкальский край город Чита, улица Набережная, 72
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Забайкальский край город Чита, улица Вайнштейна, 1 
@@ -6230,8 +6176,6 @@ Gazetteer Web server listening on port 8080
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 5830 from 8275. Case Забайкальский край город Чита, 672030 пос. Текстильщиков, ул. Весенняя, дом № 13
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 5831 from 8275. Case Забайкальский край город Чита, 672030, пос. Текстильщиков, ул. Космонавтов, дом № 10
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 5832 from 8275. Case Забайкальский край город Чита, 672030, пос. Текстильщиков, ул. Весенняя, дом № 16-А
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Забайкальский край город Чита, 672030, пос. Текстильщиков, ул. Весенняя, дом № 16-А FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 5833 from 8275. Case Забайкальский край город Чита, 672030, пос. Текстильщиков, 4-й микрорайон, дом № 15-Б
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Забайкальский край город Чита, 672030, пос. Текстильщиков, пр. Фадеева, дом № 29 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 5835 from 8275. Case Забайкальский край город Чита, 672030, пос. Текстильщиков, 4-й микрорайон, дом № 13-а
@@ -6259,8 +6203,6 @@ Gazetteer Web server listening on port 8080
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Ярославская область г. Ярославль, ул. Саукова, д. 5 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 5858 from 8275. Case Ярославская область г.Гаврилов-Ям, ул. Клубная,1
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 5859 from 8275. Case Ярославская область г.Гаврилов-Ям, Юбилейный проезд 5
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Ярославская область г.Гаврилов-Ям, Юбилейный проезд 5 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 5860 from 8275. Case Ярославская область г.Гаврилов-Ям, ул. Чернышевского,1
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 5861 from 8275. Case Ярославская область г.Гаврилов-Ям, ул. Спортивная,14
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 5862 from 8275. Case Ярославская область Некрасовский район, с.Диево-Городище, ул.Ярославская, д.6
@@ -6379,12 +6321,8 @@ Gazetteer Web server listening on port 8080
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Ярославская область г. Ярославль, ул. Труфанова, д. 21а 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 5970 from 8275. Case Ярославская область г. Ярославль, ул. Труфанова, д. 25а
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 5971 from 8275. Case Ярославская область г. Ярославль, Архангельский пр-д, д. 13
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Ярославская область г. Ярославль, Архангельский пр-д, д. 13 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 5972 from 8275. Case Ярославская область г. Ярославль, Ленинградский просп., д. 68а
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 5973 from 8275. Case Ярославская область г. Ярославль, просп. Авиаторов, д. 84
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Ярославская область г. Ярославль, просп. Авиаторов, д. 84 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Ярославская область г. Ярославль, просп. Авиаторов, д.37 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Ярославская область г. Ярославль, ул.Клубная, д.19 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Ярославская область г. Ярославль, ул. Клубная, д.62 
@@ -6531,6 +6469,8 @@ Gazetteer Web server listening on port 8080
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 6107 from 8275. Case Ярославская область Рыбинский район, пос. Песочное, ул. Заводская, д. 1б
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Ярославская область Некоузский район, пос. Октябрь, ул. Ленина, д. 11 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 6109 from 8275. Case Ярославская область г.Гаврилов-Ям, ул. Кирова,13
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Ярославская область г.Гаврилов-Ям, ул. Кирова,13 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Ярославская область г. Переславль-Залесский, мкр. Чкаловский 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 6111 from 8275. Case Ярославская область Ростовский район, п.Семибратово, ул.Окружная, д.5
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Ярославская область Любимский район, д.Ермаково, ул.Центральная, дом 12 
@@ -6661,8 +6601,6 @@ Gazetteer Web server listening on port 8080
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 6231 from 8275. Case Москва Керамический проезд, д.55 к.3
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 6232 from 8275. Case Москва Керамический проезд, д. 55, к.3
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 6233 from 8275. Case Москва ул. Дубнинская, д. 21
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Москва ул. Дубнинская, д. 21 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 6234 from 8275. Case Москва ул. Нарвская, д. 12
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 6235 from 8275. Case Москва Улица Клары Цеткин, дом № 27
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 6236 from 8275. Case Москва Улица Клары Цеткин, дом № 23
@@ -6744,8 +6682,6 @@ Gazetteer Web server listening on port 8080
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 6312 from 8275. Case Москва Песчаная 2-я ул., д. 4А
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 6313 from 8275. Case Москва Новопесчаная ул., д. 15
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 6314 from 8275. Case Москва Дмитровский пр., д.10
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Москва Дмитровский пр., д.10 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 6315 from 8275. Case Москва ул. Вучетича, д. 6
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 6316 from 8275. Case Москва ул. Вучетича, д. 3/1
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 6317 from 8275. Case Москва ул. Флотская, 11
@@ -6865,12 +6801,10 @@ Gazetteer Web server listening on port 8080
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 6429 from 8275. Case Москва улица Гостиничная, д. 8
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 6430 from 8275. Case Москва улица Большая Марфинская, д. 7
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 6431 from 8275. Case Москва 1-й проезд Марьиной Рощи, д. За
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Type FAILED Unexpected type hghnet
 [main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Москва 1-й проезд Марьиной Рощи, д. За FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 6432 from 8275. Case Москва Анадырский проезд. д. 53
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 6433 from 8275. Case Москва Октябрьский пер., д. 11
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Москва Октябрьский пер., д. 11 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 6434 from 8275. Case Москва улица Академика Королева, д. 10
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 6435 from 8275. Case Москва ул. Аргуновская, д. 2
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 6436 from 8275. Case Москва улица Новомосковская д. №10/16
@@ -6988,6 +6922,8 @@ Gazetteer Web server listening on port 8080
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 6540 from 8275. Case Москва Бойцовая ул., д. 20
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 6541 from 8275. Case Москва Бойцовая ул., д. 25
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 6542 from 8275. Case Москва Ивантеевская ул., д. 32 А
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Москва Ивантеевская ул., д. 32 А FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 6543 from 8275. Case Москва М. Рокоссовского б-р, д. 6, к. 1
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Москва Аллея Жемчуговой, дом № 7а 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 6545 from 8275. Case Москва Яузская аллея, д. 2
@@ -7006,6 +6942,8 @@ Gazetteer Web server listening on port 8080
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 6558 from 8275. Case Москва Сиреневый бульвар, д. 58А
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 6559 from 8275. Case Москва Сиреневый бульвар, д. 68
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 6560 from 8275. Case Москва Улица Косинская, дом № 24а
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Москва Улица Косинская, дом № 24а FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 6561 from 8275. Case Москва Улица Реутовская, дом№ 16а
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 6562 from 8275. Case Москва Улица Молдагуловой, дом № 13а
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 6563 from 8275. Case Москва Улица Молдагуловой, дом №20а
@@ -7179,8 +7117,6 @@ Gazetteer Web server listening on port 8080
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Москва ул. Большая Черкизовская, д. 26а 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 6720 from 8275. Case Москва Сиреневый б-р, дом 9
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 6721 from 8275. Case Москва 11 Парковая ул., дом 50
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Москва 11 Парковая ул., дом 50 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 6722 from 8275. Case Москва 13 Парковая ул., дом 33
 [main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
 [main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Москва 13 Парковая ул., дом 33 FAILED
@@ -7287,7 +7223,7 @@ Gazetteer Web server listening on port 8080
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 6817 from 8275. Case Москва Юных Ленинцев улица, д. 45, корп. 2
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 6818 from 8275. Case Москва Юных Ленинцев улица, д. 68, корп. 2
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 6819 from 8275. Case Москва Танковый проезд, д. ЗА
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Type FAILED Unexpected type hghnet
 [main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Москва Танковый проезд, д. ЗА FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 6820 from 8275. Case Москва ул. Авиамоторная, д. 8А
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 6821 from 8275. Case Москва пер. Верхний Золоторожский, д. 2
@@ -7431,7 +7367,7 @@ Gazetteer Web server listening on port 8080
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Москва ул. 6-я Кожуховская д. 8 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 6958 from 8275. Case Москва 3-й Кожуховский пр. д. 3А
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 6959 from 8275. Case Москва 3-й Кожуховский пр. д. ЗА
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Type FAILED Unexpected type hghway
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Type FAILED Unexpected type hghnet
 [main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Москва 3-й Кожуховский пр. д. ЗА FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 6960 from 8275. Case Москва ул. Трофимова д. 15А
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 6961 from 8275. Case Москва ул. Трофимова д. 13А
@@ -7497,6 +7433,8 @@ Gazetteer Web server listening on port 8080
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7019 from 8275. Case Москва Ореховый бульвар 37-4
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Москва 2-й Тульский пер., д. 4/8 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7021 from 8275. Case Москва ул. Орджоникидзе, д.15
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Москва ул. Орджоникидзе, д.15 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7022 from 8275. Case Москва ул. Мусы Джалиля, д. 7, к. 5
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7023 from 8275. Case Москва Каширское ш., д. 55, к. 7
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7024 from 8275. Case Москва ул. Кустанайская, д. 10, к. 2
@@ -7535,8 +7473,6 @@ Gazetteer Web server listening on port 8080
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7055 from 8275. Case Москва ул. Новинки, д. 21, корп. 2
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7056 from 8275. Case Москва ул. Судостроительная, д. 10, корп. 1
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7057 from 8275. Case Москва Коломенская наб., д. 16
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Москва Коломенская наб., д. 16 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7058 from 8275. Case Москва Коломенская наб., д. 20
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7059 from 8275. Case Москва ул. Судостроительная, д. 32, корп. 3
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7060 from 8275. Case Москва Коломенская наб., д. 8
@@ -7615,8 +7551,6 @@ Gazetteer Web server listening on port 8080
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7129 from 8275. Case Москва мкр. Северное Чертаново, корп. 810
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7130 from 8275. Case Москва Днепропетровская ул., д. 25А
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7131 from 8275. Case Москва Красного Маяка ул., д. 13А
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Москва Красного Маяка ул., д. 13А FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Москва ГБОУ СОШ №880 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7133 from 8275. Case Москва Кировоградская ул., д. 22А
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7134 from 8275. Case Москва Чертановская ул., д. 62А
@@ -7657,6 +7591,8 @@ Gazetteer Web server listening on port 8080
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7167 from 8275. Case Москва ул. Кржижановского, 30
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7168 from 8275. Case Москва ул. Фотиевой, дом 14, корп. 1
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7169 from 8275. Case Москва Ленинский пр-т, дом 32а
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Москва Ленинский пр-т, дом 32а FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7170 from 8275. Case Москва Ленинский пр-т, дом 34а
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7171 from 8275. Case Москва Ленинский пр-т, дом 42, корп. 5
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7172 from 8275. Case Москва Ломоносовский пр-т, дом 18
@@ -7674,6 +7610,8 @@ Gazetteer Web server listening on port 8080
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7182 from 8275. Case Москва ул. Одесская, дом 13
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7183 from 8275. Case Москва Ломоносовский пр-т, дом 4, корп. 4
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7184 from 8275. Case Москва Ломоносовский пр-т, дом 4, корп. 3
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Москва Ломоносовский пр-т, дом 4, корп. 3 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7185 from 8275. Case Москва Ленинский пр-т, дом 65
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7186 from 8275. Case Москва ул. Одесская, дом 16, корп. 2
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7187 from 8275. Case Москва ул. Малая Юшуньская, дом 4
@@ -7877,6 +7815,8 @@ Gazetteer Web server listening on port 8080
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7375 from 8275. Case Москва ул. Осенняя, 8
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7376 from 8275. Case Москва Рублевское ш., д, 24, корп. 3
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7377 from 8275. Case Москва ул. Новорублевская, д. 1
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Москва ул. Новорублевская, д. 1 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7378 from 8275. Case Москва ул. Крылатские холмы, 23
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7379 from 8275. Case Москва ул. Крылатские холмы, 45-1
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Москва ул. Советская, д. 11 А 
@@ -7896,14 +7836,10 @@ Gazetteer Web server listening on port 8080
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7394 from 8275. Case Москва ул. Партизанская, д. 30, корп, 2, стр. 1
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7395 from 8275. Case Москва ул. Оршанская, д. 10, корп. 2
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7396 from 8275. Case Москва ул. Рябиновая, д.8, к.2
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Москва ул. Рябиновая, д.8, к.2 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7397 from 8275. Case Москва ул. Вяземская, д.7
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7398 from 8275. Case Москва ул. Беловежская, д. 7
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7399 from 8275. Case Москва Можайское ш., д.38, к. 7
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7400 from 8275. Case Москва ул. Толбухина, д.7, к.З
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Москва ул. Толбухина, д.7, к.З FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7401 from 8275. Case Москва ул. Барвихинская, д.16, к.1
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7402 from 8275. Case Москва Ул. Гришина, д.8, к. 3
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7403 from 8275. Case Москва Можайское шоссе, д. 50
@@ -7951,8 +7887,6 @@ Gazetteer Web server listening on port 8080
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7445 from 8275. Case Москва Мичуринский пр-т, 23
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7446 from 8275. Case Москва 2-й Сетуньский пр-д, 9
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7447 from 8275. Case Москва Ломоносовский пр-т, 27
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Москва Ломоносовский пр-т, 27 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7448 from 8275. Case Москва Пр-т Вернадского, дом № 37, к.2
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7449 from 8275. Case Москва Пр-т Вернадского, дом 55
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7450 from 8275. Case Москва Дружбы ул., 8
@@ -8003,6 +7937,8 @@ Gazetteer Web server listening on port 8080
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7491 from 8275. Case Москва ул. 26 Бакинских комиссаров, д. 3, корп. 5
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Москва Мичуринский пр-т, 24 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7493 from 8275. Case Москва пр-т Вернадского, д. 88
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Москва пр-т Вернадского, д. 88 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7494 from 8275. Case Москва ул. Ак. Анохина, д. 36
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7495 from 8275. Case Москва ул. Ак.Анохина, д. 48
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7496 from 8275. Case Москва ул. Б.Филевская, Д-15
@@ -8017,6 +7953,8 @@ Gazetteer Web server listening on port 8080
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7505 from 8275. Case Москва ул. Кастанаевская, 10
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7506 from 8275. Case Москва ул. Кастанаевская, д. 10
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7507 from 8275. Case Москва Филёвский бульв., д. 13, корп. 2
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Москва Филёвский бульв., д. 13, корп. 2 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7508 from 8275. Case Москва ул. Ак. Анохина, д. 48
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7509 from 8275. Case Москва ул. Барклая, д. 15, корп. 3
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7510 from 8275. Case Москва Филевская М. ул., 50
@@ -8136,8 +8074,6 @@ Gazetteer Web server listening on port 8080
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7622 from 8275. Case Москва улица Паршина, дом № 8
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7623 from 8275. Case Москва улица Народного Ополчения, дом № 32
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7624 from 8275. Case Москва улица Маршала Тухачевского, дом № 46
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Москва улица Маршала Тухачевского, дом № 46 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7625 from 8275. Case Москва ул. Маршала Тухачевского, д. 17, корп. 3
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7626 from 8275. Case Москва ул. Народного Ополчения, д. 31
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Москва улица Маршала Тухачевского, дом № 20 корпус 1 
@@ -8199,8 +8135,6 @@ Gazetteer Web server listening on port 8080
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7681 from 8275. Case Москва корпус 2011
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7682 from 8275. Case Москва корпус 1642
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7683 from 8275. Case Москва Березовая аллея д. 7А
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Москва Березовая аллея д. 7А FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7684 from 8275. Case Москва корпус 314
 [main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
 [main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Москва корпус 314 FAILED
@@ -8227,7 +8161,7 @@ Gazetteer Web server listening on port 8080
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Москва дер. Марушкино, ул. Липовая аллея, д. 6 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7704 from 8275. Case Москва д. п. Кокошкино, ул. Дачная, д. 3а
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7705 from 8275. Case Москва д. п. Кокошкино, ул. Дачная, д. За
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Type FAILED Unexpected type hghnet
 [main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Москва д. п. Кокошкино, ул. Дачная, д. За FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Москва дер. Яковлево, ул. Школьная 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Москва п. Воскресенское, д. 28а 
@@ -8257,8 +8191,6 @@ Gazetteer Web server listening on port 8080
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7727 from 8275. Case Москва п. Института полиомиелита, д. 4
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7728 from 8275. Case Москва г. Московский мкр. 1, д. 22а
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7729 from 8275. Case Москва г. Московский мкр. 1, д. 52
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Москва г. Московский мкр. 1, д. 52 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Москва п. Остафьево 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Москва п. Фабрики им. 1 Мая, д. 37 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7732 from 8275. Case Москва г. Московский мкр. 3, д. 8
@@ -8325,7 +8257,7 @@ Gazetteer Web server listening on port 8080
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7785 from 8275. Case Москва Элеваторная улица, д. 19
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7786 from 8275. Case Москва Шипиловский пр., д. 37, корп. 2
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7787 from 8275. Case Москва ул. Гастелло, д. З
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Type FAILED Unexpected type hghway
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
 [main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Москва ул. Гастелло, д. З FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7788 from 8275. Case Москва ул. Гастелло, д. 3
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Москва ул. Ленинградское шоссе, д. 95 
@@ -8432,6 +8364,8 @@ Gazetteer Web server listening on port 8080
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7886 from 8275. Case Москва 3-й Митинский переулок, дом 12 корпус 1
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7887 from 8275. Case Москва п. Киевский, д. 24
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7888 from 8275. Case Москва 5 Парковая ул., дом 58
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Москва 5 Парковая ул., дом 58 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7889 from 8275. Case Москва Переяславская Б. ул., д. 15
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7890 from 8275. Case Москва 2-й Сельскохозяйственный проезд, д. 4
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7891 from 8275. Case Москва 3-й Лихачевский пер., 2А
@@ -8473,6 +8407,8 @@ Gazetteer Web server listening on port 8080
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7925 from 8275. Case Москва ул. Б.Черемушкинская, 32-2
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Москва улица 3-я Новоостанкинская, д. 6 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7927 from 8275. Case Москва ул. Большая Почтовая, дом № 18/20, кор.18
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Москва ул. Большая Почтовая, дом № 18/20, кор.18 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7928 from 8275. Case Москва Земледельческий пер., д. 20, стр. 1
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7929 from 8275. Case Москва Волгоградский проспект, д. 109, корп. 6
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7930 from 8275. Case Москва Полосухина ул., 3, к. 1
@@ -8656,6 +8592,8 @@ Gazetteer Web server listening on port 8080
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 8099 from 8275. Case Москва ул. Стромынка, д. 10
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 8100 from 8275. Case Москва Иваньковское ш., д. 3
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 8101 from 8275. Case Москва ул. Косинская, д. 3
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Москва ул. Косинская, д. 3 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Москва ул. Барболина, д. 3 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 8103 from 8275. Case Москва 8-я улица Текстильщиков, д. 2
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 8104 from 8275. Case Москва Каширское ш., д. 34
@@ -8698,8 +8636,6 @@ Gazetteer Web server listening on port 8080
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 8139 from 8275. Case Москва ул. Гродненская, д.5
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 8140 from 8275. Case Москва Алтуфьевское шоссе, д. 42Б
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 8141 from 8275. Case Москва Ореховый бульв., д. 11, корп. 3
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Москва Ореховый бульв., д. 11, корп. 3 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 8142 from 8275. Case Москва Семеновская наб., д. 3/1, корп. 5
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 8143 from 8275. Case Москва б-р Дмитрия Донского, 14б
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Москва ул. Изумрудная, д. 13, корпус 3 
@@ -8789,8 +8725,6 @@ Gazetteer Web server listening on port 8080
 [main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
 [main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Москва 1-й Кадашевский пер., д. 3, стр. 1 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 8228 from 8275. Case Москва ул. Верхняя, д. 34
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Москва ул. Верхняя, д. 34 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Москва ул. Правды, д. 3а 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 8230 from 8275. Case Москва Керамический проезд, д. 47а
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 8231 from 8275. Case Москва ул. Краснопролетарская, д. 6А, стр. 1
@@ -8814,6 +8748,8 @@ Gazetteer Web server listening on port 8080
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 8249 from 8275. Case Москва Прибрежный пр., 12
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Москва Локомотивный проезд, д. 21 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 8251 from 8275. Case Москва Хорошевское шоссе, д. 3
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Москва Хорошевское шоссе, д. 3 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 8252 from 8275. Case Москва Флотская ул., д.60
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 8253 from 8275. Case Москва Карельский бул., д. 20
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 8254 from 8275. Case Москва ул. Софьи Ковалевской, д. 8А
@@ -8838,9 +8774,5 @@ Gazetteer Web server listening on port 8080
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Ненецкий автономный округ г. Нарьян-Мар, проезд капитана Матросова, д. 1 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Чукотский автономный округ Городской округ Анадырь, г. Анадырь, ул. Ленина, 23 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Чукотский автономный округ Городской округ Анадырь, г. Анадырь, ул. Отке, 25 
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 273 from 8275 are failed
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 249 from 8275 are failed
 [main] WARN me.osm.gazetteerweb.test.TestSearch - FAILED Search UIKs
-[Thread-1] INFO org.elasticsearch.node - [Baphomet] stopping ...
-[Thread-1] INFO org.elasticsearch.node - [Baphomet] stopped
-[Thread-1] INFO org.elasticsearch.node - [Baphomet] closing ...
-[Thread-1] INFO org.elasticsearch.node - [Baphomet] closed
