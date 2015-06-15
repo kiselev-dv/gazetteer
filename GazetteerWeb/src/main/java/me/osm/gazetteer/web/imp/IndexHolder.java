@@ -2,7 +2,10 @@ package me.osm.gazetteer.web.imp;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import me.osm.gazetteer.web.utils.FileUtils;
 import me.osm.gazetteer.web.utils.FileUtils.LineHandler;
@@ -10,6 +13,7 @@ import me.osm.gazetteer.web.utils.OSMDocSinglton;
 import me.osm.osmdoc.model.Tag.TagValueType;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.action.admin.indices.create.CreateIndexRequestBuilder;
 import org.elasticsearch.client.AdminClient;
 import org.elasticsearch.client.Client;
@@ -50,6 +54,32 @@ public class IndexHolder {
 		LoggerFactory.getLogger(getClass()).info("Update mappings");
 		
 		request.get();
+	}
+	
+	@SuppressWarnings("unchecked")
+	public static List<String[]> getCharFilterReplaces() {
+		
+		List<String[]> res = new ArrayList<>();
+		
+		JSONObject mapping = readJSON("/gazetteer_schema.json");
+		JSONObject charFilter = mapping.getJSONObject("settings").getJSONObject("analysis").optJSONObject("char_filter");
+		if(charFilter != null) {
+			for(String k : (Set<String>)charFilter.keySet()) {
+				JSONObject filter = charFilter.getJSONObject(k);
+				if("mapping".equals(filter.optString("type"))){
+					JSONArray mappings = filter.getJSONArray("mappings");
+					for(int i = 0; i < mappings.length(); i++ ) {
+						String fDef = mappings.getString(i);
+						String[] split = StringUtils.splitByWholeSeparator(fDef, "=>");
+						if(split.length == 2) {
+							res.add(split);
+						}
+					}
+				}
+			}
+		}
+		
+		return res;
 	}
 
 	private JSONObject getPropertyMapping(String value) {
@@ -96,10 +126,10 @@ public class IndexHolder {
 		return result;
 	}
 
-	private JSONObject readJSON(String resource) {
+	private static JSONObject readJSON(String resource) {
 		JSONObject settings;
 		try {
-			settings = new JSONObject(IOUtils.toString(getClass().getResourceAsStream(
+			settings = new JSONObject(IOUtils.toString(IndexHolder.class.getResourceAsStream(
 					resource)));
 		} catch (IOException e) {
 			throw new RuntimeException("couldn't read index settings", e);

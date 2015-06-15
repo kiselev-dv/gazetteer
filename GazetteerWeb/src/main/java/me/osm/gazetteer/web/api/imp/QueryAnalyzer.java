@@ -13,6 +13,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import me.osm.gazetteer.web.Main;
+import me.osm.gazetteer.web.imp.IndexHolder;
 import me.osm.gazetteer.web.imp.Replacer;
 import me.osm.gazetteer.web.utils.ReplacersCompiler;
 
@@ -29,6 +30,8 @@ public class QueryAnalyzer {
 	private static final String removeChars = Main.config().getRemoveCharacters();
 	
 	private static final Pattern groupPattern = Pattern.compile("GROUP[0-9]+");
+	
+	private static final List<String[]> charReplaces = IndexHolder.getCharFilterReplaces();
 	
 	public static final Set<String> optionals = new HashSet<String>(); 
 	public static Pattern optRegexp = null;
@@ -80,8 +83,10 @@ public class QueryAnalyzer {
 
 		q = q.toLowerCase();
 		
-		//TODO: get from ES config 
-		q = StringUtils.replaceChars(q, "ё", "е");
+		// See: gazetteer_schema.json settings.analysis.char_filter.*.mappings
+		for(String[] r : charReplaces) {
+			q = StringUtils.replace(q, r[0], r[1]);
+		}
 
 		LinkedHashMap<String, Collection<String>> groups = new LinkedHashMap<>();
 		for(Replacer r : searchReplacers) {
