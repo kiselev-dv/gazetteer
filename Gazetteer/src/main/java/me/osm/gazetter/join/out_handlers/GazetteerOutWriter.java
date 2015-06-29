@@ -83,7 +83,7 @@ public class GazetteerOutWriter extends AddressPerRowJOHBase  {
 			"fill_addresses", "export_all_names", 
 			"full_geometry",
 			"usage", "tag-stat",
-			"hsort");
+			"hsort", "isort");
 
 	private TagsStatisticCollector tagStatistics;
 
@@ -108,6 +108,8 @@ public class GazetteerOutWriter extends AddressPerRowJOHBase  {
 	private String outFile;
 
 	private boolean hsort;
+
+	private boolean isort;
 
 	@Override
 	public JoinOutHandler initialize(HandlerOptions parsedOpts) {
@@ -162,6 +164,7 @@ public class GazetteerOutWriter extends AddressPerRowJOHBase  {
 		}
 		
 		hsort = parsedOpts.getFlag("hsort", true, false);
+		isort = parsedOpts.getFlag("isort", true, false);
 		
 		return this;
 	}
@@ -933,7 +936,7 @@ public class GazetteerOutWriter extends AddressPerRowJOHBase  {
 			File file = new File(this.outFile);
 			BufferedReader fbr = new BufferedReader(new InputStreamReader(FileUtils.getFileIS(file)));
 			
-			Comparator<String> cmp = hsort ? new JSONHComparator() : new JSONByIdComparator();
+			Comparator<String> cmp = hsort ? new JSONHComparator(isort) : new JSONByIdComparator(isort);
 			
 			List<File> batch = ExternalSort.sortInBatch(fbr, file.length(), cmp, 
 					ExternalSort.DEFAULTMAXTEMPFILES, ExternalSort.estimateAvailableMemory(), 

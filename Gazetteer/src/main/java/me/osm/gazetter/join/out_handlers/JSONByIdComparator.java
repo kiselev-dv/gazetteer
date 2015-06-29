@@ -6,6 +6,12 @@ import me.osm.gazetter.striper.GeoJsonWriter;
 
 public class JSONByIdComparator implements Comparator<String> {
 
+	private boolean isort;
+
+	public JSONByIdComparator(boolean isort) {
+		this.isort = isort;
+	}
+
 	@Override
 	public int compare(String o1, String o2) {
 		
@@ -18,7 +24,7 @@ public class JSONByIdComparator implements Comparator<String> {
     	if(uid1 == null && uid2 == null) return 0;
     	if(uid1 == null || uid2 == null) return uid1 == null ? -1 : 1;
     	
-		return uid1.compareTo(uid2);
+		return isort ? uid2.compareTo(uid1) : uid1.compareTo(uid2);
 	}
 
 }
