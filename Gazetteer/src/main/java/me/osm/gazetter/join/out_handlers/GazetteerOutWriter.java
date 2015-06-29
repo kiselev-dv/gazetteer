@@ -65,6 +65,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.slf4j.LoggerFactory;
 
 import com.google.code.externalsorting.ExternalSort;
 import com.vividsolutions.jts.geom.Coordinate;
@@ -937,12 +938,16 @@ public class GazetteerOutWriter extends AddressPerRowJOHBase  {
 			List<File> batch = ExternalSort.sortInBatch(fbr, file.length(), cmp, 
 					ExternalSort.DEFAULTMAXTEMPFILES, ExternalSort.estimateAvailableMemory(), 
 					Charset.forName("utf-8"), null, true, 0, true, ReduceHighwayNetworks.INSTANCE);
+
+			LoggerFactory.getLogger(getClass()).trace("Done ExternalSort.sortInBatch");
 			
 			initializeWriter(outFile);
 			
 			ExternalSort.mergeSortedFiles(batch, new BufferedWriter(writer), 
 					cmp, Charset.forName("utf-8"), true, true, 
 					ReduceHighwayNetworks.INSTANCE);
+			
+			LoggerFactory.getLogger(getClass()).trace("Done ExternalSort.mergeSortedFiles");
 			
 		}
 		catch (Exception e) {
