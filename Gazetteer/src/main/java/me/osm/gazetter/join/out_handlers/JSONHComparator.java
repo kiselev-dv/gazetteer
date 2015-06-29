@@ -12,13 +12,6 @@ public class JSONHComparator implements Comparator<String> {
 		if(o1 == null && o2 == null) return 0;
     	if(o1 == null || o2 == null) return o1 == null ? -1 : 1;
     	
-    	String id1 = GeoJsonWriter.getId(o1);
-    	String id2 = GeoJsonWriter.getId(o2);
-    	
-    	if(id1.equals(id2)) {
-    		return 0;
-    	}
-
     	String h1 = GeoJsonWriter.getHHash(o1);
     	String h2 = GeoJsonWriter.getHHash(o2);
     	
