@@ -17,7 +17,10 @@ public abstract class SingleWriterJOHBase implements JoinOutHandler {
 	@Override
 	public JoinOutHandler initialize(HandlerOptions options) {
 
-		String out = options.getString("out", "-");
+		String out = options.getString("out", null);
+		if(out == null) {
+			out = options.getString(null, "-");
+		}
 		
 		initializeWriter(out);
 		

@@ -19,7 +19,7 @@ public class HandlerOptions {
 	
 	public String getString(String key, String def) {
 		List<String> list = vals.get(key);
-		if(list == null) {
+		if(list == null || list.isEmpty()) {
 			return def;
 		}
 		return list.get(0);

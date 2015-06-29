@@ -116,6 +116,8 @@ public class GazetteerOutWriter extends AddressPerRowJOHBase  {
 			System.exit(0);
 		}
 		
+		super.initialize(parsedOpts);
+		
 		translatePOITypes = parsedOpts.getFlag(TRANSLATE_POI_TYPES_OPTION, true, false);
 		
 		fillAddrOpts = new HashSet<String>(parsedOpts.getList("fill_addresses", 
@@ -910,9 +912,11 @@ public class GazetteerOutWriter extends AddressPerRowJOHBase  {
 	
 	@Override
 	protected void initializeWriter(String file) {
+		
 		if(file == null) {
 			System.out.println("There is no out file");
 			printUsage();
+			System.exit(1);
 		}
 		
 		this.outFile = file;
