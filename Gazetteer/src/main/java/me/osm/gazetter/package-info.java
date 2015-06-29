@@ -40,7 +40,7 @@
  * --------
  *        
  * There are also some util and experimental packages.
- * @see me.osm.gazetter.Main - it's entry point for executable jar
+ * @see me.osm.gazetter.Gazetteer - it's entry point for executable jar
  * @see me.osm.gazetter.Options - it's configuration holder
  * 
  * N.b. There are no single run solution yet. It was maid for purpose.

@@ -131,7 +131,7 @@
 				<configuration>
 					<archive>
 						<manifest>
-							<mainClass>me.osm.gazetter.Main</mainClass>
+							<mainClass>me.osm.gazetter.Gazetteer</mainClass>
 						</manifest>
 					</archive>
 					<descriptorRefs>

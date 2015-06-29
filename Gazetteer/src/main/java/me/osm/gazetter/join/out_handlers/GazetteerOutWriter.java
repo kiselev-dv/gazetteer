@@ -29,6 +29,7 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -102,7 +103,7 @@ public class GazetteerOutWriter extends AddressPerRowJOHBase  {
 	private String tagStatPath;
 	
 	private String outFile;
-	
+
 	@Override
 	public JoinOutHandler newInstance(List<String> options) {
 		
@@ -881,14 +882,16 @@ public class GazetteerOutWriter extends AddressPerRowJOHBase  {
 			File file = new File(this.outFile);
 			BufferedReader fbr = new BufferedReader(new InputStreamReader(FileUtils.getFileIS(file)));
 			
-			List<File> batch = ExternalSort.sortInBatch(fbr, file.length(), new JSONByIdComparator(), 
+			Comparator<String> cmp = new JSONByIdComparator();
+			
+			List<File> batch = ExternalSort.sortInBatch(fbr, file.length(), cmp, 
 					ExternalSort.DEFAULTMAXTEMPFILES, ExternalSort.estimateAvailableMemory(), 
 					Charset.forName("utf-8"), null, true, 0, true, ReduceHighwayNetworks.INSTANCE);
 			
 			initializeWriter(outFile);
 			
 			ExternalSort.mergeSortedFiles(batch, new BufferedWriter(writer), 
-					new JSONByIdComparator(), Charset.forName("utf-8"), true, true, 
+					cmp, Charset.forName("utf-8"), true, true, 
 					ReduceHighwayNetworks.INSTANCE);
 			
 		}

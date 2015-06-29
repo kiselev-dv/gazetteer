@@ -32,7 +32,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Entry point for executable jar.
  */
-public class Main {
+public class Gazetteer {
 	
 	private static final String BOUNDARIES_FALLBACK_TYPES_PARAM = "--boundaries-fallback-types";
 	private static final String BOUNDARIES_FALLBACK_TYPES_VAL = "boundaries_fallback_types";
@@ -167,7 +167,7 @@ public class Main {
 	public static void main(String[] args) {
 		
 		initLog(args);
-		log = LoggerFactory.getLogger(Main.class);
+		log = LoggerFactory.getLogger(Gazetteer.class);
 		
 		
 		ArgumentParser parser = getArgumentsParser();
