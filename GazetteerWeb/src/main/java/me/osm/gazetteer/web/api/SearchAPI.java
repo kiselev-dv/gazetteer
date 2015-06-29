@@ -221,6 +221,8 @@ public class SearchAPI implements DocumentedApi{
 					explain, types, poiClass, addressesOnly,
 					lat, lon, refs, query);
 			
+			log.trace("Search request: {}", searchRequest);
+			
 			Paginator.applyPaging(request, searchRequest);
 			
 			SearchResponse searchResponse = searchRequest.execute().actionGet();
@@ -682,14 +684,20 @@ public class SearchAPI implements DocumentedApi{
 		log.trace("Request: {} Required tokens: {} Housenumbers variants: {}", 
 				new Object[]{query.print(), required, housenumbers});
 		
-		List<String> cammel = new ArrayList<String>();
+		List<String> exactNameVariants = new ArrayList<String>();
 		for(String s : nameExact) {
-			cammel.add(s);
-			cammel.add(StringUtils.capitalize(s));
+			// Original term from query analyzer (lowercased)
+			exactNameVariants.add(s);
+			
+			// Camel Case
+			exactNameVariants.add(StringUtils.capitalize(s));
+
+			// UPPER CASE
+			exactNameVariants.add(StringUtils.upperCase(s));
 		}
 		
 		// Boost for exact object name match
-		resultQuery.should(QueryBuilders.termsQuery("name.exact", cammel).boost(10));
+		resultQuery.should(QueryBuilders.termsQuery("name.exact", exactNameVariants).boost(10));
 		
 		// Boost for housenumber match
 		resultQuery.should(QueryBuilders.termsQuery("housenumber", nums).boost(250));
