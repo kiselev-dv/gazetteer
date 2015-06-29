@@ -29,6 +29,7 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -80,7 +81,8 @@ public class GazetteerOutWriter extends AddressPerRowJOHBase  {
 			TRANSLATE_POI_TYPES_OPTION, 
 			"fill_addresses", "export_all_names", 
 			"full_geometry",
-			"usage", "tag-stat");
+			"usage", "tag-stat",
+			"hsort");
 
 	private TagsStatisticCollector tagStatistics;
 
@@ -104,10 +106,10 @@ public class GazetteerOutWriter extends AddressPerRowJOHBase  {
 	
 	private String outFile;
 
+	private boolean hsort;
+
 	@Override
-	public JoinOutHandler newInstance(List<String> options) {
-		
-		HandlerOptions parsedOpts = HandlerOptions.parse(options, OPTIONS);
+	public JoinOutHandler initialize(HandlerOptions parsedOpts) {
 		
 		if(parsedOpts.has("usage")) {
 			printUsage();
@@ -156,7 +158,18 @@ public class GazetteerOutWriter extends AddressPerRowJOHBase  {
 			tagStatistics = new ExportTagsStatisticCollector();
 		}
 		
+		hsort = parsedOpts.getFlag("hsort", true, false);
+		
 		return this;
+	}
+	
+	@Override
+	protected Collection<String> getHandlerArguments(
+			Collection<String> defOptions) {
+		
+		defOptions.addAll(OPTIONS);
+		
+		return defOptions;
 	}
 	
 	protected void printUsage() {
@@ -221,6 +234,8 @@ public class GazetteerOutWriter extends AddressPerRowJOHBase  {
 		usage.append("\t\ttrans - Translate or not names for addr parts.");
 		usage.append("\n");
 		usage.append("\t\talt_names - Export addr parts alternative names.");
+		usage.append("\n");
+		usage.append("\t\thsort - Sort objects hierarchicaly.");
 		usage.append("\n");
 
 		usage.append("\n");
@@ -347,8 +362,8 @@ public class GazetteerOutWriter extends AddressPerRowJOHBase  {
 			putNearbyPlaces(result, ftype, mapLevels, jsonObject, langs);
 		}
 		
+		JSONObject refs = new JSONObject();
 		if(fillAddrOpts.contains("levels") || fillAddrOpts.contains("ref")) {
-			JSONObject refs = new JSONObject();
 			
 			String minLVL = putAddrParts(result, refs, addrRow, mapLevels, langs);
 			
@@ -392,8 +407,39 @@ public class GazetteerOutWriter extends AddressPerRowJOHBase  {
 			}
 		}
 		
+		result.put("hhash", getHierarchyHash(rowId, addrRow, mapLevels, refs));
+		
 		String md5Hex = DigestUtils.md5Hex(JSONHash.asCanonicalString(result, new HashSet<String>(Arrays.asList("timestamp"))));
 		result.put("md5", md5Hex);
+	}
+
+	protected String getHierarchyHash(String rowId, JSONObject addrRow,
+			Map<String, JSONObject> mapLevels, JSONObject refs) {
+		
+		List<String> result = new ArrayList<>();
+		
+		result.add(refs.optString("admin0", null));
+		result.add(refs.optString("admin1", null));
+		result.add(refs.optString("admin2", null));
+		result.add(refs.optString("local_admin", null));
+		result.add(refs.optString("locality", null));
+		result.add(refs.optString("neighborhood", null));
+		
+		String street = refs.optString("street", null);
+		if(street == null) {
+			street = addrRow.optString("street_name", null);
+		}
+		
+		result.add(street);
+
+		result.removeAll(Collections.singleton(null));
+		if(result.isEmpty()) {
+			return null;
+		}
+		
+		result.add(rowId);
+		
+		return StringUtils.join(result, "/");
 	}
 
 	protected void fillPOI(JSONFeature result, JSONObject jsonObject,
@@ -882,7 +928,7 @@ public class GazetteerOutWriter extends AddressPerRowJOHBase  {
 			File file = new File(this.outFile);
 			BufferedReader fbr = new BufferedReader(new InputStreamReader(FileUtils.getFileIS(file)));
 			
-			Comparator<String> cmp = new JSONByIdComparator();
+			Comparator<String> cmp = hsort ? new JSONHComparator() : new JSONByIdComparator();
 			
 			List<File> batch = ExternalSort.sortInBatch(fbr, file.length(), cmp, 
 					ExternalSort.DEFAULTMAXTEMPFILES, ExternalSort.estimateAvailableMemory(), 
@@ -921,4 +967,5 @@ public class GazetteerOutWriter extends AddressPerRowJOHBase  {
 			}
 		}
 	}
+	
 }

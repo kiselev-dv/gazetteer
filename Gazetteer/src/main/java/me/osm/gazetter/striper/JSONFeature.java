@@ -43,13 +43,15 @@ public final class JSONFeature extends JSONObject {
 						: GeoJsonWriter.TIMESTAMP.equals(o1) ? 2 
 						: "action".equals(o1) ? 3
 						: "md5".equals(o2) ? 4		
+						: "hhash".equals(o2) ? 5		
 						: 10; 
 				
 				int i2 = "id".equals(o2) ? 0 
 						: "ftype".equals(o2) ? 1 
 						: GeoJsonWriter.TIMESTAMP.equals(o2) ? 2 
 						: "action".equals(o2) ? 3 
-						: "md5".equals(o2) ? 4 
+						: "md5".equals(o2) ? 4
+						: "hhash".equals(o2) ? 5		
 						: 10; 
 				
 				if(i1 == 10 && i2 == 10) {

@@ -6,7 +6,9 @@ import org.json.JSONObject;
 
 public interface JoinOutHandler {
 
-	public JoinOutHandler newInstance(List<String> options);
+	public HandlerOptions parseHandlerOptions(List<String> options);
+	
+	public JoinOutHandler initialize(HandlerOptions options);
 	
 	/**
 	 * WARNING: This method is not thread safe. 

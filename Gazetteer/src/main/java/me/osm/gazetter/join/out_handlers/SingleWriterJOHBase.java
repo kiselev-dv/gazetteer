@@ -2,6 +2,8 @@ package me.osm.gazetter.join.out_handlers;
 
 import java.io.File;
 import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import me.osm.gazetter.utils.FileUtils;
@@ -13,19 +15,30 @@ public abstract class SingleWriterJOHBase implements JoinOutHandler {
 	private static final Object mutex = new Object();
 	
 	@Override
-	public JoinOutHandler newInstance(List<String> options) {
+	public JoinOutHandler initialize(HandlerOptions options) {
 
-		if(!options.isEmpty()) {
-			initializeWriter(options.get(0));
-		}
+		String out = options.getString("out", "-");
+		
+		initializeWriter(out);
 		
 		return this;
 	}
 
-	protected void initializeWriter(String string) {
+	public HandlerOptions parseHandlerOptions(List<String> options) {
+		List<String> defOptions = new ArrayList<>();
+		defOptions.add("out");
+		return HandlerOptions.parse(options, getHandlerArguments(defOptions));
+	};
+
+	protected Collection<String> getHandlerArguments(Collection<String> defOptions) {
+		return defOptions;
+	}
+
+	protected void initializeWriter(String out) {
 		try {
-			if(string != null && !string.equals("-")) {
-				writer = FileUtils.getPrintWriter(new File(string), false);
+			
+			if(out != null && !out.equals("-")) {
+				writer = FileUtils.getPrintWriter(new File(out), false);
 			}
 		}
 		catch(Exception e) {

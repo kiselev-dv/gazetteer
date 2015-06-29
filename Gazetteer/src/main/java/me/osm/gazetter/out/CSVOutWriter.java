@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -66,10 +67,8 @@ public class CSVOutWriter extends AddressPerRowJOHBase {
 	private String tmpFile;
 	
 	@Override
-	public JoinOutHandler newInstance(List<String> options) {
+	public JoinOutHandler initialize(HandlerOptions parsedOpts) {
 		
-		HandlerOptions parsedOpts = HandlerOptions.parse(options, OPTIONS);
-
 		if(parsedOpts.has(null)) {
 			initializeWriter(parsedOpts.getString(null, null));
 		}
@@ -90,6 +89,15 @@ public class CSVOutWriter extends AddressPerRowJOHBase {
 		initializePOICatalog(parsedOpts);
 		
 		return this;
+	}
+	
+	@Override
+	protected Collection<String> getHandlerArguments(
+			Collection<String> defOptions) {
+		
+		defOptions.addAll(OPTIONS);
+		
+		return defOptions;
 	}
 
 	@Override

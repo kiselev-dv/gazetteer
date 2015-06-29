@@ -51,6 +51,7 @@ public class GeoJsonWriter {
 	
 	private static final String TIMESTAMP_PATTERN = "\"" + GeoJsonWriter.TIMESTAMP +  "\":\"";
 	private static final String ID_PATTERN = "\"id\":\"";
+	private static final String HHASH_PATTERN = "\"hhash\":\"";
 	private static final String FTYPE_PATTERN = "\"ftype\":\"";
 	private static final String ACTION_PATTERN = "\"action\":\"";
 	private static final String ADM_LVL_PATTERN = "\"admin_level\":\"";
@@ -227,6 +228,12 @@ public class GeoJsonWriter {
 
 	public static String getId(String line) {
 		int begin = line.indexOf(ID_PATTERN) + ID_PATTERN.length();
+		int end = line.indexOf("\"", begin);
+		return line.substring(begin, end);
+	}
+
+	public static String getHHash(String line) {
+		int begin = line.indexOf(HHASH_PATTERN) + HHASH_PATTERN.length();
 		int end = line.indexOf("\"", begin);
 		return line.substring(begin, end);
 	}

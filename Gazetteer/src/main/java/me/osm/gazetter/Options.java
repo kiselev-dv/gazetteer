@@ -230,7 +230,10 @@ public class Options {
 							Object aScript = clazz.newInstance();
 							
 							if (aScript instanceof JoinOutHandler) {
-								JoinOutHandler joinOutHandler = ((JoinOutHandler)aScript).newInstance(handlerDef);
+								
+								JoinOutHandler joinOutHandler = ((JoinOutHandler)aScript);
+								
+								joinOutHandler = joinOutHandler.initialize(joinOutHandler.parseHandlerOptions(handlerDef));
 								joinHandlers.add(joinOutHandler);
 							}
 						}
@@ -239,7 +242,8 @@ public class Options {
 						}
 					}
 					else if (predefinedJoinOutHandlers.containsKey(handlerPath)){
-						joinHandlers.add(predefinedJoinOutHandlers.get(handlerPath).newInstance(handlerDef));
+						JoinOutHandler joinOutHandler = predefinedJoinOutHandlers.get(handlerPath);
+						joinHandlers.add(joinOutHandler.initialize(joinOutHandler.parseHandlerOptions(handlerDef)));
 					}
 				}
 			}
@@ -250,7 +254,8 @@ public class Options {
 		
 		if(joinHandlers.isEmpty()) {
 			joinHandlers.add(predefinedJoinOutHandlers.get(
-					GazetteerOutWriter.NAME).newInstance(new ArrayList<String>()));
+					GazetteerOutWriter.NAME).initialize(
+							new GazetteerOutWriter().parseHandlerOptions(new ArrayList<String>())));
 		}
 	}
 	
