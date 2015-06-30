@@ -1,8 +1,5 @@
 package me.osm.gazetter.join.out_handlers;
 
-import java.util.Collections;
-import java.util.List;
-
 import org.json.JSONObject;
 
 public class PrintJoinOutHandler extends SingleWriterJOHBase {
