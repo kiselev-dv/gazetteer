@@ -1,4 +1,4 @@
-import me.osm.gazetteer.web.api.imp.SnapshotRender;
+import me.osm.gazetteer.web.api.renders.SnapshotRender;
 import groovy.text.SimpleTemplateEngine;
 import groovy.json.JsonSlurper;
 import me.osm.gazetteer.web.utils.OSMDocSinglton;
