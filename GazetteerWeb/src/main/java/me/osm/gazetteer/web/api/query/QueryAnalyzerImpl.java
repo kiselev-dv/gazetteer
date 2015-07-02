@@ -155,11 +155,34 @@ public class QueryAnalyzerImpl implements QueryAnalyzer {
 			result.add(new QToken(t, variants, hasNumbers, numbersOnly, optional));
 		}
 		
-		Query query = new Query(result, original, null);
+		Query query = new Query(result, original, varyOriginal(original));
 		
 		log.trace("Query: {}", query.print());
 		
 		return query;
+	}
+
+	private Collection<String> varyOriginal(String original) {
+		Collection<String> result = new ArrayList<>();
+		
+		result.add(original);
+		
+		String replaced = original;
+		for(String[] r : charReplaces) {
+			replaced = StringUtils.replace(replaced, r[0], r[1]);
+		}
+		result.add(replaced);
+		
+		replaced = StringUtils.replaceChars(replaced, ".,", "");
+		result.add(replaced);
+
+		result.add(StringUtils.capitalize(replaced));
+		
+		result.add(StringUtils.upperCase(replaced));
+
+		result.add(StringUtils.lowerCase(replaced));
+		
+		return result;
 	}
 	
 }

@@ -16,7 +16,8 @@ public class Query {
 	public Query(List<QToken> tokens, String original, Collection<String> originalVariants) {
 		this.tokens = tokens;
 		this.original = original;
-		this.originalVariants = originalVariants;
+		this.originalVariants = (originalVariants == null ? 
+				new ArrayList<String>() : originalVariants);
 	}
 
 	public Query head() {
@@ -141,6 +142,10 @@ public class Query {
 
 	public String getOriginal() {
 		return original;
+	}
+
+	public Collection<String> getOriginalVarians() {
+		return originalVariants;
 	}
 	
 }

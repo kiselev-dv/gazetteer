@@ -696,12 +696,14 @@ public class SearchAPI implements DocumentedApi{
 
 			// UPPER CASE
 			exactNameVariants.add(StringUtils.upperCase(s));
+			
+			exactNameVariants.addAll(query.getOriginalVarians());
 		}
 		
 		// Boost for exact object name match
 		resultQuery.should(QueryBuilders.termsQuery("name.exact", exactNameVariants).boost(10));
 		
-		// Boost for housenumber match
+		// Boost for house number match
 		resultQuery.should(QueryBuilders.termsQuery("housenumber", nums).boost(250));
 		
 	}
