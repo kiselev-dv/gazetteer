@@ -1,4 +1,4 @@
-package me.osm.gazetteer.web.api.imp;
+package me.osm.gazetteer.web.api.query;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -22,9 +22,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class QueryAnalyzer {
+public class QueryAnalyzerImpl implements QueryAnalyzer {
 	
-	private static final Logger log = LoggerFactory.getLogger(QueryAnalyzer.class);
+	private static final Logger log = LoggerFactory.getLogger(QueryAnalyzerImpl.class);
 
 	private static final String tokenSeparators = Main.config().getQueryAnalyzerSeparators();
 	private static final String removeChars = Main.config().getRemoveCharacters();
@@ -48,7 +48,7 @@ public class QueryAnalyzer {
 	private static void readOptionals() {
 		try {
 			Set<String> patterns = new HashSet<>();
-			for(String option : (List<String>)IOUtils.readLines(QueryAnalyzer.class.getResourceAsStream("/optional"))) {
+			for(String option : (List<String>)IOUtils.readLines(QueryAnalyzerImpl.class.getResourceAsStream("/optional"))) {
 				if(!StringUtils.startsWith(option, "#") && !StringUtils.isEmpty(option)) {
 					if(StringUtils.startsWith(option, "~")) {
 						patterns.add(StringUtils.substringAfter(option, "~"));
@@ -73,11 +73,17 @@ public class QueryAnalyzer {
 		}
 	}
 	
+	/* (non-Javadoc)
+	 * @see me.osm.gazetteer.web.api.imp.QueryAnalyzer#getQuery(java.lang.String)
+	 */
+	@Override
 	public Query getQuery(String q) {
 		
 		if(null == q) {
 			return null;
 		}
+		
+		String original = q;
 		
 		q = StringUtils.replaceChars(q, removeChars, null);
 
@@ -149,7 +155,7 @@ public class QueryAnalyzer {
 			result.add(new QToken(t, variants, hasNumbers, numbersOnly, optional));
 		}
 		
-		Query query = new Query(result, q);
+		Query query = new Query(result, original, null);
 		
 		log.trace("Query: {}", query.print());
 		

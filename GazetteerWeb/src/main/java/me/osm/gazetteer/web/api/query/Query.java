@@ -1,4 +1,4 @@
-package me.osm.gazetteer.web.api.imp;
+package me.osm.gazetteer.web.api.query;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -11,15 +11,18 @@ public class Query {
 	
 	private List<QToken> tokens;
 	
-	public Query(List<QToken> tokens, String original) {
+	private Collection<String> originalVariants;
+	
+	public Query(List<QToken> tokens, String original, Collection<String> originalVariants) {
 		this.tokens = tokens;
 		this.original = original;
+		this.originalVariants = originalVariants;
 	}
 
 	public Query head() {
 		
 		if(this.tokens.size() > 1) {
-			return new Query(this.tokens.subList(0, this.tokens.size() - 1), original);
+			return new Query(this.tokens.subList(0, this.tokens.size() - 1), original, originalVariants);
 		}
 		
 		return null;
@@ -27,7 +30,7 @@ public class Query {
 
 	public Query tail() {
 		if(tokens.size() > 0) {
-			return new Query(Collections.singletonList(tokens.get(tokens.size() - 1)), original);
+			return new Query(Collections.singletonList(tokens.get(tokens.size() - 1)), original, originalVariants);
 		}
 		
 		return null;
@@ -88,7 +91,7 @@ public class Query {
 				r.add(t);
 			}
 		}
-		return new Query(r, original);
+		return new Query(r, original, originalVariants);
 	}
 
 	public Query required() {
@@ -98,7 +101,7 @@ public class Query {
 				r.add(t);
 			}
 		}
-		return new Query(r, original);
+		return new Query(r, original, originalVariants);
 	}
 
 	public Query woFuzzy() {
@@ -108,7 +111,7 @@ public class Query {
 				r.add(t);
 			}
 		}
-		return new Query(r, original);
+		return new Query(r, original, originalVariants);
 	}
 
 	public Query woNumbers() {
@@ -118,7 +121,7 @@ public class Query {
 				r.add(t);
 			}
 		}
-		return new Query(r, original);
+		return new Query(r, original, originalVariants);
 	}
 
 	public String print() {

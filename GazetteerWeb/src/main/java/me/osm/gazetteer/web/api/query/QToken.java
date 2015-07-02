@@ -1,4 +1,4 @@
-package me.osm.gazetteer.web.api.imp;
+package me.osm.gazetteer.web.api.query;
 
 import java.util.List;
 

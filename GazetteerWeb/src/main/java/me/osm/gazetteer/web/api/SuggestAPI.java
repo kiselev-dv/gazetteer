@@ -8,8 +8,8 @@ import java.util.HashSet;
 import java.util.List;
 
 import me.osm.gazetteer.web.ESNodeHodel;
-import me.osm.gazetteer.web.api.imp.Query;
 import me.osm.gazetteer.web.api.meta.Endpoint;
+import me.osm.gazetteer.web.api.query.Query;
 import me.osm.gazetteer.web.api.utils.BuildSearchQContext;
 import me.osm.gazetteer.web.api.utils.RequestUtils;
 import me.osm.gazetteer.web.imp.IndexHolder;

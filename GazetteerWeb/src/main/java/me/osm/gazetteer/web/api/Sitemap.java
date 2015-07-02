@@ -8,9 +8,9 @@ import java.util.regex.Pattern;
 import me.osm.gazetteer.web.Configuration;
 import me.osm.gazetteer.web.ESNodeHodel;
 import me.osm.gazetteer.web.Main;
-import me.osm.gazetteer.web.api.imp.SitemapRender;
-import me.osm.gazetteer.web.api.imp.XMLSitemapRender;
 import me.osm.gazetteer.web.api.meta.Endpoint;
+import me.osm.gazetteer.web.api.renders.SitemapRender;
+import me.osm.gazetteer.web.api.renders.XMLSitemapRender;
 import me.osm.gazetteer.web.imp.IndexHolder;
 
 import org.apache.commons.lang3.StringUtils;

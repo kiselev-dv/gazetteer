@@ -10,9 +10,9 @@ import java.util.Locale;
 import java.util.Map;
 
 import me.osm.gazetteer.web.Configuration;
-import me.osm.gazetteer.web.api.imp.HTMLSitemapRender;
-import me.osm.gazetteer.web.api.imp.SnapshotRender;
 import me.osm.gazetteer.web.api.meta.Endpoint;
+import me.osm.gazetteer.web.api.renders.HTMLSitemapRender;
+import me.osm.gazetteer.web.api.renders.SnapshotRender;
 import me.osm.gazetteer.web.utils.OSMDocSinglton;
 
 import org.apache.commons.lang3.StringUtils;

@@ -16,11 +16,12 @@ import java.util.Set;
 
 import me.osm.gazetteer.web.ESNodeHodel;
 import me.osm.gazetteer.web.Main;
-import me.osm.gazetteer.web.api.imp.QToken;
-import me.osm.gazetteer.web.api.imp.Query;
-import me.osm.gazetteer.web.api.imp.QueryAnalyzer;
 import me.osm.gazetteer.web.api.meta.Endpoint;
 import me.osm.gazetteer.web.api.meta.Parameter;
+import me.osm.gazetteer.web.api.query.QToken;
+import me.osm.gazetteer.web.api.query.Query;
+import me.osm.gazetteer.web.api.query.QueryAnalyzer;
+import me.osm.gazetteer.web.api.query.QueryAnalyzerImpl;
 import me.osm.gazetteer.web.api.utils.APIUtils;
 import me.osm.gazetteer.web.api.utils.BuildSearchQContext;
 import me.osm.gazetteer.web.api.utils.Paginator;
@@ -155,7 +156,8 @@ public class SearchAPI implements DocumentedApi{
 
 	private static final Logger log = LoggerFactory.getLogger(SearchAPI.class);
 	
-	protected QueryAnalyzer queryAnalyzer = new QueryAnalyzer();
+	// TODO: inject
+	protected QueryAnalyzer queryAnalyzer = new QueryAnalyzerImpl();
 	
 	/**
 	 * REST Express read routine method
