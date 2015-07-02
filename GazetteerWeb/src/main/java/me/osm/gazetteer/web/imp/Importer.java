@@ -241,6 +241,8 @@ public class Importer extends BackgroundExecutableTask {
 			obj.remove("alt_addresses_trans");
 			
 			if(obj.has("housenumber")) {
+				obj.put("housenumber_exact", obj.optString("housenumber").toLowerCase());
+				obj.put("housenumber_main", getMainHousenumber(obj.optString("housenumber")));
 				obj.put("housenumber", 
 						new JSONArray(fuzzyHousenumberIndex(obj.optString("housenumber"))));
 			}
@@ -254,6 +256,21 @@ public class Importer extends BackgroundExecutableTask {
 			return null;
 		}
 		
+	}
+
+	private String getMainHousenumber(String optString) {
+		String lowerCase = optString.toLowerCase().trim();
+		
+		int l = 0;
+		for(char c : lowerCase.toCharArray()) {
+			if(c < '0' || c > '9') {
+				break;
+			}
+			
+			l++;
+		}
+		
+		return lowerCase.substring(0, l);
 	}
 
 	private JSONObject mergeHighwayNetsGeometry(JSONObject jsonObject) {
