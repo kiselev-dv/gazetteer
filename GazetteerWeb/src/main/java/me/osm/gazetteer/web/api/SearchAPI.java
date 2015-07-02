@@ -621,49 +621,12 @@ public class SearchAPI implements DocumentedApi{
 		BoolQueryBuilder requiredQ = QueryBuilders.boolQuery();
 		requiredQ.disableCoord(true);
 		
-		for(QToken t : required) {
-			if(strict) {
-				
-				if(t.isFuzzied()) {
-					// In strict version one of the term variants must appears in search field
-					DisMaxQueryBuilder variantsQ = QueryBuilders.disMaxQuery().boost(20);
-					requiredQ.should(variantsQ);
-					
-					for(String s : t.getVariants()) {
-						variantsQ.add(QueryBuilders.matchQuery("search", s).boost(1));
-						variantsQ.add(QueryBuilders.matchQuery("street_name", s).boost(10));
-						variantsQ.add(QueryBuilders.matchQuery("nearest_neighbour.name", s).boost(5));
-					}
-				}
-				else {
-					// In strict version term must appear in document's search field
-					requiredQ.should(QueryBuilders.matchQuery("search", t.toString()).boost(20));
-				}
-			}
-			else {
-				String term = t.toString();
-				
-				if(t.isFuzzied()) {
-					term = StringUtils.join(t.getVariants(), ' ');
-				}
-				
-				// In not strict variant term must appears in search field or in name of nearby street
-				// Also add fuzzines
-				QueryBuilder search = QueryBuilders.fuzzyQuery("search", term).boost(20);
-				QueryBuilder nearestN = QueryBuilders.matchQuery("nearest_neighbour.name", term).boost(10);
-				QueryBuilder nearestS = QueryBuilders.matchQuery("nearby_streets.name", term).boost(0.2f);
-				
-				if(!t.isFuzzied()) {
-					// If term wasn't fuzzied duiring analyze, add fuzzyness
-					((FuzzyQueryBuilder) search).fuzziness(Fuzziness.ONE);
-				}
-				
-				requiredQ.should(QueryBuilders.disMaxQuery().tieBreaker(0.4f)
-						.add(search)
-						.add(nearestS)
-						.add(nearestN));
-				
-			}
+		
+		if(strict) {
+			addTermsStrict(required, requiredQ);
+		}
+		else {
+			addTermsNotStrict(required, requiredQ);
 		}
 
 		int requiredCount = required.size();
@@ -706,6 +669,56 @@ public class SearchAPI implements DocumentedApi{
 		// Boost for house number match
 		resultQuery.should(QueryBuilders.termsQuery("housenumber", nums).boost(250));
 		
+	}
+
+	protected void addTermsNotStrict(List<QToken> required,
+			BoolQueryBuilder requiredQ) {
+		
+		for(QToken t : required) {
+			String term = t.toString();
+			
+			if(t.isFuzzied()) {
+				term = StringUtils.join(t.getVariants(), ' ');
+			}
+			
+			// In not strict variant term must appears in search field or in name of nearby street
+			// Also add fuzzines
+			QueryBuilder search = QueryBuilders.fuzzyQuery("search", term).boost(20);
+			QueryBuilder nearestN = QueryBuilders.matchQuery("nearest_neighbour.name", term).boost(10);
+			QueryBuilder nearestS = QueryBuilders.matchQuery("nearby_streets.name", term).boost(0.2f);
+			
+			if(!t.isFuzzied()) {
+				// If term wasn't fuzzied duiring analyze, add fuzzyness
+				((FuzzyQueryBuilder) search).fuzziness(Fuzziness.ONE);
+			}
+			
+			requiredQ.should(QueryBuilders.disMaxQuery().tieBreaker(0.4f)
+					.add(search)
+					.add(nearestS)
+					.add(nearestN));
+		}
+		
+	}
+
+	protected void addTermsStrict(List<QToken> required,
+			BoolQueryBuilder requiredQ) {
+		for(QToken t : required) {
+			if(t.isFuzzied()) {
+				// In strict version one of the term variants must appears in search field
+				DisMaxQueryBuilder variantsQ = QueryBuilders.disMaxQuery().boost(20);
+				requiredQ.should(variantsQ);
+				
+				for(String s : t.getVariants()) {
+					variantsQ.add(QueryBuilders.matchQuery("search", s).boost(1));
+					variantsQ.add(QueryBuilders.matchQuery("street_name", s).boost(10));
+					variantsQ.add(QueryBuilders.matchQuery("nearest_neighbour.name", s).boost(5));
+				}
+			}
+			else {
+				// In strict version term must appear in document's search field
+				requiredQ.should(QueryBuilders.matchQuery("search", t.toString()).boost(20));
+			}
+		}
 	}
 
 	/**
