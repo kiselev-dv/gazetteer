@@ -674,29 +674,40 @@ public class SearchAPI implements DocumentedApi{
 	protected void addTermsNotStrict(List<QToken> required,
 			BoolQueryBuilder requiredQ) {
 		
+		List<String> fuziedRequieredTerms = new ArrayList<>();
+		
 		for(QToken t : required) {
-			String term = t.toString();
-			
 			if(t.isFuzzied()) {
-				term = StringUtils.join(t.getVariants(), ' ');
+				fuziedRequieredTerms.addAll(t.getVariants());
 			}
-			
-			// In not strict variant term must appears in search field or in name of nearby street
-			// Also add fuzzines
-			QueryBuilder search = QueryBuilders.fuzzyQuery("search", term).boost(20);
-			QueryBuilder nearestN = QueryBuilders.matchQuery("nearest_neighbour.name", term).boost(10);
-			QueryBuilder nearestS = QueryBuilders.matchQuery("nearby_streets.name", term).boost(0.2f);
-			
-			if(!t.isFuzzied()) {
-				// If term wasn't fuzzied duiring analyze, add fuzzyness
-				((FuzzyQueryBuilder) search).fuzziness(Fuzziness.ONE);
-			}
-			
-			requiredQ.should(QueryBuilders.disMaxQuery().tieBreaker(0.4f)
-					.add(search)
-					.add(nearestS)
-					.add(nearestN));
+
+			fuziedRequieredTerms.add(t.toString());
 		}
+		
+		requiredQ.disableCoord(true);
+		
+		requiredQ.should(QueryBuilders.matchQuery("admin0_name", fuziedRequieredTerms).boost(101));
+		requiredQ.should(QueryBuilders.matchQuery("admin0_alternate_names", fuziedRequieredTerms).boost(100));
+		
+		requiredQ.should(QueryBuilders.matchQuery("admin1_name", fuziedRequieredTerms).boost(91));
+		requiredQ.should(QueryBuilders.matchQuery("admin1_alternate_names", fuziedRequieredTerms).boost(90));
+
+		requiredQ.should(QueryBuilders.matchQuery("admin2_name", fuziedRequieredTerms).boost(81));
+		requiredQ.should(QueryBuilders.matchQuery("admin2_alternate_names", fuziedRequieredTerms).boost(80));
+
+		requiredQ.should(QueryBuilders.matchQuery("local_admin_name", fuziedRequieredTerms).boost(71));
+		requiredQ.should(QueryBuilders.matchQuery("local_admin_alternate_names", fuziedRequieredTerms).boost(70));
+		
+		requiredQ.should(QueryBuilders.matchQuery("locality_name", fuziedRequieredTerms).boost(61));
+		requiredQ.should(QueryBuilders.matchQuery("locality_alternate_names", fuziedRequieredTerms).boost(60));
+		
+		requiredQ.should(QueryBuilders.matchQuery("neighborhood_name", fuziedRequieredTerms).boost(51));
+		requiredQ.should(QueryBuilders.matchQuery("neighborhood_alternate_names", fuziedRequieredTerms).boost(50));
+		
+		requiredQ.should(QueryBuilders.matchQuery("street_name", fuziedRequieredTerms).boost(41));
+		requiredQ.should(QueryBuilders.matchQuery("street_alternate_names", fuziedRequieredTerms).boost(40));
+		
+		requiredQ.should(QueryBuilders.matchQuery("housenumber", fuziedRequieredTerms).boost(30));
 		
 	}
 
