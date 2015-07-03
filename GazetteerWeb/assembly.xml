@@ -23,7 +23,7 @@
 			<directory>config</directory>
 			<outputDirectory>config</outputDirectory>
 			<includes>
-				<include>**/*.*</include>
+				<include>**/*</include>
 			</includes>
 		</fileSet>
 		<fileSet>
