@@ -15,6 +15,7 @@ import me.osm.gazetteer.web.imp.Replacer;
 import me.osm.gazetteer.web.utils.ReplacersCompiler;
 
 import org.apache.commons.lang3.StringUtils;
+import org.elasticsearch.common.unit.Fuzziness;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.DisMaxQueryBuilder;
 import org.elasticsearch.index.query.MultiMatchQueryBuilder;
@@ -235,14 +236,21 @@ public class SearchBuilderImpl implements SearchBuilder {
 		requiredQ.should(QueryBuilders.matchQuery("local_admin_name", fuziedRequieredTerms).boost(71));
 		requiredQ.should(QueryBuilders.matchQuery("local_admin_alternate_names", fuziedRequieredTerms).boost(70));
 		
-		requiredQ.should(QueryBuilders.matchQuery("locality_name", fuziedRequieredTerms).boost(61));
+		requiredQ.should(QueryBuilders.matchQuery("locality_name", fuziedRequieredTerms).boost(61).fuzziness(Fuzziness.ONE));
 		requiredQ.should(QueryBuilders.matchQuery("locality_alternate_names", fuziedRequieredTerms).boost(60));
+
+		requiredQ.should(QueryBuilders.matchQuery("nearby_places.name", fuziedRequieredTerms).boost(56));
 		
-		requiredQ.should(QueryBuilders.matchQuery("neighborhood_name", fuziedRequieredTerms).boost(51));
+		requiredQ.should(QueryBuilders.matchQuery("neighborhood_name", fuziedRequieredTerms).boost(51).fuzziness(Fuzziness.ONE));
 		requiredQ.should(QueryBuilders.matchQuery("neighborhood_alternate_names", fuziedRequieredTerms).boost(50));
+
+		requiredQ.should(QueryBuilders.matchQuery("nearest_neighbour.name", fuziedRequieredTerms).boost(46));
+		requiredQ.should(QueryBuilders.matchQuery("nearest_neighbour.alt_names", fuziedRequieredTerms).boost(46));
 		
-		requiredQ.should(QueryBuilders.matchQuery("street_name", fuziedRequieredTerms).boost(41));
+		requiredQ.should(QueryBuilders.matchQuery("street_name", fuziedRequieredTerms).boost(41).fuzziness(Fuzziness.TWO));
 		requiredQ.should(QueryBuilders.matchQuery("street_alternate_names", fuziedRequieredTerms).boost(40));
+
+		requiredQ.should(QueryBuilders.matchQuery("nearby_streets.name", fuziedRequieredTerms).boost(35));
 		
 		requiredQ.should(QueryBuilders.matchQuery("housenumber", fuziedRequieredTerms).boost(30));
 		
