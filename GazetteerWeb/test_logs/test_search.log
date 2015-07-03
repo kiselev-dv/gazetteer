@@ -357,7 +357,7 @@
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 351 from 8275. Case Хабаровский край город Хабаровск, ул. Мухина, 6
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Хабаровский край город Хабаровск, ул. Герасимова, 16 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 353 from 8275. Case Хабаровский край город Хабаровск, ул. Тихоокеанская, 136, аудит. 223 п
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	FAILED Empty answer
 [main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Хабаровский край город Хабаровск, ул. Тихоокеанская, 136, аудит. 223 п FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 354 from 8275. Case Хабаровский край город Хабаровск, ул. З. Космодемьянской, 26
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 355 from 8275. Case Архангельская область г. Архангельск, ул. Центральная, 28
@@ -420,7 +420,7 @@
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Архангельская область г. Архангельск, ул. Стивидорская, 11 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Архангельская область г. Архангельск, пр.Обводный канал, 9 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 412 from 8275. Case Архангельская область г. Архангельск, ул. Кирпичного завода, 27
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	FAILED Empty answer
 [main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Архангельская область г. Архангельск, ул. Кирпичного завода, 27 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 413 from 8275. Case Архангельская область г. Архангельск, пр. Новгородский, 28
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 414 from 8275. Case Архангельская область г. Архангельск, пр. Новгородский, 34 корп. 2
@@ -476,7 +476,7 @@
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Астраханская область г. Астрахань, ул. Советская, 23 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Астраханская область г. Астрахань, ул. Коммунистическая, 35 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 466 from 8275. Case Астраханская область г. Астрахань, ул. Шелгунова, 12
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	FAILED Empty answer
 [main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Астраханская область г. Астрахань, ул. Шелгунова, 12 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Астраханская область г. Астрахань, ул. Академика Королева, 40 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Астраханская область г. Астрахань, ул. Софьи Перовской, 103, к.25 
@@ -504,9 +504,13 @@
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 490 from 8275. Case Астраханская область г. Астрахань, ул. Авиационная, 14А
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Астраханская область г. Астрахань, ул. Косм. В. Комарова, 53 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 492 from 8275. Case Астраханская область г. Астрахань, ул. Косм. В. Комарова, 154А
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	FAILED Empty answer
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Астраханская область г. Астрахань, ул. Косм. В. Комарова, 154А FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 493 from 8275. Case Астраханская область г. Астрахань, ул. Косм. В. Комарова, 148
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	FAILED Empty answer
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Астраханская область г. Астрахань, ул. Косм. В. Комарова, 148 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 494 from 8275. Case Астраханская область г. Астрахань, ул. Зеленая, 70 А
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	FAILED Empty answer
 [main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Астраханская область г. Астрахань, ул. Зеленая, 70 А FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 495 from 8275. Case Астраханская область г. Астрахань, ул. Ботвина, 32
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Астраханская область г. Астрахань, ул. Звездная, 21 а 
@@ -535,10 +539,10 @@
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 519 from 8275. Case Астраханская область г. Астрахань, ул. Безжонова, 103
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Астраханская область г. Астрахань, ул. Немова, 28 корп.2 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 521 from 8275. Case Астраханская область г. Астрахань, ул. Адм. Нахимова, 58
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	FAILED Empty answer
 [main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Астраханская область г. Астрахань, ул. Адм. Нахимова, 58 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 522 from 8275. Case Астраханская область г. Астрахань, ул. Химиков, 5
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	FAILED Empty answer
 [main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Астраханская область г. Астрахань, ул. Химиков, 5 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Астраханская область г. Астрахань, ул. Тренева, 11 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Астраханская область г. Астрахань, ул. Бумажников, 9а 
@@ -552,7 +556,7 @@
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Астраханская область г. Астрахань, ул. Щукина, 79 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 533 from 8275. Case Астраханская область г. Астрахань, ул. Дальняя, 91
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 534 from 8275. Case Астраханская область г. Астрахань, пер. Депутатский, д. 8/1
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	FAILED Empty answer
 [main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Астраханская область г. Астрахань, пер. Депутатский, д. 8/1 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Астраханская область г. Астрахань, ул. Кр. Набережная, 227а 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Астраханская область г. Астрахань, ул. Курская, 55 
@@ -593,6 +597,8 @@
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 571 from 8275. Case Астраханская область г. Астрахань, ул. Александрова, 3
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Астраханская область г. Астрахань, ул. Верещагина, 59/24 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 573 from 8275. Case Астраханская область г. Астрахань, ул. Ю. Селенского, 15А
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	FAILED Empty answer
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Астраханская область г. Астрахань, ул. Ю. Селенского, 15А FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Астраханская область г. Астрахань, ул. Адмиралтейская, 21 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 575 from 8275. Case Астраханская область г. Астрахань, ул. Анатолия Сергеева,13
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Астраханская область г. Астрахань, ул. Татищева, 4 
@@ -643,6 +649,8 @@
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 619 from 8275. Case Белгородская область г. Белгород, улица Некрасова, 17Б
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 620 from 8275. Case Белгородская область г. Белгород, улица Привольная, 16
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 621 from 8275. Case Белгородская область г. Белгород, проспект Б. Хмельницкого, 137
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	FAILED Empty answer
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Белгородская область г. Белгород, проспект Б. Хмельницкого, 137 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Белгородская область г. Белгород, улица Некрасова, 20 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Белгородская область г. Белгород, улица Октябрьская, 26А 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Белгородская область г. Белгород, улица Октябрьская, 58 
@@ -687,7 +695,7 @@
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Белгородская область г. Белгород, проспект Славы, 69 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Белгородская область г. Белгород, Народный бульвар, 74 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 663 from 8275. Case Белгородская область г. Белгород, проспект Б. Хмельницкого, 58
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	FAILED Empty answer
 [main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Белгородская область г. Белгород, проспект Б. Хмельницкого, 58 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Белгородская область г. Белгород, 2-й Карьерный переулок, 10 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Белгородская область г. Белгород, улица Н. Чумичова, 51А 
@@ -699,10 +707,16 @@
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Белгородская область г. Белгород, улица Менделеева, 4 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Белгородская область г. Белгород, улица Железнякова, 4 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 673 from 8275. Case Белгородская область Старооскольский городской округ, г. Старый Оскол, микрорайон Студенческий, 4
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	FAILED Empty answer
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Белгородская область Старооскольский городской округ, г. Старый Оскол, микрорайон Студенческий, 4 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 674 from 8275. Case Белгородская область г. Белгород, улица Железнодорожная, 26
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 675 from 8275. Case Белгородская область Старооскольский городской округ, г. Старый Оскол, микрорайон Парковый, 27а
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	FAILED Empty answer
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Белгородская область Старооскольский городской округ, г. Старый Оскол, микрорайон Парковый, 27а FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Белгородская область г. Белгород, улица Королева, 5 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 677 from 8275. Case Белгородская область Старооскольский городской округ, г. Старый Оскол, микрорайон Студенческий, 5а
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	FAILED Empty answer
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Белгородская область Старооскольский городской округ, г. Старый Оскол, микрорайон Студенческий, 5а FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Белгородская область г. Белгород, улица Шаландина, 5 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Белгородская область г. Белгород, улица Костюкова, 13 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Белгородская область г. Белгород, улица Шаландина, 13 
@@ -778,7 +792,7 @@
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 746 from 8275. Case Владимирская область город Владимир, ул. Балакирева, д. 41
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Владимирская область город Владимир, ул. Балакирева, д. 32 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 748 from 8275. Case Владимирская область город Владимир, ул. Диктора Левитана, д. 37-а
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	FAILED Empty answer
 [main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Владимирская область город Владимир, ул. Диктора Левитана, д. 37-а FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Владимирская область город Владимир, ул. Диктора Левитана, д. 4 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Владимирская область город Владимир, ул. Разина, д. 2 
@@ -796,7 +810,7 @@
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 762 from 8275. Case Владимирская область город Ковров, ул. Чернышевского, 8
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Владимирская область город Владимир, ул. Дворянская, д. 1 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 764 from 8275. Case Владимирская область Суздальский район, г. Суздаль, ул. Лоунская, дом 7-а
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	FAILED Empty answer
 [main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Владимирская область Суздальский район, г. Суздаль, ул. Лоунская, дом 7-а FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Владимирская область город Владимир, ул. Мира, д. 8 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 766 from 8275. Case Владимирская область город Владимир, Октябрьский проспект, д. 11
@@ -815,7 +829,7 @@
 [main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Владимирская область город Владимир, проспект Строителей, д. 2-б FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Владимирская область город Владимир, ул. Лакина, д. 183 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 777 from 8275. Case Владимирская область город Владимир, ул. Горького, д. 107-а
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	FAILED Empty answer
 [main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Владимирская область город Владимир, ул. Горького, д. 107-а FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 778 from 8275. Case Владимирская область город Владимир, ул. Северная, д. 2-а
 [main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
@@ -855,7 +869,7 @@
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Владимирская область город Владимир, Судогодское шоссе, д. 41, помещение № 200 А (консультативная поликлиника) 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 810 from 8275. Case Владимирская область город Владимир, ул. Растопчина, д. 31-а
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 811 from 8275. Case Владимирская область город Владимир, ул. Добросельская, д. 179-а
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	FAILED Empty answer
 [main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Владимирская область город Владимир, ул. Добросельская, д. 179-а FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 812 from 8275. Case Владимирская область город Владимир, микрорайон Энергетик, ул. Энергетиков, д. 1
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 813 from 8275. Case Владимирская область город Владимир, ул. Безыменского, д. 14-б
@@ -983,7 +997,7 @@
 [main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
 [main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Вологодская область г. Череповец, ул. М. Горького, 14 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 923 from 8275. Case Вологодская область г. Череповец, ул. М. Горького, 22А
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	FAILED Empty answer
 [main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Вологодская область г. Череповец, ул. М. Горького, 22А FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 924 from 8275. Case Вологодская область г. Череповец, Советский пр., 10
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 925 from 8275. Case Вологодская область г. Череповец, Советский пр., 35А
@@ -993,7 +1007,7 @@
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 929 from 8275. Case Вологодская область г. Череповец, ул. Пионерская, 14
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 930 from 8275. Case Вологодская область г. Череповец, ул. Молодежная, 3
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 931 from 8275. Case Вологодская область г. Череповец, ул. П. Окинина, 5
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	FAILED Empty answer
 [main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Вологодская область г. Череповец, ул. П. Окинина, 5 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 932 from 8275. Case Вологодская область г. Череповец, Северное шоссе, 29
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 933 from 8275. Case Вологодская область г. Череповец, ул. Олимпийская, 59
@@ -1053,7 +1067,7 @@
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Вологодская область г. Череповец, ул. Суворова, 5 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 984 from 8275. Case Вологодская область г. Череповец, ул. Юбилейная, 36
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 985 from 8275. Case Вологодская область г. Череповец, ул. К. Беляева, 32
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	FAILED Empty answer
 [main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Вологодская область г. Череповец, ул. К. Беляева, 32 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 986 from 8275. Case Вологодская область г. Череповец, ул. Архангельская, 100Б
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Вологодская область г. Вологда, ул. Беляева, 9 
@@ -1077,11 +1091,11 @@
 [main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
 [main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Вологодская область г. Вологда, ул. Гагарина, 81 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 1005 from 8275. Case Вологодская область г. Череповец, ул. К. Беляева, 16
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	FAILED Empty answer
 [main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Вологодская область г. Череповец, ул. К. Беляева, 16 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Вологодская область г. Вологда, ул. Щетинина, 2А 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 1007 from 8275. Case Вологодская область г. Череповец, ул. К. Беляева, 48
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	FAILED Empty answer
 [main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Вологодская область г. Череповец, ул. К. Беляева, 48 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Вологодская область г. Вологда, ул. Болонина, 25 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Вологодская область г. Вологда, Советский проспект, 24 
@@ -1379,6 +1393,8 @@
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Калининградская область г. Калининград, Московский проспект, 39 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Калининградская область г. Калининград, ул. Вагнера, 51 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 1299 from 8275. Case Калининградская область г. Калининград, ул. Марш Баграмяна, 34
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	FAILED Empty answer
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Калининградская область г. Калининград, ул. Марш Баграмяна, 34 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Калининградская область г. Калининград, ул. Университетская, 2 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Калининградская область г. Калининград, ул. Пролетарская, 66а 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Калининградская область г. Калининград, ул. Сергеева, 10 
@@ -1419,7 +1435,7 @@
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 1337 from 8275. Case Калининградская область г. Калининград, ул. Судостроительная, 2
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Калининградская область г. Калининград, ул. Школьная, 2 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 1339 from 8275. Case Калининградская область г. Калининград, ул. А. Суворова, 139
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	FAILED Empty answer
 [main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Калининградская область г. Калининград, ул. А. Суворова, 139 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Калининградская область г. Калининград, ул. Серж. Колоскова, 10 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 1341 from 8275. Case Калининградская область г. Калининград, ул. Радищева, 81
@@ -1531,7 +1547,7 @@
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 1445 from 8275. Case Калужская область г. Калуга, ул. Молодежная, 5
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Калужская область г. Калуга, ул. Маяковского, 55 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 1447 from 8275. Case Калужская область г. Калуга, ул. Турынинская, 10а
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	FAILED Empty answer
 [main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Калужская область г. Калуга, ул. Турынинская, 10а FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 1448 from 8275. Case Калужская область г. Калуга, ул. Дубрава, 3а
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 1449 from 8275. Case Калужская область г. Калуга, ул. Билибина, 31
@@ -1579,6 +1595,8 @@
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Калужская область г. Калуга, ул. Заречная, 72 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Калужская область г. Калуга, ул. Академическая, 6 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 1493 from 8275. Case Калужская область г. Обнинск, пр. Ленина, д. 91
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Калужская область г. Обнинск, пр. Ленина, д. 91 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 1494 from 8275. Case Калужская область г. Обнинск, ул. Гагарина, д. 53
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 1495 from 8275. Case Калужская область г. Обнинск, ул. Калужская, д. 11
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Калужская область г. Калуга, ул. Баженова, 2 
@@ -1673,7 +1691,7 @@
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Кировская область город Киров, Московская ул., 156 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Кировская область город Киров, Воровского ул.,  84 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 1587 from 8275. Case Кировская область город Киров, Воровского ул.,  133а
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	FAILED Empty answer
 [main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Кировская область город Киров, Воровского ул.,  133а FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 1588 from 8275. Case Кировская область город Киров, Воровского ул.,  121
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 1589 from 8275. Case Кировская область город Киров, им. маршала И.С. Конева ул., 13
@@ -1797,14 +1815,18 @@
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Костромская область Судиславский район, п. Судиславль, ул. Юрьева, 2А 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Костромская область Судиславский район, п. Березовая роща, 1 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 1703 from 8275. Case Костромская область Судиславский район, п. Раслово, пл. Октября, 1
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Костромская область Судиславский район, п. Раслово, пл. Октября, 1 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Костромская область Судиславский район, д. Завражье, ул. Центральная, 28 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 1705 from 8275. Case Костромская область Судиславский район, п. Первушино, ул. Центральная, 7
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Костромская область Судиславский район, д. Свозово, ул. Центральная, 17 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 1707 from 8275. Case Костромская область Судиславский район, д. Калинки, ул. Центральная, 43
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Костромская область Судиславский район, д. Калинки, ул. Центральная, 43 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Костромская область Судиславский район, п. Дружба, ул. Дорожная, 11 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Костромская область г. Кострома, ул. Юных Пионеров, 2 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 1710 from 8275. Case Костромская область г. Кострома, ул. Спасокукоцкого, 40
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	FAILED Empty answer
 [main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Костромская область г. Кострома, ул. Спасокукоцкого, 40 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Костромская область г. Кострома, микрорайон Якиманиха, 19 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Костромская область г. Кострома, пос. Новый, 9 
@@ -1842,6 +1864,8 @@
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Костромская область г. Кострома, микрорайон Давыдовский-2, 19 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 1743 from 8275. Case Костромская область г. Кострома, ул. Центральная, 50
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 1744 from 8275. Case Костромская область г. Кострома, микрорайон Черноречье, 2
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	FAILED Empty answer
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Костромская область г. Кострома, микрорайон Черноречье, 2 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Костромская область г. Кострома, Кинешемское шоссе, 25 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Костромская область г. Кострома, Кинешемское шоссе, 25/1 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Костромская область г. Кострома, Кинешемское шоссе, 23 
@@ -1879,13 +1903,15 @@
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Костромская область г. Кострома, ул. Свердлова, 120 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Костромская область г. Кострома, пр. Текстильщиков, 73 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 1779 from 8275. Case Костромская область г. Кострома, м-н Юбилейный, 10
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	FAILED Empty answer
 [main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Костромская область г. Кострома, м-н Юбилейный, 10 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Костромская область г. Кострома, микрорайон Юбилейный, 12 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 1781 from 8275. Case Костромская область г. Кострома, микрорайон Юбилейный, 24А
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	FAILED Empty answer
 [main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Костромская область г. Кострома, микрорайон Юбилейный, 24А FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 1782 from 8275. Case Костромская область г. Кострома, микрорайон Черноречье, 23
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	FAILED Empty answer
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Костромская область г. Кострома, микрорайон Черноречье, 23 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 1783 from 8275. Case Костромская область Судиславский район, п. Судиславль, ул. Шаховское шоссе, 3
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Костромская область г. Кострома, ул. Бульварная, 21 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Костромская область г. Кострома, ул. Ленина, 3 
@@ -1944,6 +1970,8 @@
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 1836 from 8275. Case Ленинградская область Гатчинский район, г. Гатчина, ул. Володарского, д. 17
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 1837 from 8275. Case Ленинградская область Гатчинский район, г. Гатчина, ул. Чкалова, д. 2
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 1838 from 8275. Case Ленинградская область Гатчинский район, г. Гатчина, ул. Ген. Кныша, д. 14А
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	FAILED Empty answer
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Ленинградская область Гатчинский район, г. Гатчина, ул. Ген. Кныша, д. 14А FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Ленинградская область Ломоносовский район, г.п. Большая Ижора, ул. Астанина, д. 2 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 1840 from 8275. Case Ленинградская область Ломоносовский район, г.п. Лебяжье, ул. Степаняна, д.16
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Ленинградская область Ломоносовский район, дер. Горбунки 
@@ -2028,7 +2056,7 @@
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Липецкая область г. Липецк, ул. Гагарина, д. 24 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 1919 from 8275. Case Липецкая область г. Липецк, ул. И. В. Шкатова, д. 25
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 1920 from 8275. Case Липецкая область г. Липецк, ул. Интернациональная, д. 53 а
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	FAILED Empty answer
 [main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Липецкая область г. Липецк, ул. Интернациональная, д. 53 а FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Липецкая область г. Липецк, ул. Плеханова, д. 51а 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Липецкая область г. Липецк, ул. Ленина, д. 28 
@@ -2106,6 +2134,8 @@
 [main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Московская область Мытищинский район, г. Мытищи, Силикатная улица, дом 1/9 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Московская область Мытищинский район, г. Мытищи, Силикатная улица, дом 12 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 1990 from 8275. Case Московская область Щёлковский район, г. Щёлковоо, ул. Комсомольская, д. 8а
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	FAILED Empty answer
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Московская область Щёлковский район, г. Щёлковоо, ул. Комсомольская, д. 8а FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Московская область г. Подольск, ул. Быковская, 9 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Московская область Можайский район, город Можайск, улица Московская, дом № 48 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Московская область Краcногорский район, д. Путилково 
@@ -2234,7 +2264,7 @@
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2112 from 8275. Case Московская область Жуковский, ул. Молодежная, д. 10
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2113 from 8275. Case Московская область Люберецкий район, пос. Томилино, ул. Гаршина д. 9-а корп. 5
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2114 from 8275. Case Московская область Люберецкий район, пос. Томилино, ул. Гаршика д. 9-а корп. 8
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	FAILED Empty answer
 [main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Московская область Люберецкий район, пос. Томилино, ул. Гаршика д. 9-а корп. 8 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Московская область г. Егорьевск, ул. Парижской Коммуны, д. 1Б 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Московская область г. Дзержинский,  ул.Томилинская, д. 23а 
@@ -2319,6 +2349,8 @@
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2189 from 8275. Case Московская область Мытищинский район, г. Мытищи, улица Академика Каргина, дом 38, корп. 4
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2190 from 8275. Case Московская область г. Клин, ул. К. Маркса, д. 18/20
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2191 from 8275. Case Московская область г. Дмитров, ул. Профессиональная, д. 92
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	FAILED Empty answer
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Московская область г. Дмитров, ул. Профессиональная, д. 92 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Московская область Люберецкий район, г. Люберцы, ул. Попова, д. 14/1 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2193 from 8275. Case Московская область г. Коломна, ул. Малышева, д. 19а
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2194 from 8275. Case Московская область Щёлковский район, г. Щелково, ул. Центральная, д. 23
@@ -2385,7 +2417,7 @@
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Московская область Серебряно-Прудский район, деревня Шеметово, д. 51 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Московская область Серебряно-Прудский район, село Петрово, д. 42 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2253 from 8275. Case Московская область г. Красноармейск, ул. Новая Жизнь, д. 1 А
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	FAILED Empty answer
 [main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Московская область г. Красноармейск, ул. Новая Жизнь, д. 1 А FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2254 from 8275. Case Московская область Люберецкий район, пос. Красково, ул. 2-ая Заводская, д. 28
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2255 from 8275. Case Московская область г. Ивантеевка, ул. Первомайская, дом 35
@@ -2444,6 +2476,8 @@
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2300 from 8275. Case Московская область г. Дубна, ул. Попова 9
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Московская область г. Рошаль, ул.Свердлова д.48 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2302 from 8275. Case Московская область г. Орехово-Зуево, Клязьминский проезд, д. 8
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	FAILED Empty answer
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Московская область г. Орехово-Зуево, Клязьминский проезд, д. 8 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Московская область Каширский район, г. Кашира, ул. Школьная, 1 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2304 from 8275. Case Московская область Жуковский, ул. Комсомольская, д.9
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2305 from 8275. Case Московская область г. Подольск, ул. Высотная, 17
@@ -2458,6 +2492,8 @@
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2314 from 8275. Case Московская область г. Химки, ул. Мельникова, д. 11
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2315 from 8275. Case Московская область г. Химки, Ленинский пр-т, д. 2
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2316 from 8275. Case Московская область Каширский район, г. Кашира, ул. Маршала Атакова, 1
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	FAILED Empty answer
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Московская область Каширский район, г. Кашира, ул. Маршала Атакова, 1 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Московская область Мытищинский район, г. Мытищи, Новомытищинский проспект, дом 38 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Московская область Дмитровский район, городское поселение Яхрома, ул. Кирьянова, д. 32 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2319 from 8275. Case Московская область г. Лобня, ул.Чехова д.3А
@@ -2543,6 +2579,8 @@
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Московская область Можайский район, город Можайск, улица Восточная, дом № 19 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2396 from 8275. Case Московская область Одинцовский район, город Одинцово, бульвар Любы Новоселовой, дом № 8
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2397 from 8275. Case Московская область Озёрский район, г. Озёры, Болотный пер., д.4
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	FAILED Empty answer
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Московская область Озёрский район, г. Озёры, Болотный пер., д.4 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2398 from 8275. Case Московская область г. Юбилейный, улица М.К.Тихонравова дом 19
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2399 from 8275. Case Московская область г. Реутов, ул. Южная, д. 8
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Московская область Солнечногорский район, г. Солнечногорск, улица Стеклозаводская 
@@ -2619,7 +2657,7 @@
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2463 from 8275. Case Московская область г. Коломна, ул. Южная, д. 7
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2464 from 8275. Case Московская область г. Коломна, ул. Дзержинского, д. 11
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2465 from 8275. Case Московская область г. Егорьевск, 2-й микрорайон, д. 45
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	FAILED Empty answer
 [main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Московская область г. Егорьевск, 2-й микрорайон, д. 45 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Московская область г. Дмитров, ул. Большевистская, д. 14 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2467 from 8275. Case Московская область г. Серпухов, ул. Космонавтов, дом № 17
@@ -2646,6 +2684,8 @@
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2486 from 8275. Case Московская область Одинцовский район, деревня Ликино, улица Новая, д. 9
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2487 from 8275. Case Московская область г. Дзержинский, проезд Пушкина, д. 2
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2488 from 8275. Case Московская область Серпуховской район, п. Большевик, ул. Ленина, д. 36
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Московская область Серпуховской район, п. Большевик, ул. Ленина, д. 36 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2489 from 8275. Case Московская область г. Химки, Юбилейный пр-т, д. 59
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Московская область г. Дмитров, ул. Комсомольская, д. 17а 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2491 from 8275. Case Московская область Люберецкий район, пос. Малаховка, ул. Шоссейная, д. 40
@@ -2693,6 +2733,8 @@
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Московская область г. Долгопрудный, Лихачевское шоссе, д. 27 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Московская область г. Лосино-Петровский, ул. Октябрьская, дом 12 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2529 from 8275. Case Московская область Озёрский район, г. Озёры, пл. Карла Маркса, д. 57
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	FAILED Empty answer
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Московская область Озёрский район, г. Озёры, пл. Карла Маркса, д. 57 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2530 from 8275. Case Московская область Красногорский район, г. Красногорск, ул. Пионерская, д. 11
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2531 from 8275. Case Московская область город Черноголовка, Институтский проспект, д. 8
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Московская область г. Подольск, ул. Лапшенкова, 5 
@@ -2721,7 +2763,7 @@
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2555 from 8275. Case Московская область г. Электросталь, ул. Сталеваров, дом 19. 2
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2556 from 8275. Case Московская область город Черноголовка, проезд Строителей, д. 3
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2557 from 8275. Case Московская область г. Подольск, ул. Батырева, 2/7
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	FAILED Empty answer
 [main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Московская область г. Подольск, ул. Батырева, 2/7 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2558 from 8275. Case Московская область Коломенский район, поселок Сергиевский, ул. Центральная, д. 24
 [main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
@@ -2761,7 +2803,7 @@
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2589 from 8275. Case Московская область г. Железнодорожный, ул. Октябрьская, дом № 7
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2590 from 8275. Case Московская область г. Балашиха, ул. Солнечная, 10
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2591 from 8275. Case Московская область г. Истра, ул. Советская, д. 10а
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	FAILED Empty answer
 [main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Московская область г. Истра, ул. Советская, д. 10а FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2592 from 8275. Case Московская область Жуковский, ул. Молодежная, д.36
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2593 from 8275. Case Московская область г. Подольск, ул. Высотная, 5
@@ -2819,6 +2861,8 @@
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2641 from 8275. Case Московская область г. Химки, Куркинское ш., д. 18
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Московская область Раменский район, г. Раменское, ул. 100-й Свирской дивизии, д. 11 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2643 from 8275. Case Московская область г. Котельники, микрорайон «Ковровый», д. 12
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	FAILED Empty answer
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Московская область г. Котельники, микрорайон «Ковровый», д. 12 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Московская область г. Котельники, микрорайон «Силикат», д.32 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2645 from 8275. Case Московская область Щёлковский район, г. Щелково, ул. Талсинская, д. 10
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2646 from 8275. Case Московская область Одинцовский район, поселок ВНИИССОК, улица Дружбы, дом № 11
@@ -2903,7 +2947,7 @@
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Московская область г. Железнодорожный, микрорайон Павлино, дом № 12, стр.1 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Московская область г. Железнодорожный, микрорайон Павлино, дом № 3, стр.1 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2725 from 8275. Case Московская область г. Железнодорожный, микрорайон Павлино, дом № 3, стр. 1
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	FAILED Empty answer
 [main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Московская область г. Железнодорожный, микрорайон Павлино, дом № 3, стр. 1 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2726 from 8275. Case Московская область г. Железнодорожный, ул. Юннатов, дом № 8
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Московская область г. Железнодорожный, ул. Озерная, дом № 10 
@@ -2913,7 +2957,7 @@
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2731 from 8275. Case Московская область Одинцовский район, город Одинцово, улица Молодежная, дом № 14
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Московская область Раменский район, г. Раменское, ул. Гурьева, Д. 1А 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2733 from 8275. Case Московская область Раменский район, г. Раменское, ул. Гурьева, д. 1А
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	FAILED Empty answer
 [main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Московская область Раменский район, г. Раменское, ул. Гурьева, д. 1А FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Московская область г. Балашиха, шоссе Энтузиастов, 56 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2735 from 8275. Case Московская область Мытищинский район, г. Мытищи, Индустриальная улица, дом 7 корп. 2
@@ -3030,7 +3074,7 @@
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Московская область Щёлковский район, п. Биокомбината 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Московская область Щёлковский район, п.Биокомбината 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2844 from 8275. Case Московская область г. Истра, ул. Адасько, д. 4а
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	FAILED Empty answer
 [main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Московская область г. Истра, ул. Адасько, д. 4а FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Московская область г. Фрязино, ул. Луговая, д. 31 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Московская область г. Лосино-Петровский, ул. Строителей, дом 2 
@@ -3059,6 +3103,8 @@
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Московская область г. Королев, мкр. Первомайский, ул. Советская, дом 5 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2868 from 8275. Case Московская область г. Долгопрудный, ул. Спортивная, д. 2
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2869 from 8275. Case Московская область г. Долгопрудный, мкр. Хлебниково, ул. Станционная, д. 16
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	FAILED Empty answer
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Московская область г. Долгопрудный, мкр. Хлебниково, ул. Станционная, д. 16 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2870 from 8275. Case Московская область г. Королев, ул. Пионерская, дом 8, корп.1
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Московская область г. Королев, ул. Терешковой, дом 1 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2872 from 8275. Case Московская область г. Королев, ул. Гагарина, дом 42
@@ -3089,13 +3135,19 @@
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Московская область Солнечногорский район, деревня Голубое 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2898 from 8275. Case Московская область город Черноголовка, пр. Строителей, д. 3
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2899 from 8275. Case Московская область Озёрский район, г. Озёры, пл. Карла Маркса, д.55
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	FAILED Empty answer
 [main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Московская область Озёрский район, г. Озёры, пл. Карла Маркса, д.55 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Московская область Озёрский район, г. Озёры, микрорайон -1 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Московская область Озёрский район, г. Озёры микрорайон имени маршала Катукова 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2902 from 8275. Case Московская область Озёрский район, г. Озёры, ул. Ленина, дом 102
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Московская область Озёрский район, г. Озёры, ул. Ленина, дом 102 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2903 from 8275. Case Московская область Озёрский район, г. Озёры, ул.2-я Высокополянская, дом 22
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	FAILED Empty answer
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Московская область Озёрский район, г. Озёры, ул.2-я Высокополянская, дом 22 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2904 from 8275. Case Московская область Озёрский район, г. Озёры, ул. Ленина, дом 63
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Московская область Озёрский район, г. Озёры, ул. Ленина, дом 63 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Московская область Озёрский район, г. Озёры, кв. Текстильщики,  д. 43 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Московская область Красногорский район, г. Красногорск, ул. Ильинское шоссе, д. 6 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2907 from 8275. Case Московская область Красногорский район, г. Красногорск, ул. Первомайская, д. 13
@@ -3110,9 +3162,11 @@
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Московская область г. Балашиха, микрорайон Янтарный, Акуловский проезд, 1 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Московская область Краcногорский район, п. Нахабино, ул. 11 Саперов, д. 6 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2918 from 8275. Case Московская область Красногорский район, г. Красногорск, дер. Гольево, ул. Центральная, д. 1
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	FAILED Empty answer
 [main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Московская область Красногорский район, г. Красногорск, дер. Гольево, ул. Центральная, д. 1 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2919 from 8275. Case Московская область Красногорский район, г. Красногорск, мкр. Павшинская пойма, ул. Игната Титова, д. 5
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	FAILED Empty answer
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Московская область Красногорский район, г. Красногорск, мкр. Павшинская пойма, ул. Игната Титова, д. 5 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2920 from 8275. Case Московская область Красногорский район, пос. Новый, д. 9
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Московская область Раменский район, деревня Тимонино 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Московская область Краcногорский район, г. Красногорск, мкр. Опалиха, ул. Ткацкой фабрики, д. 18 
@@ -3142,7 +3196,7 @@
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2946 from 8275. Case Московская область г. Коломна, пр.Кирова, д. 4,
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2947 from 8275. Case Московская область г. Коломна, ул. Менделеева, д. 18
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2948 from 8275. Case Московская область г. Коломна, ул. Добролюбова, д. 2а
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	FAILED Empty answer
 [main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Московская область г. Коломна, ул. Добролюбова, д. 2а FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2949 from 8275. Case Московская область г. Коломна, ул. Добролюбова, д. 4
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2950 from 8275. Case Московская область г. Коломна, ул. Зеленая, д. 3
@@ -3185,8 +3239,12 @@
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Московская область Щёлковский район, г. Щёлковоо, ул. Талсинская, д. 4а 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Московская область Щёлковский район, г. Щелково-3, ул. Супруна (2 этаж) 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2985 from 8275. Case Московская область Щёлковский район, г. Щёлковоо, ул. Пионерская, д. 19
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Московская область Щёлковский район, г. Щёлковоо, ул. Пионерская, д. 19 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Московская область Щёлковский район, д. Медное Власово 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2987 from 8275. Case Московская область Щёлковский район, г. Щёлковоо, ул. Советская, д. 3
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Московская область Щёлковский район, г. Щёлковоо, ул. Советская, д. 3 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Московская область г. Лыткарино, ул. Сафонова, д. 2-а 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Московская область поселок Власиха, мкрн. Школьный, д. 10 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Московская область Наро-Фоминский район, г. Наро-Фоминск, ул. Ленина, 20 
@@ -3198,6 +3256,8 @@
 [main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
 [main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Московская область г. Балашиха, микрорайон Заря, ул. Советская, 11 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2996 from 8275. Case Московская область г. Балашиха, ул. Беликова, 10
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	FAILED Empty answer
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Московская область г. Балашиха, ул. Беликова, 10 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2997 from 8275. Case Московская область г. Балашиха, ул. Белякова, 10
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 2998 from 8275. Case Московская область г. Балашиха, ул. Крупской, 16
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Московская область Ступинский район, г. Ступино, ул. Андропова, дом 61/11 
@@ -3388,10 +3448,12 @@
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Московская область Ногинский район, Ногинск-5 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 3179 from 8275. Case Московская область Одинцовский район, город Голицыно, проспект Керамиков, дом № 98
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 3180 from 8275. Case Московская область Одинцовский район, дачный поселок Лесной городок, улица Грибовская, дом № 6
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	FAILED Empty answer
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Московская область Одинцовский район, дачный поселок Лесной городок, улица Грибовская, дом № 6 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 3181 from 8275. Case Московская область Воскресенский район, г. Воскресенск, ул. Кагана, 21
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 3182 from 8275. Case Московская область г. Дедовск, ул. Гагарина. Д. 6
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 3183 from 8275. Case Московская область Воскресенский район, с. Федино, д.18-а
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	FAILED Empty answer
 [main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Московская область Воскресенский район, с. Федино, д.18-а FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Московская область Воскресенский район, г. Воскресенск, ул. Андреса, 16 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 3185 from 8275. Case Московская область Красногорский район, п. Нахабино, ул. Институтская, д. 1
@@ -3399,7 +3461,7 @@
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Московская область Воскресенский район, г. Воскресенск, ул. Быковского, 23 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 3188 from 8275. Case Московская область г. Дедовск, ул. Гагарина д. 6
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 3189 from 8275. Case Московская область г. Коломна, ул. 2-я Ленинская, д. 11 «А»
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	FAILED Empty answer
 [main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Московская область г. Коломна, ул. 2-я Ленинская, д. 11 «А» FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 3190 from 8275. Case Московская область Красногорский район, п. Нахабино, ул. Красноармейская, д. 56
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 3191 from 8275. Case Московская область Сергиево-Посадский район, г. Сергиев Посад, ул. Дружбы, д. 5 А
@@ -3850,10 +3912,14 @@
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 3618 from 8275. Case Нижегородская область г. Нижний Новгород, ул. Народная, 35
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 3619 from 8275. Case Нижегородская область г. Нижний Новгород, ул. Родионова, 201
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 3620 from 8275. Case Нижегородская область г. Нижний Новгород, ул. Верхне-Печерская, 4а
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	FAILED Empty answer
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Нижегородская область г. Нижний Новгород, ул. Верхне-Печерская, 4а FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 3621 from 8275. Case Нижегородская область г. Нижний Новгород, ул. Верхне-Печерская, 3а
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	FAILED Empty answer
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Нижегородская область г. Нижний Новгород, ул. Верхне-Печерская, 3а FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Нижегородская область г. Нижний Новгород, ул. Верхне-Печерская, 5а 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 3623 from 8275. Case Нижегородская область г. Нижний Новгород, ул. Верхне-Печерская, 10
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	FAILED Empty answer
 [main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Нижегородская область г. Нижний Новгород, ул. Верхне-Печерская, 10 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 3624 from 8275. Case Нижегородская область г. Нижний Новгород, ул. Фруктовая, 8
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Нижегородская область г. Нижний Новгород, ул. Родионова, 190 
@@ -4017,7 +4083,7 @@
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 3783 from 8275. Case Новгородская область Великий Новгород, ул. Кочетова, д. 29, корп. 3
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 3784 from 8275. Case Новгородская область Великий Новгород, ул. Кочетова, д. 35, корп. 4
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 3785 from 8275. Case Новгородская область Великий Новгород, ул. Ломоносова, д. 22а
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	FAILED Empty answer
 [main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Новгородская область Великий Новгород, ул. Ломоносова, д. 22а FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 3786 from 8275. Case Новгородская область Великий Новгород, Псковская ул., д. 44, корп. 2
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 3787 from 8275. Case Новгородская область Великий Новгород, Псковская ул., д. 50, корп. 2
@@ -4063,6 +4129,8 @@
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 3825 from 8275. Case Новгородская область Чудовский район, г. Чудово, Малый переулок, д. 9
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Новгородская область Чудовский район, г. Чудово, ул. Титова, д. 10 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 3827 from 8275. Case Новгородская область Великий Новгород, Большая Санкт-Петербургская ул., д. 46
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	FAILED Empty answer
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Новгородская область Великий Новгород, Большая Санкт-Петербургская ул., д. 46 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Новгородская область Старорусский район, г. Старая Русса, пл. Революции, д. 3 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 3829 from 8275. Case Новгородская область Старорусский район, г. Старая Русса, ул. Володарского, д. 10
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 3830 from 8275. Case Новгородская область Великий Новгород, Большая Московская ул., д. 70
@@ -4081,7 +4149,7 @@
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 3843 from 8275. Case Новгородская область Великий Новгород, ул. Свободы, д. 14, корп. 2
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Новгородская область Великий Новгород, ул. Ломоносова, д. 7а 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 3845 from 8275. Case Новгородская область Старорусский район, г. Старая Русса, ул. Карла Маркса, д. 24
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	FAILED Empty answer
 [main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Новгородская область Старорусский район, г. Старая Русса, ул. Карла Маркса, д. 24 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Новгородская область Старорусский район, г. Старая Русса, ул. Минеральная, д. 62 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Новгородская область Старорусский район, г. Старая Русса, пер. Комсомольский, д. 1/38 
@@ -4184,6 +4252,8 @@
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Оренбургская область г. Оренбург, ул. Чичерина, 1 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 3941 from 8275. Case Оренбургская область г. Оренбург, ул. Самолетная, 91
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 3942 from 8275. Case Оренбургская область г. Оренбург, пеp. Кваpтальный, 2
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	FAILED Empty answer
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Оренбургская область г. Оренбург, пеp. Кваpтальный, 2 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Оренбургская область г. Оренбург, ул. Харьковская, 14 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Оренбургская область г. Оренбург, ул. Орджоникидзе, 197 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 3945 from 8275. Case Оренбургская область г. Оренбург, ул. Луговая, 85
@@ -4205,7 +4275,7 @@
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Оренбургская область г. Оренбург, ул. Минская, 1 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Оренбургская область г. Оренбург, ул. Ноябрьская, 41 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 3961 from 8275. Case Оренбургская область г. Оренбург, ул. Оpджоникидзе, 226
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	FAILED Empty answer
 [main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Оренбургская область г. Оренбург, ул. Оpджоникидзе, 226 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Оренбургская область г. Сорочинск, 2 микрорайон, 36А 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 3963 from 8275. Case Оренбургская область г. Бузулук, ул. 1 Линия, 40
@@ -4234,6 +4304,8 @@
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Орловская область г. Орел, ул. Маяковского, д. 55 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Орловская область г. Орел, ул. Черкасская, д. 81 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 3986 from 8275. Case Орловская область г. Орел, Привокзальная площадь, д. 8
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Орловская область г. Орел, Привокзальная площадь, д. 8 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Орловская область г. Орел, ул. Гагарина, д. 35А 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Орловская область Новосильский район, г. Новосиль, ул. К. Маркса д. 86 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Орловская область г. Орел, ул. 5 Августа, д. 25 
@@ -4401,13 +4473,13 @@
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 4149 from 8275. Case Псковская область г. Великие Луки, улица Половская, дом 3
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 4150 from 8275. Case Псковская область г. Великие Луки, проспект Гагарина, дом 5
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 4151 from 8275. Case Псковская область г. Великие Луки, площадь Ленина, дом 3
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	FAILED Empty answer
 [main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Псковская область г. Великие Луки, площадь Ленина, дом 3 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 4152 from 8275. Case Псковская область г. Великие Луки, проспект Октябрьский, дом 28/13
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 4153 from 8275. Case Псковская область г. Великие Луки, улица Пионерская, дом 4
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 4154 from 8275. Case Псковская область г. Великие Луки, улица Комсомольца Зверева, дом 24/27
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 4155 from 8275. Case Псковская область г. Великие Луки, площадь Калинина, дом 6а
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	FAILED Empty answer
 [main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Псковская область г. Великие Луки, площадь Калинина, дом 6а FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 4156 from 8275. Case Псковская область г. Великие Луки, улица Первомайская, дом 16/2
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 4157 from 8275. Case Псковская область г. Великие Луки, проспект Октябрьский, дом 50
@@ -4696,7 +4768,7 @@
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 4432 from 8275. Case Свердловская область Екатеринбург, ул. Серафимы Дерябиной, 17а
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 4433 from 8275. Case Свердловская область Екатеринбург, ул. Посадская, 75
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 4434 from 8275. Case Свердловская область Екатеринбург, бульвар Верх-Исетский, 23
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	FAILED Empty answer
 [main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Свердловская область Екатеринбург, бульвар Верх-Исетский, 23 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 4435 from 8275. Case Свердловская область Екатеринбург, ул. Заводская, 36б
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Свердловская область Екатеринбург, ул. Металлургов, 46 
@@ -4737,7 +4809,7 @@
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 4471 from 8275. Case Свердловская область Екатеринбург, бульвар Сиреневый, 15в
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 4472 from 8275. Case Свердловская область Екатеринбург, ул. Рассветная, 9
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 4473 from 8275. Case Свердловская область Екатеринбург, ул. Владимира Высоцкого, 22
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	FAILED Empty answer
 [main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Свердловская область Екатеринбург, ул. Владимира Высоцкого, 22 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 4474 from 8275. Case Свердловская область Екатеринбург, ул. Вилонова, 33
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 4475 from 8275. Case Свердловская область Екатеринбург, ул. Карла Маркса, 5
@@ -4796,6 +4868,8 @@
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 4528 from 8275. Case Свердловская область Екатеринбург, ул. Первомайская, 59
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 4529 from 8275. Case Свердловская область Екатеринбург, ул. Данилы Зверева, 8
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 4530 from 8275. Case Свердловская область Екатеринбург, ул. Августа Бебеля, 122б
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	FAILED Empty answer
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Свердловская область Екатеринбург, ул. Августа Бебеля, 122б FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 4531 from 8275. Case Свердловская область город Екатеринбург, ул. Софьи Перовской, 111
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 4532 from 8275. Case Свердловская область Екатеринбург, ул. Бажова, 139
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 4533 from 8275. Case Свердловская область Екатеринбург, ул. Татищева, 78
@@ -4965,7 +5039,7 @@
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Смоленская область г. Рославль, ул. Пушкина, д. 4 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 4676 from 8275. Case Смоленская область г. Рославль, ул. Мичурина, д.175
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 4677 from 8275. Case Смоленская область г. Рославль, 1-й Братский пер. , д. 15-а
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	FAILED Empty answer
 [main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Смоленская область г. Рославль, 1-й Братский пер. , д. 15-а FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 4678 from 8275. Case Смоленская область г. Рославль, ул. Горького, д. 42-а
 [main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
@@ -5145,7 +5219,7 @@
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Тверская область Удомельский район, г. Удомля, пр. Курчатова, д. 12а 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Тверская область Зубцовский район, г. Зубцов, ул. Ржевская д. 44 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 4839 from 8275. Case Тверская область Лихославльский район, г. Лихославль, ул. Лихославльская, 30 «Б»
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	FAILED Empty answer
 [main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Тверская область Лихославльский район, г. Лихославль, ул. Лихославльская, 30 «Б» FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Тверская область Осташковский район, г. Осташков, ул. Октябрьская д. 13 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Тверская область Лихославльский район, г. Лихославль, ул. Гагарина д. 51 
@@ -5192,7 +5266,7 @@
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Тверская область Конаковский район, пос. Новозавидовский, ул. Моховая, 1 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 4883 from 8275. Case Тверская область Конаковский район, пос. Редкино, ул. Калинина, 4-А
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 4884 from 8275. Case Тверская область Конаковский район, пос. Редкино, ул. Диева, 33-А
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	FAILED Empty answer
 [main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Тверская область Конаковский район, пос. Редкино, ул. Диева, 33-А FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Тверская область Конаковский район, пос. Редкино, пр. Химиков 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Тверская область Краснохолмский район, г. Красный Холм, ул. Калинина, д. 37 
@@ -5279,7 +5353,7 @@
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 4963 from 8275. Case Тверская область г. Тверь, Молодежный бульвар, 10
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 4964 from 8275. Case Тверская область г. Тверь, переулок Никитина, 12
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 4965 from 8275. Case Тверская область г. Тверь, улица Благоева, 2-а
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	FAILED Empty answer
 [main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Тверская область г. Тверь, улица Благоева, 2-а FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 4966 from 8275. Case Тверская область г. Тверь, ул. Спартака, 39
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Тверская область г. Тверь, улица Дарвина, 3 
@@ -5577,7 +5651,7 @@
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 5253 from 8275. Case Ульяновская область г. Димитровград, пр.Димитрова, 5
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 5254 from 8275. Case Ульяновская область г. Димитровград, ул.Гончарова, 8
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 5255 from 8275. Case Ульяновская область г. Димитровград, ул.Славского, 11
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	FAILED Empty answer
 [main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Ульяновская область г. Димитровград, ул.Славского, 11 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 5256 from 8275. Case Ульяновская область г. Димитровград, ул.Курчатова, 8
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 5257 from 8275. Case Ульяновская область г. Димитровград, пр.Ленина, 17
@@ -5858,6 +5932,8 @@
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Челябинская область г. Челябинск, ул. Коммуны, д. 147 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Челябинская область г. Челябинск, Свердловский проспект, д. 84А 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 5526 from 8275. Case Челябинская область г. Челябинск, пос. Федоровка, ул. Капитанская, д. 10А
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	FAILED Empty answer
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Челябинская область г. Челябинск, пос. Федоровка, ул. Капитанская, д. 10А FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Челябинская область г. Челябинск, ул. Елькина, д. 10 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Челябинская область г. Челябинск, ул. Воровского, д. 36А 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Челябинская область г. Челябинск, пр. Ленина, д. 79 
@@ -6102,6 +6178,8 @@
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 5760 from 8275. Case Челябинская область г. Троицк, ул. Гагарина, д. 1
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 5761 from 8275. Case Челябинская область г. Троицк, ул. Гагарина, д. 20
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 5762 from 8275. Case Челябинская область г. Троицк, Жиркомбинат, д. 16
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	FAILED Empty answer
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Челябинская область г. Троицк, Жиркомбинат, д. 16 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 5763 from 8275. Case Челябинская область г. Троицк, ул. Ленина, д. 135
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 5764 from 8275. Case Челябинская область Троицкий район, с. Бобровка, ул. Культуры, д. 1
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 5765 from 8275. Case Челябинская область г. Троицк, ул. Гастелло, д. 60
@@ -6123,6 +6201,8 @@
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 5779 from 8275. Case Забайкальский край город Чита, ул. Красной Звезды, 7
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Забайкальский край город Чита, ул. Новобульварная, 60 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 5781 from 8275. Case Забайкальский край город Чита, ул. Геодезическая, 45
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	FAILED Empty answer
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Забайкальский край город Чита, ул. Геодезическая, 45 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 5782 from 8275. Case Забайкальский край город Чита, ул. Богомягкова, 121
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 5783 from 8275. Case Забайкальский край город Чита, ул. Новобульварная, 64
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 5784 from 8275. Case Забайкальский край город Чита, ул. Подгорбунского, 98
@@ -6286,7 +6366,7 @@
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 5936 from 8275. Case Ярославская область Тутаевский район, г. Тутаев, проспект 50-летия Победы, 32
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 5937 from 8275. Case Ярославская область Тутаевский район, г. Тутаев, проспект 50-летия Победы, д. 16а
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 5938 from 8275. Case Ярославская область Рыбинский район, пос. Юбилейный, д.5
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	FAILED Empty answer
 [main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Ярославская область Рыбинский район, пос. Юбилейный, д.5 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Ярославская область Тутаевский район, г. Тутаев, ул. Моторостроителей, д. 54 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Ярославская область Тутаевский район, г. Тутаев, ул. Панина, д. 9 
@@ -6340,14 +6420,14 @@
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Ярославская область г. Ярославль, Школьный проезд, д. 13 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Ярославская область г. Ярославль, Школьный проезд, д. 15 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 5990 from 8275. Case Ярославская область г. Ярославль, ул. Алмазная, д. 25
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	FAILED Empty answer
 [main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Ярославская область г. Ярославль, ул. Алмазная, д. 25 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Ярославская область г. Ярославль, ул. Папанина, д.10а 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Ярославская область г. Ярославль, ул. Папанина, д. 10а 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Ярославская область г. Ярославль, ул. Серго Орджоникидзе, д. 35а 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Ярославская область г. Ярославль, ул. Панфилова, д. 9а 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 5995 from 8275. Case Ярославская область г. Ярославль, ул. Лебедева, д. 3а
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	FAILED Empty answer
 [main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Ярославская область г. Ярославль, ул. Лебедева, д. 3а FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Ярославская область г. Ярославль, ул. Комарова, д. 1а 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Ярославская область г. Ярославль, ул. Колышкина, д. 46 
@@ -6436,7 +6516,7 @@
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 6076 from 8275. Case Ярославская область г. Рыбинск, пр. Генерала Батова, 58
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 6077 from 8275. Case Ярославская область г. Рыбинск, ул. Пушкина, 53
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 6078 from 8275. Case Ярославская область г. Ярославль, ул. Республиканская, д. 108/1
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	FAILED Empty answer
 [main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Ярославская область г. Ярославль, ул. Республиканская, д. 108/1 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Ярославская область г. Ярославль, Красноперевальский пер., д. 4 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Ярославская область Угличский район, г. Углич, Ярославское шоссе, д. 10а 
@@ -6544,6 +6624,8 @@
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Москва Неопалимовский 1-й, пер., дом 10а 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 6181 from 8275. Case Москва Фрунзенская 3-я ул., дом 5
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 6182 from 8275. Case Москва Вражский 1-й пep., дом 4
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	FAILED Empty answer
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Москва Вражский 1-й пep., дом 4 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 6183 from 8275. Case Москва Усачева ул., дом 50
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Москва Пречистенка ул., дом 22 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 6185 from 8275. Case Москва Плющиха ул., дом 39
@@ -6714,6 +6796,8 @@
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Москва улица Ярославская, дом 27 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Москва улица Ярославская, дом 17/21 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 6346 from 8275. Case Москва улица Космонавтов, дом 5
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Москва улица Космонавтов, дом 5 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 6347 from 8275. Case Москва улица Павла Корчагина, дом 13а
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 6348 from 8275. Case Москва улица Новоалексеевская, дом 6
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 6349 from 8275. Case Москва улица Староалексеевская, дом 1
@@ -6785,7 +6869,7 @@
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 6415 from 8275. Case Москва улица Новгородская, д. 8
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 6416 from 8275. Case Москва улица Новгородская, д. 12
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 6417 from 8275. Case Москва ул. 2-я Напрудная. д. 17А
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	FAILED Empty answer
 [main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Москва ул. 2-я Напрудная. д. 17А FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 6418 from 8275. Case Москва ул. Коминтерна, д. 52
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 6419 from 8275. Case Москва ул. Таймырская, д. 3
@@ -7493,7 +7577,7 @@
 [main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
 [main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Москва Криворожская улица, д. 27, корп. А FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7075 from 8275. Case Москва Нахимовский проспект, д. 4, корп, А
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	FAILED Empty answer
 [main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Москва Нахимовский проспект, д. 4, корп, А FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7076 from 8275. Case Москва Чонгарский бульвар, д. 12
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7077 from 8275. Case Москва Шипиловская ул., д. 18, корп. 2
@@ -7965,7 +8049,7 @@
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7515 from 8275. Case Москва Кастанаевская ул., 59
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7516 from 8275. Case Москва ул. Ландышевая, д. 8
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7517 from 8275. Case Москва Филёвский бульв., д.11а
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	FAILED Empty answer
 [main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Москва Филёвский бульв., д.11а FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Москва Барышиха улица, дом 32 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Москва Давыдковская ул., 2, к. 6 
@@ -8174,7 +8258,7 @@
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Москва п. Коммунарка, д. 14А 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Москва п. Внуково, д. 50 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7714 from 8275. Case Москва дер. Рассказовка, д. 202
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	FAILED Empty answer
 [main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Москва дер. Рассказовка, д. 202 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Москва дер. Десна, ул. Административная, д. 9а 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Москва п. Воскресенское 
@@ -8218,13 +8302,15 @@
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7750 from 8275. Case Москва Мичуринский пр-т, д. 56
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Москва г. Троицк, мкр. «В», д. 38 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7752 from 8275. Case Москва г. Троицк, мкр. «В», д. 26
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	FAILED Empty answer
 [main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Москва г. Троицк, мкр. «В», д. 26 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Москва г. Троицк, мкр. «В» д. 6А 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Москва г. Троицк, мкр. «В», д. 53 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7755 from 8275. Case Москва г. Троицк, Комсомольский переулок, д.3
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Москва с. Красная Пахра, ул. Заводская, д. 20 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7757 from 8275. Case Москва хутор Ильичевка, д. 5
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	FAILED Empty answer
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Москва хутор Ильичевка, д. 5 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Москва п. Шишкин Лес, стр. 28 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Москва п. Первомайское, ул. Центральная, д. 5, стр. А 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Москва г. Троицк (Троицк -1), ул. Лагерная, д. 13а 
@@ -8300,7 +8386,7 @@
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Москва проспект Маршала Жукова, д. 76, стр. 1 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Москва Предтеченский Большой пер, д. 15 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7828 from 8275. Case Москва ул. Щербаковская, д. 36
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	FAILED Empty answer
 [main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Москва ул. Щербаковская, д. 36 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Москва Соболевский пр., 17а 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7830 from 8275. Case Москва Черепановых пр., 44
@@ -8396,6 +8482,8 @@
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Москва ул. Молодогвардейская, д. 47 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7917 from 8275. Case Москва ул. Вавилова, дом 25-1
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7918 from 8275. Case Москва улица В. Петушкова, дома 23, корпус № 1
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	FAILED Empty answer
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Москва улица В. Петушкова, дома 23, корпус № 1 FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7919 from 8275. Case Москва ул. 1905 года, д. 8
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7920 from 8275. Case Москва 1-й Хорошевский проезд, дом 8
 [main] WARN me.osm.gazetteerweb.test.TestSearch - 	Location: FAILED
@@ -8443,6 +8531,8 @@
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7959 from 8275. Case Москва Федора Полетаева улица, д. 2, корп. 7
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7960 from 8275. Case Москва Зеленодольская улица, д. 32, корп. 6
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7961 from 8275. Case Москва Улица Молдагуловой, дом № 3 «Б»
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	FAILED Empty answer
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 	Case Москва Улица Молдагуловой, дом № 3 «Б» FAILED
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7962 from 8275. Case Москва ул. Госпитальный вал, д. 5, корп. 19
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7963 from 8275. Case Москва Зеленодольская улица. д. 33, корп. 3
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Run 7964 from 8275. Case Москва Зеленодольская улица, д. 33, корп. 2
@@ -8774,5 +8864,5 @@
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Ненецкий автономный округ г. Нарьян-Мар, проезд капитана Матросова, д. 1 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Чукотский автономный округ Городской округ Анадырь, г. Анадырь, ул. Ленина, 23 
 [main] INFO me.osm.gazetteerweb.test.TestSearch - Skip Чукотский автономный округ Городской округ Анадырь, г. Анадырь, ул. Отке, 25 
-[main] WARN me.osm.gazetteerweb.test.TestSearch - 249 from 8275 are failed
+[main] WARN me.osm.gazetteerweb.test.TestSearch - 294 from 8275 are failed
 [main] WARN me.osm.gazetteerweb.test.TestSearch - FAILED Search UIKs

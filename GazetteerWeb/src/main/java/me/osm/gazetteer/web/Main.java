@@ -12,6 +12,9 @@ import me.osm.gazetteer.web.utils.OSMDocSinglton;
 import org.restexpress.RestExpress;
 import org.restexpress.util.Environment;
 
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+
 public class Main {
 	
 	private static class ShutDownListener implements Runnable
@@ -26,6 +29,7 @@ public class Main {
 	
 	private static RestExpress server;
 	private volatile static Configuration config;
+	private static final Injector injector = Guice.createInjector(new AppInjector());
 	
 	public static void main(String[] args) throws Exception {
 		
@@ -71,7 +75,9 @@ public class Main {
 	public static Configuration config() {
 		return config;
 	}
-	
-	
+
+	public static Injector injector() {
+		return injector;
+	}
 	
 }

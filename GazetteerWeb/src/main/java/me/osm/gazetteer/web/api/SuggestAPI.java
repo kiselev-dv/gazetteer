@@ -8,8 +8,10 @@ import java.util.HashSet;
 import java.util.List;
 
 import me.osm.gazetteer.web.ESNodeHodel;
+import me.osm.gazetteer.web.Main;
 import me.osm.gazetteer.web.api.meta.Endpoint;
 import me.osm.gazetteer.web.api.query.Query;
+import me.osm.gazetteer.web.api.search.SearchBuilder;
 import me.osm.gazetteer.web.api.utils.BuildSearchQContext;
 import me.osm.gazetteer.web.api.utils.RequestUtils;
 import me.osm.gazetteer.web.imp.IndexHolder;
@@ -28,8 +30,18 @@ import org.restexpress.Request;
 import org.restexpress.Response;
 import org.restexpress.domain.metadata.UriMetadata;
 
+import com.google.inject.Inject;
+
 
 public class SuggestAPI extends SearchAPI {
+
+	@Inject
+	private SearchBuilder searchBuilder;
+	
+	public SuggestAPI() {
+		super();
+		Main.injector().injectMembers(this);
+	}
 	
 	@Override
 	public JSONObject read(Request request, Response response)
@@ -72,10 +84,10 @@ public class SuggestAPI extends SearchAPI {
 
 		if(head == null) {
 			searchQuerry.must(prefQ)
-			.mustNot(QueryBuilders.termQuery("weight", 0));
+				.mustNot(QueryBuilders.termQuery("weight", 0));
 		}
 		else {
-			super.mainSearchQ(head, searchQuerry, strict, context);
+			searchBuilder.mainSearchQ(head, searchQuerry, strict, context);
 			searchQuerry.must(prefQ);
 		}
 		
