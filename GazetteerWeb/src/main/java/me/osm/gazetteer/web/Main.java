@@ -2,6 +2,7 @@ package me.osm.gazetteer.web;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Date;
 
 import me.osm.gazetteer.web.postprocessor.AllowOriginPP;
 import me.osm.gazetteer.web.postprocessor.LastModifiedHeaderPostprocessor;

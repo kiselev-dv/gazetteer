@@ -2,8 +2,10 @@ package me.osm.gazetteer.web.api;
 
 import java.util.Locale;
 
+import me.osm.gazetteer.web.Main;
 import me.osm.gazetteer.web.api.meta.Endpoint;
 import me.osm.gazetteer.web.api.meta.Parameter;
+import me.osm.gazetteer.web.postprocessor.LastModifiedHeaderPostprocessor;
 import me.osm.gazetteer.web.utils.OSMDocSinglton;
 
 import org.apache.commons.lang3.StringUtils;
@@ -15,7 +17,6 @@ import org.restexpress.domain.metadata.UriMetadata;
 public class OSMDocAPI implements DocumentedApi {
 	
 	public JSONObject read(Request request, Response response) {
-		
 
 		String langCode = request.getHeader("lang");
 		Locale lang = null;
@@ -27,6 +28,7 @@ public class OSMDocAPI implements DocumentedApi {
 		
 		if(handler.equals("hierarchy")) {
 			String hierarchy = request.getHeader("id");
+			
 			return OSMDocSinglton.get().getFacade().getHierarchyJSON(StringUtils.stripToNull(hierarchy), lang);
 		}
 		else if(handler.equals("poi-class")) {

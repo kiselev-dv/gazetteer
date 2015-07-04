@@ -51,7 +51,6 @@ public class ImportOSMDoc implements DocumentedApi {
 		
 		if(StringUtils.isNotEmpty(source)) {
 			
-
 			FileUtils.handleLines(new File(source), new LineHandler() {
 				
 				@Override
@@ -94,10 +93,13 @@ public class ImportOSMDoc implements DocumentedApi {
 		}
 		else {
 			result.put("message", "Empty source");
-			result.put("result", "failed");
+			result.put("result", "skip");
 		}
 		
-		bulk.execute().actionGet();
+		if(bulk.numberOfActions() > 0) {
+			bulk.execute().actionGet();
+		}
+		
 		
 		return result;
 	}

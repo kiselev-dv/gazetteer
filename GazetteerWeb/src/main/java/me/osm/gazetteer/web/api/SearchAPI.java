@@ -25,6 +25,7 @@ import me.osm.gazetteer.web.imp.IndexHolder;
 import me.osm.gazetteer.web.utils.OSMDocSinglton;
 import me.osm.osmdoc.model.Feature;
 
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
@@ -234,7 +235,8 @@ public class SearchAPI implements DocumentedApi {
 			JSONObject answer = APIUtils.encodeSearchResult(
 					searchResponse,	fullGeometry, explain, detalization);
 			
-			answer.put("request", request.getHeader(Q_HEADER));
+			answer.put("request", StringEscapeUtils.escapeHtml4(request.getHeader(Q_HEADER)));
+			
 			if(poiType != null && !poiType.isEmpty()) {
 				answer.put("matched_type", new JSONArray(poiType));
 			}
