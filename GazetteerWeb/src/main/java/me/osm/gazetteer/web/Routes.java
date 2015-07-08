@@ -39,14 +39,14 @@ public class Routes {
 		server.uri(root + "/location/_search",
 				new SearchAPI())
 				.method(HttpMethod.GET)
-				.name(Constants.FEATURE_URI)
+				.name("feature")
 				.flag(Flags.Auth.PUBLIC_ROUTE)
 				.parameter(Parameters.Cache.MAX_AGE, 3600);
 
 		server.uri(root + "/location/_suggest",
 				new SuggestAPI())
 				.method(HttpMethod.GET)
-				.name(Constants.FEATURE_URI)
+				.name("feature")
 				.flag(Flags.Auth.PUBLIC_ROUTE)
 				.parameter(Parameters.Cache.MAX_AGE, 3600);
 
@@ -54,7 +54,7 @@ public class Routes {
 				new FeatureAPI())
 					.alias(root + "/location/{id}")
 					.method(HttpMethod.GET)
-					.name(Constants.FEATURE_URI)
+					.name("feature")
 					.flag(Flags.Auth.PUBLIC_ROUTE)
 					.parameter(Parameters.Cache.MAX_AGE, 3600);
 		
@@ -63,7 +63,7 @@ public class Routes {
 				.alias(root + "/location/latlon/{lat}/{lon}")
 				.alias(root + "/_inverse")
 				.method(HttpMethod.GET)
-				.name(Constants.FEATURE_URI)
+				.name("feature")
 				.flag(Flags.Auth.PUBLIC_ROUTE)
 				.parameter(Parameters.Cache.MAX_AGE, 3600);
 
