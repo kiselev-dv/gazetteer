@@ -35,6 +35,7 @@ public class HNStreetCityComparator implements AddrLevelsComparator {
 		order.put("place:quarter", i++);
 		order.put("place:neighbourhood", i++);
 		order.put("place:suburb", i++);
+		order.put("boundary:10", i++);
 		order.put("place:allotments", i++);
 		order.put("place:locality", i);
 		order.put("place:isolated_dwelling", i);
@@ -45,6 +46,7 @@ public class HNStreetCityComparator implements AddrLevelsComparator {
 		i++;
 
 		order.put("boundary:8", i++);
+		order.put("boundary:7", i++);
 		order.put("boundary:6", i++);
 		order.put("boundary:5", i++);
 		order.put("boundary:4", i++);

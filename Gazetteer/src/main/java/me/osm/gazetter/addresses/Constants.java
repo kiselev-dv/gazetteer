@@ -20,6 +20,8 @@ public class Constants {
 		defaultType2size.put("place:quarter", 30);
 		defaultType2size.put("place:neighbourhood", 40);
 		defaultType2size.put("place:suburb", 50);
+		defaultType2size.put("boundary:10", 51);
+		defaultType2size.put("boundary:9", 52);
 		
 		defaultType2size.put("postcode", POSTCODE_LVL_SIZE);
 		
@@ -32,6 +34,7 @@ public class Constants {
 		defaultType2size.put("place:city", 70);
 
 		defaultType2size.put("boundary:8", 80);
+		defaultType2size.put("boundary:7", 85);
 		defaultType2size.put("boundary:6", 90);
 		defaultType2size.put("boundary:5", 100);
 		defaultType2size.put("boundary:4", 110);
