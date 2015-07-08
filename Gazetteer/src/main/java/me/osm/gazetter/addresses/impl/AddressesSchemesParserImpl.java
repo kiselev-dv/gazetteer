@@ -121,6 +121,29 @@ public class AddressesSchemesParserImpl implements AddressesSchemesParser {
 			
 			result = searchHNn(result);
 		}
+		
+		// Conscription numbers 
+		else if(properties.has("addr:conscriptionnumber") || properties.has("addr:streetnumber")) {
+
+			String original = properties.optString("addr:housenumber");
+
+			if(StringUtils.isNotBlank(properties.optString("addr:streetnumber"))) {
+				JSONObject addr1 = JSONFeature.copy(properties);
+				addr1.put("addr:housenumber", properties.optString("addr:streetnumber"));
+				addr1.put("addr:hn-orig", original);
+				addr1.put(ADDR_SCHEME, "addr:streetnumber");
+				result.add(addr1);
+			}
+
+			if(StringUtils.isNotBlank(properties.optString("addr:conscriptionnumber"))) {
+				JSONObject addr2 = JSONFeature.copy(properties);
+				addr2.put("addr:housenumber", properties.optString("addr:conscriptionnumber"));
+				addr2.put("addr:hn-orig", original);
+				addr2.put(ADDR_SCHEME, "addr:conscriptionnumber");
+				result.add(addr2);
+			}
+			
+		}
 		else {
 			JSONObject addr1 = JSONFeature.copy(properties);
 			addr1.put(ADDR_SCHEME, "regular");
