@@ -41,7 +41,7 @@ public class QueryAnalyzerImpl implements QueryAnalyzer {
 	
 	public static final List<Replacer> searchReplacers = new ArrayList<>();
 	static {
-		ReplacersCompiler.compile(searchReplacers, new File("config/replacers/requiredSearchReplacers"));
+		ReplacersCompiler.compile(searchReplacers, new File("config/replacers/search/requiredSearchReplacers"));
 	}
 	
 	@SuppressWarnings("unchecked")

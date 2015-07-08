@@ -13,9 +13,11 @@ import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.zip.GZIPInputStream;
 
@@ -52,13 +54,13 @@ import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.operation.linemerge.LineMerger;
 
-public class Importer extends BackgroundExecutableTask {
+public class LocationsImporter extends BackgroundExecutableTask {
 	
 	private static final OSMDocFacade FACADE = OSMDocSinglton.get().getFacade();
 	
 	protected ObjectsWeightBuilder weighter;
 
-	Logger log = LoggerFactory.getLogger(Importer.class);
+	Logger log = LoggerFactory.getLogger(LocationsImporter.class);
 
 	private static final int BATCH_SIZE = 1000;
 
@@ -74,17 +76,20 @@ public class Importer extends BackgroundExecutableTask {
 
 	private ListenableActionFuture<BulkResponse> curentBulkRequest;
 	
-	private List<Replacer> replasers = new ArrayList<>(); 
+	private List<Replacer> hnReplacers = new ArrayList<>(); 
+	private List<Replacer> streetsReplacers = new ArrayList<>(); 
 	
 	private static final GeometryFactory factory = new GeometryFactory();
 	
 	private Transliterator transliterator = null;
 	
+	private Set<String> skip;
+	
 	private static class EmptyAddressException extends Exception {
 		private static final long serialVersionUID = 8178453133841622471L;
 	}
 
-	public Importer(String source, boolean buildingsGeometry) {
+	public LocationsImporter(String source, boolean buildingsGeometry) {
 		
 		String trClass = Main.config().getTransliteratorClass();
 		try {
@@ -100,7 +105,10 @@ public class Importer extends BackgroundExecutableTask {
 		this.filePath = source;
 		
 		weighter = new DefaultWeightBuilder();
-		ReplacersCompiler.compile(replasers, new File("config/replacers/hnIndexReplasers"));
+		ReplacersCompiler.compile(hnReplacers, new File("config/replacers/index/hnIndexReplasers"));
+		ReplacersCompiler.compile(streetsReplacers, new File("config/replacers/index/streetsReplacers"));
+		
+		this.skip = new HashSet<>(Main.config().getImportSkipTypes());
 	}
 
 	public static InputStream getFileIS(String osmFilePath) throws IOException,
@@ -301,7 +309,7 @@ public class Importer extends BackgroundExecutableTask {
 
 	private boolean doSkip(JSONObject obj) {
 		
-		if(obj.getString("type").equals(FeatureTypes.HIGHWAY_FEATURE_TYPE)) {
+		if(this.skip.contains(obj.getString("type"))) {
 			return true;
 		}
 		
@@ -336,8 +344,18 @@ public class Importer extends BackgroundExecutableTask {
 	}
 
 	private Collection<String> transformHousenumbers(String optString) {
+		return transform(optString, hnReplacers);
+	}
+
+	private Collection<String> transformStreets(String optString) {
+		Collection<String> s = transform(optString, streetsReplacers);
+		s.add(optString);
+		return s;
+	}
+	
+	private Collection<String> transform(String optString, Collection<Replacer> replacers) {
 		Set<String> result = new HashSet<>(); 
-		for(Replacer replacer : replasers) {
+		for(Replacer replacer : replacers) {
 			try {
 				Collection<String> replace = replacer.replace(optString);
 				if(replace != null) {
@@ -386,7 +404,24 @@ public class Importer extends BackgroundExecutableTask {
 		JSONObject addrobj = obj.optJSONObject("address");
 		
 		if(addrobj != null) {
-			String addrText = addrobj.optString("longText");
+			
+			String addrText = null;
+			
+			JSONArray jsonArray = addrobj.optJSONArray("parts");
+			if(jsonArray == null) {
+				addrobj.optString("longText");
+			}
+			else {
+				LinkedHashMap<String, JSONObject> addrLevels = new LinkedHashMap<>(10);
+				for(int i = 0; i < jsonArray.length(); i++ ) {
+					JSONObject addrPart = jsonArray.getJSONObject(i);
+					addrLevels.put(addrPart.getString("lvl"), addrPart);
+				}
+				
+				addrText = getAddrText(obj, addrobj, addrLevels);
+			}
+			
+			
 			if(StringUtils.isNotBlank(addrText)) {
 				sb.append(addrText);
 				
@@ -420,6 +455,33 @@ public class Importer extends BackgroundExecutableTask {
 		}
 		
 		return StringUtils.remove(sb.toString(), ',');
+	}
+
+	private String getAddrText(JSONObject obj, JSONObject addrobj,
+			LinkedHashMap<String, JSONObject> addrLevels) {
+		
+		StringBuilder sb = new StringBuilder();
+		
+		for(Entry<String, JSONObject> entry : addrLevels.entrySet()) {
+			JSONObject part = entry.getValue();
+			
+			String lvlText = getLvlText(part, entry.getValue());
+			if(StringUtils.isNotBlank(lvlText)) {
+				sb.append(" ").append(lvlText);
+			}
+		}
+		
+		return sb.toString();
+	}
+
+	private String getLvlText(JSONObject part, JSONObject value) {
+		String name = part.getString("name");
+		
+		if("street".equals(part.getString("lvl"))) {
+			return StringUtils.join(transformStreets(name), " ");
+		}
+		
+		return name;
 	}
 
 	private void concatTagValue(StringBuilder sb, JSONObject tags, String tag) {
@@ -506,7 +568,7 @@ public class Importer extends BackgroundExecutableTask {
 	}
 	
 	public List<Replacer> getReplacers() {
-		return replasers;
+		return hnReplacers;
 	}
 
 }

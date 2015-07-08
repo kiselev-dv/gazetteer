@@ -33,10 +33,13 @@ public class SearchBuilderImpl implements SearchBuilder {
 	 * */
 	protected List<Replacer> housenumberReplacers = new ArrayList<>();
 	
+	private Weights WEIGHTS;
+	
 	private static final Logger log = LoggerFactory.getLogger(SearchBuilderImpl.class);
 	
 	public SearchBuilderImpl() {
-		ReplacersCompiler.compile(housenumberReplacers, new File("config/replacers/hnSearchReplacers"));
+		ReplacersCompiler.compile(housenumberReplacers, new File("config/replacers/search/hnSearchReplacers"));
+		WEIGHTS = Weights.readFromFile();
 	}
 
 	/* (non-Javadoc)
@@ -61,7 +64,8 @@ public class SearchBuilderImpl implements SearchBuilder {
 		if(!housenumbers.isEmpty()) {
 			
 			BoolQueryBuilder numberQ = QueryBuilders.boolQuery();
-
+			
+			//TODO: Change weighting. Move requested form first (last after reverse).
 			List<String> reversed = new ArrayList<>(housenumbers);
 			Collections.sort(reversed, new Comparator<String>() {
 
@@ -75,45 +79,48 @@ public class SearchBuilderImpl implements SearchBuilder {
 			
 			int i = 1;
 			for(String variant : reversed) {
-				numberQ.should(QueryBuilders.termQuery("housenumber", variant).boost(i++ * 20)); 
+				numberQ.should(QueryBuilders.termQuery("housenumber", variant).boost(i++ * WEIGHTS.hnVariansStep)); 
 			}
-			numberQ.should(QueryBuilders.matchQuery("search", housenumbers).boost(10));
+			numberQ.should(QueryBuilders.matchQuery("search", housenumbers).boost(WEIGHTS.hnsInSearch));
 			
 			// if there is more then one number term, boost query over street names.
 			// for example in query "City, 8 march, 24" text part should be boosted. 
-			int streetNumberMultiplyer = numbers == 1 ? 10 : i++ * 30;
 			if(numbers > 1) {
+				int streetNumberMultiplyer = i++ * WEIGHTS.numbersInStreeMul;
 				numberQ.should(QueryBuilders.matchQuery("street_name", housenumbers).boost(streetNumberMultiplyer));
 			}
 			
-			resultQuery.must(numberQ.boost(10));
+			resultQuery.must(numberQ.boost(WEIGHTS.numberQBoost));
 		}
 		
 		for(QToken token : query.listToken()) {
 	
 			if(token.isOptional()) {
 				
-				MultiMatchQueryBuilder option = QueryBuilders.multiMatchQuery(token.toString(), "search", "nearest_neighbour.name");
+				MultiMatchQueryBuilder option = 
+						QueryBuilders.multiMatchQuery(token.toString(), "search", "nearest_neighbour.name");
 				
 				//Optional but may be important
 				if(token.toString().length() > 3) {
-					option.boost(5);
+					option.boost(WEIGHTS.optionalTermBoost);
 				}
 				
 				resultQuery.should(option);
 			}
 			else if(token.isNumbersOnly()) {
 				
-				// Если реплейсеры не распознали номер дома
+				// Если реплейсеры НЕ распознали номер дома
 				// If hnSearch replacers fails to find any housenumbers
 				if(housenumbers.isEmpty()) {
 					
 					// If there is only one number in query, it must be in matched data
 					if (numbers == 1) {
-						resultQuery.must(QueryBuilders.matchQuery("search", token.toString())).boost(10);
+						resultQuery.must(QueryBuilders.matchQuery("search", token.toString()))
+							.boost(WEIGHTS.numberInHnStrict);
 					}
 					else {
-						resultQuery.should(QueryBuilders.matchQuery("search", token.toString())).boost(10);
+						resultQuery.should(QueryBuilders.matchQuery("search", token.toString()))
+							.boost(WEIGHTS.numbersInHn);
 					}
 				}
 			}
@@ -127,7 +134,8 @@ public class SearchBuilderImpl implements SearchBuilder {
 					//for numbers in street names
 					numberQ.should(QueryBuilders.matchQuery("search", token.toString()));
 					
-					numberQ.should(QueryBuilders.termQuery("housenumber", token.toString()).boost(5));
+					numberQ.should(QueryBuilders.termQuery("housenumber", token.toString())
+							.boost(WEIGHTS.hasNumbersInHn));
 					
 					nums.add(token.toString());
 					
@@ -169,6 +177,7 @@ public class SearchBuilderImpl implements SearchBuilder {
 			requiredQ.minimumNumberShouldMatch(requiredCount);
 		}
 		else {
+			//TODO: Move to weights
 			if(requiredCount > 3) {
 				requiredQ.minimumNumberShouldMatch(requiredCount - 2);
 			}
@@ -179,7 +188,7 @@ public class SearchBuilderImpl implements SearchBuilder {
 		
 		resultQuery.must(requiredQ);
 		
-		log.trace("Request: {} Required tokens: {} Housenumbers variants: {}", 
+		log.debug("Request: {} Required tokens: {} Housenumbers variants: {}", 
 				new Object[]{query.print(), required, housenumbers});
 		
 		List<String> exactNameVariants = new ArrayList<String>();
@@ -197,17 +206,17 @@ public class SearchBuilderImpl implements SearchBuilder {
 		}
 		
 		// Boost for exact object name match
-		resultQuery.should(QueryBuilders.termsQuery("name.exact", exactNameVariants).boost(10));
+		resultQuery.should(QueryBuilders.termsQuery("name.exact", exactNameVariants).boost(WEIGHTS.exactName));
 		
 		// Boost for house number match
-		resultQuery.should(QueryBuilders.termsQuery("housenumber", nums).boost(250));
+		resultQuery.should(QueryBuilders.termsQuery("housenumber", nums).boost(WEIGHTS.numbersInHnOpt));
 		
 		resultQuery.disableCoord(true);
 		resultQuery.mustNot(QueryBuilders.termQuery("weight", 0));
 	}
 
 	/**
-	 * Fill data for non strict case
+	 * Fill data for <b>non strict</b> case
 	 * */
 	protected void addTermsNotStrict(List<QToken> required,
 			BoolQueryBuilder requiredQ) {
@@ -256,8 +265,12 @@ public class SearchBuilderImpl implements SearchBuilder {
 		
 	}
 
+	/**
+	 * Fill data for <b>strict</b> case
+	 * */
 	protected void addTermsStrict(List<QToken> required,
 			BoolQueryBuilder requiredQ) {
+		
 		for(QToken t : required) {
 			if(t.isFuzzied()) {
 				// In strict version one of the term variants must appears in search field
@@ -275,6 +288,7 @@ public class SearchBuilderImpl implements SearchBuilder {
 				requiredQ.should(QueryBuilders.matchQuery("search", t.toString()).boost(20));
 			}
 		}
+		
 	}
 
 	/**

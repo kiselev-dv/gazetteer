@@ -4,7 +4,7 @@ import me.osm.gazetteer.web.ESNodeHodel;
 import me.osm.gazetteer.web.api.meta.Endpoint;
 import me.osm.gazetteer.web.api.meta.Parameter;
 import me.osm.gazetteer.web.api.utils.RequestUtils;
-import me.osm.gazetteer.web.imp.Importer;
+import me.osm.gazetteer.web.imp.LocationsImporter;
 
 import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
@@ -62,7 +62,7 @@ public class ImportLocations implements DocumentedApi {
 		boolean imp = StringUtils.isNotEmpty(source);
 		if(imp) {
 			
-			Importer importer = new Importer(source, buildingsGeometry);
+			LocationsImporter importer = new LocationsImporter(source, buildingsGeometry);
 			
 			if(importer.submit()) {
 				result.put("state", "submited");
