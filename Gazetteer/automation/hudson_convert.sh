@@ -20,7 +20,7 @@ echo "`date` Split $CC"
 bzcat $BASE/dumps/$CC.osm.bz2 | java -jar $JAR split - none
 
 M="-Xmx"$mem"g"
-if [ "default" = "$mem" ]
+if [[ "default" = "$mem" ]] || [[ -z $mem ]]
 then
 M="-Xmx10g"
 fi
@@ -35,15 +35,21 @@ fi
 java $M -jar $JAR --log-prefix $CC slice $X --boundaries-fallback-file $BASE/boundaries/$CC.csv
 
 if [ $(grep "$boundary" $BASE/boundaries/$CC.csv | wc -l) -lt 1 ]; then
-    echo "Boundary $boundary hasn't builded. Abort Join"
-    cp -f $BASE/bak/$CC.json.gz $BASE/out/$CC.json.gz
-    exit 2
+
+    if [[ -f $BASE/boundaries/Countries.csv ]] && [[ $(grep "$boundary" $BASE/boundaries/Countries.csv | wc -l) -lt 1 ]]; then
+        echo "Boundary $boundary hasn't builded. Abort Join"
+        cp -f $BASE/bak/$CC.json.gz $BASE/out/$CC.json.gz1
+        exit 2
+    else
+        grep "$boundary" $BASE/boundaries/Countries.csv >> $BASE/boundaries/$CC.csv
+        echo "Boundary $boundary taken from $BASE/boundaries/Countries.csv"
+    fi
 fi
 
 echo "`date` Join $CC (Threads: $threads Boundary: $boundary) "
 
 T="--threads $threads"
-if [ "$threads" = "auto" ]
+if [[ "$threads" = "auto" ]] || [[ -z $threads ]]
 then
     T=""
 fi
@@ -53,7 +59,7 @@ if [ -z $boundary ]; then
     B=""
 fi
 
-java $M -jar $JAR --log-prefix $CC $T join --find-langs $B --handlers out-gazetteer $BASE/out/$CC.json.gz
+java $M -jar $JAR --log-prefix $CC $T join --find-langs $B --handlers out-gazetteer out=$BASE/out/$CC.json.gz poi_catalog=$BASE/osm-doc/catalog/
 
 
 if [ ! -f "$BASE/out/$CC.json.gz" ]
@@ -73,8 +79,6 @@ if [ $SIZE -lt 1024 ]; then
 fi
 
 rm $BASE/bak/$CC.json.gz
-
-grep "Yongest known timestamp" > $BASE/out/$CC.timestamp
 
 if [ "$cleardump" = true ]
 then
