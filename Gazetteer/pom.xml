@@ -11,7 +11,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
 		<jts.version>1.13</jts.version>
-		<osmdoc.version>0.10</osmdoc.version>
+		<osmdoc.version>0.11</osmdoc.version>
 		<groovy.version>2.2.2</groovy.version>
 
 	</properties>

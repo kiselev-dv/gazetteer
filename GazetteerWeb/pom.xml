@@ -56,7 +56,7 @@
 		<dependency>
 			<groupId>me.osm.osm-doc</groupId>
 			<artifactId>osm-doc-java</artifactId>
-			<version>0.10</version>
+			<version>0.11</version>
 		</dependency>
 		<dependency>
 			<groupId>org.elasticsearch</groupId>
@@ -130,7 +130,7 @@
 						<manifest>
 							<addClasspath>true</addClasspath>
 							<classpathPrefix>lib/</classpathPrefix>
-							<mainClass>me.osm.gazetteer.web.Main</mainClass>
+							<mainClass>me.osm.gazetteer.web.GazetteerWeb</mainClass>
 						</manifest>
 					</archive>
 					<finalName>${pom.artifactId}</finalName>

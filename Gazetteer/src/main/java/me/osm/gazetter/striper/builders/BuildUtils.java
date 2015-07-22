@@ -50,7 +50,14 @@ public class BuildUtils {
 				log.info("Trying to mend polygon for {}. Error is {}", rel.id, validationError.toString());
 
 				try {
-					MultiPolygon mended = dropOverlaps(outer, validOptions);
+					
+					// http://stackoverflow.com/questions/31473553/
+					// is-there-a-way-to-convert-a-self-intersecting-polygon-to-a-multipolygon-in-jts
+					
+					MultiPolygon mended = (MultiPolygon)SelfIntersectionsMender.mend(outer);
+					if(mended == null || !mended.isValid() || mended.isEmpty()) {
+						mended = dropOverlaps(outer, validOptions);
+					}
 
 					if(mended == null || !mended.isValid() || mended.isEmpty()) {
 						log.warn("Can't mend polygon for {}.", rel.id);
