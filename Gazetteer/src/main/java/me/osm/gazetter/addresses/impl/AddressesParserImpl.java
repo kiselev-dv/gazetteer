@@ -240,6 +240,7 @@ public class AddressesParserImpl implements AddressesParser {
 		return fullAddressRow;
 	}
 
+	@SuppressWarnings("unchecked")
 	protected Set<String> getLangs(List<JSONObject> filtered) {
 		if(!this.findLangs) {
 			return Collections.emptySet();

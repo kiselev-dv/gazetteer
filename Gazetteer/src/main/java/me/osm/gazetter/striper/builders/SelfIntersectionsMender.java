@@ -19,6 +19,7 @@ public class SelfIntersectionsMender {
 	 * @param geom
 	 * @return a geometry 
 	 */
+	@SuppressWarnings("unchecked")
 	public static Geometry mend(Geometry geom){
 	    if(geom instanceof Polygon){
 	        if(geom.isValid()){

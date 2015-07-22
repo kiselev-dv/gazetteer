@@ -196,7 +196,10 @@ public class PlaceBuilder extends BoundariesBuilder {
 		QuadEdgeSubdivision subdivision = cvb.getSubdivision();
 		
 		Map<JSONObject, Set<JSONObject>> nCities = new HashMap<JSONObject, Set<JSONObject>>();
-		for (Vertex[] vs : (List<Vertex[]>)subdivision.getTriangleVertices(false)) {
+		
+		@SuppressWarnings("unchecked")
+		List<Vertex[]> triangleVertices = (List<Vertex[]>)subdivision.getTriangleVertices(false);
+		for (Vertex[] vs : triangleVertices) {
 			putNeighbours(vs[0], vs[1], nCities);
 			putNeighbours(vs[0], vs[2], nCities);
 			putNeighbours(vs[1], vs[2], nCities);
