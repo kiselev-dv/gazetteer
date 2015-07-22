@@ -2,13 +2,13 @@ package me.osm.gazetteer.web;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.Date;
 
 import me.osm.gazetteer.web.postprocessor.AllowOriginPP;
 import me.osm.gazetteer.web.postprocessor.LastModifiedHeaderPostprocessor;
 import me.osm.gazetteer.web.postprocessor.MarkHeaderPostprocessor;
 import me.osm.gazetteer.web.serialization.SerializationProvider;
 import me.osm.gazetteer.web.utils.OSMDocSinglton;
+import me.osm.osmdoc.localization.L10n;
 
 import org.restexpress.RestExpress;
 import org.restexpress.util.Environment;
@@ -16,7 +16,7 @@ import org.restexpress.util.Environment;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 
-public class Main {
+public class GazetteerWeb {
 	
 	private static class ShutDownListener implements Runnable
 	{
@@ -36,6 +36,10 @@ public class Main {
 		
 		config = loadEnvironment(args);
 		ESNodeHodel.getClient();
+
+		if(!"jar".equals(config.getPoiCatalogPath())) {
+			L10n.setCatalogPath(config.getPoiCatalogPath());
+		}
 
 		OSMDocSinglton.initialize(config.getPoiCatalogPath());
 		

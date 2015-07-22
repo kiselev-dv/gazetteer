@@ -23,8 +23,6 @@ import org.restexpress.domain.metadata.UriMetadata;
 
 public class SnapshotsAPI implements DocumentedApi {
 	
-	private String featureURLBase = "/";
-
 	private Configuration config;
 	
 	private static final SnapshotRender render;
@@ -58,7 +56,6 @@ public class SnapshotsAPI implements DocumentedApi {
 	}
 	
 	public SnapshotsAPI(Configuration config) {
-		this.featureURLBase = config.getSiteXMLFeatureURL();
 		this.config = config;
 	}
 	

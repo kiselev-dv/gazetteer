@@ -12,7 +12,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import me.osm.gazetteer.web.Main;
+import me.osm.gazetteer.web.GazetteerWeb;
 import me.osm.gazetteer.web.imp.IndexHolder;
 import me.osm.gazetteer.web.imp.Replacer;
 import me.osm.gazetteer.web.utils.ReplacersCompiler;
@@ -26,8 +26,8 @@ public class QueryAnalyzerImpl implements QueryAnalyzer {
 	
 	private static final Logger log = LoggerFactory.getLogger(QueryAnalyzerImpl.class);
 
-	private static final String tokenSeparators = Main.config().getQueryAnalyzerSeparators();
-	private static final String removeChars = Main.config().getRemoveCharacters();
+	private static final String tokenSeparators = GazetteerWeb.config().getQueryAnalyzerSeparators();
+	private static final String removeChars = GazetteerWeb.config().getRemoveCharacters();
 	
 	private static final Pattern groupPattern = Pattern.compile("GROUP[0-9]+");
 	

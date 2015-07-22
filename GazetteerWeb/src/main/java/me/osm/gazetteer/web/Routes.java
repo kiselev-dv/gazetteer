@@ -22,7 +22,7 @@ public class Routes {
 	
 	public static void defineRoutes(RestExpress server) {
 		
-		Configuration config = Main.config();
+		Configuration config = GazetteerWeb.config();
 		String root = config.getWebRoot();
 
 		System.out.println("Define routes with web root: " + root);

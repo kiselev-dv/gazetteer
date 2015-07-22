@@ -8,7 +8,7 @@ import java.util.HashSet;
 import java.util.List;
 
 import me.osm.gazetteer.web.ESNodeHodel;
-import me.osm.gazetteer.web.Main;
+import me.osm.gazetteer.web.GazetteerWeb;
 import me.osm.gazetteer.web.api.meta.Endpoint;
 import me.osm.gazetteer.web.api.query.Query;
 import me.osm.gazetteer.web.api.search.SearchBuilder;
@@ -40,7 +40,7 @@ public class SuggestAPI extends SearchAPI {
 	
 	public SuggestAPI() {
 		super();
-		Main.injector().injectMembers(this);
+		GazetteerWeb.injector().injectMembers(this);
 	}
 	
 	@Override

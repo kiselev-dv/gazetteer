@@ -23,7 +23,7 @@ import java.util.zip.GZIPInputStream;
 
 import me.osm.gazetteer.web.ESNodeHodel;
 import me.osm.gazetteer.web.FeatureTypes;
-import me.osm.gazetteer.web.Main;
+import me.osm.gazetteer.web.GazetteerWeb;
 import me.osm.gazetteer.web.executions.AbortedException;
 import me.osm.gazetteer.web.executions.BackgroundExecutorFacade.BackgroundExecutableTask;
 import me.osm.gazetteer.web.utils.OSMDocSinglton;
@@ -91,7 +91,7 @@ public class LocationsImporter extends BackgroundExecutableTask {
 
 	public LocationsImporter(String source, boolean buildingsGeometry) {
 		
-		String trClass = Main.config().getTransliteratorClass();
+		String trClass = GazetteerWeb.config().getTransliteratorClass();
 		try {
 			this.transliterator = (Transliterator) Class.forName(trClass).newInstance();
 		}
@@ -108,7 +108,7 @@ public class LocationsImporter extends BackgroundExecutableTask {
 		ReplacersCompiler.compile(hnReplacers, new File("config/replacers/index/hnIndexReplasers"));
 		ReplacersCompiler.compile(streetsReplacers, new File("config/replacers/index/streetsReplacers"));
 		
-		this.skip = new HashSet<>(Main.config().getImportSkipTypes());
+		this.skip = new HashSet<>(GazetteerWeb.config().getImportSkipTypes());
 	}
 
 	public static InputStream getFileIS(String osmFilePath) throws IOException,
@@ -388,7 +388,7 @@ public class LocationsImporter extends BackgroundExecutableTask {
 		
 		StringBuilder sb = new StringBuilder();
 		
-		for(String term : StringUtils.split(text, Main.config().getQueryAnalyzerSeparators())) {
+		for(String term : StringUtils.split(text, GazetteerWeb.config().getQueryAnalyzerSeparators())) {
 			String translit = transliterator.transliterate(term);
 			if(!term.equals(translit)) {
 				sb.append(" ").append(translit);

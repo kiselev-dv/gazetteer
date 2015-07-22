@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Set;
 
 import me.osm.gazetteer.web.ESNodeHodel;
-import me.osm.gazetteer.web.Main;
+import me.osm.gazetteer.web.GazetteerWeb;
 import me.osm.gazetteer.web.api.meta.Endpoint;
 import me.osm.gazetteer.web.api.meta.Parameter;
 import me.osm.gazetteer.web.api.query.Query;
@@ -141,7 +141,7 @@ public class SearchAPI implements DocumentedApi {
 	private static final Logger log = LoggerFactory.getLogger(SearchAPI.class);
 
 	public SearchAPI() {
-		Main.injector().injectMembers(this);
+		GazetteerWeb.injector().injectMembers(this);
 	}
 	
 	@Inject
@@ -227,7 +227,7 @@ public class SearchAPI implements DocumentedApi {
 			SearchResponse searchResponse = searchRequest.execute().actionGet();
 			
 			if(searchResponse.getHits().getHits().length == 0) {
-				if(Main.config().isReRestrict() && !strictRequested && !resendedAfterFail) {
+				if(GazetteerWeb.config().isReRestrict() && !strictRequested && !resendedAfterFail) {
 					return read(request, response, true);
 				}
 			}

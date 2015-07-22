@@ -12,14 +12,14 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import me.osm.gazetteer.web.Main;
+import me.osm.gazetteer.web.GazetteerWeb;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class BackgroundExecutorFacade {
 	
-	public static final int FUTURE_TASKS_QUEUE_SIZE = Main.config().getExecutionQueueSize();
+	public static final int FUTURE_TASKS_QUEUE_SIZE = GazetteerWeb.config().getExecutionQueueSize();
 	private static final int EXECUTION_HISTORY_SIZE = 100;
 
 	public static abstract class BackgroundExecutableTask implements Runnable {

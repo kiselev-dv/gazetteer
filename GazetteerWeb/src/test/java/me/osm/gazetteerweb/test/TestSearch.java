@@ -9,7 +9,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import me.osm.gazetteer.web.Main;
+import me.osm.gazetteer.web.GazetteerWeb;
 
 import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.httpclient.NameValuePair;
@@ -30,7 +30,7 @@ public class TestSearch {
 		try {
 			
 			if(TestSearchUtils.available(8080)) {
-				Main.main(args);
+				GazetteerWeb.main(args);
 			}
 
 			TestSearch me = new TestSearch();
@@ -251,6 +251,7 @@ public class TestSearch {
 		return null;
 	}
 
+	@SuppressWarnings("unchecked")
 	private JSONObject getRequestResult(JSONObject jsonObject) {
 
 		HttpMethod method = new GetMethod(SEARCH_LOCATION);

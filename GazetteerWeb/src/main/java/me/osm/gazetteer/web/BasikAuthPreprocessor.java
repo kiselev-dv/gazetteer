@@ -36,6 +36,6 @@ public final class BasikAuthPreprocessor extends
 
 	private boolean checkPass(String header) {
 		return Hex.encodeHexString(DigestUtils.sha(header))
-				.equals(Main.config().getAdminPasswordHash());
+				.equals(GazetteerWeb.config().getAdminPasswordHash());
 	}
 }

@@ -6,7 +6,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
 
-import me.osm.gazetteer.web.api.search.Weights;
 import me.osm.gazetteer.web.imp.ApacheASCIIFoldTransliterator;
 
 import org.apache.commons.lang3.StringUtils;

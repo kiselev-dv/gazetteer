@@ -2,10 +2,8 @@ package me.osm.gazetteer.web.api;
 
 import java.util.Locale;
 
-import me.osm.gazetteer.web.Main;
 import me.osm.gazetteer.web.api.meta.Endpoint;
 import me.osm.gazetteer.web.api.meta.Parameter;
-import me.osm.gazetteer.web.postprocessor.LastModifiedHeaderPostprocessor;
 import me.osm.gazetteer.web.utils.OSMDocSinglton;
 
 import org.apache.commons.lang3.StringUtils;

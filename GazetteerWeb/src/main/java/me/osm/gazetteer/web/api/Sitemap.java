@@ -7,7 +7,7 @@ import java.util.regex.Pattern;
 
 import me.osm.gazetteer.web.Configuration;
 import me.osm.gazetteer.web.ESNodeHodel;
-import me.osm.gazetteer.web.Main;
+import me.osm.gazetteer.web.GazetteerWeb;
 import me.osm.gazetteer.web.api.meta.Endpoint;
 import me.osm.gazetteer.web.api.renders.SitemapRender;
 import me.osm.gazetteer.web.api.renders.XMLSitemapRender;
@@ -30,10 +30,10 @@ import org.restexpress.domain.metadata.UriMetadata;
 
 public class Sitemap implements DocumentedApi {
 	
-	private static final int pageSize = Main.config().getSiteMapMapgeSize();
+	private static final int pageSize = GazetteerWeb.config().getSiteMapMapgeSize();
 	
 	private static final Pattern p = Pattern.compile(".*sitemap([0-9]+)\\.xml(\\.gz)?");
-	private static final Configuration config = Main.config();
+	private static final Configuration config = GazetteerWeb.config();
 	
 	public void read(Request req, Response res)	{
 		

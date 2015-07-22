@@ -6,8 +6,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import me.osm.gazetteer.web.api.AnswerDetalization;
-
 import org.apache.commons.lang3.StringUtils;
 import org.restexpress.Request;
 
