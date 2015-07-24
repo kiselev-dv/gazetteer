@@ -12,6 +12,7 @@ import me.osm.osmdoc.localization.L10n;
 
 import org.restexpress.RestExpress;
 import org.restexpress.util.Environment;
+import org.slf4j.LoggerFactory;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -46,6 +47,7 @@ public class GazetteerWeb {
 		RestExpress.setSerializationProvider(new SerializationProvider());
 		
 		server = new RestExpress()
+				.setUseSystemOut(false)
 				.setName(config.getName())
 				.addPostprocessor(new LastModifiedHeaderPostprocessor())
 				.addPostprocessor(new AllowOriginPP())
@@ -56,11 +58,13 @@ public class GazetteerWeb {
 		
 		server.addMessageObserver(new HttpLogger());
 		
-		
 		server.bind(config.getPort());
 		Runtime runtime = Runtime.getRuntime();
 		Thread thread = new Thread(new ShutDownListener());
         runtime.addShutdownHook(thread);
+        
+        LoggerFactory.getLogger(GazetteerWeb.class)
+        	.info("{} server listening on port {}", config.getName(), config.getPort());
 	}
 
 	private static Configuration loadEnvironment(String[] args)

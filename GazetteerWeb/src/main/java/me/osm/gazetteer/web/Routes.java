@@ -17,6 +17,7 @@ import org.jboss.netty.handler.codec.http.HttpMethod;
 import org.restexpress.Flags;
 import org.restexpress.Parameters;
 import org.restexpress.RestExpress;
+import org.slf4j.LoggerFactory;
 
 public class Routes {
 	
@@ -25,7 +26,7 @@ public class Routes {
 		Configuration config = GazetteerWeb.config();
 		String root = config.getWebRoot();
 
-		System.out.println("Define routes with web root: " + root);
+		LoggerFactory.getLogger(Routes.class).info("Define routes with web root: {}", root);
 		
 		server.uri(root + "/info.{format}",
 				new MetaInfoAPI(server))
