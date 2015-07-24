@@ -29,6 +29,7 @@ public class Routes {
 		
 		server.uri(root + "/info.{format}",
 				new MetaInfoAPI(server))
+				.flag(Flags.Auth.PUBLIC_ROUTE)
 				.method(HttpMethod.GET);
 		
 		server.uri(root + "/location/_import",
