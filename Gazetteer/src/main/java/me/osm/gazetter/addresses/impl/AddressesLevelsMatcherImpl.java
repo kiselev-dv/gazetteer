@@ -10,12 +10,12 @@ import me.osm.gazetter.addresses.AddrLevelsComparator;
 import me.osm.gazetter.addresses.AddressesLevelsMatcher;
 import me.osm.gazetter.addresses.AddressesUtils;
 import me.osm.gazetter.addresses.NamesMatcher;
+import me.osm.gazetter.log.LogWrapper;
+import me.osm.gazetter.log.errors.NoName4AssociatedStreet;
 
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Default implementation for
@@ -23,7 +23,7 @@ import org.slf4j.LoggerFactory;
  * */
 public class AddressesLevelsMatcherImpl implements AddressesLevelsMatcher {
 	
-	private static final Logger log = LoggerFactory.getLogger(AddressesLevelsMatcherImpl.class);
+	private static final LogWrapper log = new LogWrapper(AddressesLevelsMatcherImpl.class);
 	
 	public AddressesLevelsMatcherImpl(AddrLevelsComparator lelvelsComparator, 
 			NamesMatcher namesMatcher, List<String> placeBoundaries) {
@@ -98,8 +98,7 @@ public class AddressesLevelsMatcherImpl implements AddressesLevelsMatcher {
 							return streetAddrPart;
 						}
 						else {
-							log.warn("Can't find name for associated street.\nStreet:\n{}\nRelation\n{}", 
-									ls.toString(), associatedStreet.toString());
+							log.warn(new NoName4AssociatedStreet(ls, associatedStreet));
 						}
 					}
 				}

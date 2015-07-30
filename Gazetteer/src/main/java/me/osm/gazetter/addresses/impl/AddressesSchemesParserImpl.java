@@ -10,16 +10,12 @@ import me.osm.gazetter.striper.JSONFeature;
 
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Default implementation for
  * {@link AddressesSchemesParser}
  * */
 public class AddressesSchemesParserImpl implements AddressesSchemesParser {
-	
-	private static final Logger log = LoggerFactory.getLogger(AddressesSchemesParserImpl.class);
 	
 	@SuppressWarnings("unchecked")
 	@Override
@@ -47,7 +43,6 @@ public class AddressesSchemesParserImpl implements AddressesSchemesParser {
 				}
 				else if(addr2.has("addr:street")) {
 					addr2.remove("addr:street");
-					log.warn("Ambvalent addresses {}", properties);
 				}
 				
 				result.add(addr2);

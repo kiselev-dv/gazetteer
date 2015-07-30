@@ -18,19 +18,20 @@ import me.osm.gazetter.Options;
 import me.osm.gazetter.join.out_handlers.JoinOutHandler;
 import me.osm.gazetter.join.util.JoinFailuresHandler;
 import me.osm.gazetter.join.util.MemorySupervizor;
+import me.osm.gazetter.log.LogWrapper;
+import me.osm.gazetter.log.messages.FailedToJoinMessage;
+import me.osm.gazetter.log.messages.RerunJoinMessage;
+import me.osm.gazetter.log.messages.TimeMeasureMessage;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.time.DurationFormatUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class JoinExecutor implements JoinFailuresHandler{
 	
 	private AddrJointHandler addrPointFormatter = new AddrPointFormatter();
 	
-	private static final Logger log = LoggerFactory.getLogger(JoinExecutor.class.getName());
+	private static final LogWrapper log = new LogWrapper(JoinExecutor.class);
 	
 	private AtomicInteger stripesCounter;
 	
@@ -63,10 +64,8 @@ public class JoinExecutor implements JoinFailuresHandler{
 
 			joinStripes(stripesFolder, common);
 
-			log.info(
-					"Join stripes done in {}",
-					DurationFormatUtils.formatDurationHMS(new Date().getTime()
-							- start));
+			log.info(new TimeMeasureMessage("Join stripes done in {}", 
+					new Date().getTime() - start));
 			
 			start = new Date().getTime();
 			jbe.run(stripesFolder, common, filter);
@@ -75,20 +74,16 @@ public class JoinExecutor implements JoinFailuresHandler{
 			throw new RuntimeException(e);
 		}
 
-		log.info(
-				"Join boundaries done in {}",
-				DurationFormatUtils.formatDurationHMS(new Date().getTime()
-						- start));
+		log.info(new TimeMeasureMessage("Join boundaries done in {}",
+				new Date().getTime() - start));
 		
 		start = new Date().getTime();
 		for(JoinOutHandler h : Options.get().getJoinOutHandlers()) {
 			h.allDone();
 		}
 		
-		log.info(
-				"All handlers done in {}",
-				DurationFormatUtils.formatDurationHMS(new Date().getTime()
-						- start));
+		log.info(new TimeMeasureMessage("All handlers done in {}",
+				new Date().getTime() - start));
 	}
 
 	private final List<File> fails = Collections.synchronizedList(new ArrayList<File>());;
@@ -120,7 +115,7 @@ public class JoinExecutor implements JoinFailuresHandler{
 		}
 		
 		if(!fails.isEmpty()) {
-			log.info("Rerun join for {} from {} files. In one thread.", fails.size(), stripesFiles.length);
+			log.info(new RerunJoinMessage(fails));
 		}
 		
 		ArrayList<File> oneThread = new ArrayList<File>(fails);
@@ -130,7 +125,7 @@ public class JoinExecutor implements JoinFailuresHandler{
 		}
 		
 		if(!fails.isEmpty()) {
-			log.error("Failed to join: {}", fails);
+			log.error(new FailedToJoinMessage(fails));
 		}
 	}
 
@@ -140,7 +135,6 @@ public class JoinExecutor implements JoinFailuresHandler{
 		
 		long avaibleRAMMeg = MemorySupervizor.getAvaibleRAMMeg();
 		if(queue.size() < threads && avaibleRAMMeg > 500) {
-			log.trace("Send {} to execution queue. Free mem: {}meg", stripeF, avaibleRAMMeg);
 			executorService.execute(new JoinSliceRunable(addrPointFormatter, stripeF, common, filter, this, this));
 		}
 		else {

@@ -43,6 +43,8 @@ import java.util.Set;
 
 import me.osm.gazetter.addresses.AddressesUtils;
 import me.osm.gazetter.join.util.ExportTagsStatisticCollector;
+import me.osm.gazetter.log.LogWrapper;
+import me.osm.gazetter.log.messages.InfoMessage;
 import me.osm.gazetter.out.AddrRowValueExctractorImpl;
 import me.osm.gazetter.striper.FeatureTypes;
 import me.osm.gazetter.striper.GeoJsonWriter;
@@ -65,7 +67,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.slf4j.LoggerFactory;
 
 import com.google.code.externalsorting.ExternalSort;
 import com.vividsolutions.jts.geom.Coordinate;
@@ -84,6 +85,8 @@ public class GazetteerOutWriter extends AddressPerRowJOHBase  {
 			"full_geometry",
 			"usage", "tag-stat",
 			"hsort", "isort");
+	
+	private static final LogWrapper log = new LogWrapper(GazetteerOutWriter.class);
 
 	private TagsStatisticCollector tagStatistics;
 
@@ -941,8 +944,8 @@ public class GazetteerOutWriter extends AddressPerRowJOHBase  {
 			List<File> batch = ExternalSort.sortInBatch(fbr, file.length(), cmp, 
 					ExternalSort.DEFAULTMAXTEMPFILES, ExternalSort.estimateAvailableMemory(), 
 					Charset.forName("utf-8"), null, true, 0, true, ReduceHighwayNetworks.INSTANCE);
-
-			LoggerFactory.getLogger(getClass()).trace("Done ExternalSort.sortInBatch");
+			
+			log.trace(new InfoMessage("Done ExternalSort.sortInBatch"));
 			
 			initializeWriter(outFile);
 			
@@ -950,7 +953,7 @@ public class GazetteerOutWriter extends AddressPerRowJOHBase  {
 					cmp, Charset.forName("utf-8"), true, true, 
 					ReduceHighwayNetworks.INSTANCE);
 			
-			LoggerFactory.getLogger(getClass()).trace("Done ExternalSort.mergeSortedFiles");
+			log.trace(new InfoMessage("Done ExternalSort.mergeSortedFiles"));
 			
 		}
 		catch (Exception e) {

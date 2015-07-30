@@ -22,16 +22,16 @@ import me.osm.gazetter.Options;
 import me.osm.gazetter.addresses.AddressesParser;
 import me.osm.gazetter.join.out_handlers.JoinOutHandler;
 import me.osm.gazetter.join.util.BoundaryCortage;
+import me.osm.gazetter.log.LogWrapper;
+import me.osm.gazetter.log.messages.InfoMessage;
+import me.osm.gazetter.log.messages.TimeMeasureMessage;
 import me.osm.gazetter.striper.GeoJsonWriter;
 import me.osm.gazetter.striper.JSONFeature;
 import me.osm.gazetter.utils.FileUtils;
 import me.osm.gazetter.utils.FileUtils.LineHandler;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.time.DurationFormatUtils;
 import org.json.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.google.code.externalsorting.ExternalSort;
 import com.vividsolutions.jts.geom.Envelope;
@@ -39,7 +39,7 @@ import com.vividsolutions.jts.index.quadtree.Quadtree;
 
 public class JoinBoundariesExecutor {
 	
-	private static final Logger log = LoggerFactory.getLogger(JoinBoundariesExecutor.class);
+	private static final LogWrapper log = new LogWrapper(JoinBoundariesExecutor.class);
 	
 	private File binxFile;
 	
@@ -87,7 +87,7 @@ public class JoinBoundariesExecutor {
 				bndrs = null;
 			}
 			else {
-				log.trace("Skip boundaries index sorting");
+				log.trace(new InfoMessage("Skip boundaries index sorting"));
 			}
 
 
@@ -95,17 +95,15 @@ public class JoinBoundariesExecutor {
 				joinBoundaries(stripesFolder, common, filter);
 			}
 			else {
-				log.trace("Skip boundaries index join");
+				log.trace(new InfoMessage("Skip boundaries index join"));
 			}
 			
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
 
-		log.info(
-				"Join boundaries done in {}",
-				DurationFormatUtils.formatDurationHMS(new Date().getTime()
-						- start));
+		log.info(new TimeMeasureMessage("Join boundaries done in {}", 
+				new Date().getTime() - start));
 	}
 	
 	private void joinBoundaries(String stripesFolder, List<JSONObject> common, 

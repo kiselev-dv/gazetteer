@@ -11,6 +11,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import me.osm.gazetter.log.LogWrapper;
+import me.osm.gazetter.log.errors.addrinterpolation.DifferentStreets;
+import me.osm.gazetter.log.errors.addrinterpolation.NoAddresOnPoint;
+import me.osm.gazetter.log.errors.addrinterpolation.UnsupportedInterpolation;
+import me.osm.gazetter.log.errors.geometry.FailedToBuildForRelation;
+import me.osm.gazetter.log.errors.geometry.NoPointsForWay;
+import me.osm.gazetter.log.errors.geometry.SomePointsWasntFound;
+import me.osm.gazetter.log.errors.geometry.WrongNumberOfPoints;
+import me.osm.gazetter.log.messages.DoneReadWays;
 import me.osm.gazetter.striper.GeoJsonWriter;
 import me.osm.gazetter.striper.builders.handlers.AddrPointHandler;
 import me.osm.gazetter.striper.readers.PointsReader.Node;
@@ -26,8 +35,6 @@ import me.osm.gazetter.utils.binary.ByteBufferList;
 
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
@@ -39,7 +46,7 @@ import com.vividsolutions.jts.geom.Polygon;
 
 public class AddrPointsBuilder extends ABuilder {
 	
-	private static final Logger log = LoggerFactory.getLogger(AddrPointsBuilder.class.getName());
+	private static final LogWrapper log = new LogWrapper(AddrPointsBuilder.class);
 	
 	private static final String ADDR_STREET = "addr:street";
 
@@ -122,8 +129,8 @@ public class AddrPointsBuilder extends ABuilder {
 					coords.add(new Coordinate(lon, lat));
 				}
 
-				if(coords.isEmpty()) {
-					log.error("Failed to build geometry for relation {}. No points found.", rel.id);
+				if(coords.isEmpty() || coords.size() < 2) {
+					log.warn(new FailedToBuildForRelation(rel.id));
 					return;
 				}
 				
@@ -255,7 +262,7 @@ public class AddrPointsBuilder extends ABuilder {
 						}
 						
 						if (hn <= 0 && line.nodes.get(0).equals(pid)) {
-							log.warn("Broken interpolation at point {}. First point has no recognizeable addr:housenumber", pid);
+							log.warn(new NoAddresOnPoint(pid));
 						}
 						
 						prevPID = pid;
@@ -264,12 +271,12 @@ public class AddrPointsBuilder extends ABuilder {
 				}
 				
 				if(coords.size() > 1) {
-					log.warn("Broken interpolation at point {}. Last point has no recognizeable addr:housenumber", prevPID);
+					log.warn(new NoAddresOnPoint(prevPID));
 				}
 			}
 		}
 		else {
-			log.warn("Unsupported interpolation type: {}", interpolation);
+			log.warn(new UnsupportedInterpolation(interpolation, line.id));
 		}
 		
 	}
@@ -394,16 +401,16 @@ public class AddrPointsBuilder extends ABuilder {
 				}
 				
 				if(coords.isEmpty()) {
-					log.error("Failed to build geometry for way {}. No points found.", line.id);
+					log.warn(new NoPointsForWay(line.id));
 					return;
 				}
 				
 				if(coords.size() != line.nodes.size()) {
-					log.warn("Failed to build geometry for way {}. Some points wasn't found.", line.id);
+					log.warn(new SomePointsWasntFound(line.id));
 					centroid = factory.createPoint(coords.get(0));
 				}
 				else if(coords.size() < 4) {
-					log.warn("Wrong number of points for {}", line.id);
+					log.warn(new WrongNumberOfPoints(line.id));
 					centroid = factory.createPoint(coords.get(0));
 				}
 				else {
@@ -473,8 +480,9 @@ public class AddrPointsBuilder extends ABuilder {
 	public void firstRunDoneWays() {
 		node2way.sort(Builder.FIRST_LONG_FIELD_COMPARATOR);
 		nodeInterpolation.sort(Builder.FIRST_LONG_FIELD_COMPARATOR);
-		log.info("Done read ways. {} nodes added to index.", node2way.size());
 		this.indexFilled = true;
+
+		log.info(new DoneReadWays(node2way.size()));
 	}
 
 	@Override
@@ -522,9 +530,8 @@ public class AddrPointsBuilder extends ABuilder {
 						interpolation2Street.put(intWayId, street);
 					}
 					else if(!interpolation2Street.get(intWayId).equals(street)) {
-						log.warn("Different streets on addr interpolated nodes. "
-								+ "Interpolation way id: {} street: {} ({}) Node: {}", 
-								new Object[]{intWayId, street, interpolation2Street.get(intWayId), node.id});
+						log.warn(new DifferentStreets(intWayId, node.id, 
+								street, interpolation2Street.get(intWayId)));
 					}
 				}
 			}

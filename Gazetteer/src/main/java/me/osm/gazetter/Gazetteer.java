@@ -1,6 +1,7 @@
 package me.osm.gazetter;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -11,10 +12,13 @@ import java.util.List;
 
 import me.osm.gazetter.addresses.AddrLevelsSorting;
 import me.osm.gazetter.join.JoinExecutor;
+import me.osm.gazetter.log.AnalyzeLog;
+import me.osm.gazetter.log.LogWrapper;
 import me.osm.gazetter.out.Diff;
 import me.osm.gazetter.sortupdate.SortUpdate;
 import me.osm.gazetter.split.Split;
 import me.osm.gazetter.striper.Slicer;
+import me.osm.gazetter.utils.BinaryLogsWriter;
 import net.sourceforge.argparse4j.ArgumentParsers;
 import net.sourceforge.argparse4j.impl.Arguments;
 import net.sourceforge.argparse4j.impl.action.StoreTrueArgumentAction;
@@ -64,6 +68,7 @@ public class Gazetteer {
 	private static final String LOG_OPT = "--log-level";
 	private static final String LOG_FILE_OPT = "--log-file";
 	private static final String LOG_PREFIX_OPT = "--log-prefix";
+	private static final String BLOG_FILE_OPT = "--blog";
 
 	private static final String POI_CATALOG_VAL = "poi_catalog";
 	private static final String POI_CATALOG_OPT = "--poi-catalog";
@@ -80,6 +85,8 @@ public class Gazetteer {
 	private static Subparser update;
 	private static Subparser man;
 	private static Subparser diff;
+	
+	private static BinaryLogsWriter blw = null;
 
 	/**
 	 * Command line command description
@@ -149,6 +156,13 @@ public class Gazetteer {
 	    	public String longName() {return name().toLowerCase().replace('_', '-');}
 	    	@Override
 	    	public String help() {return "Write difference between two gazetteer json files";}
+	    },
+
+	    ANALYZE_LOG {
+	    	@Override
+	    	public String longName() {return name().toLowerCase().replace('_', '-');}
+	    	@Override
+	    	public String help() {return "Format gazetteer conversion logs into human readable html";}
 	    },
 
 	    MATCH_FLAP {
@@ -264,6 +278,12 @@ public class Gazetteer {
 				new Diff(namespace.getString("old"), namespace.getString("new"), 
 						namespace.getString("out_file")).run();
 			}
+
+			if(namespace.get(COMMAND).equals(Command.ANALYZE_LOG)) {
+				new AnalyzeLog(
+						namespace.getString("out"), 
+						list(namespace.getList("logs"))).run();
+			}
 			
 			if(namespace.get(COMMAND).equals(Command.MATCH_FLAP)) {
 				
@@ -277,7 +297,12 @@ public class Gazetteer {
 			Throwable rootCause = ExceptionUtils.getRootCause(e);
 			log.error("Fatal error: " + (rootCause == null ? "" : rootCause.getMessage()), e);
 			System.exit(1);
-		} 
+		}
+		finally {
+			if(blw != null) {
+				blw.close();
+			}
+		}
 		
 	}
 
@@ -362,6 +387,10 @@ public class Gazetteer {
 				System.setProperty(org.slf4j.impl.SimpleLogger.DATE_TIME_FORMAT_KEY, 
 						"'" + iterator.next()	+ "' " + "yyyy-MM-dd HH.mm.ss.S");
 			}
+			else if(k.equals(BLOG_FILE_OPT) && iterator.hasNext()) {
+				blw = new BinaryLogsWriter(iterator.next());
+				LogWrapper.setListener(blw);
+			}
 		}
 	}
 
@@ -389,6 +418,7 @@ public class Gazetteer {
         parser.addArgument(LOG_OPT).required(false).setDefault("WARN");
         parser.addArgument(LOG_FILE_OPT).required(false);
         parser.addArgument(LOG_PREFIX_OPT).required(false);
+        parser.addArgument(BLOG_FILE_OPT).required(false);
 
         parser.addArgument("--version", "-v").required(false)
         	.help("Print version and exit.")
