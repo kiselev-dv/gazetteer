@@ -205,19 +205,30 @@ public class PlaceBuilder extends BoundariesBuilder {
 			putNeighbours(vs[1], vs[2], nCities);
 		}
 
-		@SuppressWarnings("unchecked")
-		Collection<Polygon> cityVoronoiPolygons = subdivision
-				.getVoronoiCellPolygons(fatory);
-
-		for (Polygon cityPolygon : cityVoronoiPolygons) {
-			JSONObject cityJSON = cityes.get(cityPolygon
-					.getUserData());
-			handleCityVoronoy(cityJSON, cityPolygon, neighboursQT, nCities.get(cityJSON));
+		try {
+			@SuppressWarnings("unchecked")
+			Collection<Polygon> cityVoronoiPolygons = subdivision
+			.getVoronoiCellPolygons(fatory);
+			
+			for (Polygon cityPolygon : cityVoronoiPolygons) {
+				JSONObject cityJSON = cityes.get(cityPolygon
+						.getUserData());
+				handleCityVoronoy(cityJSON, cityPolygon, neighboursQT, nCities.get(cityJSON));
+			}
+		}
+		catch (IllegalArgumentException e) {
+			log.warn("Failed to build Voronoy cell");
 		}
 	}
 
 	private void putNeighbours(Vertex vertexA, Vertex vertexB,
 			Map<JSONObject, Set<JSONObject>> nCities) {
+		
+		if(hasNaNCoordinates(vertexA) || hasNaNCoordinates(vertexB)) {
+			log.warn("Skip neughbours, due to NaN coordinates.");
+			return;
+		}
+		
 		JSONObject ca = cityes.get(vertexA.getCoordinate()); 
 		JSONObject cb = cityes.get(vertexB.getCoordinate()); 
 		
@@ -231,6 +242,10 @@ public class PlaceBuilder extends BoundariesBuilder {
 		
 		nCities.get(ca).add(cb);
 		nCities.get(cb).add(ca);
+	}
+
+	private boolean hasNaNCoordinates(Vertex vertex) {
+		return Double.isNaN(vertex.getX()) || Double.isNaN(vertex.getY());
 	}
 
 	private static Coordinate getCoordinateFromGJSON(JSONObject gjson) {
