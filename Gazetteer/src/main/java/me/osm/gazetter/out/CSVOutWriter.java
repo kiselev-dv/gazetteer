@@ -1,7 +1,9 @@
 package me.osm.gazetter.out;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -55,7 +57,7 @@ public class CSVOutWriter extends AddressPerRowJOHBase {
 	private int uuidColumnIndex = -1;
 	
 	private static final Set<String> OPTIONS = new HashSet<String>(
-			Arrays.asList("out", "columns", "types", "poi-catalog"));
+			Arrays.asList("out", "columns", "types", "poi-catalog", "header"));
 	
 	private CsvListWriter csvWriter = null;
 
@@ -65,6 +67,8 @@ public class CSVOutWriter extends AddressPerRowJOHBase {
 	private static AtomicInteger instances = new AtomicInteger();
 
 	private String tmpFile;
+
+	private List<String> header = null;
 	
 	@Override
 	public JoinOutHandler initialize(HandlerOptions parsedOpts) {
@@ -77,6 +81,7 @@ public class CSVOutWriter extends AddressPerRowJOHBase {
 		}
 		
 		this.columns = parseColumns(StringUtils.join(parsedOpts.getList("columns", null), " "));
+		this.header = parsedOpts.getList("header", null);
 		
 		allSupportedKeys.addAll(addrRowKeys);
 
@@ -302,13 +307,34 @@ public class CSVOutWriter extends AddressPerRowJOHBase {
 			List<File> batch = ExternalSort.sortInBatch(
 					new File(tmpFile), defaultcomparator, ExternalSort.DEFAULTMAXTEMPFILES,
 					Charset.forName("utf8"), null, true);
-			ExternalSort.mergeSortedFiles(batch, new File(outFile), defaultcomparator, true);
+			
+			ExternalSort.mergeSortedFiles(batch, new File(outFile), defaultcomparator, Charset.forName("utf-8"), true,
+                    false, false, getHeaderString());
 			
 			new File(tmpFile).delete();
 			
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
+	}
+
+	private String getHeaderString() {
+		if(this.header == null) {
+			return null;
+		}
+		
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		try {
+			CsvListWriter csvListWriter = new CsvListWriter(new OutputStreamWriter(baos), CsvPreference.TAB_PREFERENCE);
+			csvListWriter.write(this.header);
+			csvListWriter.flush();
+			csvListWriter.close();
+			
+			return baos.toString("utf-8");
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+		
 	}
 	
 }

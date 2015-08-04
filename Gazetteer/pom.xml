@@ -13,6 +13,7 @@
 		<jts.version>1.13</jts.version>
 		<osmdoc.version>0.11</osmdoc.version>
 		<groovy.version>2.2.2</groovy.version>
+		<extsort.version>0.1.11</extsort.version>
 
 	</properties>
 
@@ -96,7 +97,7 @@
 		<dependency>
 			<groupId>me.osm.gazetteer</groupId>
 			<artifactId>ExternalSorting</artifactId>
-			<version>0.1.10</version>
+			<version>${extsort.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.lucene</groupId>

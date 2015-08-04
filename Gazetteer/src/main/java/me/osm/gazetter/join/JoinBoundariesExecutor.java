@@ -120,7 +120,7 @@ public class JoinBoundariesExecutor {
 		
 		binxFile = new File(stripesFolder + "/" + "binx-sorted.gjson");
 		ExternalSort.mergeSortedFiles(l, binxFile, ADM_LVL_COMPARATOR, Charset.forName("UTF8"),
-                true, false, true);
+                true, false, true, null);
                 
        List<Integer> lvls = new ArrayList<Integer>(ADM_LVL_COMPARATOR.getLvls());
        Collections.sort(lvls);
