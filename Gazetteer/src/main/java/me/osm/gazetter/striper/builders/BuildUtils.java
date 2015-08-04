@@ -53,8 +53,17 @@ public class BuildUtils {
 					
 					// http://stackoverflow.com/questions/31473553/
 					// is-there-a-way-to-convert-a-self-intersecting-polygon-to-a-multipolygon-in-jts
+					Geometry mendedG = SelfIntersectionsMender.mend(outer);
+					MultiPolygon mended = null;
 					
-					MultiPolygon mended = (MultiPolygon)SelfIntersectionsMender.mend(outer);
+					if(mendedG instanceof MultiPolygon) {
+						mended = (MultiPolygon)mendedG;
+					}
+					else if(mendedG instanceof Polygon) {
+						mended = geometryFactory.createMultiPolygon(
+								new Polygon[]{(Polygon) mendedG });
+					}
+					
 					if(mended == null || !mended.isValid() || mended.isEmpty()) {
 						mended = dropOverlaps(outer, validOptions);
 					}
