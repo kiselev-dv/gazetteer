@@ -16,9 +16,13 @@ echo "`date` START Convert $CC (Boundary: $boundary)"
 echo "Create backup"
 mv -f $BASE/out/$CC.json.gz $BASE/bak/$CC.json.gz
 
+if [ -z "$dump" ]; then
+	dump="$BASE/dumps/$CC.osm.bz2"
+fi
+
 if [ -z $nosplit ] || [ $nosplit = false ]; then
-    echo "`date` Split $CC"
-    bzcat $BASE/dumps/$CC.osm.bz2 | java -jar $JAR split - none
+    echo "`date` Split $CC, Dump: $dump"
+    bzcat $dump | java -jar $JAR split - none
 else
     echo "Skip split"
 fi
