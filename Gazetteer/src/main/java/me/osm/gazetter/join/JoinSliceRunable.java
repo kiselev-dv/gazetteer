@@ -257,7 +257,7 @@ public class JoinSliceRunable implements Runnable {
 			}
 		}
 		catch (Throwable t) {
-			log.error("Join failed. File: {}. Error: {}", this.src, t.getMessage());
+			log.error("Join failed. File: {}.", this.src, t);
 			
 			if(failureHandler != null) {
 				failureHandler.failed(this.src);
