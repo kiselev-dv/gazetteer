@@ -61,7 +61,9 @@ Full URL looks like: `http://localhost:${port}${web_root}/info.json`
 Edit `$GazetteerWebHome/config/dev/environment.properties` 
 
 Set `admin_password_sha1` for password and 
-`poi_catalog_path` path to osm-doc. You may get it from 
+`poi_catalog_path` path to `osm-doc`. 
+
+You may get it from 
 https://github.com/kiselev-dv/osm-doc
 
 Import
