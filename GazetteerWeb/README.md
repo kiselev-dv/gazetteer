@@ -78,3 +78,26 @@ Run `http://localhost:${port}${web_root}/location/_import?source=/path/to/Countr
     login: admin
     password: use password for admin_password_sha1 hash
     
+
+Requests examples
+-----------------
+
+Plain search request:
+
+    http://localhost:${port}${web_root}/location/_search?q=123 Beatifull street Mytown
+
+Plain search request with shorten answer:
+
+	http://localhost:${port}${web_root}/location/_search?q=123 Beatifull street Mytown&detalization=short
+	
+Prefix search (search as you type):
+
+	http://localhost:${port}${web_root}/location/_suggest?q=Somewh	
+	
+Inverse geocode request:
+
+	http://localhost:${port}${web_root}/location/latlon/{lat}/{lon}/
+
+where, lat and lon are coordinates.
+
+Check http://localhost:${port}${web_root}/info.json for all query parameters and their meanings.
