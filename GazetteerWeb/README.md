@@ -13,7 +13,7 @@ Supports:
 
 Project based on RestExpress and Elasticsearch and supports clusterization
 
-dependencies
+Dependencies
 ------------
 
 You'll need:
@@ -22,7 +22,7 @@ You'll need:
 * https://github.com/kiselev-dv/osm-doc-java
 * https://github.com/kiselev-dv/osm-doc
 
-compile and run
+Compile and run
 ---------------
 
 Build dependencies
