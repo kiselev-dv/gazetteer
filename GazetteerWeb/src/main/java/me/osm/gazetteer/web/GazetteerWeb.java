@@ -30,7 +30,7 @@ public class GazetteerWeb {
 	}
 	
 	private static RestExpress server;
-	private volatile static Configuration config;
+	private volatile static Configuration config = new Configuration();
 	private static final Injector injector = Guice.createInjector(new AppInjector());
 	
 	public static void main(String[] args) throws Exception {
