@@ -6,11 +6,10 @@ Lightweigth REST geocoding api.
 Live demo http://tr1.nowtaxi.ru/gazetteer/#!/ru/
 
 Supports:
-* geocode requests: /feature/_search?q=Moscow Tverskaya st. 1
-* reverse geocode (coordinates to address) /_inverse?lat=45.0,lon=18.0
+* geocode requests
+* reverse geocode (coordinates to address)
+* suggestions
  
-(Suggestions is on the way.)
-
 Project based on RestExpress and Elasticsearch and supports clusterization
 
 Dependencies
@@ -27,12 +26,12 @@ Compile and run
 
 Build dependencies
 
-  mvn install -f ExternalSorting/pom.xml
-  mvn install -f osm-doc-java/pom.xml
+    mvn install -f ExternalSorting/pom.xml
+    mvn install -f osm-doc-java/pom.xml
 
 Build GazetteerWeb:
 
-  mvn package -f gazetteer/GazetteerWeb/pom.xml
+    mvn package -f gazetteer/GazetteerWeb/pom.xml
 
 Maven will create a GazetteerWeb.tar.gz in target subdir. 
 Or you could take it from github releases section. 
@@ -41,25 +40,25 @@ Unpac archive.
  
 Copy to working dir
 
-  cp -r gazetteer/GazetteerWeb/lib $GazetteerWebHome/lib
-  cp gazetteer/GazetteerWeb/target/GazetteerWeb.jar $GazetteerWebHome/gazetteer-web.jar
-  cp -r gazetteer/GazetteerWeb/config $GazetteerWebHome/config
+    cp -r gazetteer/GazetteerWeb/lib $GazetteerWebHome/lib
+    cp gazetteer/GazetteerWeb/target/GazetteerWeb.jar $GazetteerWebHome/gazetteer-web.jar
+    cp -r gazetteer/GazetteerWeb/config $GazetteerWebHome/config
   
 Run
   
-  java -jar $GazetteerWebHome/gazetteer-web.jar
+    java -jar $GazetteerWebHome/gazetteer-web.jar
 
 
 Usage and configuring
 ---------------------
 
-Open http://localhost:8080/api/info.json
+Open `http://localhost:8080/api/info.json`
 
 If you got 404 error, check `$GazetteerWebHome/config/dev/environment.properties`
 
-Full URL looks like: http://localhost:${port}${web_root}/info.json
+Full URL looks like: `http://localhost:${port}${web_root}/info.json`
 
-Edit $GazetteerWebHome/config/dev/environment.properties 
+Edit `$GazetteerWebHome/config/dev/environment.properties` 
 
 Set `admin_password_sha1` for password and 
 `poi_catalog_path` path to osm-doc. You may get it from 
@@ -68,13 +67,12 @@ https://github.com/kiselev-dv/osm-doc
 Import
 ------
 
-Run http://localhost:${port}${web_root}/location/_import?source=/path/to/Country.json.gz&drop=true&osmdoc=true
+Run `http://localhost:${port}${web_root}/location/_import?source=/path/to/Country.json.gz&drop=true&osmdoc=true`
 
 * **source** path to Gazetteer addresses dump
 * **drop** drop index before import
 * **osmdoc** import osmdoc
  
-  login: admin
-  password: use password for admin_password_sha1 hash
-  
-  
+    login: admin
+    password: use password for admin_password_sha1 hash
+    
