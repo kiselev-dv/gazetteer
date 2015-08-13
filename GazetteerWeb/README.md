@@ -98,6 +98,6 @@ Inverse geocode request:
 
 	http://localhost:${port}${web_root}/location/latlon/{lat}/{lon}/
 
-where, lat and lon are coordinates.
+where, **lat** and **lon** are coordinates.
 
-Check http://localhost:${port}${web_root}/info.json for all query parameters and their meanings.
+Check `http://localhost:${port}${web_root}/info.json` for all query parameters and their meanings.
