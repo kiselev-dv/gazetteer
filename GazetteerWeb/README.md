@@ -3,7 +3,7 @@ GazetteerWeb
 
 Lightweigth REST geocoding api.
 
-Live demo http://tr1.nowtaxi.ru/gazetteer/#!/ru/
+Live demo http://osm.me
 
 Supports:
 * geocode requests
