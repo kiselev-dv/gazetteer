@@ -41,7 +41,8 @@ public class NamesMatcherImpl implements NamesMatcher {
 		String name1 = AddressesUtils.foldASCII(StringUtils.stripToEmpty(o1names.get("name")).toLowerCase()); 
 		String name2 = AddressesUtils.foldASCII(StringUtils.stripToEmpty(o2names.get("name")).toLowerCase()); 
 		
-		return (name1.contains(name2) || name2.contains(name1));
+		return name1.contains(name2) || name2.contains(name1) || 
+				o2names.values().contains(name1) || o1names.values().contains(name2);
 	}
 	
 }

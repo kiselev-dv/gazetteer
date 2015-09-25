@@ -258,6 +258,7 @@ public class JoinSliceRunable implements Runnable {
 		}
 		catch (Throwable t) {
 			log.error("Join failed. File: {}.", this.src, t);
+			t.printStackTrace();
 			
 			if(failureHandler != null) {
 				failureHandler.failed(this.src);
@@ -549,8 +550,9 @@ public class JoinSliceRunable implements Runnable {
 
 	/**
 	 * Find unique streets' addresses
+	 * @throws StreetNetworkJoinError 
 	 * */
-	private void createStreetsNetworks() {
+	private void createStreetsNetworks() throws StreetNetworkJoinError {
 		List<JSONObject> streetParts = new ArrayList<>(); 
 		
 		Iterator<JSONObject> iterator = streets.iterator();
@@ -574,35 +576,41 @@ public class JoinSliceRunable implements Runnable {
 			iterator.remove();
 		}
 		
-		Collections.sort(streetParts, StreetsSorterByNameAndBoundaries.INSTANCE);
-		
-		if(streetParts.size() > 1) {
-			List<JSONObject> streetsNetBunch = new ArrayList<>();
-
-			JSONObject prev = streetParts.get(0);
-			streetsNetBunch.add(prev);
+		try {
+			Collections.sort(streetParts, StreetsSorterByNameAndBoundaries.INSTANCE);
 			
-			for(int i = 1; i < streetParts.size(); i++) {
-				JSONObject next = streetParts.get(i);
+			if(streetParts.size() > 1) {
+				List<JSONObject> streetsNetBunch = new ArrayList<>();
 				
-				int compare = StreetsSorterByNameAndBoundaries.INSTANCE.compare(prev, next);
-			
-				// Equals
-				if(compare == 0) {
-					streetsNetBunch.add(next);
+				JSONObject prev = streetParts.get(0);
+				streetsNetBunch.add(prev);
+				
+				for(int i = 1; i < streetParts.size(); i++) {
+					JSONObject next = streetParts.get(i);
+					
+					int compare = StreetsSorterByNameAndBoundaries.INSTANCE.compare(prev, next);
+					
+					// Equals
+					if(compare == 0) {
+						streetsNetBunch.add(next);
+					}
+					else {
+						joinStreetsNet(streetsNetBunch);
+						streetsNetBunch.clear();
+						streetsNetBunch.add(next);
+					}
+					prev = next;
 				}
-				else {
+				
+				if(!streetsNetBunch.isEmpty()) {
 					joinStreetsNet(streetsNetBunch);
-					streetsNetBunch.clear();
-					streetsNetBunch.add(next);
 				}
-				prev = next;
-			}
-			
-			if(!streetsNetBunch.isEmpty()) {
-				joinStreetsNet(streetsNetBunch);
 			}
 		}
+		catch (Exception e) {
+			throw new StreetNetworkJoinError(e);
+		}
+		
 	}
 
 	private void joinStreetsNet(List<JSONObject> streetsNetBunch) {
