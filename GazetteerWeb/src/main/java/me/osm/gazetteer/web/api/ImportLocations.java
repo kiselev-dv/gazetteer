@@ -1,5 +1,7 @@
 package me.osm.gazetteer.web.api;
 
+import java.net.URL;
+
 import me.osm.gazetteer.web.ESNodeHodel;
 import me.osm.gazetteer.web.api.meta.Endpoint;
 import me.osm.gazetteer.web.api.meta.Parameter;
@@ -7,6 +9,7 @@ import me.osm.gazetteer.web.api.utils.RequestUtils;
 import me.osm.gazetteer.web.imp.LocationsImporter;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.validator.routines.UrlValidator;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsRequest;
 import org.elasticsearch.client.IndicesAdminClient;
@@ -36,6 +39,11 @@ public class ImportLocations implements DocumentedApi {
 	 * Import building full geometry (true by default)
 	 * */
 	private static final String BUILDINGS_GEOMETRY_HEADER = "buildings_geometry";
+
+	/**
+	 * Call http get on this url after import is done
+	 * */
+	private static final String CALLBACK_HEADER = "callback_url";
 	
 	/**
 	 * Also import osmdoc
@@ -51,6 +59,8 @@ public class ImportLocations implements DocumentedApi {
 		boolean buildingsGeometry = RequestUtils.getBooleanHeader(request, BUILDINGS_GEOMETRY_HEADER, true);
 		boolean osmdoc = RequestUtils.getBooleanHeader(request, OSMDOC_HEADER, false);
 		
+		String callbackUrl = request.getHeader(CALLBACK_HEADER);
+		
 		if(drop) {
 			if(INDICES_CLIENT.exists(new IndicesExistsRequest("gazetteer")).actionGet().isExists()) {
 				INDICES_CLIENT.delete(new DeleteIndexRequest("gazetteer")).actionGet();
@@ -63,6 +73,11 @@ public class ImportLocations implements DocumentedApi {
 		if(imp) {
 			
 			LocationsImporter importer = new LocationsImporter(source, buildingsGeometry);
+			
+			if(StringUtils.isNotEmpty(callbackUrl) && isValidUrl(callbackUrl)) {
+				importer.setCallback(callbackUrl);
+				result.put("callback_url", callbackUrl);
+			}
 			
 			if(importer.submit()) {
 				result.put("state", "submited");
@@ -84,6 +99,10 @@ public class ImportLocations implements DocumentedApi {
 		}
 		
 		return result;
+	}
+
+	private boolean isValidUrl(String callbackUrl) {
+		return new UrlValidator(UrlValidator.ALLOW_2_SLASHES + UrlValidator.ALLOW_LOCAL_URLS).isValid(callbackUrl);
 	}
 
 	@Override

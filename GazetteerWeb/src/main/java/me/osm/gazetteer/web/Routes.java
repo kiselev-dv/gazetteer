@@ -1,6 +1,7 @@
 package me.osm.gazetteer.web;
 
 import me.osm.gazetteer.web.api.FeatureAPI;
+import me.osm.gazetteer.web.api.HelthAPI;
 import me.osm.gazetteer.web.api.ImportLocations;
 import me.osm.gazetteer.web.api.ImportOSMDoc;
 import me.osm.gazetteer.web.api.InverseGeocodeAPI;
@@ -95,6 +96,10 @@ public class Routes {
 				.parameter("handler", "poi-class")
 				.parameter(Parameters.Cache.MAX_AGE, 3600);
 
+		server.uri(root + "/health.{format}",
+				new HelthAPI())
+				.method(HttpMethod.GET)
+				.flag(Flags.Auth.PUBLIC_ROUTE);
 
 		server.uri(root + "/snapshot/.*",
 				new SnapshotsAPI(config))

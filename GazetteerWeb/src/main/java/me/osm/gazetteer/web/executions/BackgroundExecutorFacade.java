@@ -1,5 +1,8 @@
 package me.osm.gazetteer.web.executions;
 
+import java.io.InputStream;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -13,7 +16,9 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import me.osm.gazetteer.web.GazetteerWeb;
+import me.osm.gazetteer.web.api.meta.health.BackgroundExecution;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,7 +32,7 @@ public class BackgroundExecutorFacade {
 		private final int id = taskCounter.getAndIncrement();
 		private volatile boolean runed = false;
 		private volatile boolean aborted = false;
-
+		
 		public int getId() {
 			return id;
 		}
@@ -44,6 +49,10 @@ public class BackgroundExecutorFacade {
 			aborted = true;
 		}
 
+		public String getCallbackURL() {
+			return null;
+		}
+
 		@Override
 		public final void run() {
 			runed = true;
@@ -52,6 +61,10 @@ public class BackgroundExecutorFacade {
 				executeTask();
 				INSTANCE.doneTasks.add(this.id);
 				log.info("Task {} is done", this.id);
+				
+				if(StringUtils.isNotBlank(getCallbackURL())) {
+					callBack(getCallbackURL());
+				}
 			}
 			catch (AbortedException abortedE) {
 				synchronized (INSTANCE) {
@@ -71,6 +84,18 @@ public class BackgroundExecutorFacade {
 			}
 		}
 		
+		private void callBack(String callbackURL) {
+			try {
+				URLConnection connection = new URL(callbackURL).openConnection();
+				InputStream is = connection.getInputStream();
+				is.close();
+				log.info("Call {}", callbackURL);
+			}
+			catch (Exception e) {
+				log.error("Callback {} invocation failed.", callbackURL, e);
+			}
+		}
+
 		public boolean submit() {
 			synchronized (INSTANCE) {
 				if(INSTANCE.queuedTasks.size() > FUTURE_TASKS_QUEUE_SIZE) {
@@ -131,6 +156,19 @@ public class BackgroundExecutorFacade {
 	
 	public static BackgroundExecutorFacade get() {
 		return INSTANCE;
+	}
+	
+	public synchronized BackgroundExecution getStateInfo() {
+		
+		BackgroundExecution result = new BackgroundExecution();
+		
+		result.setThreads(1);
+		
+		result.setActive(new ArrayList<Integer>(activeTasks));
+		result.setDone(new ArrayList<Integer>(doneTasks));
+		result.setQueued(new ArrayList<Integer>(queuedTasks));
+		
+		return result;
 	}
 	
 }

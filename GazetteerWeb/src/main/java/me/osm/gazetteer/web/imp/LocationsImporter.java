@@ -85,6 +85,17 @@ public class LocationsImporter extends BackgroundExecutableTask {
 	
 	private Set<String> skip;
 	
+	private String callback;
+	
+	public void setCallback(String callback) {
+		this.callback = callback;
+	};
+	
+	@Override
+	public String getCallbackURL() {
+		return callback;
+	}
+	
 	private static class EmptyAddressException extends Exception {
 		private static final long serialVersionUID = 8178453133841622471L;
 	}
