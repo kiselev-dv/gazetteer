@@ -113,14 +113,22 @@ public class JoinBoundariesExecutor {
 		
 		addressesParser = Options.get().getAddressesParser();
 		
+		boolean distinct = false;
+		
 		BufferedReader binxReader = new BufferedReader(new InputStreamReader(FileUtils.getFileIS(binxFile)));
-		List<File> l = ExternalSort.sortInBatch(binxReader, binxFile.length() * 10, ADM_LVL_COMPARATOR,
-                100, 100 * 1024 * 1024, Charset.forName("UTF8"), new File(stripesFolder), true, 0,
+		List<File> l = ExternalSort.sortInBatch(
+				binxReader, 
+				binxFile.length() * 10, 
+				ADM_LVL_COMPARATOR,
+                100, 
+                100 * 1024 * 1024, 
+                Charset.forName("UTF8"), 
+                new File(stripesFolder), distinct, 0,
                 true);
 		
 		binxFile = new File(stripesFolder + "/" + "binx-sorted.gjson");
 		ExternalSort.mergeSortedFiles(l, binxFile, ADM_LVL_COMPARATOR, Charset.forName("UTF8"),
-                true, false, true, null);
+                distinct, false, true, null);
                 
        List<Integer> lvls = new ArrayList<Integer>(ADM_LVL_COMPARATOR.getLvls());
        Collections.sort(lvls);
@@ -186,7 +194,6 @@ public class JoinBoundariesExecutor {
 					String upid = up.getId();
 					o.put("id", upid);
 					o.put(GeoJsonWriter.PROPERTIES, up.getProperties());
-					
 					
 					JSONObject meta = new JSONObject();
 					String osmId = StringUtils.split(upid, '-')[2];
