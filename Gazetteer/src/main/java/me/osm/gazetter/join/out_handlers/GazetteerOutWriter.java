@@ -39,6 +39,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.Set;
 
 import me.osm.gazetter.addresses.AddressesUtils;
@@ -65,6 +66,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.code.externalsorting.ExternalSort;
@@ -74,6 +76,8 @@ import com.vividsolutions.jts.geom.LineString;
 
 public class GazetteerOutWriter extends AddressPerRowJOHBase  {
 	
+	private static final Logger log = LoggerFactory.getLogger(GazetteerOutWriter.class);
+
 	private static final String TRANSLATE_POI_TYPES_OPTION = "translate_poi_types";
 
 	private static final List<String> OPTIONS = Arrays.asList(
@@ -110,6 +114,15 @@ public class GazetteerOutWriter extends AddressPerRowJOHBase  {
 	private boolean hsort;
 
 	private boolean isort;
+	
+	private AtomicInteger poipntc = new AtomicInteger();
+	private AtomicInteger adrpntc = new AtomicInteger();
+	private AtomicInteger hghwayc = new AtomicInteger();
+	private AtomicInteger hghnetc = new AtomicInteger();
+	private AtomicInteger plcbndc = new AtomicInteger();
+	private AtomicInteger plcpntc = new AtomicInteger();
+	private AtomicInteger admbndc = new AtomicInteger();
+
 
 	@Override
 	public JoinOutHandler initialize(HandlerOptions parsedOpts) {
@@ -262,11 +275,14 @@ public class GazetteerOutWriter extends AddressPerRowJOHBase  {
 		}
 		
 		JSONFeature result = new JSONFeature();
-		fillObject(result, address, object);
-		fillPOI(result, object, address.getString("poiAddrMatch"));
-		
-		println(result.toString());
-		flush();
+		if(fillObject(result, address, object)) {
+			fillPOI(result, object, address.getString("poiAddrMatch"));
+			
+			println(result.toString());
+			flush();
+			
+			poipntc.getAndIncrement();
+		}
 	}
 	
 	@Override
@@ -274,9 +290,11 @@ public class GazetteerOutWriter extends AddressPerRowJOHBase  {
 			String stripe) {
 		
 		JSONFeature result = new JSONFeature();
-		fillObject(result, address, object);
-		println(result.toString());
-		flush();
+		if(fillObject(result, address, object)){
+			println(result.toString());
+			flush();
+			adrpntc.getAndIncrement();
+		}
 	}
 	
 	@Override
@@ -284,9 +302,11 @@ public class GazetteerOutWriter extends AddressPerRowJOHBase  {
 			String stripe) {
 		
 		JSONFeature result = new JSONFeature();
-		fillObject(result, address, object);
-		println(result.toString());
-		flush();
+		if(fillObject(result, address, object)) {
+			println(result.toString());
+			flush();
+			hghwayc.getAndIncrement();
+		}
 	}
 	
 	@Override
@@ -294,9 +314,11 @@ public class GazetteerOutWriter extends AddressPerRowJOHBase  {
 			String stripe) {
 		
 		JSONFeature result = new JSONFeature();
-		fillObject(result, address, object);
-		println(result.toString());
-		flush();
+		if(fillObject(result, address, object)) {
+			println(result.toString());
+			flush();
+			hghnetc.getAndIncrement();
+		}
 	}
 	
 	@Override
@@ -308,18 +330,22 @@ public class GazetteerOutWriter extends AddressPerRowJOHBase  {
 		}
 		
 		JSONFeature result = new JSONFeature();
-		fillObject(result, address, object);
-		println(result.toString());
-		flush();
+		if(fillObject(result, address, object)) {
+			println(result.toString());
+			flush();
+			plcbndc.getAndIncrement();
+		}
 	}
 	
 	@Override
 	protected void handlePlacePointAddrRow(JSONObject object,
 			JSONObject address, String stripe) {
 		JSONFeature result = new JSONFeature();
-		fillObject(result, address, object);
-		println(result.toString());
-		flush();
+		if(fillObject(result, address, object)) {
+			println(result.toString());
+			flush();
+			plcpntc.getAndIncrement();
+		}
 	}
 	
 	@Override
@@ -327,96 +353,106 @@ public class GazetteerOutWriter extends AddressPerRowJOHBase  {
 			JSONObject address, String stripe) {
 		if(StringUtils.contains(stripe, "binx")) {
 			JSONFeature result = new JSONFeature();
-			fillObject(result, address, object);
-			println(result.toString());
-			flush();
+			if(fillObject(result, address, object)) {
+				println(result.toString());
+				flush();
+				admbndc.getAndIncrement();
+			}
 		}
 	}
 	
 	/**
 	 * Fill fields, common for all kind of objects
 	 * */
-	protected void fillObject(JSONFeature result, JSONObject addrRow, JSONObject jsonObject) {
+	protected boolean fillObject(JSONFeature result, JSONObject addrRow, JSONObject jsonObject) {
 		
-		String ftype = jsonObject.getString("ftype");
-		String rowId = AddrRowValueExctractorImpl.getUID(jsonObject, addrRow, ftype);
-		
-		result.put(GAZETTEER_SCHEME_ID, rowId);
-		result.put(GAZETTEER_SCHEME_FEATURE_ID, jsonObject.getString("id"));
-		result.put(GAZETTEER_SCHEME_TYPE, ftype);
-		result.put(GAZETTEER_SCHEME_TIMESTAMP, jsonObject.getString("timestamp"));
-		
-		if(fillAddrOpts.contains("obj")) {
-			result.put(GAZETTEER_SCHEME_ADDRESS, addrRow);
-		}
-		
-		Set<String> langs = getLangs(addrRow);
-		
-		Map<String, JSONObject> mapLevels = mapLevels(addrRow);
-
-		putName(result, ftype, mapLevels, jsonObject, addrRow);
-		
-		putAltNames(result, ftype, mapLevels, jsonObject, addrRow);
-		putNameTranslations(result, ftype, mapLevels, jsonObject, addrRow, langs);
-		
-		if(exportAllNames) {
-			result.put("all_names", new JSONObject(AddressesUtils.filterNameTags(jsonObject)));
-		}
-
-		if(fillAddrOpts.contains("nearest")) {
-			putNearbyStreets(result, ftype, mapLevels, jsonObject, langs);
-			putNearbyPlaces(result, ftype, mapLevels, jsonObject, langs);
-		}
-		
-		JSONObject refs = new JSONObject();
-		if(fillAddrOpts.contains("levels") || fillAddrOpts.contains("ref")) {
+		try {
+			String ftype = jsonObject.getString("ftype");
+			String rowId = AddrRowValueExctractorImpl.getUID(jsonObject, addrRow, ftype);
 			
-			String minLVL = putAddrParts(result, refs, addrRow, mapLevels, langs);
+			result.put(GAZETTEER_SCHEME_ID, rowId);
+			result.put(GAZETTEER_SCHEME_FEATURE_ID, jsonObject.getString("id"));
+			result.put(GAZETTEER_SCHEME_TYPE, ftype);
+			result.put(GAZETTEER_SCHEME_TIMESTAMP, jsonObject.getString("timestamp"));
 			
-			if(fillAddrOpts.contains("ref")) {
-				result.put(GAZETTEER_SCHEME_REFS, refs);
+			if(fillAddrOpts.contains("obj")) {
+				result.put(GAZETTEER_SCHEME_ADDRESS, addrRow);
 			}
 			
-			if(minLVL != null) {
-				result.put(GAZETTEER_SCHEME_ADDR_LEVEL, minLVL);
+			Set<String> langs = getLangs(addrRow);
+			
+			Map<String, JSONObject> mapLevels = mapLevels(addrRow);
+			
+			putName(result, ftype, mapLevels, jsonObject, addrRow);
+			
+			putAltNames(result, ftype, mapLevels, jsonObject, addrRow);
+			putNameTranslations(result, ftype, mapLevels, jsonObject, addrRow, langs);
+			
+			if(exportAllNames) {
+				result.put("all_names", new JSONObject(AddressesUtils.filterNameTags(jsonObject)));
 			}
-		}
-		
-		JSONObject properties = jsonObject.optJSONObject("properties");
-		if(properties != null) {
-			result.put(GAZETTEER_SCHEME_TAGS, properties);
-		}
-		
-		JSONObject centroid = getCentroid(jsonObject, ftype);
-		if(centroid != null) {
-			result.put(GAZETTEER_SCHEME_CENTER_POINT, centroid);
-		}
-		
-		if(FeatureTypes.HIGHWAY_NET_FEATURE_TYPE.equals(ftype)) {
-			result.put("members", jsonObject.get("members"));
-			result.put("geometries", jsonObject.get("geometries"));
-		}
-		
-		if(fullGeometry) {
-			JSONObject geom = getFullGeometry(jsonObject, ftype); 
-			if(geom != null) {
-				Geometry g = GeoJsonWriter.parseGeometry(geom);
-				if(g != null && g.isValid()) {
-					
-					if(geom != null) {
-						String esGeomType = geom.getString(GAZETTEER_SCHEME_TYPE).toLowerCase();
-						geom.put(GAZETTEER_SCHEME_TYPE, esGeomType);
-					}
-					
-					result.put(GAZETTEER_SCHEME_FULL_GEOMETRY, geom);
+			
+			if(fillAddrOpts.contains("nearest")) {
+				putNearbyStreets(result, ftype, mapLevels, jsonObject, langs);
+				putNearbyPlaces(result, ftype, mapLevels, jsonObject, langs);
+			}
+			
+			JSONObject refs = new JSONObject();
+			if(fillAddrOpts.contains("levels") || fillAddrOpts.contains("ref")) {
+				
+				String minLVL = putAddrParts(result, refs, addrRow, mapLevels, langs);
+				
+				if(fillAddrOpts.contains("ref")) {
+					result.put(GAZETTEER_SCHEME_REFS, refs);
+				}
+				
+				if(minLVL != null) {
+					result.put(GAZETTEER_SCHEME_ADDR_LEVEL, minLVL);
 				}
 			}
+			
+			JSONObject properties = jsonObject.optJSONObject("properties");
+			if(properties != null) {
+				result.put(GAZETTEER_SCHEME_TAGS, properties);
+			}
+			
+			JSONObject centroid = getCentroid(jsonObject, ftype);
+			if(centroid != null) {
+				result.put(GAZETTEER_SCHEME_CENTER_POINT, centroid);
+			}
+			
+			if(FeatureTypes.HIGHWAY_NET_FEATURE_TYPE.equals(ftype)) {
+				result.put("members", jsonObject.get("members"));
+				result.put("geometries", jsonObject.get("geometries"));
+			}
+			
+			if(fullGeometry) {
+				JSONObject geom = getFullGeometry(jsonObject, ftype); 
+				if(geom != null) {
+					Geometry g = GeoJsonWriter.parseGeometry(geom);
+					if(g != null && g.isValid()) {
+						
+						if(geom != null) {
+							String esGeomType = geom.getString(GAZETTEER_SCHEME_TYPE).toLowerCase();
+							geom.put(GAZETTEER_SCHEME_TYPE, esGeomType);
+						}
+						
+						result.put(GAZETTEER_SCHEME_FULL_GEOMETRY, geom);
+					}
+				}
+			}
+			
+			result.put("hhash", getHierarchyHash(rowId, addrRow, mapLevels, refs));
+			
+			String md5Hex = DigestUtils.md5Hex(JSONHash.asCanonicalString(result, new HashSet<String>(Arrays.asList("timestamp"))));
+			result.put("md5", md5Hex);
+			
+			return true;
 		}
-		
-		result.put("hhash", getHierarchyHash(rowId, addrRow, mapLevels, refs));
-		
-		String md5Hex = DigestUtils.md5Hex(JSONHash.asCanonicalString(result, new HashSet<String>(Arrays.asList("timestamp"))));
-		result.put("md5", md5Hex);
+		catch (Exception e) {
+			log.error("Can't write {}", result.optString(GAZETTEER_SCHEME_FEATURE_ID), e);
+			return false;
+		}
 	}
 
 	protected String getHierarchyHash(String rowId, JSONObject addrRow,
@@ -942,7 +978,7 @@ public class GazetteerOutWriter extends AddressPerRowJOHBase  {
 					ExternalSort.DEFAULTMAXTEMPFILES, ExternalSort.estimateAvailableMemory(), 
 					Charset.forName("utf-8"), null, true, 0, true, ReduceHighwayNetworks.INSTANCE);
 
-			LoggerFactory.getLogger(getClass()).trace("Done ExternalSort.sortInBatch");
+			log.trace("Done ExternalSort.sortInBatch");
 			
 			initializeWriter(outFile);
 			
@@ -950,7 +986,7 @@ public class GazetteerOutWriter extends AddressPerRowJOHBase  {
 					cmp, Charset.forName("utf-8"), true, true, 
 					ReduceHighwayNetworks.INSTANCE);
 			
-			LoggerFactory.getLogger(getClass()).trace("Done ExternalSort.mergeSortedFiles");
+			log.trace("Done ExternalSort.mergeSortedFiles");
 			
 		}
 		catch (Exception e) {
@@ -958,6 +994,15 @@ public class GazetteerOutWriter extends AddressPerRowJOHBase  {
 		}
 		
 		writeTagStat();
+		
+		log.info("Writed poi points: {}", 		poipntc.get());
+		log.info("Writed address points: {}", 	adrpntc.get());
+		log.info("Writed highway segments: {}", hghwayc.get());
+		log.info("Writed highway networks: {}", hghnetc.get());
+		log.info("Writed place boundaries: {}", plcbndc.get());
+		log.info("Writed place points: {}", 	plcpntc.get());
+		log.info("Writed admin boundaries: {}", admbndc.get());
+		
 	}
 
 	private void writeTagStat() {
