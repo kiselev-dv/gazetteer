@@ -3,6 +3,11 @@ package me.osm.gazetteer.web.api.meta.health;
 import java.util.Map;
 
 import org.elasticsearch.common.joda.time.Period;
+import org.elasticsearch.common.joda.time.format.PeriodFormatter;
+import org.elasticsearch.common.joda.time.format.PeriodFormatterBuilder;
+
+import com.fasterxml.jackson.annotation.JsonAnyGetter;
+import com.fasterxml.jackson.annotation.JsonGetter;
 
 public class Health {
 
@@ -14,6 +19,8 @@ public class Health {
 	private long features;
 	private Map<String, Long> counters;
 	
+	private String esnodeError;
+	
 	private BackgroundExecution backgroundTasks;
 
 	public long getUptime() {
@@ -24,6 +31,7 @@ public class Health {
 		this.uptime = uptime;
 	}
 
+	@JsonGetter
 	public String getUptimeHR() {
 		return new Period(uptime).toString();
 	}
@@ -66,6 +74,14 @@ public class Health {
 
 	public void setBackgroundTasks(BackgroundExecution backgroundTasks) {
 		this.backgroundTasks = backgroundTasks;
+	}
+
+	public String getEsnodeError() {
+		return esnodeError;
+	}
+
+	public void setEsnodeError(String esnodeError) {
+		this.esnodeError = esnodeError;
 	}
 	
 }

@@ -35,26 +35,31 @@ public class HelthAPI implements DocumentedApi {
 		health.setFreeMemMB(rt.freeMemory() / mb);
 		health.setMaxMemMB(rt.maxMemory() / mb);
 		
-		Client client = ESNodeHodel.getClient();
-		long featuresCount = client.prepareCount("gazetteer")
-				.setTypes(IndexHolder.LOCATION)
-				.setQuery(QueryBuilders.matchAllQuery())
-				.get().getCount();
-		health.setFeatures(featuresCount);
-		
-		
-		SearchRequestBuilder types = client.prepareSearch("gazetteer").setTypes(IndexHolder.LOCATION)
-			.setQuery(QueryBuilders.matchAllQuery())
-			.setSearchType(SearchType.COUNT)
-			.addAggregation(AggregationBuilders.terms("ftypes").field("type"));
-		
-		Map<String, Long> typesCount = new HashMap<>();
-		Terms aggregation = types.get().getAggregations().get("ftypes");
-		for(Bucket bucket : aggregation.getBuckets()) {
-			typesCount.put(bucket.getKey(), bucket.getDocCount()); 
+		try {
+			Client client = ESNodeHodel.getClient();
+			long featuresCount = client.prepareCount("gazetteer")
+					.setTypes(IndexHolder.LOCATION)
+					.setQuery(QueryBuilders.matchAllQuery())
+					.get().getCount();
+			health.setFeatures(featuresCount);
+			
+			
+			SearchRequestBuilder types = client.prepareSearch("gazetteer").setTypes(IndexHolder.LOCATION)
+					.setQuery(QueryBuilders.matchAllQuery())
+					.setSearchType(SearchType.COUNT)
+					.addAggregation(AggregationBuilders.terms("ftypes").field("type"));
+			
+			Map<String, Long> typesCount = new HashMap<>();
+			Terms aggregation = types.get().getAggregations().get("ftypes");
+			for(Bucket bucket : aggregation.getBuckets()) {
+				typesCount.put(bucket.getKey(), bucket.getDocCount()); 
+			}
+			
+			health.setCounters(typesCount);
 		}
-		
-		health.setCounters(typesCount);
+		catch (Exception e) {
+			health.setEsnodeError(e.getMessage());
+		}
 		
 		health.setBackgroundTasks(BackgroundExecutorFacade.get().getStateInfo()); 
 		
