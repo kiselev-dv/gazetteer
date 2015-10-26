@@ -185,10 +185,6 @@ public class BackgroundExecutorFacade {
 			}
 			result.setDone(list);
 
-<<<<<<< Upstream, based on branch 'develop' of git@github.com:kiselev-dv/gazetteer.git
-			
-=======
->>>>>>> 6ff4d9c descriptions for background executions
 			ArrayList<Integer> queued = new ArrayList<Integer>(queuedTasks);
 			for(int tid : activeTasks) {
 				int indexOf = queued.indexOf(tid);
