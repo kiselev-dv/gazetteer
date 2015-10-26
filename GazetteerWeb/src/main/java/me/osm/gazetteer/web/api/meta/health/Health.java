@@ -1,7 +1,8 @@
 package me.osm.gazetteer.web.api.meta.health;
 
-import java.util.List;
 import java.util.Map;
+
+import org.elasticsearch.common.joda.time.Period;
 
 public class Health {
 
@@ -21,6 +22,10 @@ public class Health {
 
 	public void setUptime(long uptime) {
 		this.uptime = uptime;
+	}
+
+	public String getUptimeHR() {
+		return new Period(uptime).toString();
 	}
 
 	public long getFreeMemMB() {
