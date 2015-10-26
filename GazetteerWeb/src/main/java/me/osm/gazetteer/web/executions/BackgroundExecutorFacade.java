@@ -9,6 +9,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
@@ -21,6 +22,8 @@ import me.osm.gazetteer.web.api.meta.health.BackgroundExecution;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.fasterxml.jackson.databind.util.LRUMap;
 
 public class BackgroundExecutorFacade {
 	
@@ -102,6 +105,7 @@ public class BackgroundExecutorFacade {
 					return false;
 				} 
 				INSTANCE.queuedTasks.add(this.id);
+				INSTANCE.descriptions.put(this.id, this.description());
 			}
 			
 			executor.submit(this);
@@ -111,6 +115,7 @@ public class BackgroundExecutorFacade {
 		}
 		
 		public abstract void executeTask() throws AbortedException;
+		public abstract BackgroudTaskDescription description();
 	}
 
 	private static final AtomicInteger taskCounter = new AtomicInteger();
@@ -121,6 +126,8 @@ public class BackgroundExecutorFacade {
 	private final Set<Integer> activeTasks = Collections.synchronizedSet(new LinkedHashSet<Integer>(10));
 	private final LinkedHashMap<Integer, String> abortedTasks = new LinkedHashMap<Integer, String>(EXECUTION_HISTORY_SIZE + 2);
 	private final List<Integer> queuedTasks = new ArrayList<Integer>();
+	private final Map<Integer, BackgroudTaskDescription> descriptions 
+		= new LRUMap<>(EXECUTION_HISTORY_SIZE + 2 + 10, EXECUTION_HISTORY_SIZE + 2 + 10 + 5);
 	
 	private static final Logger log = LoggerFactory.getLogger(BackgroundExecutorFacade.class);
 	
@@ -158,17 +165,43 @@ public class BackgroundExecutorFacade {
 		return INSTANCE;
 	}
 	
-	public synchronized BackgroundExecution getStateInfo() {
+	public BackgroundExecution getStateInfo() {
 		
 		BackgroundExecution result = new BackgroundExecution();
 		
 		result.setThreads(1);
 		
-		result.setActive(new ArrayList<Integer>(activeTasks));
-		result.setDone(new ArrayList<Integer>(doneTasks));
-		result.setQueued(new ArrayList<Integer>(queuedTasks));
-		
-		return result;
+		synchronized (INSTANCE) {
+			
+			List<BackgroudTaskDescription> list = new ArrayList<>();
+			for(int tid : activeTasks) {
+				list.add(INSTANCE.descriptions.get(tid));
+			}
+			result.setActive(list);
+
+			list = new ArrayList<>();
+			for(int tid : doneTasks) {
+				list.add(INSTANCE.descriptions.get(tid));
+			}
+			result.setDone(list);
+
+			
+			ArrayList<Integer> queued = new ArrayList<Integer>(queuedTasks);
+			for(int tid : activeTasks) {
+				int indexOf = queued.indexOf(tid);
+				if(indexOf >= 0) {
+					queued.remove(indexOf); 
+				}
+			}
+			
+			list = new ArrayList<>();
+			for(int tid : queued) {
+				list.add(INSTANCE.descriptions.get(tid));
+			}
+			result.setQueued(list);
+			
+			return result;
+		}
 	}
 	
 }

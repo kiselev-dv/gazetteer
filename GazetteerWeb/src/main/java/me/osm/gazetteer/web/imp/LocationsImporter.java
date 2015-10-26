@@ -12,11 +12,13 @@ import java.io.InputStreamReader;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.zip.GZIPInputStream;
@@ -25,6 +27,7 @@ import me.osm.gazetteer.web.ESNodeHodel;
 import me.osm.gazetteer.web.FeatureTypes;
 import me.osm.gazetteer.web.GazetteerWeb;
 import me.osm.gazetteer.web.executions.AbortedException;
+import me.osm.gazetteer.web.executions.BackgroudTaskDescription;
 import me.osm.gazetteer.web.executions.BackgroundExecutorFacade.BackgroundExecutableTask;
 import me.osm.gazetteer.web.utils.OSMDocSinglton;
 import me.osm.gazetteer.web.utils.ReplacersCompiler;
@@ -580,6 +583,24 @@ public class LocationsImporter extends BackgroundExecutableTask {
 	
 	public List<Replacer> getReplacers() {
 		return hnReplacers;
+	}
+
+	@Override
+	public BackgroudTaskDescription description() {
+		BackgroudTaskDescription description = new BackgroudTaskDescription();
+		
+		description.setId(this.getId());
+		
+		description.setClassName(getClass().getName());
+		Map<String, Object> parameters = new HashMap<String, Object>();
+		description.setClassName(getClass().getName());
+		description.setParameters(parameters);
+		
+		parameters.put("source", filePath);
+		parameters.put("skip", new HashSet<>(skip));
+		parameters.put("callback", callback);
+		
+		return description;
 	}
 
 }

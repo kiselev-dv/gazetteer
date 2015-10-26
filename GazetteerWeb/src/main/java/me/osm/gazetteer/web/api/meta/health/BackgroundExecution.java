@@ -1,15 +1,16 @@
 package me.osm.gazetteer.web.api.meta.health;
 
 import java.util.Collection;
-import java.util.List;
+
+import me.osm.gazetteer.web.executions.BackgroudTaskDescription;
 
 public class BackgroundExecution {
 	
 	private int threads;
 
-	private Collection<Integer> done;
-	private Collection<Integer> queued;
-	private Collection<Integer> active;
+	private Collection<BackgroudTaskDescription> done;
+	private Collection<BackgroudTaskDescription> queued;
+	private Collection<BackgroudTaskDescription> active;
 	
 	public int getThreads() {
 		return threads;
@@ -18,28 +19,28 @@ public class BackgroundExecution {
 	public void setThreads(int threads) {
 		this.threads = threads;
 	}
-	
-	public Collection<Integer> getDone() {
+
+	public Collection<BackgroudTaskDescription> getDone() {
 		return done;
 	}
-	
-	public void setDone(Collection<Integer> done) {
+
+	public void setDone(Collection<BackgroudTaskDescription> done) {
 		this.done = done;
 	}
-	
-	public Collection<Integer> getQueued() {
+
+	public Collection<BackgroudTaskDescription> getQueued() {
 		return queued;
 	}
-	
-	public void setQueued(Collection<Integer> queued) {
+
+	public void setQueued(Collection<BackgroudTaskDescription> queued) {
 		this.queued = queued;
 	}
-	
-	public Collection<Integer> getActive() {
+
+	public Collection<BackgroudTaskDescription> getActive() {
 		return active;
 	}
 
-	public void setActive(Collection<Integer> active) {
+	public void setActive(Collection<BackgroudTaskDescription> active) {
 		this.active = active;
 	}
 	
