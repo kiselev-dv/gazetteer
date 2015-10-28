@@ -14,6 +14,10 @@ import org.restexpress.RestExpress;
 import org.restexpress.util.Environment;
 import org.slf4j.LoggerFactory;
 
+import ch.qos.logback.classic.LoggerContext;
+import ch.qos.logback.classic.joran.JoranConfigurator;
+import ch.qos.logback.core.joran.spi.JoranException;
+
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 
@@ -34,6 +38,8 @@ public class GazetteerWeb {
 	private static final Injector injector = Guice.createInjector(new AppInjector());
 	
 	public static void main(String[] args) throws Exception {
+		
+		initLog();
 		
 		config = loadEnvironment(args);
 		ESNodeHodel.getClient();
@@ -65,6 +71,22 @@ public class GazetteerWeb {
         
         LoggerFactory.getLogger(GazetteerWeb.class)
         	.info("{} server listening on port {}", config.getName(), config.getPort());
+	}
+
+	private static void initLog() {
+		// assume SLF4J is bound to logback in the current environment
+	    LoggerContext context = (LoggerContext) LoggerFactory.getILoggerFactory();
+	    
+		try {
+	      JoranConfigurator configurator = new JoranConfigurator();
+	      configurator.setContext(context);
+	      // Call context.reset() to clear any previous configuration, e.g. default 
+	      // configuration. For multi-step configuration, omit calling context.reset().
+	      context.reset(); 
+	      configurator.doConfigure("config/logback.xml");
+	    } catch (JoranException je) {
+	      // StatusPrinter will handle this
+	    }
 	}
 
 	private static Configuration loadEnvironment(String[] args)

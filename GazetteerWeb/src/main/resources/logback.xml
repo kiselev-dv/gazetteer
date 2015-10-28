@@ -8,36 +8,8 @@
 		</layout>
 	</appender>
 
-	<appender name="FILE"
-		class="ch.qos.logback.core.rolling.RollingFileAppender">
-		<file>logs/gazetteer-web.log</file>
-
-		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-			
-			<!-- daily rollover -->
-			<fileNamePattern>logs/%d{yyyy-MM-dd}.%i.log</fileNamePattern>
-			
-			<timeBasedFileNamingAndTriggeringPolicy
-				class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
-				
-				<!-- or whenever the file size reaches 100MB -->
-				<maxFileSize>100MB</maxFileSize>
-				
-			</timeBasedFileNamingAndTriggeringPolicy>
-			
-			<!-- keep 7 days' worth of history -->
-			<maxHistory>7</maxHistory>
-		</rollingPolicy>
-
-		<layout class="ch.qos.logback.classic.PatternLayout">
-			<Pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n
-			</Pattern>
-		</layout>
-	</appender>
-
 	<root level="info">
 		<appender-ref ref="STDOUT" />
-		<appender-ref ref="FILE" />
 	</root>
 
 </configuration>
