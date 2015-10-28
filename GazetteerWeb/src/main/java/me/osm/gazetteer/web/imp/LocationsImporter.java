@@ -9,6 +9,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.URL;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -127,14 +128,24 @@ public class LocationsImporter extends BackgroundExecutableTask {
 
 	public static InputStream getFileIS(String osmFilePath) throws IOException,
 			FileNotFoundException {
+		
+		InputStream fileIS = null;
+		
+		if(osmFilePath.startsWith("http")) {
+			fileIS = new URL(osmFilePath).openStream();
+		}
+		else {
+			fileIS = new FileInputStream(osmFilePath);
+		}
+		
 		if (osmFilePath.endsWith("gz")) {
-			return new GZIPInputStream(new FileInputStream(osmFilePath));
+			return new GZIPInputStream(fileIS);
 		}
 		if (osmFilePath.endsWith("bz2")) {
-			return new BZip2CompressorInputStream(new FileInputStream(
-					osmFilePath));
+			return new BZip2CompressorInputStream(fileIS);
 		}
-		return new FileInputStream(osmFilePath);
+		
+		return fileIS;
 	}
 
 	@Override
