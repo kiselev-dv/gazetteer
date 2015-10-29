@@ -5,11 +5,11 @@ import static org.elasticsearch.node.NodeBuilder.nodeBuilder;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.node.Node;
 
-public final class ESNodeHodel {
+public final class ESNodeHolder {
 
 	private static final Node node = nodeBuilder().clusterName("OSM-Gazetteer").node();
 	
-    private ESNodeHodel() {
+    private ESNodeHolder() {
     	
     }
     

@@ -5,7 +5,7 @@ import java.lang.management.RuntimeMXBean;
 import java.util.HashMap;
 import java.util.Map;
 
-import me.osm.gazetteer.web.ESNodeHodel;
+import me.osm.gazetteer.web.ESNodeHolder;
 import me.osm.gazetteer.web.api.meta.Endpoint;
 import me.osm.gazetteer.web.api.meta.health.Health;
 import me.osm.gazetteer.web.executions.BackgroundExecutorFacade;
@@ -36,7 +36,7 @@ public class HelthAPI implements DocumentedApi {
 		health.setMaxMemMB(rt.maxMemory() / mb);
 		
 		try {
-			Client client = ESNodeHodel.getClient();
+			Client client = ESNodeHolder.getClient();
 			long featuresCount = client.prepareCount("gazetteer")
 					.setTypes(IndexHolder.LOCATION)
 					.setQuery(QueryBuilders.matchAllQuery())

@@ -2,10 +2,9 @@
 <configuration>
 
 	<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
-		<layout class="ch.qos.logback.classic.PatternLayout">
-			<Pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{35} - %msg%n
-			</Pattern>
-		</layout>
+		<encoder>
+			<Pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{35} - %msg%n</Pattern>
+		</encoder>
 	</appender>
 
 	<appender name="FILE"
@@ -30,20 +29,21 @@
 		</rollingPolicy>
 
 		<encoder>
-			<Pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{35} - %msg%n
-			</Pattern>
+			<Pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{35} - %msg%n</Pattern>
 		</encoder>
 	</appender>
 
 	<appender name="ACCESS_LOG"
 		class="ch.qos.logback.core.rolling.RollingFileAppender">
 		<file>logs/access/gw-access.log</file>
-
-		<evaluator class="ch.qos.logback.classic.boolex.OnMarkerEvaluator">
-			<marker>HUMAN</marker>
+		
+		<filter class="ch.qos.logback.core.filter.EvaluatorFilter">
+			<evaluator class="ch.qos.logback.classic.boolex.OnMarkerEvaluator">
+				<marker>HUMAN</marker>
+			</evaluator>
 			<OnMatch>ACCEPT</OnMatch>
         	<OnMismatch>DENY</OnMismatch>
-		</evaluator>
+		</filter>
 
 		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
 
@@ -72,10 +72,12 @@
 		<appender-ref ref="FILE" />
 	</root>
 
-	<logger name="org.elasticsearch" level="INFO" />
-	<logger name="me.osm.gazetteer.web.HttpLogger" level="ERROR" />
+	<logger name="me.osm.osmdoc" level="WARN" />
+	<logger name="org.elasticsearch" level="WARN" />
+	<logger name="me.osm.gazetteer.web.HttpLogger" level="WARN" />
 
-	<logger name="me.osm.gazetteer.web.HttpLogger.AccessLog" level="TRACE">
+	<logger name="me.osm.gazetteer.web.HttpLogger.AccessLog" 
+		level="TRACE" additivity="false">
 		<appender-ref ref="ACCESS_LOG" />
 	</logger>
 

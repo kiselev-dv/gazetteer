@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import me.osm.gazetteer.web.ESNodeHodel;
+import me.osm.gazetteer.web.ESNodeHolder;
 import me.osm.gazetteer.web.api.meta.Endpoint;
 import me.osm.gazetteer.web.api.meta.Parameter;
 import me.osm.gazetteer.web.api.utils.RequestUtils;
@@ -231,7 +231,7 @@ public class InverseGeocodeAPI implements DocumentedApi {
 	 * @return founded highway or null
 	 * */
 	public JSONObject getHighway(double lon, double lat, int r) {
-		Client client = ESNodeHodel.getClient();
+		Client client = ESNodeHolder.getClient();
 		
 		FilteredQueryBuilder q =
 				QueryBuilders.filteredQuery(
@@ -322,7 +322,7 @@ public class InverseGeocodeAPI implements DocumentedApi {
 	private SearchRequestBuilder buildEnclosedFeaturesRequest(double lon,
 			double lat, int maxNeighbours) {
 		
-		Client client = ESNodeHodel.getClient();
+		Client client = ESNodeHolder.getClient();
 		
 		FilteredQueryBuilder q =
 				QueryBuilders.filteredQuery(
@@ -348,7 +348,7 @@ public class InverseGeocodeAPI implements DocumentedApi {
 	 * @return boundaries mapped by it's levels (addr_level attribute value)
 	 * */
 	public Map<String, JSONObject> getBoundariesLevels(double lon, double lat) {
-		Client client = ESNodeHodel.getClient();
+		Client client = ESNodeHolder.getClient();
 		
 		GeoShapeFilterBuilder filter = FilterBuilders.geoShapeFilter("full_geometry", 
 				ShapeBuilder.newPoint(lon, lat), ShapeRelation.INTERSECTS);

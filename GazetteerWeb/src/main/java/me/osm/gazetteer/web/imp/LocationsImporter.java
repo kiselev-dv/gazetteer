@@ -24,7 +24,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.zip.GZIPInputStream;
 
-import me.osm.gazetteer.web.ESNodeHodel;
+import me.osm.gazetteer.web.ESNodeHolder;
 import me.osm.gazetteer.web.FeatureTypes;
 import me.osm.gazetteer.web.GazetteerWeb;
 import me.osm.gazetteer.web.executions.AbortedException;
@@ -151,7 +151,7 @@ public class LocationsImporter extends BackgroundExecutableTask {
 	@Override
 	public void executeTask() throws AbortedException {
 		
-		client = ESNodeHodel.getClient();
+		client = ESNodeHolder.getClient();
 		bulkRequest = client.prepareBulk();
 		
 		IndicesExistsResponse response = new IndicesExistsRequestBuilder(

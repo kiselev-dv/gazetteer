@@ -8,7 +8,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Set;
 
-import me.osm.gazetteer.web.ESNodeHodel;
+import me.osm.gazetteer.web.ESNodeHolder;
 import me.osm.gazetteer.web.api.meta.Endpoint;
 import me.osm.gazetteer.web.api.meta.Parameter;
 import me.osm.gazetteer.web.imp.IndexHolder;
@@ -51,7 +51,7 @@ public class FeatureAPI implements DocumentedApi {
 	}
 
 	public static JSONObject getFeature(String idParam, boolean withRelated) {
-		Client client = ESNodeHodel.getClient();
+		Client client = ESNodeHolder.getClient();
 		
 		if(idParam == null) {
 			return null;
@@ -150,7 +150,7 @@ public class FeatureAPI implements DocumentedApi {
 	public static JSONObject getRelated(JSONObject feature) {
 
 		String id = feature.getString("feature_id");
-		Client client = ESNodeHodel.getClient();
+		Client client = ESNodeHolder.getClient();
 		
 		JSONObject result = new JSONObject();
 		JSONArray sameBuilding = new JSONArray();

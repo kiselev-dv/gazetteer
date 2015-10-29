@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
-import me.osm.gazetteer.web.ESNodeHodel;
+import me.osm.gazetteer.web.ESNodeHolder;
 import me.osm.gazetteer.web.api.meta.Endpoint;
 import me.osm.gazetteer.web.api.meta.Parameter;
 import me.osm.gazetteer.web.imp.IndexHolder;
@@ -38,12 +38,12 @@ public class ImportOSMDoc implements DocumentedApi {
 	public JSONObject run(String source) {
 		JSONObject result = new JSONObject();
 		
-		final BulkRequestBuilder bulk = ESNodeHodel.getClient().prepareBulk();
+		final BulkRequestBuilder bulk = ESNodeHolder.getClient().prepareBulk();
 
 		List<JSONObject> features = OSMDocSinglton.get().getFacade().listTranslatedFeatures(null);
 		for(JSONObject obj : features) {
 			
-			IndexRequestBuilder ind = new IndexRequestBuilder(ESNodeHodel.getClient())
+			IndexRequestBuilder ind = new IndexRequestBuilder(ESNodeHolder.getClient())
 				.setSource(obj.toString()).setIndex("gazetteer").setType(IndexHolder.POI_CLASS);
 			
 			bulk.add(ind.request());
@@ -78,7 +78,7 @@ public class ImportOSMDoc implements DocumentedApi {
 						
 						obj.put("keywords", new JSONArray(kwds));
 						
-						IndexRequestBuilder ind = new IndexRequestBuilder(ESNodeHodel.getClient())
+						IndexRequestBuilder ind = new IndexRequestBuilder(ESNodeHolder.getClient())
 						.setSource(obj.toString()).setIndex("gazetteer").setType(IndexHolder.POI_CLASS);
 						bulk.add(ind.request());
 						

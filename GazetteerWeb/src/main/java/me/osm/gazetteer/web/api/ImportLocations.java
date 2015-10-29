@@ -2,7 +2,7 @@ package me.osm.gazetteer.web.api;
 
 import java.net.URL;
 
-import me.osm.gazetteer.web.ESNodeHodel;
+import me.osm.gazetteer.web.ESNodeHolder;
 import me.osm.gazetteer.web.api.meta.Endpoint;
 import me.osm.gazetteer.web.api.meta.Parameter;
 import me.osm.gazetteer.web.api.utils.RequestUtils;
@@ -23,7 +23,7 @@ import org.restexpress.domain.metadata.UriMetadata;
  * */
 public class ImportLocations implements DocumentedApi {
 
-	private static final IndicesAdminClient INDICES_CLIENT = ESNodeHodel.getClient().admin().indices();
+	private static final IndicesAdminClient INDICES_CLIENT = ESNodeHolder.getClient().admin().indices();
 	
 	/**
 	 * Path to dump file

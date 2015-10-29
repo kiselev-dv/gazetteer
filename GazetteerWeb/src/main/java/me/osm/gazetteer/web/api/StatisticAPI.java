@@ -4,7 +4,7 @@ import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map.Entry;
 
-import me.osm.gazetteer.web.ESNodeHodel;
+import me.osm.gazetteer.web.ESNodeHolder;
 import me.osm.gazetteer.web.api.meta.Endpoint;
 import me.osm.gazetteer.web.api.meta.Parameter;
 import me.osm.gazetteer.web.imp.IndexHolder;
@@ -43,7 +43,7 @@ public class StatisticAPI implements DocumentedApi {
 			return null;
 		}
 
-		Client client = ESNodeHodel.getClient();
+		Client client = ESNodeHolder.getClient();
 		
 		SearchRequestBuilder searchQ = client.prepareSearch("gazetteer").setTypes(IndexHolder.LOCATION)
 				.setQuery(QueryBuilders.boolQuery()

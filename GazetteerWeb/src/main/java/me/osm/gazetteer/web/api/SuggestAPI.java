@@ -7,7 +7,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 
-import me.osm.gazetteer.web.ESNodeHodel;
+import me.osm.gazetteer.web.ESNodeHolder;
 import me.osm.gazetteer.web.GazetteerWeb;
 import me.osm.gazetteer.web.api.meta.Endpoint;
 import me.osm.gazetteer.web.api.query.Query;
@@ -96,7 +96,7 @@ public class SuggestAPI extends SearchAPI {
 	}
 
 	private List<JSONObject> suggestPoiType(Query query) {
-		Client client = ESNodeHodel.getClient();
+		Client client = ESNodeHolder.getClient();
 		
 		Query filtered = query.filter(new HashSet<String>(Arrays.asList("на", "дом")));
 		

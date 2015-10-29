@@ -6,7 +6,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import me.osm.gazetteer.web.Configuration;
-import me.osm.gazetteer.web.ESNodeHodel;
+import me.osm.gazetteer.web.ESNodeHolder;
 import me.osm.gazetteer.web.GazetteerWeb;
 import me.osm.gazetteer.web.api.meta.Endpoint;
 import me.osm.gazetteer.web.api.renders.SitemapRender;
@@ -72,7 +72,7 @@ public class Sitemap implements DocumentedApi {
 
 	public static void renderPage(int page, SitemapRender render) throws UnsupportedEncodingException {
 
-		Client client = ESNodeHodel.getClient();
+		Client client = ESNodeHolder.getClient();
 		
 		SearchRequestBuilder searchQ = client.prepareSearch("gazetteer")
 				.setTypes(IndexHolder.LOCATION)
@@ -108,7 +108,7 @@ public class Sitemap implements DocumentedApi {
 	}
 
 	public static void renderIndex(SitemapRender render) throws UnsupportedEncodingException {
-		Client client = ESNodeHodel.getClient();
+		Client client = ESNodeHolder.getClient();
 		
 		CountResponse countResponse = client.prepareCount("gazetteer")
 				.setTypes(IndexHolder.LOCATION)

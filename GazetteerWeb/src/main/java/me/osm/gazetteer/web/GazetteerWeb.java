@@ -12,6 +12,7 @@ import me.osm.osmdoc.localization.L10n;
 
 import org.restexpress.RestExpress;
 import org.restexpress.util.Environment;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ch.qos.logback.classic.LoggerContext;
@@ -24,12 +25,14 @@ import com.google.inject.Injector;
 
 public class GazetteerWeb {
 	
+	private static final Logger LOG = LoggerFactory.getLogger(GazetteerWeb.class);
+
 	private static class ShutDownListener implements Runnable
 	{
 	    @Override
 	    public void run()
 	    {
-	    	ESNodeHodel.stopNode();
+	    	ESNodeHolder.stopNode();
 	    	server.shutdown();
 	    }
 	}
@@ -41,9 +44,10 @@ public class GazetteerWeb {
 	public static void main(String[] args) throws Exception {
 		
 		initLog();
+		LOG.info("Start GazetterWeb server");
 		
 		config = loadEnvironment(args);
-		ESNodeHodel.getClient();
+		ESNodeHolder.getClient();
 
 		if(!"jar".equals(config.getPoiCatalogPath())) {
 			L10n.setCatalogPath(config.getPoiCatalogPath());
@@ -70,8 +74,7 @@ public class GazetteerWeb {
 		Thread thread = new Thread(new ShutDownListener());
         runtime.addShutdownHook(thread);
         
-        LoggerFactory.getLogger(GazetteerWeb.class)
-        	.info("{} server listening on port {}", config.getName(), config.getPort());
+        LOG.info("{} server listening on port {}", config.getName(), config.getPort());
 	}
 
 	private static void initLog() {

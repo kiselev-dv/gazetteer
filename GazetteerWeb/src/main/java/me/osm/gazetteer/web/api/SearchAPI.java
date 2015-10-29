@@ -10,7 +10,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
-import me.osm.gazetteer.web.ESNodeHodel;
+import me.osm.gazetteer.web.ESNodeHolder;
 import me.osm.gazetteer.web.GazetteerWeb;
 import me.osm.gazetteer.web.api.meta.Endpoint;
 import me.osm.gazetteer.web.api.meta.Parameter;
@@ -326,7 +326,7 @@ public class SearchAPI implements DocumentedApi {
 			qb = addRefsRestriction(qb, refs);
 		}
 		
-		Client client = ESNodeHodel.getClient();
+		Client client = ESNodeHolder.getClient();
 		SearchRequestBuilder searchRequest = client
 				.prepareSearch("gazetteer").setTypes(IndexHolder.LOCATION)
 				.setQuery(qb)
@@ -347,7 +347,7 @@ public class SearchAPI implements DocumentedApi {
 	 * */
 	protected List<JSONObject> findPoiClass(Query query) {
 		
-		Client client = ESNodeHodel.getClient();
+		Client client = ESNodeHolder.getClient();
 		
 		String qs = query.required().woNumbers().toString();
 		
