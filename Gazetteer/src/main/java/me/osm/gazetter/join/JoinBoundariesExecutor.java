@@ -123,7 +123,8 @@ public class JoinBoundariesExecutor {
                 100, 
                 100 * 1024 * 1024, 
                 Charset.forName("UTF8"), 
-                new File(stripesFolder), distinct, 0,
+                new File(stripesFolder), 
+                distinct, 0,
                 true);
 		
 		binxFile = new File(stripesFolder + "/" + "binx-sorted.gjson");
