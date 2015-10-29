@@ -10,6 +10,7 @@ import java.util.Locale;
 import java.util.Map;
 
 import me.osm.gazetteer.web.Configuration;
+import me.osm.gazetteer.web.GazetteerWeb;
 import me.osm.gazetteer.web.api.meta.Endpoint;
 import me.osm.gazetteer.web.api.renders.HTMLSitemapRender;
 import me.osm.gazetteer.web.api.renders.SnapshotRender;
@@ -31,7 +32,7 @@ public class SnapshotsAPI implements DocumentedApi {
 		GroovyClassLoader gcl = new GroovyClassLoader(SnapshotsAPI.class.getClassLoader());
 		try {
 			gcl.addClasspath("lib");
-			Class<?> clazz = gcl.parseClass(new File("config/html_templates/htmlRender.groovy"));
+			Class<?> clazz = gcl.parseClass(new File(GazetteerWeb.config().getSnapshotsRender()));
 			Object aScript = clazz.newInstance();
 			
 			if(aScript instanceof SnapshotRender) {

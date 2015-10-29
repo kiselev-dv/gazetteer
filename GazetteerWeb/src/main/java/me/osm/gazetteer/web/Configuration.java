@@ -38,6 +38,7 @@ public class Configuration extends org.restexpress.util.Environment
 	private int executionQueueSize = 5;
 	private String transliteratorClass = ApacheASCIIFoldTransliterator.class.getName();
 	private Collection<String> importSkipTypes = new HashSet<>();
+	private String snapshotsRender = "config/html_templates/htmlRender.groovy";
 	
 	@Override
 	protected void fillValues(Properties p)
@@ -60,6 +61,7 @@ public class Configuration extends org.restexpress.util.Environment
 		this.executionQueueSize = Integer.parseInt(p.getProperty("execution_queue_size", "5"));
 		this.transliteratorClass = p.getProperty("transliterator_class", transliteratorClass);
 		this.importSkipTypes = Arrays.asList(StringUtils.split(p.getProperty("import_skip_types", ""), " ,;"));
+		this.snapshotsRender = p.getProperty("snapshots_render", snapshotsRender);
 	}
 
 	public String getDefaultFormat()
@@ -135,6 +137,10 @@ public class Configuration extends org.restexpress.util.Environment
 
 	public Collection<String> getImportSkipTypes() {
 		return importSkipTypes;
+	}
+
+	public String getSnapshotsRender() {
+		return snapshotsRender;
 	}
 
 }
