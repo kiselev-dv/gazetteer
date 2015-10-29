@@ -2,6 +2,8 @@ package me.osm.gazetteer.web.api.meta.health;
 
 import java.util.Collection;
 
+import org.apache.commons.lang3.tuple.Pair;
+
 import me.osm.gazetteer.web.executions.BackgroudTaskDescription;
 
 public class BackgroundExecution {
@@ -11,6 +13,8 @@ public class BackgroundExecution {
 	private Collection<BackgroudTaskDescription> done;
 	private Collection<BackgroudTaskDescription> queued;
 	private Collection<BackgroudTaskDescription> active;
+
+	private Collection<Pair<BackgroudTaskDescription, String>> aborted;
 	
 	public int getThreads() {
 		return threads;
@@ -42,6 +46,15 @@ public class BackgroundExecution {
 
 	public void setActive(Collection<BackgroudTaskDescription> active) {
 		this.active = active;
+	}
+
+	public Collection<Pair<BackgroudTaskDescription, String>> getAborted() {
+		return aborted;
+	}
+
+	public void setAborted(
+			Collection<Pair<BackgroudTaskDescription, String>> aborted) {
+		this.aborted = aborted;
 	}
 	
 }

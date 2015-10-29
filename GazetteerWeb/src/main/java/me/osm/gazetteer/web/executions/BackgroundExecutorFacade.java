@@ -4,6 +4,7 @@ import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -20,6 +21,8 @@ import me.osm.gazetteer.web.GazetteerWeb;
 import me.osm.gazetteer.web.api.meta.health.BackgroundExecution;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -198,6 +201,15 @@ public class BackgroundExecutorFacade {
 				list.add(INSTANCE.descriptions.get(tid));
 			}
 			result.setQueued(list);
+			
+			Collection<Pair<BackgroudTaskDescription, String>> rejected = new ArrayList<>();
+			for(Entry<Integer, String> entry : abortedTasks.entrySet()) {
+				BackgroudTaskDescription description = INSTANCE.descriptions.get(entry.getKey());
+				String errMsg = entry.getValue();
+				rejected.add(new ImmutablePair<BackgroudTaskDescription, String>(description, errMsg));
+			}
+			result.setAborted(rejected);
+			
 			
 			return result;
 		}
