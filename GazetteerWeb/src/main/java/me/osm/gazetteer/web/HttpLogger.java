@@ -51,7 +51,8 @@ public final class HttpLogger extends MessageObserver {
 		}
 
 		else if(StringUtils.contains(userAgent, "msnbot") 
-				|| StringUtils.contains(userAgent, "BingPreview")) {
+				|| StringUtils.contains(userAgent, "BingPreview")
+				|| StringUtils.contains(userAgent, "bingbot")) {
 			marker = BOT_BING;
 		}
 		
