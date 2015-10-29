@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.joran.JoranConfigurator;
 import ch.qos.logback.core.joran.spi.JoranException;
+import ch.qos.logback.core.util.StatusPrinter;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -87,6 +88,9 @@ public class GazetteerWeb {
 	    } catch (JoranException je) {
 	      // StatusPrinter will handle this
 	    }
+		
+		StatusPrinter.printInCaseOfErrorsOrWarnings(context);
+
 	}
 
 	private static Configuration loadEnvironment(String[] args)

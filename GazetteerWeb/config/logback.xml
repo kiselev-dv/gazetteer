@@ -3,7 +3,7 @@
 
 	<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
 		<layout class="ch.qos.logback.classic.PatternLayout">
-			<Pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{5} - %msg%n
+			<Pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{35} - %msg%n
 			</Pattern>
 		</layout>
 	</appender>
@@ -13,31 +13,70 @@
 		<file>logs/gazetteer-web.log</file>
 
 		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-			
+
 			<!-- daily rollover -->
 			<fileNamePattern>logs/%d{yyyy-MM-dd}.%i.log</fileNamePattern>
-			
+
 			<timeBasedFileNamingAndTriggeringPolicy
 				class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
-				
+
 				<!-- or whenever the file size reaches 100MB -->
 				<maxFileSize>100MB</maxFileSize>
-				
+
 			</timeBasedFileNamingAndTriggeringPolicy>
-			
+
 			<!-- keep 7 days' worth of history -->
 			<maxHistory>7</maxHistory>
 		</rollingPolicy>
 
-		<layout class="ch.qos.logback.classic.PatternLayout">
-			<Pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{5} - %msg%n
+		<encoder>
+			<Pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{35} - %msg%n
 			</Pattern>
-		</layout>
+		</encoder>
 	</appender>
 
-	<root level="info">
+	<appender name="ACCESS_LOG"
+		class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>logs/access/gw-access.log</file>
+
+		<evaluator class="ch.qos.logback.classic.boolex.OnMarkerEvaluator">
+			<marker>HUMAN</marker>
+			<OnMatch>ACCEPT</OnMatch>
+        	<OnMismatch>DENY</OnMismatch>
+		</evaluator>
+
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+
+			<!-- daily rollover -->
+			<fileNamePattern>logs/access/%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+
+			<timeBasedFileNamingAndTriggeringPolicy
+				class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+
+				<!-- or whenever the file size reaches 100MB -->
+				<maxFileSize>50MB</maxFileSize>
+
+			</timeBasedFileNamingAndTriggeringPolicy>
+
+			<!-- keep 7 days' worth of history -->
+			<maxHistory>14</maxHistory>
+		</rollingPolicy>
+
+		<encoder>
+			<Pattern>%d{HH:mm:ss.SSS} %msg%n</Pattern>
+		</encoder>
+	</appender>
+
+	<root level="DEBUG">
 		<appender-ref ref="STDOUT" />
 		<appender-ref ref="FILE" />
 	</root>
+
+	<logger name="org.elasticsearch" level="INFO" />
+	<logger name="me.osm.gazetteer.web.HttpLogger" level="ERROR" />
+
+	<logger name="me.osm.gazetteer.web.HttpLogger.AccessLog" level="TRACE">
+		<appender-ref ref="ACCESS_LOG" />
+	</logger>
 
 </configuration>
