@@ -48,7 +48,7 @@
 		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
 
 			<!-- daily rollover -->
-			<fileNamePattern>logs/access/%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+			<fileNamePattern>logs/access/%d{yyyy-MM}.%i.log</fileNamePattern>
 
 			<timeBasedFileNamingAndTriggeringPolicy
 				class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
