@@ -17,15 +17,15 @@ class HTMLSnapshotRender implements SnapshotRender {
 	def engine = new SimpleTemplateEngine();
 	
 	def tpls = [
-	    'config/templates/hgroup.html',
-	    'config/templates/hierarchy.html',
-		'config/templates/feature.html',
-		'config/templates/poi-types.html',
-		'config/templates/poi-more-tags.html',
-		'config/templates/poi-related.html',
-		'config/templates/name.html',
-		'config/templates/ref.html',
-		'config/templates/address.html'
+	    'config/html_templates/hgroup.html',
+	    'config/html_templates/hierarchy.html',
+		'config/html_templates/feature.html',
+		'config/html_templates/poi-types.html',
+		'config/html_templates/poi-more-tags.html',
+		'config/html_templates/poi-related.html',
+		'config/html_templates/name.html',
+		'config/html_templates/ref.html',
+		'config/html_templates/address.html'
 	];
 
 	def osmdoc = OSMDocSinglton.get();

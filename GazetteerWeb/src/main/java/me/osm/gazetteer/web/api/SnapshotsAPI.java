@@ -31,7 +31,7 @@ public class SnapshotsAPI implements DocumentedApi {
 		GroovyClassLoader gcl = new GroovyClassLoader(SnapshotsAPI.class.getClassLoader());
 		try {
 			gcl.addClasspath("lib");
-			Class<?> clazz = gcl.parseClass(new File("config/templates/htmlRender.groovy"));
+			Class<?> clazz = gcl.parseClass(new File("config/html_templates/htmlRender.groovy"));
 			Object aScript = clazz.newInstance();
 			
 			if(aScript instanceof SnapshotRender) {
