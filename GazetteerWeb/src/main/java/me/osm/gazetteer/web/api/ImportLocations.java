@@ -1,7 +1,5 @@
 package me.osm.gazetteer.web.api;
 
-import java.net.URL;
-
 import me.osm.gazetteer.web.ESNodeHolder;
 import me.osm.gazetteer.web.api.meta.Endpoint;
 import me.osm.gazetteer.web.api.meta.Parameter;
