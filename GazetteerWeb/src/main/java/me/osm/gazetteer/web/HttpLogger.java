@@ -55,8 +55,9 @@ public final class HttpLogger extends MessageObserver {
 			marker = BOT_BING;
 		}
 		
-		accLog.trace(marker, "{} - {} {} User-Agent: {} ",
+		accLog.trace(marker, "{} - {} {} {} User-Agent: {} ",
 				ipAddr,
+				response.getResponseStatus().getCode(),
 				request.getEffectiveHttpMethod(), 
 				request.getUrl(), 
 				userAgent);
