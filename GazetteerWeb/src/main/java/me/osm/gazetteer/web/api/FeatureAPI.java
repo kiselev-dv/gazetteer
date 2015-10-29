@@ -162,7 +162,7 @@ public class FeatureAPI implements DocumentedApi {
 		else if(id.startsWith("poipnt")) {
 			
 			JSONObject addr = feature.getJSONArray("addresses").getJSONObject(0);
-			JSONArray jsonArray = addr.getJSONObject("refs").getJSONArray("poi_addresses");
+			JSONArray jsonArray = addr.getJSONObject("refs").optJSONArray("poi_addresses");
 			if(jsonArray != null && jsonArray.length() > 0) {
 				sameBuilding(jsonArray.getString(0), client, sameBuilding);
 			}
