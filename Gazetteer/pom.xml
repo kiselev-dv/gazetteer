@@ -15,6 +15,8 @@
 		<groovy.version>2.2.2</groovy.version>
 		<extsort.version>0.1.11</extsort.version>
 
+		<build.timestamp>${maven.build.timestamp}</build.timestamp>
+   		<maven.build.timestamp.format>yyyy-MM-dd HH:mm:ss</maven.build.timestamp.format>
 	</properties>
 
 	<dependencies>

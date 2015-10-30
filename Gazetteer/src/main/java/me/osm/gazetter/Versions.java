@@ -23,4 +23,5 @@ public class Versions {
 	public static final String jts = file.getProperty("jts.version");
 	public static final String osmdoc = file.getProperty("osmdoc.version");
 	public static final String groovy = file.getProperty("groovy.version");
+	public static final String buildTs = file.getProperty("build.timestamp");
 }
