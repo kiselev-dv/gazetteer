@@ -302,6 +302,7 @@ public class Gazetteer {
 		
 		if(full) {
 			System.out.println("Gazetteer: " + Versions.gazetteer);
+			System.out.println("Build timestamp: " + Versions.buildTs);
 			System.out.println("Java Topology Syte: " + Versions.jts);
 			System.out.println("Osm Doc Java: " + Versions.osmdoc);
 			System.out.println("Groovy runtime: " + Versions.groovy);
