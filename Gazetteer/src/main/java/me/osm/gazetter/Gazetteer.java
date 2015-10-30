@@ -10,8 +10,8 @@ import java.util.Iterator;
 import java.util.List;
 
 import me.osm.gazetter.addresses.AddrLevelsSorting;
+import me.osm.gazetter.diff.Diff;
 import me.osm.gazetter.join.JoinExecutor;
-import me.osm.gazetter.out.Diff;
 import me.osm.gazetter.sortupdate.SortUpdate;
 import me.osm.gazetter.split.Split;
 import me.osm.gazetter.striper.Slicer;
@@ -262,8 +262,19 @@ public class Gazetteer {
 			
 			if(namespace.get(COMMAND).equals(Command.DIFF)) {
 				Boolean full = namespace.getBoolean("--full");
-				new Diff(namespace.getString("old"), namespace.getString("new"), 
-						namespace.getString("out_file"), full).run();
+				full = full == null ? false : full;
+				
+				String oldHeader = namespace.getString("old_header");
+				String newHeader = namespace.getString("new_header");
+				
+				Diff diffExecutor = new Diff(namespace.getString("old"), 
+						namespace.getString("new"), 
+						namespace.getString("out_file"), full);
+				
+				diffExecutor.setOldHeader(oldHeader);
+				diffExecutor.setNewHeader(newHeader);
+				
+				diffExecutor.run();
 			}
 			
 			if(namespace.get(COMMAND).equals(Command.MATCH_FLAP)) {
@@ -514,14 +525,22 @@ public class Gazetteer {
 			
 			diff.addArgument("--out-file").setDefault("-")
 				.help("Where to print results.");
+			
 			diff.addArgument("--old").required(true)
 				.help("Path to old file.");
 			diff.addArgument("--new").required(true)
 				.help("Path to new file.");
 			
+			diff.addArgument("--old-header").required(false)
+				.help("Add meta for old file.");
+			diff.addArgument("--new-header").required(false)
+				.help("Add meta for new file.");
+			
 			diff.addArgument("--full").setConst(Boolean.TRUE)
 				.setDefault(Boolean.FALSE).action(new StoreTrueArgumentAction())
 				.help("Print full object data for deleted and old rows.");
+			
+			
 		}
 		
 		return parser;

@@ -62,8 +62,17 @@ public class JoinBoundariesExecutor {
 			
 			if(i1 > 0) lvls.add(i1);
 			if(i2 > 0) lvls.add(i2);
-			
-			return Integer.compare(i1, i2);
+
+			if(i1 == i2) {
+
+				String id1 = GeoJsonWriter.getId(arg0);
+				String id2 = GeoJsonWriter.getId(arg1);
+				
+				return id2.compareTo(id1);
+			}
+			else {
+				return Integer.compare(i1, i2);
+			}
 		}
 
 		public Set<Integer> getLvls() {
@@ -113,7 +122,7 @@ public class JoinBoundariesExecutor {
 		
 		addressesParser = Options.get().getAddressesParser();
 		
-		boolean distinct = false;
+		boolean distinct = true;
 		
 		BufferedReader binxReader = new BufferedReader(new InputStreamReader(FileUtils.getFileIS(binxFile)));
 		List<File> l = ExternalSort.sortInBatch(
