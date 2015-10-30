@@ -27,11 +27,13 @@ public class Diff {
 	
 	private boolean fillOld = false;
 	
-	public Diff(String oldPath, String newPath, String out) {
+	public Diff(String oldPath, String newPath, String out, boolean fillOld) {
+		
+		this.oldPath = oldPath;
+		this.newPath = newPath;
+		this.fillOld = fillOld;
+
 		try {
-			this.oldPath = oldPath;
-			this.newPath = newPath;
-			
 			if(out.equals("-")) {
 				this.out = new PrintWriter(System.out);
 			}
@@ -46,7 +48,17 @@ public class Diff {
 
 	private TreeMap<String, Object[]> map = new TreeMap<>();
 	
+	private static final class Counters {
+		long remove = 0;
+		long add = 0;
+		long takeNew = 0;
+		long takeOld = 0;
+	}
+	
 	public void run() {
+		
+		final Counters counters = new Counters();
+		
 		try {
 			log.info("Read {}", oldPath);
 			
@@ -82,11 +94,14 @@ public class Diff {
 					Object[] row = map.get(id);
 					if(row == null) {
 						out.println("+ " + s);
+						counters.add++;
 					}
 					else {
 						if (!((String)row[0]).equals(md5)) {
-							if(((Date)row[1]).before(timestamp)) {
+							Date old = (Date)row[1];
+							if(old.before(timestamp)) {
 								out.println("N " + s);
+								counters.takeNew++;
 							}
 							else {
 								olds.add(id);
@@ -107,44 +122,53 @@ public class Diff {
 			// по идее таких быть не должно, кроме случая если перепутали
 			// --new и --old местами
 			
-			boolean fillDataForRemoved = !map.isEmpty() && fillOld;
+			boolean removed = !map.isEmpty();
 			boolean newer = !olds.isEmpty();
 			
 			if(newer) {
 				log.warn("There are objects in --old with newer timestamps");
 			}
 			
-			if(fillDataForRemoved || newer) {
-				FileUtils.handleLines(new File(this.oldPath), new LineHandler() {
-					
-					@Override
-					public void handle(String s) {
-						String id = GeoJsonWriter.getId(s);
+			if(removed || newer) {
+				if(fillOld) {
+					FileUtils.handleLines(new File(this.oldPath), new LineHandler() {
 						
-						if(map.containsKey(id)) {
-							if(fillOld) {
+						@Override
+						public void handle(String s) {
+							String id = GeoJsonWriter.getId(s);
+							
+							if(map.containsKey(id)) {
 								out.println("- " + s);
+								counters.remove++;
 							}
-							else {
-								out.println("- " + "{\"id\":\"" + id + "\"}");
+							
+							else if(olds.contains(id)) {
+								out.println("O " + s);
+								counters.takeOld++;
 							}
 						}
 						
-						else if(olds.contains(id)) {
-							out.println("O " + s);
-						}
+					});
+				}
+				else {
+					for(Entry<String, Object[]> entry : map.entrySet()) {
+						out.println("- " + "{\"id\":\"" + entry.getKey() + "\"}");
+						counters.remove++;
 					}
-					
-				});
-			}
-			else if (!fillOld) {
-				for(Entry<String, Object[]> entry : map.entrySet()) {
-					out.println("- " + "{\"id\":\"" + entry.getKey() + "\"}");
+					for(String id : olds) {
+						out.println("O " + "{\"id\":\"" + id + "\"}");
+						counters.takeOld++;
+					}
 				}
 			}
 			
 			out.flush();
 			out.close();
+			
+			log.info("Remove {}", counters.remove);
+			log.info("Add {}", counters.add);
+			log.info("Take new {}", counters.takeNew);
+			log.info("Take old {}", counters.takeOld);
 			
 		} catch (IOException e) {
 			throw new RuntimeException(e);

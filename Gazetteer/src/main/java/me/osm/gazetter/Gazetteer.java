@@ -261,8 +261,9 @@ public class Gazetteer {
 			}
 			
 			if(namespace.get(COMMAND).equals(Command.DIFF)) {
+				Boolean full = namespace.getBoolean("--full");
 				new Diff(namespace.getString("old"), namespace.getString("new"), 
-						namespace.getString("out_file")).run();
+						namespace.getString("out_file"), full).run();
 			}
 			
 			if(namespace.get(COMMAND).equals(Command.MATCH_FLAP)) {
@@ -511,9 +512,16 @@ public class Gazetteer {
 					.setDefault(COMMAND, command)
 					.help(command.help());
 			
-			diff.addArgument("--out-file").setDefault("-");
-			diff.addArgument("--old").required(true);
-			diff.addArgument("--new").required(true);
+			diff.addArgument("--out-file").setDefault("-")
+				.help("Where to print results.");
+			diff.addArgument("--old").required(true)
+				.help("Path to old file.");
+			diff.addArgument("--new").required(true)
+				.help("Path to new file.");
+			
+			diff.addArgument("--full").setConst(Boolean.TRUE)
+				.setDefault(Boolean.FALSE).action(new StoreTrueArgumentAction())
+				.help("Print full object data for deleted and old rows.");
 		}
 		
 		return parser;
