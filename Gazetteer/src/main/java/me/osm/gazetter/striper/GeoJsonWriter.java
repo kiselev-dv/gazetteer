@@ -208,14 +208,14 @@ public class GeoJsonWriter {
 		return null;
 	}
 
-	public static Date getTimestamp(String line) {
+	public static DateTime getTimestamp(String line) {
 		int indexOf = line.indexOf(TIMESTAMP_PATTERN);
 		if(indexOf >= 0) {
 			int begin = indexOf + TIMESTAMP_PATTERN.length();
 			int end = line.indexOf("\"", begin);
 			String timestampString = line.substring(begin, end);
 			try {
-				return (new DateTime(timestampString)).toDate();
+				return new DateTime(timestampString);
 			} catch (Exception e) {
 				log.error("Can't parse timestamp {} for line {}", timestampString, line);
 			}

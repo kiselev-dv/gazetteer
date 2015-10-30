@@ -4,13 +4,13 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import me.osm.gazetter.striper.GeoJsonWriter;
 
+import org.joda.time.DateTime;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,8 +41,8 @@ public class SortAndUpdateTask implements Runnable {
 					String id2 = GeoJsonWriter.getId(paramT2);
 
 					if (id1.equals(id2)) {
-						Date d1 = GeoJsonWriter.getTimestamp(paramT1);
-						Date d2 = GeoJsonWriter.getTimestamp(paramT2);
+						DateTime d1 = GeoJsonWriter.getTimestamp(paramT1);
+						DateTime d2 = GeoJsonWriter.getTimestamp(paramT2);
 						
 						return d2.compareTo(d1);
 					}
@@ -55,13 +55,13 @@ public class SortAndUpdateTask implements Runnable {
 			Iterator<String> iterator = lines.iterator();
 
 			String prevId = null;
-			Date prevTimestamp = null;
+			DateTime prevTimestamp = null;
 
 			while (iterator.hasNext()) {
 				String line = iterator.next();
 
 				String id = GeoJsonWriter.getId(line);
-				Date timestamp = GeoJsonWriter.getTimestamp(line);
+				DateTime timestamp = GeoJsonWriter.getTimestamp(line);
 				
 				if("remove".equals(GeoJsonWriter.getAction(line))) {
 					iterator.remove();
@@ -75,7 +75,7 @@ public class SortAndUpdateTask implements Runnable {
 				}
 
 				if (prevId != null && prevTimestamp != null
-						&& id.equals(prevId) && timestamp.before(prevTimestamp)) {
+						&& id.equals(prevId) && timestamp.isBefore(prevTimestamp)) {
 					iterator.remove();
 					counter.getAndIncrement();
 				}
