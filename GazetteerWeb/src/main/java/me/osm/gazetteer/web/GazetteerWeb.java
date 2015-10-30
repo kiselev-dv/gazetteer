@@ -46,35 +46,40 @@ public class GazetteerWeb {
 		initLog();
 		LOG.info("Start GazetterWeb server");
 		
-		config = loadEnvironment(args);
-		ESNodeHolder.getClient();
-
-		if(!"jar".equals(config.getPoiCatalogPath())) {
-			L10n.setCatalogPath(config.getPoiCatalogPath());
+		try {
+			config = loadEnvironment(args);
+			ESNodeHolder.getClient();
+			
+			if(!"jar".equals(config.getPoiCatalogPath())) {
+				L10n.setCatalogPath(config.getPoiCatalogPath());
+			}
+			
+			OSMDocSinglton.initialize(config.getPoiCatalogPath());
+			
+			RestExpress.setSerializationProvider(new SerializationProvider());
+			
+			server = new RestExpress()
+			.setUseSystemOut(false)
+			.setName(config.getName())
+			.addPostprocessor(new LastModifiedHeaderPostprocessor())
+			.addPostprocessor(new AllowOriginPP())
+			.addPostprocessor(new MarkHeaderPostprocessor())
+			.addPreprocessor(new BasikAuthPreprocessor(null));
+			
+			Routes.defineRoutes(server);
+			
+			server.addMessageObserver(new HttpLogger());
+			
+			server.bind(config.getPort());
+			Runtime runtime = Runtime.getRuntime();
+			Thread thread = new Thread(new ShutDownListener());
+			runtime.addShutdownHook(thread);
+			
+			LOG.info("{} server listening on port {}", config.getName(), config.getPort());
 		}
-
-		OSMDocSinglton.initialize(config.getPoiCatalogPath());
-		
-		RestExpress.setSerializationProvider(new SerializationProvider());
-		
-		server = new RestExpress()
-				.setUseSystemOut(false)
-				.setName(config.getName())
-				.addPostprocessor(new LastModifiedHeaderPostprocessor())
-				.addPostprocessor(new AllowOriginPP())
-				.addPostprocessor(new MarkHeaderPostprocessor())
-				.addPreprocessor(new BasikAuthPreprocessor(null));
-
-		Routes.defineRoutes(server);
-		
-		server.addMessageObserver(new HttpLogger());
-		
-		server.bind(config.getPort());
-		Runtime runtime = Runtime.getRuntime();
-		Thread thread = new Thread(new ShutDownListener());
-        runtime.addShutdownHook(thread);
-        
-        LOG.info("{} server listening on port {}", config.getName(), config.getPort());
+		catch (Exception e) {
+			LOG.error("Initialization error.", e);
+		}
 	}
 
 	private static void initLog() {

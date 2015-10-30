@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>me.osm.Gazetteer</groupId>
 	<artifactId>GazetteerWeb</artifactId>
-	<version>0.6-SNAMPSHOT</version>
+	<version>0.6-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
 	<properties>
@@ -146,6 +146,16 @@
 				<includes>
 					<include>**/*.properties</include>
 				</includes>
+			</resource>
+			<resource>
+				<directory>src/main/resources</directory>
+				<filtering>false</filtering>
+				<includes>
+					<include>**/*</include>
+				</includes>
+				<excludes>
+					<exclude>**/*.properties</exclude>
+				</excludes>
 			</resource>
 		</resources>
 		<plugins>
