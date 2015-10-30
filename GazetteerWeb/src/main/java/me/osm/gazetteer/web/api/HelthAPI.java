@@ -1,9 +1,11 @@
 package me.osm.gazetteer.web.api;
 
+import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.lang.management.RuntimeMXBean;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 
 import me.osm.gazetteer.web.ESNodeHolder;
 import me.osm.gazetteer.web.api.meta.Endpoint;
@@ -17,12 +19,28 @@ import org.elasticsearch.client.Client;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
+import org.elasticsearch.search.aggregations.bucket.terms.Terms.Bucket;
 import org.restexpress.Request;
 import org.restexpress.Response;
 import org.restexpress.domain.metadata.UriMetadata;
-import org.elasticsearch.search.aggregations.bucket.terms.Terms.Bucket;
 
 public class HelthAPI implements DocumentedApi {
+	
+	private static final Map<String, String> versions = new HashMap<>();
+	
+	static { 
+		try {
+			Properties versionProperties = new Properties();
+			versionProperties.load(HelthAPI.class.getResourceAsStream("/version.properties"));
+			
+			for(Map.Entry<Object, Object> entry : versionProperties.entrySet()) {
+				versions.put(entry.getKey().toString(), entry.getValue().toString());
+			}
+			
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 
 	public Health read(Request req, Response res)	{
 		Health health = new Health();
@@ -62,6 +80,8 @@ public class HelthAPI implements DocumentedApi {
 		}
 		
 		health.setBackgroundTasks(BackgroundExecutorFacade.get().getStateInfo()); 
+
+		health.setVersions(versions);
 		
 		return health;
 	}

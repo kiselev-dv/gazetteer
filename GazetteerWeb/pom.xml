@@ -10,13 +10,20 @@
 		<maven.compiler.source>1.7</maven.compiler.source>
 		<maven.compiler.target>1.7</maven.compiler.target>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		
+		<osmdoc.version>1.0-SNAPSHOT</osmdoc.version>
+		<elasticsearch.version>1.4.4</elasticsearch.version>
+		<restexpress.version>0.10.3</restexpress.version>
+		
+		<build.timestamp>${maven.build.timestamp}</build.timestamp>
+   		<maven.build.timestamp.format>yyyy-MM-dd HH:mm:ss</maven.build.timestamp.format>
 	</properties>
 
 	<dependencies>
 		<dependency>
 			<groupId>com.strategicgains</groupId>
 			<artifactId>RestExpress</artifactId>
-			<version>0.10.3</version>
+			<version>${restexpress.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.strategicgains.plugin-express</groupId>
@@ -56,7 +63,7 @@
 		<dependency>
 			<groupId>me.osm.osm-doc</groupId>
 			<artifactId>osm-doc-java</artifactId>
-			<version>1.0-SNAPSHOT</version>
+			<version>${osmdoc.version}</version>
 			<exclusions>
 				<exclusion>
 					<groupId>org.slf4j</groupId>
@@ -67,7 +74,7 @@
 		<dependency>
 			<groupId>org.elasticsearch</groupId>
 			<artifactId>elasticsearch</artifactId>
-			<version>1.4.4</version>
+			<version>${elasticsearch.version}</version>
 		</dependency>
 		<!-- Needed for geo_shape type mapping in ES -->
 		<dependency>
@@ -132,6 +139,15 @@
 	</dependencies>
 
 	<build>
+		<resources>
+			<resource>
+				<directory>src/main/resources</directory>
+				<filtering>true</filtering>
+				<includes>
+					<include>**/*.properties</include>
+				</includes>
+			</resource>
+		</resources>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>

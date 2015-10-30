@@ -6,12 +6,10 @@ import org.elasticsearch.common.joda.time.Period;
 import org.elasticsearch.common.joda.time.format.PeriodFormatter;
 import org.elasticsearch.common.joda.time.format.PeriodFormatterBuilder;
 
-import com.fasterxml.jackson.annotation.JsonAnyGetter;
-import com.fasterxml.jackson.annotation.JsonGetter;
-
 public class Health {
 
 	private long uptime;
+	private String uptimeHR;
 	
 	private long freeMemMB;
 	private long maxMemMB;
@@ -22,6 +20,29 @@ public class Health {
 	private String esnodeError;
 	
 	private BackgroundExecution backgroundTasks;
+	
+	private Map<String, String> versions;
+	
+	private static final PeriodFormatter PERIOD_FORMATTER = 
+			new PeriodFormatterBuilder()
+				.appendYears()
+				.appendSuffix("yrs")
+				.appendSeparator(" ")
+				.appendMonths()
+				.appendSuffix("mth")
+				.appendSeparator(" ")
+				.appendDays()
+				.appendSuffix("dys")
+				.appendSeparator(" ")
+				.appendHours()
+				.appendSuffix("hrs")
+				.appendSeparator(" ")
+				.appendMinutes()
+				.appendSuffix("min")
+				.appendSeparator(" ")
+				.appendSeconds()
+				.appendSuffix("s")
+				.toFormatter();
 
 	public long getUptime() {
 		return uptime;
@@ -29,11 +50,15 @@ public class Health {
 
 	public void setUptime(long uptime) {
 		this.uptime = uptime;
+		this.uptimeHR = new Period(uptime).toString(PERIOD_FORMATTER);
 	}
 
-	@JsonGetter
 	public String getUptimeHR() {
-		return new Period(uptime).toString();
+		return uptimeHR;
+	}
+
+	public void setUptimeHR(String uptimeHR) {
+		this.uptimeHR = uptimeHR;
 	}
 
 	public long getFreeMemMB() {
@@ -82,6 +107,14 @@ public class Health {
 
 	public void setEsnodeError(String esnodeError) {
 		this.esnodeError = esnodeError;
+	}
+
+	public Map<String, String> getVersions() {
+		return versions;
+	}
+
+	public void setVersions(Map<String, String> versions) {
+		this.versions = versions;
 	}
 	
 }
