@@ -22,6 +22,8 @@ public final class DiffNewFileFirstPassReader implements LineHandler {
 			PrintWriter outTmp, Set<String> olds, Counters counters) {
 		this.olds = olds;
 		this.counters = counters;
+		this.map = map;
+		this.outTmp = outTmp;
 	}
 
 	@Override
