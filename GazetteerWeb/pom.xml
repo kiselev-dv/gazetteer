@@ -16,7 +16,7 @@
 		<restexpress.version>0.10.3</restexpress.version>
 		
 		<build.timestamp>${maven.build.timestamp}</build.timestamp>
-   		<maven.build.timestamp.format>yyyy-MM-dd HH:mm:ss</maven.build.timestamp.format>
+   		<maven.build.timestamp.format>yyyy-MM-dd HH:mm:ss Z</maven.build.timestamp.format>
 	</properties>
 
 	<dependencies>
