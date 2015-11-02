@@ -23,6 +23,7 @@ import me.osm.gazetteer.web.api.meta.health.BackgroundExecution;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
+import org.elasticsearch.common.joda.time.LocalDateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,10 +63,25 @@ public class BackgroundExecutorFacade {
 		@Override
 		public final void run() {
 			runed = true;
-			INSTANCE.activeTasks.add(this.id);
+			
+			synchronized (INSTANCE) {
+				INSTANCE.activeTasks.add(this.id);
+				
+				BackgroudTaskDescription dsc = INSTANCE.descriptions.get(this.id);
+				if(dsc != null) {
+					dsc.setRunTs(LocalDateTime.now());
+				}
+			}
 			try{
 				executeTask();
-				INSTANCE.doneTasks.add(this.id);
+				
+				synchronized (INSTANCE) {
+					INSTANCE.doneTasks.add(this.id);
+					BackgroudTaskDescription dsc = INSTANCE.descriptions.get(this.id);
+					if(dsc != null) {
+						dsc.setDoneTs(LocalDateTime.now());
+					}
+				}
 				log.info("Task {} is done", this.id);
 				
 				if(StringUtils.isNotBlank(getCallbackURL())) {
@@ -74,6 +90,10 @@ public class BackgroundExecutorFacade {
 			}
 			catch (AbortedException abortedE) {
 				synchronized (INSTANCE) {
+					BackgroudTaskDescription dsc = INSTANCE.descriptions.get(this.id);
+					if(dsc != null) {
+						dsc.setDoneTs(LocalDateTime.now());
+					}
 					INSTANCE.abortedTasks.put(this.id, abortedE.isByUser() ? "Aborted by user" : abortedE.getMessage());
 				}
 				
@@ -107,8 +127,12 @@ public class BackgroundExecutorFacade {
 				if(INSTANCE.queuedTasks.size() > FUTURE_TASKS_QUEUE_SIZE) {
 					return false;
 				} 
+				
 				INSTANCE.queuedTasks.add(this.id);
-				INSTANCE.descriptions.put(this.id, this.description());
+				
+				BackgroudTaskDescription description = this.description();
+				description.setSubmitTs(LocalDateTime.now());
+				INSTANCE.descriptions.put(this.id, description);
 			}
 			
 			executor.submit(this);

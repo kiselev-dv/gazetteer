@@ -23,7 +23,7 @@ public class Health {
 	
 	private Map<String, String> versions;
 	
-	private static final PeriodFormatter PERIOD_FORMATTER = 
+	public static final PeriodFormatter PERIOD_FORMATTER = 
 			new PeriodFormatterBuilder()
 				.appendYears()
 				.appendSuffix("yrs")
