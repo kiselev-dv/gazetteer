@@ -13,6 +13,7 @@ import me.osm.gazetteer.web.ESNodeHolder;
 import me.osm.gazetteer.web.api.meta.Endpoint;
 import me.osm.gazetteer.web.api.meta.Parameter;
 import me.osm.gazetteer.web.api.utils.RequestUtils;
+import me.osm.gazetteer.web.imp.IndexHolder;
 import me.osm.gazetteer.web.utils.GeometryUtils;
 
 import org.apache.commons.lang3.StringUtils;
@@ -43,6 +44,8 @@ import com.vividsolutions.jts.geom.Point;
  * */
 public class InverseGeocodeAPI implements DocumentedApi {
 
+	private static final String _NEIGHBOURS = "_neighbours";
+	
 	private static final String LARGEST_LEVEL_HEADER = "largest_level";
 	private static final String MAX_NEIGHBOURS_HEADER = "max_neighbours";
 	private static final String RELATED_HEADER = "_related";
@@ -107,10 +110,6 @@ public class InverseGeocodeAPI implements DocumentedApi {
 		String largestLevel = request.getHeader(LARGEST_LEVEL_HEADER) == null ? 
 				HIGHWAYS_LEVEL : request.getHeader(LARGEST_LEVEL_HEADER);
 
-		if(largestLevel.equals(HIGHWAYS_LEVEL) && largestLevel.equals(OBJECTS_LEVEL) && largestLevel.equals(ALL_LEVEL)) {
-			largestLevel = HIGHWAYS_LEVEL;
-		}
-		
 		if(maxNeighbours > 100) {
 			maxNeighbours = 100;
 		}
@@ -133,7 +132,7 @@ public class InverseGeocodeAPI implements DocumentedApi {
 		
 		// Return neighbours only
 		if(largestLevel.equals(OBJECTS_LEVEL)) {
-			result.put("_neigbours", neighbours);
+			result.put(_NEIGHBOURS, neighbours);
 			return result;
 		}
 
@@ -155,13 +154,13 @@ public class InverseGeocodeAPI implements DocumentedApi {
 			result.put("text", StringUtils.join(parts.values(), ", "));
 			
 			// Don't forget about neighbours
-			result.put("_neigbours", neighbours);
+			result.put(_NEIGHBOURS, neighbours);
 			
 			return result;
 		}
 		else if(largestLevel.equals(HIGHWAYS_LEVEL)) {
 			// Don't forget about neighbours
-			result.put("_neigbours", neighbours);
+			result.put(_NEIGHBOURS, neighbours);
 			return result;
 		}
 		
@@ -176,7 +175,7 @@ public class InverseGeocodeAPI implements DocumentedApi {
 		result.put("parts", new JSONObject(parts));
 		
 		// Don't forget about neighbours 
-		result.put("_neigbours", neighbours);
+		result.put(_NEIGHBOURS, neighbours);
 		
  		return result;
 	}
@@ -332,7 +331,7 @@ public class InverseGeocodeAPI implements DocumentedApi {
 								FilterBuilders.geoDistanceFilter("center_point").point(lat, lon).distance(1000, DistanceUnit.METERS)
 						));
 
-		SearchRequestBuilder searchRequest = client.prepareSearch("gazetteer").setTypes("location").setQuery(q);
+		SearchRequestBuilder searchRequest = client.prepareSearch("gazetteer").setTypes(IndexHolder.LOCATION).setQuery(q);
 		searchRequest.addSort(SortBuilders.geoDistanceSort("center_point").point(lat, lon));
 		
 		searchRequest.setSize(maxNeighbours == 0 ? 10 : maxNeighbours);
