@@ -995,13 +995,13 @@ public class GazetteerOutWriter extends AddressPerRowJOHBase  {
 		
 		writeTagStat();
 		
-		log.info("Writed poi points: {}", 		poipntc.get());
-		log.info("Writed address points: {}", 	adrpntc.get());
-		log.info("Writed highway segments: {}", hghwayc.get());
-		log.info("Writed highway networks: {}", hghnetc.get());
-		log.info("Writed place boundaries: {}", plcbndc.get());
-		log.info("Writed place points: {}", 	plcpntc.get());
-		log.info("Writed admin boundaries: {}", admbndc.get());
+		log.info("Wrote poi points: {}", 		poipntc.get());
+		log.info("Wrote address points: {}", 	adrpntc.get());
+		log.info("Wrote highway segments: {}", 	hghwayc.get());
+		log.info("Wrote highway networks: {}",	hghnetc.get());
+		log.info("Wrote place boundaries: {}", 	plcbndc.get());
+		log.info("Wrote place points: {}", 		plcpntc.get());
+		log.info("Wrote admin boundaries: {}", 	admbndc.get());
 		
 	}
 
