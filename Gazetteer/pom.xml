@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>me.osm.Gazetteer</groupId>
 	<artifactId>Gazetteer</artifactId>
-	<version>1.4-SNAPSHOT</version>
+	<version>1.5-SNAPSHOT</version>
 
 	<properties>
 		<maven.compiler.source>1.7</maven.compiler.source>
@@ -16,7 +16,7 @@
 		<extsort.version>0.1.11</extsort.version>
 
 		<build.timestamp>${maven.build.timestamp}</build.timestamp>
-   		<maven.build.timestamp.format>yyyy-MM-dd HH:mm:ss Z</maven.build.timestamp.format>
+		<maven.build.timestamp.format>yyyy-MM-dd HH:mm:ss Z</maven.build.timestamp.format>
 	</properties>
 
 	<dependencies>
@@ -162,6 +162,9 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-javadoc-plugin</artifactId>
 				<version>2.9.1</version>
+				<configuration>
+					<skip>true</skip>
+				</configuration>
 			</plugin>
 		</plugins>
 	</build>
@@ -170,6 +173,7 @@
 		<connection>scm:git:https://github.com/kiselev-dv/gazetteer.git</connection>
 		<developerConnection>scm:git:https://github.com/kiselev-dv/gazetteer.git</developerConnection>
 		<url>https://github.com/kiselev-dv/gazetteer</url>
+		<tag>HEAD</tag>
 	</scm>
 
 	<repositories>
