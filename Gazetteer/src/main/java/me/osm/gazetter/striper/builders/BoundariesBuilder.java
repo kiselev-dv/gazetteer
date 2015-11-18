@@ -199,7 +199,7 @@ public class BoundariesBuilder extends ABuilder {
 			}
 		}
 		
-		return BuildUtils.buildMultyPolygon(rel, outers, inners);
+		return BuildUtils.buildMultyPolygon(log, rel, outers, inners);
 	}
 
 	private Coordinate[] buildWayGeometry(Way line) {

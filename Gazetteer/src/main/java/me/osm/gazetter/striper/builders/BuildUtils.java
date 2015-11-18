@@ -30,13 +30,13 @@ import com.vividsolutions.jts.operation.valid.TopologyValidationError;
 
 public class BuildUtils {
 	
-	private static final Logger log = LoggerFactory.getLogger(BoundariesBuilder.class.getName());
+	//private static final Logger log = LoggerFactory.getLogger(BuildUtils.class);
 	private static final  GeometryFactory geometryFactory = new GeometryFactory();
 	
-	public static MultiPolygon buildMultyPolygon(final Relation rel,
+	public static MultiPolygon buildMultyPolygon(final Logger log, final Relation rel,
 			List<LineString> outers, List<LineString> inners) {
 		
-		MultiPolygon outer = polygonizeLinestrings(rel, outers);
+		MultiPolygon outer = polygonizeLinestrings(log, rel, outers);
 		
 		if(outer == null) {
 			return null;
@@ -97,7 +97,7 @@ public class BuildUtils {
 			return outer;
 		}
 		
-		MultiPolygon inner = polygonizeLinestrings(rel, inners);
+		MultiPolygon inner = polygonizeLinestrings(log, rel, inners);
 		
 		MultiPolygon mix = substract(outer, inner);
 		
@@ -166,7 +166,7 @@ public class BuildUtils {
 		return null;
 	}
 
-	private static MultiPolygon polygonizeLinestrings(final Relation rel, List<LineString> linestrings) {
+	private static MultiPolygon polygonizeLinestrings(final Logger log, final Relation rel, List<LineString> linestrings) {
 		if(!linestrings.isEmpty()) {
 			
 			MultiMap<Point, LineString> point2line = new MultiMap<Point, LineString>(); 

@@ -184,7 +184,7 @@ public class PoisBuilder extends ABuilder {
 				return;
 			}
 			
-			MultiPolygon mp = BuildUtils.buildMultyPolygon(rel, lines, null);
+			MultiPolygon mp = BuildUtils.buildMultyPolygon(log, rel, lines, null);
 			if(mp != null && !mp.isEmpty() && mp.isValid()) {
 				centroid = mp.getCentroid();
 				
