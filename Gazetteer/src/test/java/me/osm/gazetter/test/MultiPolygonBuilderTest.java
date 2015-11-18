@@ -9,6 +9,8 @@ import me.osm.gazetter.striper.builders.BuildUtils;
 import me.osm.gazetter.striper.readers.RelationsReader.Relation;
 
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
@@ -17,10 +19,13 @@ import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.io.ParseException;
 import com.vividsolutions.jts.io.WKTReader;
 
+
 /**
  * See http://wiki.openstreetmap.org/wiki/Multipolygon
  * */
 public class MultiPolygonBuilderTest {
+	
+	private static final Logger log = LoggerFactory.getLogger(MultiPolygonBuilderTest.class);
 	
 	private static final GeometryFactory f = new GeometryFactory();
 	
@@ -37,7 +42,7 @@ public class MultiPolygonBuilderTest {
 				new Coordinate(1, 1)
 		}));
 		
-		MultiPolygon mp = BuildUtils.buildMultyPolygon(new Relation(), outers, null);
+		MultiPolygon mp = BuildUtils.buildMultyPolygon(log, new Relation(), outers, null);
 		
 		assertNotNull(mp);
 		System.out.println("oneOuterRing: " + mp.toString());
@@ -64,7 +69,7 @@ public class MultiPolygonBuilderTest {
 				new Coordinate(2, 2)
 		}));
 		
-		MultiPolygon mp = BuildUtils.buildMultyPolygon(new Relation(), outers, inners);
+		MultiPolygon mp = BuildUtils.buildMultyPolygon(log, new Relation(), outers, inners);
 		
 		assertNotNull(mp);
 		System.out.println("oneOuterAndOneInnerRing: " + mp.toString());
@@ -87,7 +92,7 @@ public class MultiPolygonBuilderTest {
 				new Coordinate(1, 1)
 		}));
 		
-		MultiPolygon mp = BuildUtils.buildMultyPolygon(new Relation(), outers, null);
+		MultiPolygon mp = BuildUtils.buildMultyPolygon(log, new Relation(), outers, null);
 		
 		assertNotNull(mp);
 		System.out.println("multipleWaysFormingRing: " + mp.toString());
@@ -114,7 +119,7 @@ public class MultiPolygonBuilderTest {
 				new Coordinate(20, 0)
 		}));
 		
-		MultiPolygon mp = BuildUtils.buildMultyPolygon(new Relation(), outers, null);
+		MultiPolygon mp = BuildUtils.buildMultyPolygon(log, new Relation(), outers, null);
 		
 		assertNotNull(mp);
 		System.out.println("twoDisjunctOuterRings: " + mp.toString());
@@ -162,7 +167,7 @@ public class MultiPolygonBuilderTest {
 				new Coordinate(22, 2)
 		}));
 		
-		MultiPolygon mp = BuildUtils.buildMultyPolygon(new Relation(), outers, inners);
+		MultiPolygon mp = BuildUtils.buildMultyPolygon(log, new Relation(), outers, inners);
 		
 		assertNotNull(mp);
 		System.out.println("twoDisjunctOuterRingsAndMultipleWaysFormingRing: " + mp.toString());
@@ -198,7 +203,7 @@ public class MultiPolygonBuilderTest {
 				new Coordinate(2, 5)
 		}));
 		
-		MultiPolygon mp = BuildUtils.buildMultyPolygon(new Relation(), outers, inners);
+		MultiPolygon mp = BuildUtils.buildMultyPolygon(log, new Relation(), outers, inners);
 		
 		assertNotNull(mp);
 		System.out.println("touchingInnerRings: " + mp.toString());
@@ -234,7 +239,7 @@ public class MultiPolygonBuilderTest {
 				new Coordinate(4, 4)
 		}));
 		
-		MultiPolygon mp = BuildUtils.buildMultyPolygon(new Relation(), outers, inners);
+		MultiPolygon mp = BuildUtils.buildMultyPolygon(log, new Relation(), outers, inners);
 		
 		assertNotNull(mp);
 		System.out.println("islandWithinHole: " + mp.toString());
@@ -278,7 +283,7 @@ public class MultiPolygonBuilderTest {
 				new Coordinate(20, 0)
 		}));
 		
-		MultiPolygon mp = BuildUtils.buildMultyPolygon(new Relation(), outers, inners);
+		MultiPolygon mp = BuildUtils.buildMultyPolygon(log, new Relation(), outers, inners);
 		
 		assertNotNull(mp);
 		System.out.println("islandWithinHoleWithDisjuncOuter: " + mp.toString());
@@ -298,7 +303,7 @@ public class MultiPolygonBuilderTest {
 				+ "42.8208881 45.3378474, 42.8206616 45.3378149, 42.8205843 45.3378055, 42.8206528 45.3374546, "
 				+ "42.8208394 45.3374756, 42.8211884 45.3375219)"));
 		
-		MultiPolygon mp = BuildUtils.buildMultyPolygon(new Relation(), outers, inners);
+		MultiPolygon mp = BuildUtils.buildMultyPolygon(log, new Relation(), outers, inners);
 		
 		assertNotNull(mp);
 		System.out.println("realWorldExample1: " + mp.toString());
