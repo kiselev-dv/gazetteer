@@ -269,7 +269,7 @@ public class AddrPointsBuilder extends ABuilder {
 			}
 		}
 		else {
-			log.warn("Unsupported interpolation type: {}", interpolation);
+			log.warn("Unsupported interpolation type: {} for way {}", interpolation, line.id);
 		}
 		
 	}
