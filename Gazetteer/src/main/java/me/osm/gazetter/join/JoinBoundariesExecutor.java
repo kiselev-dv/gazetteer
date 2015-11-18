@@ -42,6 +42,7 @@ public class JoinBoundariesExecutor {
 	private static final Logger log = LoggerFactory.getLogger(JoinBoundariesExecutor.class);
 	
 	private File binxFile;
+	private int skipedBoundaries = 0;
 	
 	private Map<BoundaryCortage, BoundaryCortage> bhierarchy = 
 			Collections.synchronizedMap(new HashMap<BoundaryCortage, BoundaryCortage>());
@@ -56,15 +57,14 @@ public class JoinBoundariesExecutor {
 		
 		@Override
 		public int compare(String arg0, String arg1) {
-			
 			int i1 = arg0 == null ? -1 : Integer.parseInt(GeoJsonWriter.getAdmLevel(arg0));
 			int i2 = arg1 == null ? -1 : Integer.parseInt(GeoJsonWriter.getAdmLevel(arg1));
 			
 			if(i1 > 0) lvls.add(i1);
 			if(i2 > 0) lvls.add(i2);
-
+			
 			if(i1 == i2) {
-
+				
 				String id1 = GeoJsonWriter.getId(arg0);
 				String id2 = GeoJsonWriter.getId(arg1);
 				
@@ -83,6 +83,8 @@ public class JoinBoundariesExecutor {
 	
 	public void run(String stripesFolder, List<JSONObject> common, Set<String> filter) {
 
+		log.info("Run join boundaries, with filter [{}]", StringUtils.join(filter, ", "));
+		
 		long start = (new Date()).getTime();
 
 		try {
@@ -90,21 +92,10 @@ public class JoinBoundariesExecutor {
 					.withGz(new File(stripesFolder + "/binx.gjson"));
 			
 			if(binxFile.exists()) {
-				List<String> bndrs = FileUtils.readLines(binxFile);
-				Collections.sort(bndrs, ADM_LVL_COMPARATOR);
-				FileUtils.writeLines(binxFile, bndrs);
-				bndrs = null;
-			}
-			else {
-				log.trace("Skip boundaries index sorting");
-			}
-
-
-			if(binxFile.exists()) {
 				joinBoundaries(stripesFolder, common, filter);
 			}
 			else {
-				log.trace("Skip boundaries index join");
+				log.info("Skip boundaries index join");
 			}
 			
 		} catch (Exception e) {
@@ -122,7 +113,7 @@ public class JoinBoundariesExecutor {
 		
 		addressesParser = Options.get().getAddressesParser();
 		
-		boolean distinct = true;
+		boolean distinct = false;
 		
 		BufferedReader binxReader = new BufferedReader(new InputStreamReader(FileUtils.getFileIS(binxFile)));
 		List<File> l = ExternalSort.sortInBatch(
@@ -137,11 +128,15 @@ public class JoinBoundariesExecutor {
                 true);
 		
 		binxFile = new File(stripesFolder + "/" + "binx-sorted.gjson");
-		ExternalSort.mergeSortedFiles(l, binxFile, ADM_LVL_COMPARATOR, Charset.forName("UTF8"),
+		int sorted = ExternalSort.mergeSortedFiles(l, binxFile, ADM_LVL_COMPARATOR, Charset.forName("UTF8"),
                 distinct, false, true, null);
+		
+		log.info("{} boundaries was sorted", sorted);
                 
        List<Integer> lvls = new ArrayList<Integer>(ADM_LVL_COMPARATOR.getLvls());
        Collections.sort(lvls);
+       
+       log.info("Admin levels: [{}]", StringUtils.join(lvls, ", "));
        
        final Iterator<Integer> lvlsi = lvls.iterator();
 
@@ -190,7 +185,7 @@ public class JoinBoundariesExecutor {
 		}
 		
 		FileUtils.handleLines(binxFile, new LineHandler() {
-
+			
 			@Override
 			public void handle(String s) {
 				JSONObject obj = new JSONObject(s);
@@ -220,22 +215,46 @@ public class JoinBoundariesExecutor {
 					
 					handleOut(obj);
 				}
+				else {
+					skipedBoundaries++;
+				}
 				
 			}
 
 			private boolean check(JSONObject obj, List<JSONObject> uppers,
 					Set<String> filter) {
 				
-				if(filter.contains(StringUtils.split(obj.getString("id"), '-')[2])) {
+				log.trace("{} uppers: [{}]", obj.getString("id"), StringUtils.join(listIds(uppers), ","));
+				
+				if(checkId(obj, filter)) {
 					return true;
 				}
 				
 				for(JSONObject up : uppers) {
-					if(filter.contains(StringUtils.split(up.getString("id"), '-')[2])) {
+					if(checkId(up, filter)) {
 						return true;
 					}
 				}
 				
+				return false;
+			}
+
+			private List<String> listIds(List<JSONObject> uppers) {
+				List<String> res = new ArrayList<>();
+				if(uppers != null) {
+					for(JSONObject o : uppers) {
+						res.add(o.getString("id"));
+					}
+				}
+				return res;
+			}
+
+			private boolean checkId(JSONObject obj, Set<String> filter) {
+				for(String fltr : filter) {
+					if(StringUtils.contains(obj.getString("id"), fltr)) {
+						return true;
+					}
+				}
 				return false;
 			}
 
@@ -254,6 +273,8 @@ public class JoinBoundariesExecutor {
 			}
 			
 		});
+		
+		log.info("{} boundaries skiped", skipedBoundaries);
 		
 		binxFile.delete();
 	}

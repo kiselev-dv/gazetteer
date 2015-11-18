@@ -178,12 +178,20 @@
 
 	<repositories>
 		<repository>
-			<id>osm-doc-mvn-repo</id>
-			<url>http://raw.githubusercontent.com/kiselev-dv/mvn-repository/master/releases/</url>
+			<id>myMavenRepo.read</id>
+			<url>https://mymavenrepo.com/repo/rRfVAWWQw6RiXxhmZkot/</url>
 			<snapshots>
 				<enabled>true</enabled>
 				<updatePolicy>always</updatePolicy>
 			</snapshots>
 		</repository>
 	</repositories>
+	
+	<distributionManagement>
+        <repository>
+            <id>myMavenRepo.write</id>
+            <url>${myMavenRepo.write.url}</url>
+        </repository>
+    </distributionManagement>
+    
 </project>
