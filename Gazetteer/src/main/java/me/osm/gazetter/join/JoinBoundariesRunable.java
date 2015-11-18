@@ -5,7 +5,10 @@ import java.util.Map;
 
 import me.osm.gazetter.join.util.BoundaryCortage;
 
+import org.slf4j.LoggerFactory;
+
 import com.vividsolutions.jts.geom.Envelope;
+import com.vividsolutions.jts.geom.TopologyException;
 import com.vividsolutions.jts.index.quadtree.Quadtree;
 
 public class JoinBoundariesRunable implements Runnable {
@@ -31,11 +34,28 @@ public class JoinBoundariesRunable implements Runnable {
 		List<BoundaryCortage> downs = index.query(env);
 		
 		for(BoundaryCortage bc : downs) {
-			if(up.getGeometry().covers(bc.getGeometry())) {
+			if(covers(bc)) {
 				savePair(up, bc);
 			}
 		}
 		
+	}
+
+	private boolean covers(BoundaryCortage bc) {
+		try {
+			try {
+				return up.getGeometry().intersection(bc.getGeometry()).getArea() > bc.getGeometry().getArea() * 0.9;
+			}
+			catch (TopologyException e) {
+				return up.getGeometry().covers(bc.getGeometry());
+			}
+		}
+		catch (Exception e) {
+			LoggerFactory.getLogger(getClass()).warn("can't calculate coverage between {} and {} with error: {}"
+					, new Object[]{up.getId(), bc.getId(), e.getMessage()});
+		}
+		
+		return false;
 	}
 
 	private void savePair(BoundaryCortage up, BoundaryCortage down) {
