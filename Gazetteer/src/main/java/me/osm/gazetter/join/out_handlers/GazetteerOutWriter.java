@@ -591,14 +591,16 @@ public class GazetteerOutWriter extends AddressPerRowJOHBase  {
 			JSONArray coords = jsonObject.getJSONObject(GeoJsonWriter.GEOMETRY)
 					.getJSONArray(GeoJsonWriter.COORDINATES);
 			
-			if(Double.isInfinite(coords.getDouble(0)) || 
-			   Double.isInfinite(coords.getDouble(1)))
+			double lon = coords.getDouble(0);
+			double lat = coords.getDouble(1);
+			if(Double.isInfinite(lon) || Double.isNaN(lon) ||
+			   Double.isInfinite(lat) || Double.isNaN(lat))
 			{
 				return null;
 			}
 			
-			result.put("lon", coords.getDouble(0));
-			result.put("lat", coords.getDouble(1));
+			result.put("lon", lon);
+			result.put("lat", lat);
 		}
 		
 		return result;
