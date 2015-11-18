@@ -199,10 +199,10 @@ public class HighwaysBuilder extends ABuilder implements HighwaysHandler {
 					coords.add(new Coordinate(lon, lat));
 				}
 				else {
-					log.warn("node {} not found for way {}", pid, line.id);
+					log.debug("node {} not found for way {}", pid, line.id);
 				}
 			} else {
-				log.warn("node {} not found for way {}", pid, line.id);
+				log.debug("node {} not found for way {}", pid, line.id);
 			}
 		}
 
