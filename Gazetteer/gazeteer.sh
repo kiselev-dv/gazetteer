@@ -13,10 +13,10 @@ fi
 
 # Basic environment setup
 if [ -z "$BASE" ]; then
-	BASE=$($HOME)
+	BASE="./"
 fi
 if [ -z "$JAR" ]; then
-	JAR=$($HOME/bin/gazetteer.jar)
+	JAR="gazetteer.jar"
 fi
 
 # CC - country code, if we have $country - set it 
