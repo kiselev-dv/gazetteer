@@ -12,7 +12,19 @@ import org.json.JSONObject;
  * */
 public interface AddressesSchemesParser {
 	
+	/**
+	 * Name for JSON field to store scheme name
+	 * */
 	public static final String ADDR_SCHEME = "addr-scheme";
 
+	/**
+	 * Return copies of properties with addr-scheme and overrided
+	 * addr:housenumber and addr:street
+	 * 
+	 * @param properties
+	 * 			Objects properties (tags)
+	 * 
+	 * @return list of parsed chemems
+	 * */
 	List<JSONObject> parseSchemes(JSONObject properties);
 }

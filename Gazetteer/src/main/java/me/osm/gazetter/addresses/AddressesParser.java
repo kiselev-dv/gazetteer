@@ -13,6 +13,24 @@ import org.json.JSONObject;
  * */
 public interface AddressesParser {
 
+	/**
+	 * Represent address as JSONArray of address parts
+	 * 
+	 * @param addrPoint
+	 * 			Addr point (base object)
+	 * @param boundaries
+	 * 			Boundaries covers this point
+	 * @param nearbyStreets
+	 * 			Streets inside some radius
+	 * @param nearestPlace
+	 * 			Nearest place=city|town|etc node
+	 * @param nearestNeighbour
+	 * 			Nearest place=quarter|neighbourhood node
+	 * @param associatedStreet
+	 * 			Street linked via associated street relation
+	 * 
+	 * @return address
+	 * */
 	public JSONArray parse(JSONObject addrPoint,
 			List<JSONObject> boundaries, 
 			List<JSONObject> nearbyStreets, 
@@ -20,8 +38,24 @@ public interface AddressesParser {
 			JSONObject nearestNeighbour, 
 			JSONObject associatedStreet);
 
+	/**
+	 * Join all boundaries into one address json oject
+	 * 
+	 * @param jsonObject
+	 * 			Subject
+	 * @param input
+	 * 			Upper boundaries (enclosing boundaries)
+	 * 
+	 * @return encoded boundaries address
+	 * */
 	public abstract JSONObject boundariesAsArray(JSONObject jsonObject, List<JSONObject> input);
 
+	/**
+	 * Address level of boundary or object
+	 * 
+	 * @param obj subject
+	 * @return Level (part) name
+	 * */
 	public abstract String getAddrLevel(JSONObject obj);
 
 }

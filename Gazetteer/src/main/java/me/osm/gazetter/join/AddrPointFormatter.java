@@ -53,6 +53,5 @@ public class AddrPointFormatter implements AddrJointHandler {
 		
 		return addrPoint;
 	}
-
 	
 }

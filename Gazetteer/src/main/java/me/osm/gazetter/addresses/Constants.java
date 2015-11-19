@@ -7,9 +7,25 @@ import java.util.Map;
  * Constants, and some JSON fields names.
  * */
 public class Constants {
+	
+	/**
+	 * Default addr parts levels sizes
+	 * */
 	public static final Map<String, Integer> defaultType2size = new HashMap<>();
+	
+	/**
+	 * Default level size for house numbers 
+	 * */
 	public static final int HN_LVL_SIZE = 10;
+	
+	/**
+	 * Default level size for streets 
+	 * */
 	public static final int STREET_LVL_SIZE = 20;
+	
+	/**
+	 * Default level size for postcode part 
+	 * */
 	public static final int POSTCODE_LVL_SIZE = 55;
 	
 	static {

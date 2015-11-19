@@ -67,6 +67,16 @@ public class AddressesParserImpl implements AddressesParser {
 		));
 	}
 	
+	/**
+	 * Create parser with parameters
+	 * 
+	 * @param schemesParser
+	 * @param levelsMatcher
+	 * @param textFormatter
+	 * @param sorting
+	 * @param skipInFullText
+	 * @param findLangs
+	 */
 	public AddressesParserImpl(AddressesSchemesParser schemesParser, 
 			AddressesLevelsMatcher levelsMatcher, AddrTextFormatter textFormatter,
 			AddrLevelsSorting sorting, Set<String> skipInFullText, boolean findLangs) {
@@ -93,6 +103,10 @@ public class AddressesParserImpl implements AddressesParser {
 		this.findLangs = findLangs;
 	}
 	
+	
+	/**
+	 * Default implementation
+	 */
 	public AddressesParserImpl() {
 		
 		this.cityBoundaries = 
@@ -445,6 +459,12 @@ public class AddressesParserImpl implements AddressesParser {
 		return fullAddressRow;
 	}
 	
+	/**
+	 * Calculate unique number for boundaries
+	 * 
+	 * @param input boundaries
+	 * @return hash
+	 * */
 	public int hashBoundaries(List<JSONObject> input) {
 		
 		if(input != null) {

@@ -10,6 +10,29 @@ import java.util.Set;
  * */
 public interface AddressesParserFactory {
 	
+	/**
+	 * Create AddressesParser instance
+	 * 
+	 * @param addressesSchemesParser
+	 * 			Address scheme parser {@link AddressesSchemesParser}
+	 * @param addrLevelComparator
+	 * 			Sorter for addresses levels
+	 * @param namesMatcherImpl
+	 * 			Object which answers do objects equals by it's name/names
+	 * 			For ex. match "Green st." "Green" "green st" and so on.
+	 * @param cityBoundaryes
+	 * 			Threat this addr parts names as city (location)
+	 * @param addrTextFormatter
+	 * 			Formatter for texts			
+	 * @param sorting
+	 * 			How to sort parts of address
+	 * @param skippInFullText
+	 * 			Skip in full address text
+	 * @param findLangsLevel
+	 * 			Search addresses translations or not
+	 * 
+	 * @return initialized parser 
+	 * */
 	public AddressesParser newAddressesParser(
 			AddressesSchemesParser addressesSchemesParser,
 			AddrLevelsComparator addrLevelComparator,

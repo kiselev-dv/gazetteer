@@ -88,11 +88,15 @@ public class Gazetteer {
 		
 		/**
 		 * Name of command, will be used as executable.jar long-coomand-name
+		 * 
+		 * @return long name
 		 * */
 		public String longName();
 		
 		/**
 		 * Command description
+		 * 
+		 * @return help string
 		 * */
 		public String help(); 
 	}
@@ -162,6 +166,9 @@ public class Gazetteer {
 
 	/**
 	 * Parse arguments and run tasks accordingly.
+	 * 
+	 * @param args
+	 *          Command line arguments
 	 * */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public static void main(String[] args) {
@@ -342,7 +349,11 @@ public class Gazetteer {
 	}
 
 	/**
-	 * Returns string list or empty list for null 
+	 * Returns string list or empty list for null
+	 * 
+	 * @param list
+	 * 		unsafe list
+	 * @return List of strings
 	 * */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public static List<String> list( List list) {

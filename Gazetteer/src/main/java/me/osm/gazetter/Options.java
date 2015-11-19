@@ -36,6 +36,9 @@ import org.apache.commons.lang3.StringUtils;
  * */
 public class Options {
 	
+	/**
+	 * Options should be red once on startup
+	 * */
 	public static final class SecondaryOptionsInitializationException
 		extends RuntimeException {
 
@@ -50,6 +53,11 @@ public class Options {
 		predefinedJoinOutHandlers.put(CSVOutWriter.NAME, new CSVOutWriter());
 	}
 	
+	/**
+	 * Names of JoinOutHandler available by name
+	 * 
+	 * @return names
+	 * */
 	public static Collection<String> getPredefinedOutHandlers() {
 		return predefinedJoinOutHandlers.keySet();
 	}
@@ -79,6 +87,18 @@ public class Options {
 		this.findLangsLevel = findLangs;
 	}
 
+	/**
+	 * Initialize singleton with parameters
+	 * 
+	 * @param sorting
+	 *           Sorter for addresses parts
+	 * @param groovyFormatter
+	 *           Path to groovy file with {@link AddressesParserFactory}
+	 * @param skippInFullText
+	 *           Addr levels which should be skipped at full address text generation
+	 * @param findLangs
+	 *           Look for addresses translations                               
+	 * */
 	public static void initialize(AddrLevelsSorting sorting, String groovyFormatter, 
 			Set<String> skippInFullText, boolean findLangs) {
 		
@@ -159,6 +179,11 @@ public class Options {
 		return adrParser;
 	}
 	
+	/**
+	 * Instance getter
+	 * 
+	 * @return initialized Options 
+	 * */
 	public static Options get() {
 		if(instance == null) {
 			synchronized (Options.class) {
@@ -170,38 +195,88 @@ public class Options {
 		return instance;
 	}
 
+	/**
+	 * How to sort addresses parts
+	 * 
+	 * @return {@link AddrLevelsSorting}
+	 * */
 	public AddrLevelsSorting getSorting() {
 		return sorting;
 	}
-
+	
+	/**
+	 * AddressesParser specified via groovy or default instance
+	 * 
+	 * @return {@link AddressesParser}
+	 * */
 	public AddressesParser getAddressesParser() {
 		return addressesParser;
 	}
 
+	/**
+	 * Names matcher
+	 * 
+	 * @return {@link NamesMatcher}
+	 * */
 	public NamesMatcher getNamesMatcher() {
 		return namesMatcher;
 	}
 
+	/**
+	 * Should we try to find addresses translations or not
+	 * 
+	 * @return findLangs
+	 * */
 	public boolean isFindLangs() {
 		return findLangsLevel;
 	}
 
+	/**
+	 * Number of threads available for ExecutorServices
+	 * 
+	 * @return nThreads
+	 * */
 	public int getNumberOfThreads () {
 		return this.nThreads;
 	}
 
+	/**
+	 * Number of threads available for ExecutorServices
+	 * 
+	 * @param nThreads
+	 *            Number of threads
+	 * */
 	public void setNThreads(int nThreads) {
 		this.nThreads = nThreads;
 	}
 
+	/**
+	 * Use GunZip compression for tmp files
+	 * 
+	 * @param compress
+	 * 			<code>true</code> use compression
+	 * */
 	public void setCompress(boolean compress) {
 		this.compress = compress;
 	}
 
+	/**
+	 * Use GunZip compression for tmp files
+	 * 
+	 * @return compress
+	 * */
 	public boolean isCompress() {
 		return compress;
 	}
 
+	/**
+	 * Specify join handlers
+	 * 
+	 * @See JoinOutHandler
+	 * 
+	 * @param handlers
+	 * 			Handlers definition, name of groovy file path
+	 * */
 	public void setJoinHandlers(List<String> handlers) {
 		try {
 			if (handlers != null && !handlers.isEmpty()) {
@@ -259,6 +334,13 @@ public class Options {
 		}
 	}
 	
+	/**
+	 * Collection of parsed JoinOutHandler
+	 * 
+	 * @see JoinOutHandler
+	 * 
+	 * @return joinHandlers
+	 * */
 	public Collection<JoinOutHandler> getJoinOutHandlers() {
 		return joinHandlers;
 	}

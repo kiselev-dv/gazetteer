@@ -25,6 +25,13 @@ public class AddressesLevelsMatcherImpl implements AddressesLevelsMatcher {
 	
 	private static final Logger log = LoggerFactory.getLogger(AddressesLevelsMatcherImpl.class);
 	
+	/**
+	 * Create matcher
+	 * 
+	 * @param lelvelsComparator
+	 * @param namesMatcher
+	 * @param placeBoundaries
+	 * */
 	public AddressesLevelsMatcherImpl(AddrLevelsComparator lelvelsComparator, 
 			NamesMatcher namesMatcher, List<String> placeBoundaries) {
 		

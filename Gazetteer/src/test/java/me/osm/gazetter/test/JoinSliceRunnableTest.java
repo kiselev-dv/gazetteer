@@ -1,7 +1,5 @@
 package me.osm.gazetter.test;
 
-import static org.junit.Assert.assertEquals;
-
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -9,13 +7,9 @@ import java.util.List;
 
 import me.osm.gazetter.join.AddrJointHandler;
 import me.osm.gazetter.join.JoinSliceRunable;
-import me.osm.gazetter.striper.GeoJsonWriter;
-import me.osm.gazetter.striper.Slicer;
 
 import org.json.JSONObject;
 import org.junit.Test;
-
-import com.vividsolutions.jts.geom.LineString;
 
 public class JoinSliceRunnableTest {
 	

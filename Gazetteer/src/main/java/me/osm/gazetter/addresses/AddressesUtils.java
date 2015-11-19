@@ -13,6 +13,14 @@ import org.json.JSONObject;
  * */
 public class AddressesUtils {
 	
+	/**
+	 * Transliterate (fold) string
+	 * 
+	 * Replace characters which are outside standard ASCII set
+	 * 
+	 * @param string in
+	 * @return folded string
+	 * */
 	public static String foldASCII(String string) {
 		
 		char[] charArray = string.toCharArray();
@@ -22,6 +30,13 @@ public class AddressesUtils {
 		return String.copyValueOf(out, 0, outLength);
 	}
 	
+	/**
+	 * Find tags with '*name*' key
+	 * 
+	 * @param obj subject or properties
+	 * 
+	 * @return tag-key:tag-val map 
+	 * */
 	public static Map<String, String> filterNameTags(JSONObject obj) {
 		
 		Map<String, String> result = new HashMap<String, String>();
@@ -47,6 +62,14 @@ public class AddressesUtils {
 		return result;
 	}
 	
+	/**
+	 * Look for name:lc tags and return them as JSONObject
+	 * 
+	 * @param properties Original properties
+	 * @param langs which lang codes we are looking for
+	 * 
+	 * @return JSONObject with filtered properties
+	 * */
 	public static JSONObject getNamesTranslations(JSONObject properties,
 			Set<String> langs) {
 		

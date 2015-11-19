@@ -10,11 +10,18 @@ import me.osm.gazetter.Options;
 import me.osm.gazetter.striper.GeoJsonWriter;
 import me.osm.gazetter.utils.FileUtils;
 
+/**
+ * Abstraction for writing in multiple "files"
+ * */
 public class FileWriteDao implements WriteDao {
 
 	private static final Map<String, PrintWriter> writers = new HashMap<String, PrintWriter>();
 	private File dir;
 	
+	
+	/**
+	 * @param dir directory for files
+	 */
 	public FileWriteDao(File dir) {
 		this.dir = dir;
 		dir.mkdirs();

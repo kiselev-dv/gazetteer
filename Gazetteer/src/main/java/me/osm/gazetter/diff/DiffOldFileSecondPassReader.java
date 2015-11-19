@@ -7,6 +7,12 @@ import java.util.TreeMap;
 import me.osm.gazetter.striper.GeoJsonWriter;
 import me.osm.gazetter.utils.FileUtils.LineHandler;
 
+/**
+ * Read old file for second time to write info for
+ * lines which are older then lines from new file
+ * 
+ * @author dkiselev
+ */
 public final class DiffOldFileSecondPassReader implements
 		LineHandler {
 	
@@ -16,6 +22,12 @@ public final class DiffOldFileSecondPassReader implements
 	private TreeMap<String, Object[]> map;
 	private PrintWriter outTmp;
 
+	/**
+	 * @param map with ids timestamps and hashes
+	 * @param outTmp where to write results
+	 * @param olds ids to write
+	 * @param counters
+	 */
 	public DiffOldFileSecondPassReader(TreeMap<String, Object[]> map,  
 			PrintWriter outTmp, Set<String> olds, Counters counters) {
 		

@@ -7,11 +7,21 @@ import me.osm.gazetter.utils.FileUtils.LineHandler;
 
 import org.joda.time.DateTime;
 
+/**
+ * Read Old file and get timestamps and md5 hashes of strings
+ * and store them into the map
+ * 
+ * @author dkiselev
+ */
 public final class DiffOldFileFirstPassReader implements LineHandler {
 	
 	private final Counters counters;
 	private TreeMap<String, Object[]> map;
 	
+	/**
+	 * @param map where to store result
+	 * @param counters
+	 */
 	public DiffOldFileFirstPassReader(TreeMap<String, Object[]> map, Counters counters) {
 		this.counters = counters;
 		this.map = map;

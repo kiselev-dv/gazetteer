@@ -19,9 +19,30 @@ public class Versions {
 		}
 	}
 	
+	/**
+	 * App version
+	 */
 	public static final String gazetteer = StringUtils.replace(file.getProperty("app.version"), "-SNAPSHOT", "b");
+	
+	
+	/**
+	 * JavaTopologySuite version 
+	 */
 	public static final String jts = file.getProperty("jts.version");
+	
+	/**
+	 * osm-doc-java version
+	 * {@link "https://github.com/kiselev-dv/osm-doc-java"}
+	 * */
 	public static final String osmdoc = file.getProperty("osmdoc.version");
+	
+	/**
+	 * Groovy runtime version
+	 * */
 	public static final String groovy = file.getProperty("groovy.version");
+	
+	/**
+	 * Application build timestamp
+	 * */
 	public static final String buildTs = file.getProperty("build.timestamp");
 }

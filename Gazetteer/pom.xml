@@ -11,9 +11,9 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
 		<jts.version>1.13</jts.version>
-		<osmdoc.version>0.11</osmdoc.version>
+		<osmdoc.version>1.0</osmdoc.version>
 		<groovy.version>2.2.2</groovy.version>
-		<extsort.version>0.1.11</extsort.version>
+		<extsort.version>0.2.0</extsort.version>
 
 		<build.timestamp>${maven.build.timestamp}</build.timestamp>
 		<maven.build.timestamp.format>yyyy-MM-dd HH:mm:ss Z</maven.build.timestamp.format>
@@ -161,7 +161,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-javadoc-plugin</artifactId>
-				<version>2.9.1</version>
+				<version>2.10.3</version>
 				<configuration>
 					<failOnError>false</failOnError>
 				</configuration>

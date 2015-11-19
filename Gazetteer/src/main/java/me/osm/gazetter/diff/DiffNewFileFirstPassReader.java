@@ -10,6 +10,13 @@ import me.osm.gazetter.utils.FileUtils.LineHandler;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 
+/**
+ * Read New file and get timestamps and md5 hashes of strings
+ * if map (prefiled with same values from old file) doesnt 
+ * contains same object id - write add instruction into ooutput
+ * 
+ * @author dkiselev
+ */
 public final class DiffNewFileFirstPassReader implements LineHandler {
 	
 	private final Set<String> olds;
@@ -18,6 +25,12 @@ public final class DiffNewFileFirstPassReader implements LineHandler {
 	private TreeMap<String, Object[]> map;
 	private PrintWriter outTmp;
 	
+	/**
+	 * @param map with ids and timestamps from old 
+	 * @param outTmp output writer
+	 * @param olds old object ids
+	 * @param counters 
+	 */
 	public DiffNewFileFirstPassReader(TreeMap<String, Object[]> map,  
 			PrintWriter outTmp, Set<String> olds, Counters counters) {
 		this.olds = olds;

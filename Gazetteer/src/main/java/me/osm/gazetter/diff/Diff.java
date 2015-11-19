@@ -17,6 +17,11 @@ import org.joda.time.LocalDateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Calculate difference between two gazetteer json dumps
+ * 
+ * @author dkiselev
+ */
 public class Diff {
 	
 	private static final Logger log = LoggerFactory.getLogger(Diff.class); 
@@ -35,6 +40,12 @@ public class Diff {
 	
 	private static final DateTimeZone timeZone = DateTimeZone.getDefault();
 	
+	/**
+	 * @param oldPath path to old file
+	 * @param newPath path to new file
+	 * @param out where should we write output
+	 * @param fillOld fill full information for old objects
+	 */
 	public Diff(String oldPath, String newPath, String out, boolean fillOld) {
 		
 		this.oldPath = oldPath;
@@ -61,6 +72,9 @@ public class Diff {
 
 	private File tmpFile = new File("diff.tmp.gz");
 	
+	/**
+	 * Run task
+	 */
 	public void run() {
 		
 		final Counters counters = new Counters();
@@ -155,18 +169,38 @@ public class Diff {
 		}
 	}
 
+	/**
+	 * Write header for old file
+	 * 
+	 * @return header
+	 */
 	public String getOldHeader() {
 		return oldHeader;
 	}
 
+	/**
+	 * Write header for old file
+	 * 
+	 * @param oldHeader
+	 */
 	public void setOldHeader(String oldHeader) {
 		this.oldHeader = oldHeader;
 	}
 
+	/**
+	 * Write header for new file
+	 * 
+	 * @return header
+	 */
 	public String getNewHeader() {
 		return newHeader;
 	}
 
+	/**
+	 * Write header for new file
+	 * 
+	 * @param newHeader
+	 */
 	public void setNewHeader(String newHeader) {
 		this.newHeader = newHeader;
 	}
