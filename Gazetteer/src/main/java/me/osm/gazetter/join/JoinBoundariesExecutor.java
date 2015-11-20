@@ -34,7 +34,7 @@ import com.google.code.externalsorting.ExternalSort;
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.prep.PreparedGeometry;
 import com.vividsolutions.jts.geom.prep.PreparedGeometryFactory;
-import com.vividsolutions.jts.index.quadtree.Quadtree;
+import com.vividsolutions.jts.index.strtree.STRtree;
 
 /**
  * Build boundaries hierarchy
@@ -184,26 +184,41 @@ public class JoinBoundariesExecutor {
 		log.info("Boundaries loaded");
 		int top = 0;
 		for(Entry<Integer, List<BoundaryCortage>> layer : boundariesByLevel.entrySet()) {
-			Quadtree qindex = new Quadtree();
+			STRtree index = new STRtree();
 			
 			top = layer.getKey();
 			for(Entry<Integer, List<BoundaryCortage>> entry : boundariesByLevel.entrySet()) {
 				if(entry.getKey() > top && Math.abs(entry.getKey() - top) < 4) {
 					for(BoundaryCortage b : entry.getValue()) {
-						qindex.insert(new Envelope(b.getGeometry().getCentroid().getCoordinate()), b); 
+						index.insert(new Envelope(b.getGeometry().getCentroid().getCoordinate()), b); 
 					}
 				}
 			}
+			index.build();
 			
+			log.info("Fill down hierarcy from level {}. For {} uppers, and {} downs.", 
+					new Object[]{top, layer.getValue().size(), index.size()});
+
 			for(BoundaryCortage up : layer.getValue()) {
 				
 				//we are in 4326
 				PreparedGeometry preparedUpGeometry = PreparedGeometryFactory.prepare(up.getGeometry());
+				PreparedGeometry preparedUpGeometryBuffer = null;
+
+				// There are too many of admin_level=8 it's 
+				// faster to modify downlays geometry 
+				if(up.getProperties().optInt("admin_level", 20) < 8) {
+					Envelope env = up.getGeometry().getEnvelopeInternal();
+					double hypot = Math.hypot(env.getWidth(), env.getHeight());
+					double buffer = -(hypot * 0.0001);
+					preparedUpGeometryBuffer = PreparedGeometryFactory.prepare(up.getGeometry().buffer(buffer));
+				}
+				
 				
 				@SuppressWarnings("unchecked")
-				List<BoundaryCortage> dwns = qindex.query(up.getGeometry().getEnvelopeInternal());
+				List<BoundaryCortage> dwns = index.query(up.getGeometry().getEnvelopeInternal());
 				for(BoundaryCortage dwn : dwns) {
-					if(covers(up, preparedUpGeometry, dwn)) {
+					if(covers(up, preparedUpGeometry, preparedUpGeometryBuffer, dwn)) {
 						if(bhierarchy.get(dwn.getId()) == null ) {
 							bhierarchy.put(dwn.getId(), up.copyRef());
 						}
@@ -214,7 +229,7 @@ public class JoinBoundariesExecutor {
 				}
 			}
 			
-			log.info("Fill down hierarcy from {}", top);
+			log.info("Done level {}", top);
 		}
 		
 		FileUtils.handleLines(binxFile, new LineHandler() {
@@ -305,7 +320,8 @@ public class JoinBoundariesExecutor {
 		return false;
 	}
 
-	private boolean covers(BoundaryCortage up, PreparedGeometry preparedUpGeometry, BoundaryCortage dwn) {
+	private boolean covers(BoundaryCortage up, PreparedGeometry preparedUpGeometry, 
+			PreparedGeometry preparedUpGeometryBuffer, BoundaryCortage dwn) {
 		
 		try {
 			// fast
@@ -313,11 +329,16 @@ public class JoinBoundariesExecutor {
 				return true;
 			}
 			
-			Envelope env = dwn.getGeometry().getEnvelopeInternal();
-			double hypot = Math.hypot(env.getWidth(), env.getHeight());
-			double buffer = -(hypot * 0.005);
-			
-			return preparedUpGeometry.intersects(dwn.getGeometry().buffer(buffer));
+			if(preparedUpGeometryBuffer == null) {
+				Envelope env = dwn.getGeometry().getEnvelopeInternal();
+				double hypot = Math.hypot(env.getWidth(), env.getHeight());
+				double buffer = -(hypot * 0.005);
+				
+				return preparedUpGeometry.intersects(dwn.getGeometry().buffer(buffer));
+			}
+			else {
+				return preparedUpGeometryBuffer.intersects(dwn.getGeometry());
+			}
 			
 		}
 		catch (Exception e) {
