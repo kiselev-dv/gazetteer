@@ -10,20 +10,17 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 
 import me.osm.gazetter.Options;
 import me.osm.gazetter.addresses.AddressesParser;
 import me.osm.gazetter.join.out_handlers.JoinOutHandler;
 import me.osm.gazetter.join.util.BoundaryCortage;
 import me.osm.gazetter.striper.GeoJsonWriter;
-import me.osm.gazetter.striper.JSONFeature;
 import me.osm.gazetter.utils.FileUtils;
 import me.osm.gazetter.utils.FileUtils.LineHandler;
 
@@ -35,42 +32,54 @@ import org.slf4j.LoggerFactory;
 
 import com.google.code.externalsorting.ExternalSort;
 import com.vividsolutions.jts.geom.Envelope;
+import com.vividsolutions.jts.geom.prep.PreparedGeometry;
+import com.vividsolutions.jts.geom.prep.PreparedGeometryFactory;
 import com.vividsolutions.jts.index.quadtree.Quadtree;
 
+/**
+ * Build boundaries hierarchy
+ * 
+ * Load boundaries, for each boundary add upper boundaries
+ * (boundaries with smaller admin_leve) which covers this
+ * boundary.
+ * */
 public class JoinBoundariesExecutor {
-	
-	private static final Logger log = LoggerFactory.getLogger(JoinBoundariesExecutor.class);
-	
+
+	private static final Logger log = LoggerFactory
+			.getLogger(JoinBoundariesExecutor.class);
+
 	private File binxFile;
 	private int skipedBoundaries = 0;
-	
-	private Map<BoundaryCortage, BoundaryCortage> bhierarchy = 
-			Collections.synchronizedMap(new HashMap<BoundaryCortage, BoundaryCortage>());
-	
+
+	private Map<String, BoundaryCortage> bhierarchy;
+
 	private AddressesParser addressesParser;
-	
+
 	private static final AdmLvlComparator ADM_LVL_COMPARATOR = new AdmLvlComparator();
-	
+
 	private static class AdmLvlComparator implements Comparator<String> {
 
 		private Set<Integer> lvls = new HashSet<>();
-		
+
 		@Override
 		public int compare(String arg0, String arg1) {
-			int i1 = arg0 == null ? -1 : Integer.parseInt(GeoJsonWriter.getAdmLevel(arg0));
-			int i2 = arg1 == null ? -1 : Integer.parseInt(GeoJsonWriter.getAdmLevel(arg1));
-			
-			if(i1 > 0) lvls.add(i1);
-			if(i2 > 0) lvls.add(i2);
-			
-			if(i1 == i2) {
-				
+			int i1 = arg0 == null ? -1 : Integer.parseInt(GeoJsonWriter
+					.getAdmLevel(arg0));
+			int i2 = arg1 == null ? -1 : Integer.parseInt(GeoJsonWriter
+					.getAdmLevel(arg1));
+
+			if (i1 > 0)
+				lvls.add(i1);
+			if (i2 > 0)
+				lvls.add(i2);
+
+			if (i1 == i2) {
+
 				String id1 = GeoJsonWriter.getId(arg0);
 				String id2 = GeoJsonWriter.getId(arg1);
-				
+
 				return id2.compareTo(id1);
-			}
-			else {
+			} else {
 				return Integer.compare(i1, i2);
 			}
 		}
@@ -78,26 +87,38 @@ public class JoinBoundariesExecutor {
 		public Set<Integer> getLvls() {
 			return lvls;
 		}
-		
-	}
-	
-	public void run(String stripesFolder, List<JSONObject> common, Set<String> filter) {
 
-		log.info("Run join boundaries, with filter [{}]", StringUtils.join(filter, ", "));
-		
+	}
+
+	/**
+	 * Calculate hierarchy, and call handler with results.
+	 * 
+	 * @param stripesFolder 
+	 * 				Base folder with data
+	 * @param common 
+	 * 				Add those JSONObject's to all results
+	 * @param filter 
+	 * 				List of boundaries ids which should appear among
+	 * 				upper boundaries to subject be sended to handler
+	 * */
+	public void run(String stripesFolder, List<JSONObject> common,
+			Set<String> filter) {
+
+		log.info("Run join boundaries, with filter [{}]",
+				StringUtils.join(filter, ", "));
+
 		long start = (new Date()).getTime();
 
 		try {
 			binxFile = FileUtils
 					.withGz(new File(stripesFolder + "/binx.gjson"));
-			
-			if(binxFile.exists()) {
+
+			if (binxFile.exists()) {
 				joinBoundaries(stripesFolder, common, filter);
-			}
-			else {
+			} else {
 				log.info("Skip boundaries index join");
 			}
-			
+
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
@@ -107,110 +128,105 @@ public class JoinBoundariesExecutor {
 				DurationFormatUtils.formatDurationHMS(new Date().getTime()
 						- start));
 	}
-	
-	private void joinBoundaries(String stripesFolder, List<JSONObject> common, 
+
+	private void joinBoundaries(String stripesFolder, List<JSONObject> common,
 			final Set<String> filter) throws Exception {
-		
+
 		addressesParser = Options.get().getAddressesParser();
-		
+
 		boolean distinct = false;
-		
-		BufferedReader binxReader = new BufferedReader(new InputStreamReader(FileUtils.getFileIS(binxFile)));
-		List<File> l = ExternalSort.sortInBatch(
-				binxReader, 
-				binxFile.length() * 10, 
-				ADM_LVL_COMPARATOR,
-                100, 
-                100 * 1024 * 1024, 
-                Charset.forName("UTF8"), 
-                new File(stripesFolder), 
-                distinct, 0,
-                true);
-		
+
+		BufferedReader binxReader = new BufferedReader(new InputStreamReader(
+				FileUtils.getFileIS(binxFile)));
+		List<File> l = ExternalSort.sortInBatch(binxReader,
+				binxFile.length() * 10, ADM_LVL_COMPARATOR, 100,
+				100 * 1024 * 1024, Charset.forName("UTF8"), new File(
+						stripesFolder), distinct, 0, true);
+
 		binxFile = new File(stripesFolder + "/" + "binx-sorted.gjson");
-		int sorted = ExternalSort.mergeSortedFiles(l, binxFile, ADM_LVL_COMPARATOR, Charset.forName("UTF8"),
-                distinct, false, true, null);
-		
+		int sorted = ExternalSort.mergeSortedFiles(l, binxFile,
+				ADM_LVL_COMPARATOR, Charset.forName("UTF8"), distinct, false,
+				true, null);
+
 		log.info("{} boundaries was sorted", sorted);
-                
-       List<Integer> lvls = new ArrayList<Integer>(ADM_LVL_COMPARATOR.getLvls());
-       Collections.sort(lvls);
-       
-       log.info("Admin levels: [{}]", StringUtils.join(lvls, ", "));
-       
-       final Iterator<Integer> lvlsi = lvls.iterator();
 
-		if (lvls.size() >= 2) {
-			
-			//one of the ugliest java things.
-			final int[] uppers = new int[]{lvlsi.next()};
-			final int[] downs = new int[]{lvlsi.next()};
-			
-			final List<BoundaryCortage> ups = new ArrayList<BoundaryCortage>();
-			final List<BoundaryCortage> dwns = new ArrayList<BoundaryCortage>();
+		List<Integer> lvls = new ArrayList<Integer>(
+				ADM_LVL_COMPARATOR.getLvls());
+		Collections.sort(lvls);
 
-			FileUtils.handleLines(binxFile, new LineHandler() {
+		log.info("Admin levels: [{}]", StringUtils.join(lvls, ", "));
 
-				@Override
-				public void handle(String s) {
-					JSONFeature obj = new JSONFeature(s);
-					Integer admLVL = Integer.valueOf(obj.getJSONObject(
-							GeoJsonWriter.PROPERTIES).getString("admin_level"));
-					
-					if(admLVL == uppers[0]) {
-						ups.add(new BoundaryCortage(obj));
-					}
-					else if(admLVL == downs[0]) {
-						dwns.add(new BoundaryCortage(obj));
-					} 
-					else if(admLVL > downs[0]) {
-						
-						fillHierarchy(ups, dwns);
-
-						uppers[0] = downs[0];
-						downs[0] = lvlsi.next();
-						
-						ups.clear();
-						ups.addAll(dwns);
-						dwns.clear();
-						dwns.add(new BoundaryCortage(obj));
-					}
-					else {
-						throw new RuntimeException("Boundaries are not sorted properly.");
-					}
-					
-				}
-
-			});
-		}
+		final Map<Integer, List<BoundaryCortage>> boundariesByLevel = new LinkedHashMap<>();
 		
+		// Говно, приходится грузить все
 		FileUtils.handleLines(binxFile, new LineHandler() {
-			
+
 			@Override
 			public void handle(String s) {
 				JSONObject obj = new JSONObject(s);
-				String id = obj.getString("id");
-				
-				List<JSONObject> uppers = new ArrayList<JSONObject>();
-				
-				for(BoundaryCortage up : getUppers(id)) {
-					JSONObject o = new JSONObject();
-					
-					String upid = up.getId();
-					o.put("id", upid);
-					o.put(GeoJsonWriter.PROPERTIES, up.getProperties());
-					
-					JSONObject meta = new JSONObject();
-					String osmId = StringUtils.split(upid, '-')[2];
-					meta.put("id", Long.parseLong(osmId.substring(1)));
-					meta.put("type", osmId.charAt(0) == 'r' ? "relation" : "way");
-					
-					o.put(GeoJsonWriter.META, meta);
-					
-					uppers.add(o);
+				JSONObject properties = obj.optJSONObject("properties");
+				if(properties != null) {
+					int lvl = properties.optInt("admin_level", -1);
+					if(lvl > 0) {
+						if(boundariesByLevel.get(lvl) == null) {
+							boundariesByLevel.put(lvl, new ArrayList<BoundaryCortage>());
+						}
+						
+						boundariesByLevel.get(lvl).add(new BoundaryCortage(obj));
+					}
 				}
+			}
+
+		});
+		
+		bhierarchy = new HashMap<String, BoundaryCortage>(sorted + 100);
+		
+		log.info("Boundaries loaded");
+		int top = 0;
+		for(Entry<Integer, List<BoundaryCortage>> layer : boundariesByLevel.entrySet()) {
+			Quadtree qindex = new Quadtree();
+			
+			top = layer.getKey();
+			for(Entry<Integer, List<BoundaryCortage>> entry : boundariesByLevel.entrySet()) {
+				if(entry.getKey() > top && Math.abs(entry.getKey() - top) < 4) {
+					for(BoundaryCortage b : entry.getValue()) {
+						qindex.insert(new Envelope(b.getGeometry().getCentroid().getCoordinate()), b); 
+					}
+				}
+			}
+			
+			for(BoundaryCortage up : layer.getValue()) {
 				
-				if(filter == null || filter.isEmpty() || check(obj, uppers, filter)) {
+				//we are in 4326
+				PreparedGeometry preparedUpGeometry = PreparedGeometryFactory.prepare(up.getGeometry());
+				
+				@SuppressWarnings("unchecked")
+				List<BoundaryCortage> dwns = qindex.query(up.getGeometry().getEnvelopeInternal());
+				for(BoundaryCortage dwn : dwns) {
+					if(covers(up, preparedUpGeometry, dwn)) {
+						if(bhierarchy.get(dwn.getId()) == null ) {
+							bhierarchy.put(dwn.getId(), up.copyRef());
+						}
+						else if(bhierarchy.get(up.getId()) != null) {
+							bhierarchy.put(dwn.getId(), up.copyRef());
+						}
+					}
+				}
+			}
+			
+			log.info("Fill down hierarcy from {}", top);
+		}
+		
+		FileUtils.handleLines(binxFile, new LineHandler() {
+
+			@Override
+			public void handle(String s) {
+				JSONObject obj = new JSONObject(s);
+				
+				String id = obj.getString("id");
+				List<JSONObject> uppers = asJsonRefs(getUppers(id));
+				
+				if(filter == null || filter.isEmpty() || checkById(obj, uppers, filter)) {
 					obj.put("boundaries", addressesParser.boundariesAsArray(obj, uppers));
 					
 					handleOut(obj);
@@ -218,95 +234,100 @@ public class JoinBoundariesExecutor {
 				else {
 					skipedBoundaries++;
 				}
-				
 			}
 
-			private boolean check(JSONObject obj, List<JSONObject> uppers,
-					Set<String> filter) {
-				
-				log.trace("{} uppers: [{}]", obj.getString("id"), StringUtils.join(listIds(uppers), ","));
-				
-				if(checkId(obj, filter)) {
-					return true;
-				}
-				
-				for(JSONObject up : uppers) {
-					if(checkId(up, filter)) {
-						return true;
-					}
-				}
-				
-				return false;
-			}
-
-			private List<String> listIds(List<JSONObject> uppers) {
-				List<String> res = new ArrayList<>();
-				if(uppers != null) {
-					for(JSONObject o : uppers) {
-						res.add(o.getString("id"));
-					}
-				}
-				return res;
-			}
-
-			private boolean checkId(JSONObject obj, Set<String> filter) {
-				for(String fltr : filter) {
-					if(StringUtils.contains(obj.getString("id"), fltr)) {
-						return true;
-					}
-				}
-				return false;
-			}
-
-			private List<BoundaryCortage> getUppers(String id) {
-				
-				List<BoundaryCortage> result = new ArrayList<BoundaryCortage>();
-				
-				BoundaryCortage up = bhierarchy.get(new BoundaryCortage(id));
-				
-				while (up != null) {
-					result.add(up);
-					up = bhierarchy.get(up);
-				}
-				
-				return result;
-			}
-			
 		});
-		
+
 		log.info("{} boundaries skiped", skipedBoundaries);
-		
+
 		binxFile.delete();
 	}
 	
-	private void fillHierarchy(List<BoundaryCortage> ups, List<BoundaryCortage> dwns) {
+	private List<BoundaryCortage> getUppers(String id) {
 		
-		Quadtree qt = new Quadtree();
-		for(BoundaryCortage b : dwns) {
-			qt.insert(new Envelope(b.getGeometry().getCentroid().getCoordinate()), b);
+		List<BoundaryCortage> result = new ArrayList<BoundaryCortage>();
+		
+		BoundaryCortage up = bhierarchy.get(id);
+		
+		while (up != null) {
+			result.add(up);
+			up = bhierarchy.get(up.getId());
 		}
 		
-		ExecutorService es = Executors.newFixedThreadPool(Options.get().getNumberOfThreads());
+		return result;
+	}
+	
+	private List<JSONObject> asJsonRefs(List<BoundaryCortage> uppers) {
+		List<JSONObject> result = new ArrayList<JSONObject>();
 		
-		for(BoundaryCortage up : ups) {
-			es.execute(new JoinBoundariesRunable(up, qt, bhierarchy));
+		for(BoundaryCortage up : uppers) {
+			JSONObject o = new JSONObject();
+			
+			String upid = up.getId();
+			o.put("id", upid);
+			o.put(GeoJsonWriter.PROPERTIES, up.getProperties());
+			
+			JSONObject meta = new JSONObject();
+			String osmId = StringUtils.split(upid, '-')[2];
+			meta.put("id", Long.parseLong(osmId.substring(1)));
+			meta.put("type", osmId.charAt(0) == 'r' ? "relation" : "way");
+			
+			o.put(GeoJsonWriter.META, meta);
+			
+			result.add(o);
 		}
 		
-		es.shutdown();
+		return result;
+	}
+
+	private boolean checkById(JSONObject obj, List<JSONObject> uppers,
+			Set<String> filter) {
 		
-		try {
-			while (!es.awaitTermination(100, TimeUnit.MILLISECONDS)) {
-				//still waiting
+		if(checkById(obj, filter)) {
+			return true;
+		}
+		
+		for(JSONObject up : uppers) {
+			if(checkById(up, filter)) {
+				return true;
 			}
 		}
-		catch (InterruptedException e) {
-			throw new RuntimeException(e);
+		
+		return false;
+	}
+	
+	private boolean checkById(JSONObject obj, Set<String> filter) {
+		for(String fltr : filter) {
+			if(StringUtils.contains(obj.getString("id"), fltr)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private boolean covers(BoundaryCortage up, PreparedGeometry preparedUpGeometry, BoundaryCortage dwn) {
+		
+		try {
+			// fast
+			if(preparedUpGeometry.covers(dwn.getGeometry())) {
+				return true;
+			}
+			
+			Envelope env = dwn.getGeometry().getEnvelopeInternal();
+			double hypot = Math.hypot(env.getWidth(), env.getHeight());
+			double buffer = -(hypot * 0.005);
+			
+			return preparedUpGeometry.intersects(dwn.getGeometry().buffer(buffer));
+			
+		}
+		catch (Exception e) {
+			return false;
 		}
 		
 	}
-	
+
 	private void handleOut(JSONObject obj) {
-		for(JoinOutHandler handler : Options.get().getJoinOutHandlers()) {
+		for (JoinOutHandler handler : Options.get().getJoinOutHandlers()) {
 			handler.handle(obj, "binx.gjson");
 		}
 	}

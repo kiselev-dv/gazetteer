@@ -27,69 +27,37 @@ import com.vividsolutions.jts.operation.polygonize.Polygonizer;
 import com.vividsolutions.jts.operation.valid.IsValidOp;
 import com.vividsolutions.jts.operation.valid.TopologyValidationError;
 
+/**
+ * Geometry creation utilities
+ * 
+ * Provides:
+ * 		Polygonization
+ *      Invalid geometry mending
+ *      
+ * */
 public class BuildUtils {
 	
 	//private static final Logger log = LoggerFactory.getLogger(BuildUtils.class);
 	private static final  GeometryFactory geometryFactory = new GeometryFactory();
 	
+	private static final SelfIntersectionsMender siMender = new BufferSelfIntersectionsMender();
+	
+	/**
+	 * Build MultiPolygon geometry 
+	 * 
+	 * Create MultiPolygon for provided collections of
+	 * inner and outer line segments.
+	 * 
+	 * Trying to mend errors such as Self-Intersections
+	 * 
+	 * */
 	public static MultiPolygon buildMultyPolygon(final Logger log, final Relation rel,
 			List<LineString> outers, List<LineString> inners) {
 		
-		MultiPolygon outer = polygonizeLinestrings(log, rel, outers);
+		MultiPolygon outer = buildOuterGeometry(log, rel, outers);
 		
 		if(outer == null) {
 			return null;
-		}
-		
-		if(!outer.isValid()) {
-			IsValidOp validOptions = new IsValidOp(outer);
-			TopologyValidationError validationError = validOptions.getValidationError();
-			
-			if(validationError.getErrorType() == TopologyValidationError.SELF_INTERSECTION) {
-				log.info("Trying to mend polygon for {}. Error is {}", rel.id, validationError.toString());
-
-				try {
-					
-					// http://stackoverflow.com/questions/31473553/
-					// is-there-a-way-to-convert-a-self-intersecting-polygon-to-a-multipolygon-in-jts
-					Geometry mendedG = SelfIntersectionsMender.mend(outer);
-					MultiPolygon mended = null;
-					
-					if(mendedG instanceof MultiPolygon) {
-						mended = (MultiPolygon)mendedG;
-					}
-					else if(mendedG instanceof Polygon) {
-						mended = geometryFactory.createMultiPolygon(
-								new Polygon[]{(Polygon) mendedG });
-					}
-					
-					if(mended == null || !mended.isValid() || mended.isEmpty()) {
-						mended = dropOverlaps(outer, validOptions);
-					}
-
-					if(mended == null || !mended.isValid() || mended.isEmpty()) {
-						log.warn("Can't mend polygon for {}.", rel.id);
-						if(log.isDebugEnabled()) {
-							log.debug(outer.toString());
-						}
-						
-						return null;
-					}
-					
-					outer = mended;
-				}
-				catch (Exception e) {
-					log.warn("Failed to mend polygon for {}. Cause: {}", rel.id, e.getMessage());
-				}
-				
-			}
-			else {
-				log.warn("Polygon for relation {} is invalid. Error is {}", rel.id, validationError.toString());
-				if(log.isDebugEnabled()) {
-					log.debug(outer.toString());
-				}
-				return null;
-			}
 		}
 		
 		if(inners == null || inners.isEmpty()) {
@@ -100,13 +68,88 @@ public class BuildUtils {
 		
 		MultiPolygon mix = substract(outer, inner);
 		
+		
 		if(mix != null && !mix.isEmpty()) {
+			
+			IsValidOp validOptions = new IsValidOp(mix);
+			if(!validOptions.isValid() && 
+					validOptions.getValidationError().getErrorType() 
+						== TopologyValidationError.DISCONNECTED_INTERIOR) {
+				
+				mix = (MultiPolygon) mix.buffer(0.0);
+			}
+
 			return mix;
 		}
 		else {
 			log.warn("Multipolygon is invalid after substract inners. Use only outers. Rel. id: {}", rel.id);
 			return outer;
 		}
+	}
+
+	private static MultiPolygon buildOuterGeometry(final Logger log,
+			final Relation rel, List<LineString> outers) {
+		
+		MultiPolygon outer = polygonizeLinestrings(log, rel, outers);
+		
+		if(outer == null) {
+			return null;
+		}
+		
+		IsValidOp validOptions = new IsValidOp(outer);
+		if(!validOptions.isValid()) {
+			TopologyValidationError validationError = validOptions.getValidationError();
+			
+			MultiPolygon mended = null;
+
+			try {
+				
+				int errorType = validationError.getErrorType();
+				
+				if(errorType == TopologyValidationError.SELF_INTERSECTION 
+						|| errorType == TopologyValidationError.RING_SELF_INTERSECTION ) {
+	
+					Geometry mendedG = siMender.mend(outer);
+					
+					if(mendedG instanceof MultiPolygon) {
+						mended = (MultiPolygon)mendedG;
+					}
+					else if(mendedG instanceof Polygon) {
+						mended = geometryFactory.createMultiPolygon(
+								new Polygon[]{(Polygon) mendedG });
+					}
+					
+				}
+				else if (errorType == TopologyValidationError.NESTED_SHELLS) {
+					mended = dropOverlaps(outer, validOptions);
+				}
+				else {
+					log.warn("Polygon for relation {} is invalid. Error is {}", 
+							rel.id, validationError.toString());
+					if(log.isDebugEnabled()) {
+						log.debug(outer.toString());
+					}
+					return null;
+				}
+				
+				if(mended == null || !mended.isValid() || mended.isEmpty()) {
+					log.warn("Can't mend polygon for {}.", rel.id);
+					if(log.isDebugEnabled()) {
+						log.debug(outer.toString());
+					}
+					
+					return null;
+				}
+				
+				log.info("Mend polygon for {}. Error is {}", rel.id, validationError.toString());
+				outer = mended;
+			}
+			catch (Exception e) {
+				log.warn("Failed to mend polygon for {}. Cause: {}", rel.id, e.getMessage());
+			}
+		}
+		
+		return outer;
 	}
 
 	private static MultiPolygon dropOverlaps(MultiPolygon outer, IsValidOp validOptions) {
