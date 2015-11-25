@@ -125,16 +125,19 @@ public class JoinSliceRunable implements Runnable {
 	private Set<String> necesaryBoundaries;
 
 	private JoinFailuresHandler failureHandler;
+
+	private boolean buildStreetNetworks = true;
 	
 	public JoinSliceRunable(AddrJointHandler handler, File src, 
 			List<JSONObject> common, Set<String> filter, JoinExecutor joiner, 
-			JoinFailuresHandler failureHandler) {
+			JoinFailuresHandler failureHandler, boolean buildStreetNetworks) {
 		
 		this.failureHandler = failureHandler;
 		this.src = src;
 		this.handler = handler;
 		this.common = common;
 		this.necesaryBoundaries = filter;
+		this.buildStreetNetworks = buildStreetNetworks;
 		
 		if(log.isTraceEnabled() && joiner != null) {
 			this.stripesCounter = joiner.getStripesCounter();
@@ -1006,7 +1009,9 @@ public class JoinSliceRunable implements Runnable {
 			
 			s = debug("write out neighboursVoronoi", s);
 			
-			createStreetsNetworks();
+			if(buildStreetNetworks) {
+				createStreetsNetworks();
+			}
 		}
 		catch (Exception e) {
 			throw new RuntimeException(e);

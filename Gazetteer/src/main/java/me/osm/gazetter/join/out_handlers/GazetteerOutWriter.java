@@ -87,7 +87,7 @@ public class GazetteerOutWriter extends AddressPerRowJOHBase  {
 			"fill_addresses", "export_all_names", 
 			"full_geometry",
 			"usage", "tag-stat",
-			"hsort", "isort");
+			"sort", "isort");
 
 	private TagsStatisticCollector tagStatistics;
 
@@ -111,7 +111,7 @@ public class GazetteerOutWriter extends AddressPerRowJOHBase  {
 	
 	private String outFile;
 
-	private boolean hsort;
+	private OutGazetteerSort sort;
 
 	private boolean isort;
 	
@@ -176,7 +176,7 @@ public class GazetteerOutWriter extends AddressPerRowJOHBase  {
 			tagStatistics = new ExportTagsStatisticCollector();
 		}
 		
-		hsort = parsedOpts.getFlag("hsort", true, false);
+		sort = OutGazetteerSort.valueOf(parsedOpts.getString("sort", "HIERARCHICAL"));
 		isort = parsedOpts.getFlag("isort", true, false);
 		
 		return this;
@@ -969,30 +969,35 @@ public class GazetteerOutWriter extends AddressPerRowJOHBase  {
 	public void allDone() {
 		
 		super.allDone();
+		
+		log.info("Sort results. Sort: {}, inverse order: {}", sort, isort);
 
-		try {
-			File file = new File(this.outFile);
-			BufferedReader fbr = new BufferedReader(new InputStreamReader(FileUtils.getFileIS(file)));
-			
-			Comparator<String> cmp = hsort ? new JSONHComparator(isort) : new JSONByIdComparator(isort);
-			
-			List<File> batch = ExternalSort.sortInBatch(fbr, file.length(), cmp, 
-					ExternalSort.DEFAULTMAXTEMPFILES, ExternalSort.estimateAvailableMemory(), 
-					Charset.forName("utf-8"), null, true, 0, true, ReduceHighwayNetworks.INSTANCE);
-
-			log.trace("Done ExternalSort.sortInBatch");
-			
-			initializeWriter(outFile);
-			
-			ExternalSort.mergeSortedFiles(batch, new BufferedWriter(writer), 
-					cmp, Charset.forName("utf-8"), true, true, 
-					ReduceHighwayNetworks.INSTANCE);
-			
-			log.trace("Done ExternalSort.mergeSortedFiles");
-			
-		}
-		catch (Exception e) {
-			throw new RuntimeException(e);
+		if(OutGazetteerSort.NONE == sort) {
+			try {
+				File file = new File(this.outFile);
+				BufferedReader fbr = new BufferedReader(new InputStreamReader(FileUtils.getFileIS(file)));
+				
+				Comparator<String> cmp = OutGazetteerSort.HIERARCHICAL == sort 
+						? new JSONHComparator(isort) : new JSONByIdComparator(isort);
+				
+				List<File> batch = ExternalSort.sortInBatch(fbr, file.length(), cmp, 
+						ExternalSort.DEFAULTMAXTEMPFILES, ExternalSort.estimateAvailableMemory(), 
+						Charset.forName("utf-8"), null, true, 0, true, ReduceHighwayNetworks.INSTANCE);
+				
+				log.trace("Done ExternalSort.sortInBatch");
+				
+				initializeWriter(outFile);
+				
+				ExternalSort.mergeSortedFiles(batch, new BufferedWriter(writer), 
+						cmp, Charset.forName("utf-8"), true, true, 
+						ReduceHighwayNetworks.INSTANCE);
+				
+				log.trace("Done ExternalSort.mergeSortedFiles");
+				
+			}
+			catch (Exception e) {
+				throw new RuntimeException(e);
+			}
 		}
 		
 		writeTagStat();

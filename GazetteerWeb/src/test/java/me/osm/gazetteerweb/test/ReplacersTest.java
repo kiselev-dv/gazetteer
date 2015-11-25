@@ -6,7 +6,7 @@ import static org.junit.Assert.assertTrue;
 import java.util.HashSet;
 import java.util.Set;
 
-import me.osm.gazetteer.web.imp.LocationsImporter;
+import me.osm.gazetteer.web.imp.LocationsDumpImporter;
 import me.osm.gazetteer.web.utils.OSMDocSinglton;
 
 import org.junit.After;
@@ -16,12 +16,12 @@ import org.junit.Test;
 
 public class ReplacersTest {
 
-	private LocationsImporter importer;
+	private LocationsDumpImporter importer;
 
 	@Before
 	public void setUp() throws Exception {
 		OSMDocSinglton.initialize("jar");
-		importer = new LocationsImporter(null, false);
+		importer = new LocationsDumpImporter(null, false);
 	}
 
 	@After
@@ -30,7 +30,7 @@ public class ReplacersTest {
 
 	@Test
 	public void testEmpty() {
-		LocationsImporter importer = new LocationsImporter(null, false);
+		LocationsDumpImporter importer = new LocationsDumpImporter(null, false);
 		
 		try {
 			String[] asArray = importer.fuzzyHousenumberIndex("").toArray(new String[]{});

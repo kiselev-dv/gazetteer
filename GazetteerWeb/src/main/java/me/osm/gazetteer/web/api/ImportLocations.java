@@ -4,7 +4,7 @@ import me.osm.gazetteer.web.ESNodeHolder;
 import me.osm.gazetteer.web.api.meta.Endpoint;
 import me.osm.gazetteer.web.api.meta.Parameter;
 import me.osm.gazetteer.web.api.utils.RequestUtils;
-import me.osm.gazetteer.web.imp.LocationsImporter;
+import me.osm.gazetteer.web.imp.LocationsDumpImporter;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.validator.routines.UrlValidator;
@@ -70,7 +70,7 @@ public class ImportLocations implements DocumentedApi {
 		boolean imp = StringUtils.isNotEmpty(source);
 		if(imp) {
 			
-			LocationsImporter importer = new LocationsImporter(source, buildingsGeometry);
+			LocationsDumpImporter importer = new LocationsDumpImporter(source, buildingsGeometry);
 			
 			if(StringUtils.isNotEmpty(callbackUrl) && isValidUrl(callbackUrl)) {
 				importer.setCallback(callbackUrl);

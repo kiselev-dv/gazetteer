@@ -26,6 +26,7 @@ import net.sourceforge.argparse4j.inf.Subparsers;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.codehaus.groovy.runtime.metaclass.MethodMetaProperty.GetBeanMethodMetaProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -257,9 +258,10 @@ public class Gazetteer {
 					System.exit(1);
 				}
 				
-				new JoinExecutor(new HashSet(list(namespace.getList("check_boundaries"))))
-					.run(namespace.getString(DATA_DIR_VAL), 
-							namespace.getString(JOIN_COMMON_VAL));
+				new JoinExecutor(namespace.getBoolean("skip-hghnets"), 
+						new HashSet(list(namespace.getList("check_boundaries")))).run(
+								namespace.getString(DATA_DIR_VAL), 
+								namespace.getString(JOIN_COMMON_VAL));
 				
 			}
 
@@ -516,7 +518,12 @@ public class Gazetteer {
 						+ "to name still generate additional row. \n"
 						+ "(You can filter it later with simple distinct check).");
 			
+			join.addArgument("--skip-hghnets").setConst(Boolean.TRUE)
+				.setDefault(Boolean.FALSE).action(new StoreTrueArgumentAction())
+				.help("Do not build highway networks.");
+
 			join.addArgument("--handlers").nargs("*");
+			
 			
 		}
 

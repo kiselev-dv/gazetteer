@@ -58,13 +58,13 @@ import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.operation.linemerge.LineMerger;
 
-public class LocationsImporter extends BackgroundExecutableTask {
+public class LocationsDumpImporter extends BackgroundExecutableTask {
 	
 	private static final OSMDocFacade FACADE = OSMDocSinglton.get().getFacade();
 	
 	protected ObjectsWeightBuilder weighter;
 
-	Logger log = LoggerFactory.getLogger(LocationsImporter.class);
+	Logger log = LoggerFactory.getLogger(LocationsDumpImporter.class);
 
 	private static final int BATCH_SIZE = 1000;
 
@@ -104,7 +104,7 @@ public class LocationsImporter extends BackgroundExecutableTask {
 		private static final long serialVersionUID = 8178453133841622471L;
 	}
 
-	public LocationsImporter(String source, boolean buildingsGeometry) {
+	public LocationsDumpImporter(String source, boolean buildingsGeometry) {
 		
 		String trClass = GazetteerWeb.config().getTransliteratorClass();
 		try {
