@@ -35,12 +35,18 @@ public class JoinExecutor implements JoinFailuresHandler{
 	private AtomicInteger stripesCounter;
 	
 	private Set<String> filter;
+
+	private boolean dropHghNetGeometries = true;
 	
-	public JoinExecutor(Boolean skipHghNets, Set<String> filter) {
+	public JoinExecutor(Boolean skipHghNets, Boolean keepHghNetGeometries, Set<String> filter) {
 		this.filter = filter;
 		
 		if(skipHghNets != null) {
 			this.buildStreetNetworks = !skipHghNets;
+		}
+
+		if(keepHghNetGeometries != null) {
+			this.dropHghNetGeometries  = !dropHghNetGeometries;
 		}
 	}
 
@@ -132,7 +138,8 @@ public class JoinExecutor implements JoinFailuresHandler{
 		ArrayList<File> oneThread = new ArrayList<File>(fails);
 		fails.clear();
 		for(File stripeF : oneThread ) {
-			new JoinSliceRunable(addrPointFormatter, stripeF, common, filter, this, this, buildStreetNetworks).run();
+			new JoinSliceRunable(addrPointFormatter, stripeF, common, 
+					filter, buildStreetNetworks, dropHghNetGeometries, this, this).run();
 		}
 		
 		if(!fails.isEmpty()) {
@@ -147,7 +154,8 @@ public class JoinExecutor implements JoinFailuresHandler{
 		long avaibleRAMMeg = MemorySupervizor.getAvaibleRAMMeg();
 		if(queue.size() < threads && avaibleRAMMeg > 500) {
 			log.trace("Send {} to execution queue. Free mem: {}meg", stripeF, avaibleRAMMeg);
-			executorService.execute(new JoinSliceRunable(addrPointFormatter, stripeF, common, filter, this, this, buildStreetNetworks));
+			executorService.execute(new JoinSliceRunable(addrPointFormatter, stripeF, 
+					common, filter, buildStreetNetworks, dropHghNetGeometries, this, this));
 		}
 		else {
 			try {

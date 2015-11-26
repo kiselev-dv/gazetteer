@@ -59,8 +59,15 @@ import com.vividsolutions.jts.index.quadtree.Quadtree;
 import com.vividsolutions.jts.index.strtree.STRtree;
 import com.vividsolutions.jts.operation.buffer.BufferOp;
 
+/**
+ * Join features from one stripe
+ * 
+ * Actual task which makes a piece of work by
+ * join points to polygon and other performance heavy tasks.
+ * */
 public class JoinSliceRunable implements Runnable {
 	
+
 	private static final Logger log = LoggerFactory.getLogger(JoinSliceRunable.class);
 	
 	private static final int MB = 1024*1024;
@@ -127,10 +134,37 @@ public class JoinSliceRunable implements Runnable {
 	private JoinFailuresHandler failureHandler;
 
 	private boolean buildStreetNetworks = true;
-	
+
+	private boolean dropHghNetGeometries;
+
+	private static final String[] HGHNET_COPY_KEYS_GEOMETRY = new String[]{"id", "properties", "geometry"};
+	private static final String[] HGHNET_COPY_KEYS_DROP_GEOMETRY = new String[]{"id", "properties"};
+
+	/**
+	 * @param handler 
+	 * 			callback
+	 * @param src 
+	 * 			stripe file
+	 * @param common 
+	 * 			list of json features which will be
+	 * 			joined with every address feature 
+	 * @param filter
+	 * 			list of boundaries osm id's, feature passes
+	 * 			if it's boundaries contains ANY id from 
+	 * 			filters collection 
+	 * @param buildStreetNetworks
+	 * 			merge streets with the same name
+	 * @param dropHghNetGeometries 
+	 * @param joiner
+	 * 			parent, used for counters and synchronization
+	 * @param failureHandler
+	 * 			on fail callback
+	 */
 	public JoinSliceRunable(AddrJointHandler handler, File src, 
-			List<JSONObject> common, Set<String> filter, JoinExecutor joiner, 
-			JoinFailuresHandler failureHandler, boolean buildStreetNetworks) {
+			List<JSONObject> common, Set<String> filter, 
+			boolean buildStreetNetworks, 
+			boolean dropHghNetGeometries, JoinExecutor joiner, 
+			JoinFailuresHandler failureHandler) {
 		
 		this.failureHandler = failureHandler;
 		this.src = src;
@@ -138,6 +172,7 @@ public class JoinSliceRunable implements Runnable {
 		this.common = common;
 		this.necesaryBoundaries = filter;
 		this.buildStreetNetworks = buildStreetNetworks;
+		this.dropHghNetGeometries = dropHghNetGeometries;
 		
 		if(log.isTraceEnabled() && joiner != null) {
 			this.stripesCounter = joiner.getStripesCounter();
@@ -568,7 +603,9 @@ public class JoinSliceRunable implements Runnable {
 					JSONObject b = boundaries.getJSONObject(i);
 					long bhash = b.getLong("boundariesHash");
 
-					JSONFeature hghway = new JSONFeature(jsonObject, new String[]{"id", "properties", "geometry"});
+					String[] keys = this.dropHghNetGeometries ? 
+							HGHNET_COPY_KEYS_DROP_GEOMETRY : HGHNET_COPY_KEYS_GEOMETRY;
+					JSONFeature hghway = new JSONFeature(jsonObject, keys);
 					hghway.put("boundariesHash", bhash);
 					hghway.put("boundaries", new JSONArray(Arrays.asList(b)));
 					
@@ -668,7 +705,7 @@ public class JoinSliceRunable implements Runnable {
 			handleOut(hghnet);
 		}
 	}
-
+	
 	private void joinNeighbourPlaces(List<JSONObject> places,
 			List<JSONObject> placesVoronoi) {
 

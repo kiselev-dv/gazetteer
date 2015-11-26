@@ -4,6 +4,9 @@ import java.util.Comparator;
 
 import me.osm.gazetter.striper.GeoJsonWriter;
 
+/**
+ * By Id sorter
+ * */
 public class JSONByIdComparator implements Comparator<String> {
 
 	private boolean isort;

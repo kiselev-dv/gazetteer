@@ -4,6 +4,9 @@ import java.util.Comparator;
 
 import me.osm.gazetter.striper.GeoJsonWriter;
 
+/**
+ * Hierarchical sorter
+ * */
 public class JSONHComparator implements Comparator<String> {
 
 	private boolean inverse;

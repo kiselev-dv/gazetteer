@@ -18,6 +18,9 @@ import static me.osm.gazetter.join.out_handlers.GazetteerSchemeConstants.GAZETTE
 import static me.osm.gazetter.join.out_handlers.GazetteerSchemeConstants.GAZETTEER_SCHEME_TAGS;
 import static me.osm.gazetter.join.out_handlers.GazetteerSchemeConstants.GAZETTEER_SCHEME_TIMESTAMP;
 import static me.osm.gazetter.join.out_handlers.GazetteerSchemeConstants.GAZETTEER_SCHEME_TYPE;
+import gnu.trove.impl.sync.TSynchronizedLongSet;
+import gnu.trove.set.TLongSet;
+import gnu.trove.set.hash.TLongHashSet;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -25,6 +28,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -39,8 +43,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import me.osm.gazetter.addresses.AddressesUtils;
 import me.osm.gazetter.join.util.ExportTagsStatisticCollector;
@@ -117,12 +121,18 @@ public class GazetteerOutWriter extends AddressPerRowJOHBase  {
 	
 	private AtomicInteger poipntc = new AtomicInteger();
 	private AtomicInteger adrpntc = new AtomicInteger();
-	private AtomicInteger hghwayc = new AtomicInteger();
-	private AtomicInteger hghnetc = new AtomicInteger();
-	private AtomicInteger plcbndc = new AtomicInteger();
 	private AtomicInteger plcpntc = new AtomicInteger();
 	private AtomicInteger admbndc = new AtomicInteger();
 
+	private AtomicInteger plcbndc = new AtomicInteger();
+	private AtomicInteger hghwayc = new AtomicInteger();
+	private AtomicInteger hghnetc = new AtomicInteger();
+	
+	private TLongSet plcbndIdSet;
+	private TLongSet hghwayIdSet;
+	
+	private PrintWriter hghnetWriter;
+	private File hghNetFile;
 
 	@Override
 	public JoinOutHandler initialize(HandlerOptions parsedOpts) {
@@ -176,8 +186,13 @@ public class GazetteerOutWriter extends AddressPerRowJOHBase  {
 			tagStatistics = new ExportTagsStatisticCollector();
 		}
 		
-		sort = OutGazetteerSort.valueOf(parsedOpts.getString("sort", "HIERARCHICAL"));
+		sort = OutGazetteerSort.valueOf(parsedOpts.getString("sort", "ID"));
 		isort = parsedOpts.getFlag("isort", true, false);
+		
+		if(sort == OutGazetteerSort.UNIQUE) {
+			plcbndIdSet = new TSynchronizedLongSet(new TLongHashSet());
+			hghwayIdSet = new TSynchronizedLongSet(new TLongHashSet());
+		}
 		
 		return this;
 	}
@@ -301,6 +316,17 @@ public class GazetteerOutWriter extends AddressPerRowJOHBase  {
 	protected void handleHighwayAddrRow(JSONObject object, JSONObject address,
 			String stripe) {
 		
+		if(hghwayIdSet != null) {
+			String ftype = object.getString("ftype");
+			String rowId = AddrRowValueExctractorImpl.getUID(object, address, ftype);
+			
+			long longHash = ByteBuffer.wrap(DigestUtils.md5(rowId)).getLong(); 
+			
+			if(!hghwayIdSet.add(longHash)) {
+				return;
+			}
+		}
+
 		JSONFeature result = new JSONFeature();
 		if(fillObject(result, address, object)) {
 			println(result.toString());
@@ -312,15 +338,28 @@ public class GazetteerOutWriter extends AddressPerRowJOHBase  {
 	@Override
 	protected void handleHighwayNetAddrRow(JSONObject object, JSONObject address,
 			String stripe) {
-		
 		JSONFeature result = new JSONFeature();
 		if(fillObject(result, address, object)) {
-			println(result.toString());
-			flush();
-			hghnetc.getAndIncrement();
+			getHgNetWriter().println(result.optString("hhash") + "\t" + result.toString());
 		}
 	}
 	
+	private PrintWriter getHgNetWriter() {
+		
+		try {
+			if(this.hghnetWriter == null) {
+				this.hghNetFile = new File("hghnets.tmp.gz");
+				// close in allDone
+				this.hghnetWriter = FileUtils.getPrintWriter(hghNetFile, false);
+			}
+		}
+		catch (Exception e) {
+			throw new RuntimeException("Can't create file for highways networks");
+		}
+		
+		return this.hghnetWriter;
+	}
+
 	@Override
 	protected void handlePlaceBoundaryAddrRow(JSONObject object, JSONObject address,
 			String stripe) {
@@ -328,7 +367,18 @@ public class GazetteerOutWriter extends AddressPerRowJOHBase  {
 		if(address == null) {
 			return;
 		}
-		
+
+		if(plcbndIdSet != null) {
+			String ftype = object.getString("ftype");
+			String rowId = AddrRowValueExctractorImpl.getUID(object, address, ftype);
+			
+			long longHash = ByteBuffer.wrap(DigestUtils.md5(rowId)).getLong(); 
+			
+			if(!plcbndIdSet.add(longHash)) {
+				return;
+			}
+		}
+
 		JSONFeature result = new JSONFeature();
 		if(fillObject(result, address, object)) {
 			println(result.toString());
@@ -520,8 +570,6 @@ public class GazetteerOutWriter extends AddressPerRowJOHBase  {
 			
 			result.put(GAZETTEER_SCHEME_POI_TYPE_NAMES, trans);
 		}
-
-		
 		
 		fillPoiAddrRefs(result, jsonObject, poiAddrMatch);
 		
@@ -930,7 +978,6 @@ public class GazetteerOutWriter extends AddressPerRowJOHBase  {
 		
 	}
 
-
 	protected Map<String, JSONObject> mapLevels(JSONObject addrRow) {
 		try {
 			if(addrRow == null) {
@@ -968,37 +1015,23 @@ public class GazetteerOutWriter extends AddressPerRowJOHBase  {
 	@Override
 	public void allDone() {
 		
+		if(this.hghnetWriter != null) {
+			this.hghnetWriter.flush();
+			this.hghnetWriter.close();
+			
+			// it writes into def. writer, so do it before
+			// super.allDone() call which will close writer
+			mergeAndSortHghnets();
+			
+			// cleanup
+			this.hghNetFile.delete();
+			
+			log.info("Done merge highway networks");
+		}
+
 		super.allDone();
 		
-		log.info("Sort results. Sort: {}, inverse order: {}", sort, isort);
-
-		if(OutGazetteerSort.NONE == sort) {
-			try {
-				File file = new File(this.outFile);
-				BufferedReader fbr = new BufferedReader(new InputStreamReader(FileUtils.getFileIS(file)));
-				
-				Comparator<String> cmp = OutGazetteerSort.HIERARCHICAL == sort 
-						? new JSONHComparator(isort) : new JSONByIdComparator(isort);
-				
-				List<File> batch = ExternalSort.sortInBatch(fbr, file.length(), cmp, 
-						ExternalSort.DEFAULTMAXTEMPFILES, ExternalSort.estimateAvailableMemory(), 
-						Charset.forName("utf-8"), null, true, 0, true, ReduceHighwayNetworks.INSTANCE);
-				
-				log.trace("Done ExternalSort.sortInBatch");
-				
-				initializeWriter(outFile);
-				
-				ExternalSort.mergeSortedFiles(batch, new BufferedWriter(writer), 
-						cmp, Charset.forName("utf-8"), true, true, 
-						ReduceHighwayNetworks.INSTANCE);
-				
-				log.trace("Done ExternalSort.mergeSortedFiles");
-				
-			}
-			catch (Exception e) {
-				throw new RuntimeException(e);
-			}
-		}
+		sortResults();
 		
 		writeTagStat();
 		
@@ -1010,6 +1043,68 @@ public class GazetteerOutWriter extends AddressPerRowJOHBase  {
 		log.info("Wrote place points: {}", 		plcpntc.get());
 		log.info("Wrote admin boundaries: {}", 	admbndc.get());
 		
+	}
+
+	private void sortResults() {
+
+		if(OutGazetteerSort.NONE != sort && OutGazetteerSort.UNIQUE != sort) {
+
+			log.info("Sorting results. Sort: {}, inverse order: {}", sort, isort);
+			
+			try {
+				File file = new File(this.outFile);
+				BufferedReader fbr = new BufferedReader(new InputStreamReader(FileUtils.getFileIS(file)));
+				
+				Comparator<String> cmp = OutGazetteerSort.HIERARCHICAL == sort 
+						? new JSONHComparator(isort) : new JSONByIdComparator(isort);
+				
+				List<File> batch = ExternalSort.sortInBatch(fbr, file.length(), cmp, 
+						ExternalSort.DEFAULTMAXTEMPFILES, ExternalSort.estimateAvailableMemory(), 
+						Charset.forName("utf-8"), null, true, 0, true);
+				
+				log.trace("Done ExternalSort.sortInBatch");
+				
+				initializeWriter(outFile);
+				
+				ExternalSort.mergeSortedFiles(batch, new BufferedWriter(writer), 
+						cmp, Charset.forName("utf-8"), true, true);
+				
+				log.trace("Done ExternalSort.mergeSortedFiles");
+				
+			}
+			catch (Exception e) {
+				throw new RuntimeException(e);
+			}
+		}
+		else {
+			log.info("Skip sort.");
+		}
+	}
+
+	private void mergeAndSortHghnets() {
+		try {
+			BufferedReader fbr = new BufferedReader(new InputStreamReader(FileUtils.getFileIS(this.hghNetFile)));
+			
+			Comparator<String> cmp = OutGazetteerSort.HIERARCHICAL == sort 
+					? new JSONHComparator(isort) : new JSONByIdComparator(isort);
+			
+			List<File> batch = ExternalSort.sortInBatch(
+					fbr, this.hghNetFile.length(), 
+					ExternalSort.defaultcomparator, 
+					ExternalSort.DEFAULTMAXTEMPFILES, 
+					ExternalSort.estimateAvailableMemory(), 
+					Charset.forName("utf-8"), null, 
+					false, 0, true);
+			
+			ExternalSort.mergeSortedFiles(batch, new FakeWriter(new HighwaysMerger(this)), 
+			cmp, Charset.forName("utf-8"), true, true);
+			
+			log.trace("Done ExternalSort.mergeSortedFiles");
+			
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	private void writeTagStat() {
@@ -1030,6 +1125,11 @@ public class GazetteerOutWriter extends AddressPerRowJOHBase  {
 				throw new RuntimeException();
 			}
 		}
+	}
+
+	public void writeMergedHGHNET(String string) {
+		hghnetc.getAndIncrement();
+		println(string);
 	}
 	
 }
