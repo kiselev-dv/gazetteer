@@ -1096,7 +1096,7 @@ public class GazetteerOutWriter extends AddressPerRowJOHBase  {
 					Charset.forName("utf-8"), null, 
 					false, 0, true);
 			
-			ExternalSort.mergeSortedFiles(batch, new FakeWriter(new HighwaysMerger(this)), 
+			ExternalSort.mergeSortedFiles(batch, new HgnetMerger(this), 
 			cmp, Charset.forName("utf-8"), true, true);
 			
 			log.trace("Done ExternalSort.mergeSortedFiles");
