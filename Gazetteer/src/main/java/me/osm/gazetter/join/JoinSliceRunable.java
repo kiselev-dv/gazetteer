@@ -174,7 +174,7 @@ public class JoinSliceRunable implements Runnable {
 		this.buildStreetNetworks = buildStreetNetworks;
 		this.dropHghNetGeometries = dropHghNetGeometries;
 		
-		if(log.isTraceEnabled() && joiner != null) {
+		if(joiner != null) {
 			this.stripesCounter = joiner.getStripesCounter();
 		}
 		
@@ -282,11 +282,11 @@ public class JoinSliceRunable implements Runnable {
 				h.stripeDone(this.src.getName());
 			}
 			
-			if(log.isTraceEnabled() && this.stripesCounter != null) {
-				log.info("Done. {} left", this.stripesCounter.decrementAndGet());
-			}
+			log.info("{} done in {}. {} left", 
+					this.src.getName(), 
+					DurationFormatUtils.formatDurationHMS(new Date().getTime() - total), 
+					this.stripesCounter.decrementAndGet());
 			
-			log.trace("total " + DurationFormatUtils.formatDurationHMS(new Date().getTime() - total));
 		}
 		catch (InsufficientMemoryException e) {
 			log.trace("Join delayed. File: {}.", this.src);
