@@ -9,6 +9,9 @@ import org.json.JSONObject;
  */
 public class PrintJoinOutHandler extends SingleWriterJOHBase {
 	
+	/**
+	 * Name of handler for command line
+	 */
 	public static final String NAME = "out-print";
 
 	@Override
