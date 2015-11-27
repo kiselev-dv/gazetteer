@@ -8,6 +8,9 @@ import java.util.List;
 
 import me.osm.gazetter.utils.FileUtils;
 
+/**
+ * Write result via single writer 
+ */
 public abstract class SingleWriterJOHBase implements JoinOutHandler {
 
 	protected PrintWriter writer = new PrintWriter(System.out);
@@ -66,7 +69,7 @@ public abstract class SingleWriterJOHBase implements JoinOutHandler {
 		writer.close();
 	}
 	
-	public void flush() {
+	protected void flush() {
 		writer.flush();
 	}
 

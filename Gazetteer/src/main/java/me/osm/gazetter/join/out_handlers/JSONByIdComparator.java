@@ -11,6 +11,9 @@ public class JSONByIdComparator implements Comparator<String> {
 
 	private boolean isort;
 
+	/**
+	 * @param isort inverse order
+	 */
 	public JSONByIdComparator(boolean isort) {
 		this.isort = isort;
 	}

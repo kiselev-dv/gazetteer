@@ -11,6 +11,9 @@ public class JSONHComparator implements Comparator<String> {
 
 	private boolean inverse;
 
+	/**
+	 * @param inverse inverse order
+	 */
 	public JSONHComparator (boolean inverse) {
 		this.inverse = inverse;
 	}
