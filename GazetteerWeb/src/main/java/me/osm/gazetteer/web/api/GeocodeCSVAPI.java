@@ -1,5 +1,9 @@
 package me.osm.gazetteer.web.api;
 
+import static me.osm.gazetteer.web.api.utils.RequestUtils.getSet;
+
+import java.util.Set;
+
 import me.osm.gazetteer.web.api.meta.Endpoint;
 import me.osm.gazetteer.web.csvgeocode.CSVGeocode;
 
@@ -29,11 +33,13 @@ public class GeocodeCSVAPI implements DocumentedApi {
 		
 		String source = request.getHeader("source");
 		String callbackUrl = request.getHeader("callback_url");
+		Set<String> refs = getSet(request, SearchAPI.REFERENCES_HEADER);
 		
 		boolean imp = StringUtils.isNotEmpty(source);
 		if(imp) {
 			
 			CSVGeocode importer = new CSVGeocode(source, callbackUrl, searchAPI);
+			importer.setRefs(refs);
 			
 			if(StringUtils.isNotEmpty(callbackUrl) && 
 					ImportLocations.isValidUrl(callbackUrl)) {

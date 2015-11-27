@@ -14,6 +14,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 
 import me.osm.gazetteer.web.GazetteerWeb;
 import me.osm.gazetteer.web.api.AnswerDetalization;
@@ -36,6 +37,7 @@ public class CSVGeocode extends BackgroundExecutableTask {
 	private String callback;
 	
 	private SearchAPI searchAPI;
+	private Set<String> refs;
 	
 	public CSVGeocode(){};
 	
@@ -69,7 +71,7 @@ public class CSVGeocode extends BackgroundExecutableTask {
 
 				JSONObject answer = searchAPI.internalSearch(
 						false, string, null, null, null, null, 
-						null, true, false, true, 
+						this.refs, true, false, true, 
 						AnswerDetalization.SHORT, null);
 				
 				fillTheRow(row, answer);
@@ -174,6 +176,10 @@ public class CSVGeocode extends BackgroundExecutableTask {
 
 	public void setCallback(String callback) {
 		this.callback = callback;
+	}
+
+	public void setRefs(Set<String> refs) {
+		this.refs = refs;
 	}
 
 }
