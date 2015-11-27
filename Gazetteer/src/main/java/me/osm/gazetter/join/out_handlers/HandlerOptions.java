@@ -9,6 +9,9 @@ import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 
+/**
+ * Store and parse options for out handler
+ * */
 public class HandlerOptions {
 	
 	private Map<String, List<String>> vals = new HashMap<String, List<String>>();
@@ -17,6 +20,14 @@ public class HandlerOptions {
 		
 	}
 	
+	/**
+	 * Parse string option
+	 * 
+	 * @param key option key
+	 * @param def default value
+	 * 
+	 * @return value
+	 * */
 	public String getString(String key, String def) {
 		List<String> list = vals.get(key);
 		if(list == null || list.isEmpty()) {
@@ -25,6 +36,14 @@ public class HandlerOptions {
 		return list.get(0);
 	}
 	
+	/**
+	 * Parse list of options
+	 * 
+	 * @param key option key 
+	 * @param def default value
+	 * 
+	 * @return List of parsed string option values 
+	 * */
 	public List<String> getList(String key, List<String> def) {
 		if(vals.get(key) == null) {
 			return def;
@@ -32,13 +51,23 @@ public class HandlerOptions {
 		return vals.get(key);
 	}
 	
+	/**
+	 * @param key option key
+	 * @return true if option appears in user input 
+	 */
 	public boolean has (String key) {
 		return vals.containsKey(key);
 	}
 
 	/**
-	 * @returns missed if there is no <b>key</b> parameter
-	 * @returns def if <b>key</b> appears without any particular value
+	 * Parse flag option
+	 * 
+	 * @param key option key 
+	 * @param def default value
+	 * @param missed what to return if there is no flag
+	 * 
+	 * @return 	missed if there is no <b>key</b> parameter
+	 * 			def if <b>key</b> appears without any particular value
 	 * */
 	public boolean getFlag (String key, Boolean def, Boolean missed) {
 		if(vals.containsKey(key)) {
@@ -51,6 +80,14 @@ public class HandlerOptions {
 		return missed;
 	}
 
+	/**
+	 * Parse user input
+	 * 
+	 * @param options from shell  
+	 * @param argNames argument/option names
+	 * 
+	 * @return parsed options
+	 */
 	public static HandlerOptions parse(List<String> options, Collection<String> argNames) {
 		
 		HandlerOptions result = new HandlerOptions();

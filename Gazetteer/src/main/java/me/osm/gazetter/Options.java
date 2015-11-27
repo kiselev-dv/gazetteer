@@ -54,7 +54,7 @@ public class Options {
 	}
 	
 	/**
-	 * Names of JoinOutHandler available by name
+	 * Names of JoinOutHandler available by name from command line.
 	 * 
 	 * @return names
 	 * */

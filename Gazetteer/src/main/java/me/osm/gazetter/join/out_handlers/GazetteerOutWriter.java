@@ -46,6 +46,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import me.osm.gazetter.Options;
 import me.osm.gazetter.addresses.AddressesUtils;
 import me.osm.gazetter.join.util.ExportTagsStatisticCollector;
 import me.osm.gazetter.out.AddrRowValueExctractorImpl;
@@ -78,6 +79,9 @@ import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.LineString;
 
+/**
+ * Writes data as JSON, out-gazetteer out handler.
+ * */
 public class GazetteerOutWriter extends AddressPerRowJOHBase  {
 	
 	private static final Logger log = LoggerFactory.getLogger(GazetteerOutWriter.class);
@@ -95,6 +99,11 @@ public class GazetteerOutWriter extends AddressPerRowJOHBase  {
 
 	private TagsStatisticCollector tagStatistics;
 
+	/**
+	 * Name, used to call this handler from command line.
+	 * 
+	 * @see Options#getPredefinedOutHandlers()
+	 * */
 	public static final String NAME = "out-gazetteer";
 
 	private OSMDocFacade osmDocFacade;
@@ -1131,7 +1140,8 @@ public class GazetteerOutWriter extends AddressPerRowJOHBase  {
 		}
 	}
 
-	public void writeMergedHGHNET(String string) {
+	// default access
+	void writeMergedHGHNET(String string) {
 		hghnetc.getAndIncrement();
 		println(string);
 	}

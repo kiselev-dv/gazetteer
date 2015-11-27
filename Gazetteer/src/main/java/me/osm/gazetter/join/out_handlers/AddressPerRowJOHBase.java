@@ -11,8 +11,16 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 /**
+ * Writes objects address as individual features.
+ * 
  * Originally objects like building, poi or highways
- * may have more than one address,
+ * may have more than one address.
+ * 
+ * For such objects, takes all address, and writes them 
+ * with data for object as individual objects.
+ * 
+ * But preserve information that these objects linked to one
+ * real world object via feature_id property.
  * */
 public abstract class AddressPerRowJOHBase extends SingleWriterJOHBase {
 
@@ -31,6 +39,14 @@ public abstract class AddressPerRowJOHBase extends SingleWriterJOHBase {
 		}
 	}
 	
+	/**
+	 * Get unique id for address row
+	 * 
+	 * @param oject subject 
+	 * @param addressRow subjects address
+	 * 
+	 * @return unique id
+	 * */
 	public static String getUID(JSONObject oject, JSONObject addressRow) {
 		return AddrRowValueExctractorImpl.getUID(oject, addressRow, oject.getString("ftype"));
 	}
