@@ -186,7 +186,9 @@ public class GazetteerOutWriter extends AddressPerRowJOHBase  {
 			tagStatistics = new ExportTagsStatisticCollector();
 		}
 		
-		sort = OutGazetteerSort.valueOf(parsedOpts.getString("sort", "ID"));
+		sort = OutGazetteerSort.valueOf(StringUtils.upperCase(
+				parsedOpts.getString("sort", OutGazetteerSort.UNIQUE.name())));
+		
 		isort = parsedOpts.getFlag("isort", true, false);
 		
 		if(sort == OutGazetteerSort.UNIQUE) {
