@@ -269,7 +269,9 @@ public class GazetteerOutWriter extends AddressPerRowJOHBase  {
 		usage.append("\n");
 		usage.append("\t\talt_names - Export addr parts alternative names.");
 		usage.append("\n");
-		usage.append("\t\thsort - Sort objects hierarchicaly.");
+		usage.append("\t\tsort - Type of sort [NONE (Skip sorting) | ID (Sort by id type-ghash-osmid) | "
+				+ "HIERARCHICAL (Sort with dependencies) | UNIQUE (Do not sort results, but skip duplicates) ].");
+		usage.append("\t\tisort - Inverse order");
 		usage.append("\n");
 
 		usage.append("\n");
@@ -279,7 +281,7 @@ public class GazetteerOutWriter extends AddressPerRowJOHBase  {
 		
 		System.out.println(usage.toString());
 	}
-
+	
 	@Override
 	protected void handlePoiPointAddrRow(JSONObject object, JSONObject address,
 			String stripe) {
