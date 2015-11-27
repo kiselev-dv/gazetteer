@@ -49,28 +49,27 @@ public class GazetteerWeb {
 		try {
 			config = loadEnvironment(args);
 			ESNodeHolder.getClient();
-			
-			if(!"jar".equals(config.getPoiCatalogPath())) {
-				L10n.setCatalogPath(config.getPoiCatalogPath());
-			}
-			
-			OSMDocSinglton.initialize(config.getPoiCatalogPath());
+
+			initOSMDoc();
 			
 			RestExpress.setSerializationProvider(new SerializationProvider());
 			
 			server = new RestExpress()
-			.setUseSystemOut(false)
-			.setName(config.getName())
-			.addPostprocessor(new LastModifiedHeaderPostprocessor())
-			.addPostprocessor(new AllowOriginPP())
-			.addPostprocessor(new MarkHeaderPostprocessor())
-			.addPreprocessor(new BasikAuthPreprocessor(null));
+				.setUseSystemOut(false)
+				.setName(config.getName())
+				.addPostprocessor(new LastModifiedHeaderPostprocessor())
+				.addPostprocessor(new AllowOriginPP())
+				.addPostprocessor(new MarkHeaderPostprocessor())
+				.addPreprocessor(new BasikAuthPreprocessor(null));
 			
 			Routes.defineRoutes(server);
 			
 			server.addMessageObserver(new HttpLogger());
 			
+			LOG.trace("Bind to port {}", config.getPort());
 			server.bind(config.getPort());
+			
+			LOG.trace("Create shutdown hook");
 			Runtime runtime = Runtime.getRuntime();
 			Thread thread = new Thread(new ShutDownListener());
 			runtime.addShutdownHook(thread);
@@ -79,6 +78,19 @@ public class GazetteerWeb {
 		}
 		catch (Exception e) {
 			LOG.error("Initialization error.", e);
+		}
+	}
+
+	private static void initOSMDoc() {
+		try {
+			if(!"jar".equals(config.getPoiCatalogPath())) {
+				L10n.setCatalogPath(config.getPoiCatalogPath());
+			}
+			
+			OSMDocSinglton.initialize(config.getPoiCatalogPath());
+		}
+		catch (Throwable t) {
+			LOG.error("Cant initialize OSMDoc", t);
 		}
 	}
 

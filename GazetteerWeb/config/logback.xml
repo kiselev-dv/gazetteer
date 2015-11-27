@@ -72,9 +72,9 @@
 		<appender-ref ref="FILE" />
 	</root>
 
-	<logger name="me.osm.osmdoc" level="WARN" />
-	<logger name="org.elasticsearch" level="WARN" />
-	<logger name="me.osm.gazetteer.web.HttpLogger" level="WARN" />
+	<logger name="me.osm.osmdoc" level="INFO" />
+	<logger name="org.elasticsearch" level="INFO" />
+	<logger name="me.osm.gazetteer.web.HttpLogger" level="INFO" />
 
 	<logger name="me.osm.gazetteer.web.HttpLogger.AccessLog" 
 		level="TRACE" additivity="false">
