@@ -7,6 +7,7 @@ import static me.osm.gazetteer.web.api.utils.RequestUtils.getSet;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -198,52 +199,14 @@ public class SearchAPI implements DocumentedApi {
 		AnswerDetalization detalization = RequestUtils.getEnumHeader(request, 
 				ANSWER_DETALIZATION_HEADER, AnswerDetalization.class, AnswerDetalization.FULL);
 		
+		List<String> bbox = getList(request, BBOX_HEADER);
+		
 		try {
 			
-			if(querryString == null && poiClass.isEmpty() && types.isEmpty() && refs.isEmpty()) {
-				return null;
-			}
-			
-			Query query = queryAnalyzer.getQuery(querryString);
-			
-			List<JSONObject> poiType = null;
-			
-			//don't look for poi type if we search only for addresses 
-			if(query != null && !addressesOnly) {
-				poiType = findPoiClass(query);
-			}
-			
-			// Strict if strict is requested or this query wasn't yet been resended after fail
-			boolean strict = strictRequested ? true : !resendedAfterFail;
-			
-			SearchRequestBuilder searchRequest = buildSearchRequest(request, strict,
-					explain, types, poiClass, addressesOnly,
-					lat, lon, refs, query);
-			
-			log.trace("Search request: {}", searchRequest);
-			
-			paginator.patchSearchQ(request, searchRequest);
-			
-			SearchResponse searchResponse = searchRequest.execute().actionGet();
-			
-			if(searchResponse.getHits().getHits().length == 0) {
-				if(GazetteerWeb.config().isReRestrict() && !strictRequested && !resendedAfterFail) {
-					return read(request, response, true);
-				}
-			}
-			
-			JSONObject answer = APIUtils.encodeSearchResult(
-					searchResponse,	fullGeometry, explain, detalization);
-			
-			answer.put("request", StringEscapeUtils.escapeHtml4(request.getHeader(Q_HEADER)));
-			
-			if(poiType != null && !poiType.isEmpty()) {
-				answer.put("matched_type", new JSONArray(poiType));
-			}
-			
-			answer.put("strict", strict);
-			
-			paginator.patchAnswer(request, answer);
+			JSONObject answer = internalSearch(request, response,
+					resendedAfterFail, explain, querryString, types, poiClass,
+					lat, lon, refs, strictRequested, fullGeometry,
+					addressesOnly, detalization, bbox);
 			
 			return answer;
 		}
@@ -257,10 +220,99 @@ public class SearchAPI implements DocumentedApi {
 		
 	}
 
+	public JSONObject internalSearch(
+			boolean explain, String querryString,
+			Set<String> types, Set<String> poiClass, Double lat, Double lon,
+			Set<String> refs, boolean strict, boolean fullGeometry,
+			boolean addressesOnly, AnswerDetalization detalization,
+			List<String> bbox) throws IOException {
+		
+		if(types == null) {
+			types = new HashSet<>();
+		}
+		if(poiClass == null) {
+			poiClass = new HashSet<>();
+		}
+		if(refs == null) {
+			refs = new HashSet<>();
+		}
+		if(bbox == null) {
+			bbox = new ArrayList<>();
+		}
+		if(detalization == null) {
+			detalization = AnswerDetalization.FULL;
+		}
+		
+		return internalSearch(
+				null, null, false, explain, querryString, types, 
+				poiClass, lat, lon, refs, strict, fullGeometry, 
+				addressesOnly, detalization, bbox);
+	}
+	
+	private JSONObject internalSearch(Request request, Response response,
+			boolean resendedAfterFail, boolean explain, String querryString,
+			Set<String> types, Set<String> poiClass, Double lat, Double lon,
+			Set<String> refs, boolean strictRequested, boolean fullGeometry,
+			boolean addressesOnly, AnswerDetalization detalization,
+			List<String> bbox) throws IOException {
+		
+		if(querryString == null && poiClass.isEmpty() && types.isEmpty() && refs.isEmpty()) {
+			return null;
+		}
+		
+		Query query = queryAnalyzer.getQuery(querryString);
+		
+		List<JSONObject> poiType = null;
+		
+		//don't look for poi type if we search only for addresses 
+		if(query != null && !addressesOnly) {
+			poiType = findPoiClass(query);
+		}
+		
+		// Strict if strict is requested or this query wasn't yet been resended after fail
+		boolean strict = strictRequested ? true : !resendedAfterFail;
+		
+		SearchRequestBuilder searchRequest = buildSearchRequest(bbox, strict,
+				explain, types, poiClass, addressesOnly,
+				lat, lon, refs, query);
+		
+		log.trace("Search request: {}", searchRequest);
+		
+		if (request != null) {
+			paginator.patchSearchQ(request, searchRequest);
+		}
+		
+		SearchResponse searchResponse = searchRequest.execute().actionGet();
+		
+		if(request != null && response != null) {
+			if(searchResponse.getHits().getHits().length == 0) {
+				if(GazetteerWeb.config().isReRestrict() && !strictRequested && !resendedAfterFail) {
+					return read(request, response, true);
+				}
+			}
+		}
+		
+		JSONObject answer = APIUtils.encodeSearchResult(
+				searchResponse,	fullGeometry, explain, detalization);
+		
+		answer.put("request", StringEscapeUtils.escapeHtml4(querryString));
+		
+		if(poiType != null && !poiType.isEmpty()) {
+			answer.put("matched_type", new JSONArray(poiType));
+		}
+		
+		answer.put("strict", strict);
+		
+		if (request != null) {
+			paginator.patchAnswer(request, answer);
+		}
+		
+		return answer;
+	}
+
 	/**
 	 * Create search request
 	 * 
-	 * @param request RESTExpress request
 	 * @param strict create a strict request
 	 * @param explain add query results explanations
 	 * @param types restrict query with types (poipnt, adrpnt and so on)
@@ -274,7 +326,7 @@ public class SearchAPI implements DocumentedApi {
 	 * 
 	 * @return ElasticSearch SearchRequest
 	 * */
-	public SearchRequestBuilder buildSearchRequest(Request request, boolean strict,
+	public SearchRequestBuilder buildSearchRequest(List<String> bbox, boolean strict,
 			boolean explain, Set<String> types, Set<String> poiClass, 
 			boolean addressesOnly, Double lat, Double lon, 
 			Set<String> refs, Query query) {
@@ -317,7 +369,6 @@ public class SearchAPI implements DocumentedApi {
 		}
 		qb = rescore(qb, lat, lon, poiClass, sortByHNVariants);
 		
-		List<String> bbox = getList(request, BBOX_HEADER);
 		if(!bbox.isEmpty() && bbox.size() == 4) {
 			qb = addBBOXRestriction(qb, bbox);
 		}

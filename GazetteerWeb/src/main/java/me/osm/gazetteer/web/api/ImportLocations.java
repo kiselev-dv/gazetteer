@@ -99,7 +99,8 @@ public class ImportLocations implements DocumentedApi {
 		return result;
 	}
 
-	private boolean isValidUrl(String callbackUrl) {
+	//TODO move to utils
+	public static boolean isValidUrl(String callbackUrl) {
 		return new UrlValidator(UrlValidator.ALLOW_2_SLASHES + UrlValidator.ALLOW_LOCAL_URLS).isValid(callbackUrl);
 	}
 

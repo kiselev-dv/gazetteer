@@ -1,6 +1,7 @@
 package me.osm.gazetteer.web;
 
 import me.osm.gazetteer.web.api.FeatureAPI;
+import me.osm.gazetteer.web.api.GeocodeCSVAPI;
 import me.osm.gazetteer.web.api.HelthAPI;
 import me.osm.gazetteer.web.api.ImportLocations;
 import me.osm.gazetteer.web.api.ImportOSMDoc;
@@ -39,12 +40,19 @@ public class Routes {
 				.method(HttpMethod.GET)
 				.flag(Flags.Cache.DONT_CACHE);
 
+		SearchAPI searchAPIInstance = new SearchAPI();
+		
 		server.uri(root + "/location/_search",
-				new SearchAPI())
+				searchAPIInstance)
 				.method(HttpMethod.GET)
 				.name("feature")
 				.flag(Flags.Auth.PUBLIC_ROUTE)
 				.parameter(Parameters.Cache.MAX_AGE, 3600);
+
+		server.uri(root + "/location/_geocode_csv",
+				new GeocodeCSVAPI(searchAPIInstance))
+				.method(HttpMethod.GET)
+				.flag(Flags.Auth.PUBLIC_ROUTE);
 
 		server.uri(root + "/location/_suggest",
 				new SuggestAPI())

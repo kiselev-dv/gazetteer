@@ -39,6 +39,7 @@ public class Configuration extends org.restexpress.util.Environment
 	private String transliteratorClass = ApacheASCIIFoldTransliterator.class.getName();
 	private Collection<String> importSkipTypes = new HashSet<>();
 	private String snapshotsRender = "config/html_templates/htmlRender.groovy";
+	private String massGeocodeFolder = "mass_geocode";
 	
 	@Override
 	protected void fillValues(Properties p)
@@ -62,6 +63,7 @@ public class Configuration extends org.restexpress.util.Environment
 		this.transliteratorClass = p.getProperty("transliterator_class", transliteratorClass);
 		this.importSkipTypes = Arrays.asList(StringUtils.split(p.getProperty("import_skip_types", ""), " ,;"));
 		this.snapshotsRender = p.getProperty("snapshots_render", snapshotsRender);
+		this.massGeocodeFolder = p.getProperty("mass_geocode_folder", "mass_geocode");
 	}
 
 	public String getDefaultFormat()
@@ -141,6 +143,10 @@ public class Configuration extends org.restexpress.util.Environment
 
 	public String getSnapshotsRender() {
 		return snapshotsRender;
+	}
+
+	public String getMassGeocodeFolder() {
+		return massGeocodeFolder ;
 	}
 
 }
