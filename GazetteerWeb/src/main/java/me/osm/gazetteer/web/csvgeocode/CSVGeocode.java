@@ -1,6 +1,5 @@
 package me.osm.gazetteer.web.csvgeocode;
 
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -8,12 +7,10 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import java.util.Set;
 
 import me.osm.gazetteer.web.GazetteerWeb;
@@ -38,6 +35,7 @@ public class CSVGeocode extends BackgroundExecutableTask {
 	
 	private SearchAPI searchAPI;
 	private Set<String> refs;
+	private File outFile = null;
 	
 	public CSVGeocode(){};
 	
@@ -46,6 +44,15 @@ public class CSVGeocode extends BackgroundExecutableTask {
 		this.filePath = filePath;
 		this.callback = callback;
 		this.searchAPI = searchAPI;
+		
+		File geocodeFolder = new File(GazetteerWeb.config().getMassGeocodeFolder());
+		geocodeFolder.mkdirs();
+		try {
+			this.outFile = geocodeFolder.createTempFile(
+					new File(this.filePath).getName() + "-task" + getId() + "-", ".csv.gz", geocodeFolder);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	@Override
@@ -57,9 +64,6 @@ public class CSVGeocode extends BackgroundExecutableTask {
 			
 			String[] header = csvMapReader.getHeader(true);
 
-			int count = new File(GazetteerWeb.config().getMassGeocodeFolder()).listFiles().length;
-			File outFile = new File(GazetteerWeb.config().getMassGeocodeFolder() + File.pathSeparator + count + "csv.gz");
-			
 			CsvMapWriter csvMapWriter = new CsvMapWriter(new OutputStreamWriter(new GzipCompressorOutputStream(
 					new FileOutputStream(outFile))), CsvPreference.STANDARD_PREFERENCE);
 
@@ -69,10 +73,22 @@ public class CSVGeocode extends BackgroundExecutableTask {
 			while( (row = csvMapReader.read(header)) != null ) {
 				String string = row.get("search_text");
 
+				AnswerDetalization detalization = AnswerDetalization.FULL;
+				
 				JSONObject answer = searchAPI.internalSearch(
 						false, string, null, null, null, null, 
 						this.refs, true, false, true, 
-						AnswerDetalization.SHORT, null);
+						detalization, null);
+				
+				if(!gotResult(answer)) {
+					Set<String> types = new HashSet<>(
+							Arrays.asList("hghnet", "hghway", "admbnd"));
+					
+					answer = searchAPI.internalSearch(
+							false, string, types, null, null, null, 
+							this.refs, false, false, true, 
+							detalization, null);
+				}
 				
 				fillTheRow(row, answer);
 				
@@ -86,6 +102,17 @@ public class CSVGeocode extends BackgroundExecutableTask {
 		catch (Exception e) {
 			throw new AbortedException(e.getMessage(), e, false); 
 		}
+	}
+
+	private boolean gotResult(JSONObject answer) {
+		JSONArray optJSONArray = answer.optJSONArray("features");
+		if(optJSONArray == null) {
+			return false;
+		}
+		if(optJSONArray.length() == 0) {
+			return false;
+		}
+		return true;
 	}
 
 	private void fillTheRow(Map<String, String> row, JSONObject answer) {
@@ -158,6 +185,8 @@ public class CSVGeocode extends BackgroundExecutableTask {
 		
 		parameters.put("source", filePath);
 		parameters.put("callback", callback);
+		
+		parameters.put("outfile", this.outFile.getAbsolutePath());
 		
 		return description;
 	}

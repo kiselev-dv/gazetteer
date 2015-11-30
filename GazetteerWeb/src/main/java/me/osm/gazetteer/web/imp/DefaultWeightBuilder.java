@@ -16,7 +16,7 @@ public class DefaultWeightBuilder implements ObjectsWeightBuilder {
 		baseLevels.put("neighbour", 3 * 100);
 		
 		//ignore hghways, use hghnets
-		baseLevels.put("hghway", 0);
+		baseLevels.put("hghway", 4 * 100 - 10);
 		baseLevels.put("hghnet", 4 * 100);
 		baseLevels.put("city", 5 * 100 + 50);
 		baseLevels.put("place:town", 5 * 100 + 40);
