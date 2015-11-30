@@ -90,7 +90,12 @@ public class SearchBuilderImpl implements SearchBuilder {
 				numberQ.should(QueryBuilders.matchQuery("street_name", housenumbers).boost(streetNumberMultiplyer));
 			}
 			
-			resultQuery.must(numberQ.boost(WEIGHTS.numberQBoost));
+			if(strict) {
+				resultQuery.must(numberQ.boost(WEIGHTS.numberQBoost));
+			}
+			else {
+				resultQuery.should(numberQ.boost(WEIGHTS.numberQBoost / WEIGHTS.nonStrictHNDebuf));
+			}
 		}
 		
 		for(QToken token : query.listToken()) {
@@ -115,12 +120,18 @@ public class SearchBuilderImpl implements SearchBuilder {
 					
 					// If there is only one number in query, it must be in matched data
 					if (numbers == 1) {
-						resultQuery.must(QueryBuilders.matchQuery("search", token.toString()))
-							.boost(WEIGHTS.numberInHnStrict);
+						if(strict) {
+							resultQuery.must(QueryBuilders.matchQuery("search", token.toString()))
+								.boost(WEIGHTS.numberInHnStrict);
+						}
+						else {
+							resultQuery.should(QueryBuilders.matchQuery("search", token.toString()))
+								.boost(WEIGHTS.numberInHnStrict/ WEIGHTS.nonStrictHNDebuf);
+						}
 					}
 					else {
 						resultQuery.should(QueryBuilders.matchQuery("search", token.toString()))
-							.boost(WEIGHTS.numbersInHn);
+							.boost(WEIGHTS.numbersInHn/ (strict ? 1 : WEIGHTS.nonStrictHNDebuf));
 					}
 				}
 			}
@@ -135,11 +146,16 @@ public class SearchBuilderImpl implements SearchBuilder {
 					numberQ.should(QueryBuilders.matchQuery("search", token.toString()));
 					
 					numberQ.should(QueryBuilders.termQuery("housenumber", token.toString())
-							.boost(WEIGHTS.hasNumbersInHn));
+							.boost(WEIGHTS.hasNumbersInHn / (strict ? 1 : WEIGHTS.nonStrictHNDebuf)));
 					
 					nums.add(token.toString());
 					
-					resultQuery.must(numberQ);
+					if(strict) {
+						resultQuery.must(numberQ);
+					}
+					else {
+						resultQuery.should(numberQ);
+					}
 					nameExact.add(token.toString());
 				}
 			}
@@ -162,6 +178,9 @@ public class SearchBuilderImpl implements SearchBuilder {
 		BoolQueryBuilder requiredQ = QueryBuilders.boolQuery();
 		requiredQ.disableCoord(true);
 		
+		if(numbers == 0) {
+			resultQuery.mustNot(QueryBuilders.termQuery("type", "adrpnt"));
+		}
 		
 		if(strict) {
 			addTermsStrict(required, requiredQ);
@@ -206,10 +225,18 @@ public class SearchBuilderImpl implements SearchBuilder {
 		}
 		
 		// Boost for exact object name match
-		resultQuery.should(QueryBuilders.termsQuery("name.exact", exactNameVariants).boost(WEIGHTS.exactName));
+		resultQuery.should(QueryBuilders.termsQuery("name.exact", exactNameVariants)
+				.boost(WEIGHTS.exactName));
 		
 		// Boost for house number match
-		resultQuery.should(QueryBuilders.termsQuery("housenumber", nums).boost(WEIGHTS.numbersInHnOpt));
+		if(strict) {
+			resultQuery.should(QueryBuilders.termsQuery("housenumber", nums)
+					.boost(WEIGHTS.numbersInHnOpt));
+		}
+		else {
+			resultQuery.should(QueryBuilders.termsQuery("housenumber", nums)
+					.boost(WEIGHTS.numbersInHnOpt / WEIGHTS.nonStrictHNDebuf));
+		}
 		
 		resultQuery.disableCoord(true);
 		resultQuery.mustNot(QueryBuilders.termQuery("weight", 0));

@@ -87,7 +87,13 @@ public class Weights {
 	 * Additional boost for numbers matched housenumber
 	 * */
 	@Auto
-	public float numbersInHnOpt = 250; 
+	public float numbersInHnOpt = 250;
+
+	/**
+	 * Debuff for numbers matched housenumber
+	 * */
+	@Auto
+	public float nonStrictHNDebuf = 10000; 
 	
 	
 	

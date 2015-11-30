@@ -309,23 +309,25 @@ public class LocationsDumpImporter extends BackgroundExecutableTask {
 	private JSONObject mergeHighwayNetsGeometry(JSONObject jsonObject) {
 		
 		if(jsonObject.getString("type").equals(FeatureTypes.HIGHWAY_NET_FEATURE_TYPE)) {
-			JSONArray geometriesArray = jsonObject.getJSONArray("geometries");
+			JSONArray geometriesArray = jsonObject.optJSONArray("geometries");
 			
-			List<LineString> lss = new ArrayList<>();
-			for(int i = 0; i < geometriesArray.length(); i++ ) {
-				JSONObject geom = geometriesArray.getJSONObject(i);
-				lss.add(getLineStringGeometry(geom.getJSONArray("coordinates")));
+			if(geometriesArray != null) {
+				List<LineString> lss = new ArrayList<>();
+				for(int i = 0; i < geometriesArray.length(); i++ ) {
+					JSONObject geom = geometriesArray.getJSONObject(i);
+					lss.add(getLineStringGeometry(geom.getJSONArray("coordinates")));
+				}
+				
+				LineMerger merger = new LineMerger();
+				merger.add(lss);
+				
+				@SuppressWarnings("unchecked")
+				Collection<LineString> merged = (Collection<LineString>)merger.getMergedLineStrings();
+				
+				jsonObject.remove("geometries");
+				jsonObject.getJSONObject("center_point").remove("type");
+				jsonObject.put("full_geometry", writeMultiLineString(merged));
 			}
-			
-			LineMerger merger = new LineMerger();
-			merger.add(lss);
-			
-			@SuppressWarnings("unchecked")
-			Collection<LineString> merged = (Collection<LineString>)merger.getMergedLineStrings();
-			
-			jsonObject.remove("geometries");
-			jsonObject.getJSONObject("center_point").remove("type");
-			jsonObject.put("full_geometry", writeMultiLineString(merged));
 			
 		}
 		
@@ -401,6 +403,7 @@ public class LocationsDumpImporter extends BackgroundExecutableTask {
 
 	private String sanitizeSearchText(String shortText) {
 		
+		shortText = shortText.toLowerCase();
 		shortText = StringUtils.remove(shortText, ",");
 		shortText = StringUtils.replace(shortText, "-", " ");
 		
@@ -434,7 +437,7 @@ public class LocationsDumpImporter extends BackgroundExecutableTask {
 			
 			JSONArray jsonArray = addrobj.optJSONArray("parts");
 			if(jsonArray == null) {
-				addrobj.optString("longText");
+				addrText = addrobj.optString("longText");
 			}
 			else {
 				LinkedHashMap<String, JSONObject> addrLevels = new LinkedHashMap<>(10);
@@ -446,6 +449,13 @@ public class LocationsDumpImporter extends BackgroundExecutableTask {
 				addrText = getAddrText(obj, addrobj, addrLevels);
 			}
 			
+			if(!"admbnd".equals(obj.optString("type")) && !"plcpnt".equals(obj.optString("type"))) {
+				String streetName  = getStreetName(obj, addrobj);
+				if(streetName != null) {
+					Collection<String> transformStreets = transformStreets(streetName);
+					obj.put("street_name_var", transformStreets);
+				}
+			}
 			
 			if(StringUtils.isNotBlank(addrText)) {
 				sb.append(addrText);
@@ -482,6 +492,25 @@ public class LocationsDumpImporter extends BackgroundExecutableTask {
 		return StringUtils.remove(sb.toString(), ',');
 	}
 
+	private String getStreetName(JSONObject obj, JSONObject addrobj) {
+		
+		if("hghnet".equals(obj.optString("type")) || "hghway".equals(obj.optString("type")) ) {
+			return obj.optString("name");
+		}
+		
+		JSONArray jsonArray = addrobj.optJSONArray("parts");
+		if(jsonArray != null) {
+			for(int i = 0; i < jsonArray.length(); i++ ) {
+				JSONObject addrPart = jsonArray.getJSONObject(i);
+				if("street".equals(addrPart.getString("lvl"))) {
+					return addrPart.getString("name");
+				}
+			}
+		}
+		
+		return null;
+	}
+
 	private String getAddrText(JSONObject obj, JSONObject addrobj,
 			LinkedHashMap<String, JSONObject> addrLevels) {
 		
@@ -503,7 +532,7 @@ public class LocationsDumpImporter extends BackgroundExecutableTask {
 		String name = part.getString("name");
 		
 		if("street".equals(part.getString("lvl"))) {
-			return StringUtils.join(transformStreets(name), " ");
+			return StringUtils.join(transformStreets(name), " ").toLowerCase();
 		}
 		
 		return name;

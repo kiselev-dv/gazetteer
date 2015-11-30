@@ -242,9 +242,14 @@ public class SearchAPI implements DocumentedApi {
 		if(detalization == null) {
 			detalization = AnswerDetalization.FULL;
 		}
+		boolean resended = false;
+		if(!strict) {
+			resended = true;
+		}
+		
 		
 		return internalSearch(
-				null, null, false, explain, querryString, types, 
+				null, null, resended, explain, querryString, types, 
 				poiClass, lat, lon, refs, strict, fullGeometry, 
 				addressesOnly, detalization, bbox);
 	}
@@ -364,7 +369,7 @@ public class SearchAPI implements DocumentedApi {
 		}
 
 		boolean sortByHNVariants = false;
-		if(buildSearchQContext.getHousenumberVariants() != null) {
+		if(buildSearchQContext.getHousenumberVariants() != null && strict) {
 			sortByHNVariants = buildSearchQContext.getHousenumberVariants().size() == 1;
 		}
 		qb = rescore(qb, lat, lon, poiClass, sortByHNVariants);
