@@ -57,7 +57,7 @@ public class SearchBuilderImpl implements SearchBuilder {
 		// Try to find housenumbers using hnSearchReplacers
 		Collection<String> housenumbers = fuzzyNumbers(query.woFuzzy().toString());
 		context.setHousenumberVariants(housenumbers);
-
+		
 		// If those numbers were found
 		// Add those numbers into subquery
 		// Longer variants will have score boost
@@ -178,7 +178,7 @@ public class SearchBuilderImpl implements SearchBuilder {
 		BoolQueryBuilder requiredQ = QueryBuilders.boolQuery();
 		requiredQ.disableCoord(true);
 		
-		if(numbers == 0) {
+		if(nums.isEmpty()) {
 			resultQuery.mustNot(QueryBuilders.termQuery("type", "adrpnt"));
 		}
 		
@@ -207,8 +207,8 @@ public class SearchBuilderImpl implements SearchBuilder {
 		
 		resultQuery.must(requiredQ);
 		
-		log.debug("Request: {} Required tokens: {} Housenumbers variants: {}", 
-				new Object[]{query.print(), required, housenumbers});
+		log.debug("Request{}: {} Required tokens: {} Housenumbers variants: {}", 
+				new Object[]{strict ? " (strict)" : "", query.print(), required, housenumbers});
 		
 		List<String> exactNameVariants = new ArrayList<String>();
 		for(String s : nameExact) {
@@ -289,6 +289,8 @@ public class SearchBuilderImpl implements SearchBuilder {
 		requiredQ.should(QueryBuilders.matchQuery("nearby_streets.name", fuziedRequieredTerms).boost(35));
 		
 		requiredQ.should(QueryBuilders.matchQuery("housenumber", fuziedRequieredTerms).boost(30));
+
+		requiredQ.should(QueryBuilders.matchQuery("search", fuziedRequieredTerms).boost(10));
 		
 	}
 

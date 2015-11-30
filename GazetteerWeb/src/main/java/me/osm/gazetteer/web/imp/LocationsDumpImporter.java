@@ -453,7 +453,14 @@ public class LocationsDumpImporter extends BackgroundExecutableTask {
 				String streetName  = getStreetName(obj, addrobj);
 				if(streetName != null) {
 					Collection<String> transformStreets = transformStreets(streetName);
-					obj.put("street_name_var", transformStreets);
+					
+					JSONArray streetAltNames = obj.optJSONArray("street_alternate_names");
+					if(streetAltNames == null) {
+						streetAltNames = new JSONArray();
+					}
+					for(String alt : transformStreets) {
+						obj.put("street_name_var", alt);
+					}
 				}
 			}
 			

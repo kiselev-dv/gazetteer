@@ -353,7 +353,6 @@ public class SearchAPI implements DocumentedApi {
 		if(!poiClass.isEmpty()) {
 			q.must(QueryBuilders.termsQuery("poi_class", poiClass));
 		}
-		
 		if(addressesOnly) {
 			q.mustNot(QueryBuilders.termQuery("type", "poipnt"));
 		}
