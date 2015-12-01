@@ -13,6 +13,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 public class BackgroudTaskDescription {
 	
 	private int id;
+	private String uuid;
 	
 	@JsonSerialize(using=LocalDateTimeSerializer.class)
 	private LocalDateTime submitTs;
@@ -83,5 +84,10 @@ public class BackgroudTaskDescription {
 	public void setWaitTime(String waitTime) {
 		this.waitTime = waitTime;
 	}
-	
+	public String getUuid() {
+		return uuid;
+	}
+	public void setUuid(String uuid) {
+		this.uuid = uuid;
+	}
 }

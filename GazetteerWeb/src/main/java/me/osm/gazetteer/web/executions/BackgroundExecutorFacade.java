@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -37,11 +38,16 @@ public class BackgroundExecutorFacade {
 	public static abstract class BackgroundExecutableTask implements Runnable {
 		
 		private final int id = taskCounter.getAndIncrement();
+		private final String uuid = UUID.randomUUID().toString();
 		private volatile boolean runed = false;
 		private volatile boolean aborted = false;
 		
 		public int getId() {
 			return id;
+		}
+
+		public String getUUID() {
+			return uuid;
 		}
 		
 		protected boolean isAborted() {

@@ -28,6 +28,7 @@ import me.osm.osmdoc.model.Feature;
 
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.elasticsearch.action.search.SearchPhaseExecutionException;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.Client;
@@ -287,32 +288,46 @@ public class SearchAPI implements DocumentedApi {
 			paginator.patchSearchQ(request, searchRequest);
 		}
 		
-		SearchResponse searchResponse = searchRequest.execute().actionGet();
-		
-		if(request != null && response != null) {
-			if(searchResponse.getHits().getHits().length == 0) {
-				if(GazetteerWeb.config().isReRestrict() && !strictRequested && !resendedAfterFail) {
-					return read(request, response, true);
+		try {
+			
+			SearchResponse searchResponse = searchRequest.execute().actionGet();
+			
+			if(request != null && response != null) {
+				if(searchResponse.getHits().getHits().length == 0) {
+					if(GazetteerWeb.config().isReRestrict() && !strictRequested && !resendedAfterFail) {
+						return read(request, response, true);
+					}
 				}
 			}
+			
+			if(explain) {
+				for(SearchHit hit : searchResponse.getHits().getHits()) {
+					log.debug("{} strict={} result={} \nexplanations={}",
+							query.toString(), strict, hit.getSource().get("search"), hit.explanation().toString());
+				}
+			}
+			
+			JSONObject answer = APIUtils.encodeSearchResult(
+					searchResponse,	fullGeometry, explain, detalization);
+			
+			answer.put("request", StringEscapeUtils.escapeHtml4(querryString));
+			
+			if(poiType != null && !poiType.isEmpty()) {
+				answer.put("matched_type", new JSONArray(poiType));
+			}
+			
+			answer.put("strict", strict);
+			
+			if (request != null) {
+				paginator.patchAnswer(request, answer);
+			}
+			
+			return answer;
 		}
-		
-		JSONObject answer = APIUtils.encodeSearchResult(
-				searchResponse,	fullGeometry, explain, detalization);
-		
-		answer.put("request", StringEscapeUtils.escapeHtml4(querryString));
-		
-		if(poiType != null && !poiType.isEmpty()) {
-			answer.put("matched_type", new JSONArray(poiType));
+		catch(SearchPhaseExecutionException spe) {
+			log.error("Failed to execute query: {}", searchRequest, spe);
+			throw spe;
 		}
-		
-		answer.put("strict", strict);
-		
-		if (request != null) {
-			paginator.patchAnswer(request, answer);
-		}
-		
-		return answer;
 	}
 
 	/**
@@ -371,7 +386,12 @@ public class SearchAPI implements DocumentedApi {
 		if(buildSearchQContext.getHousenumberVariants() != null && strict) {
 			sortByHNVariants = buildSearchQContext.getHousenumberVariants().size() == 1;
 		}
-		qb = rescore(qb, lat, lon, poiClass, sortByHNVariants);
+		
+		// Do not rescore with distance if we are in debug mode, 
+		// because rescore will erase match query scoring 
+		if(!explain && (lat != null || lon != null || poiClass != null)) {
+			qb = rescore(qb, lat, lon, poiClass, sortByHNVariants);
+		}
 		
 		if(!bbox.isEmpty() && bbox.size() == 4) {
 			qb = addBBOXRestriction(qb, bbox);
@@ -504,7 +524,7 @@ public class SearchAPI implements DocumentedApi {
 		
 		qb.add(ScoreFunctionBuilders.fieldValueFactorFunction("weight").setWeight(0.005f));
 		
-		qb.add(ScoreFunctionBuilders.scriptFunction("score", "expression").setWeight(1));
+		qb.add(ScoreFunctionBuilders.scriptFunction("score", "expression").setWeight(10));
 
 		if(shortHNFirst) {
 			String script = "def s = doc['housenumber'].values.size(); \n return (s == 0 ? 1 : 100/s)";

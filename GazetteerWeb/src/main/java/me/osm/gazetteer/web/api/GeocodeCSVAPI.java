@@ -51,10 +51,12 @@ public class GeocodeCSVAPI implements DocumentedApi {
 			if(importer.submit()) {
 				result.put("state", "submited");
 				result.put("task_id", importer.getId());
+				result.put("task_uuid", importer.getUUID());
 			}
 			else {
 				result.put("state", "rejected");
 				result.put("task_id", importer.getId());
+				result.put("task_uuid", importer.getUUID());
 			}
 		}
 		

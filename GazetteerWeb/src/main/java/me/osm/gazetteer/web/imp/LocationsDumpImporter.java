@@ -272,6 +272,7 @@ public class LocationsDumpImporter extends BackgroundExecutableTask {
 			
 			obj.remove("alt_addresses");
 			obj.remove("alt_addresses_trans");
+			obj.remove("hhash");
 			
 			if(obj.has("housenumber")) {
 				obj.put("housenumber_exact", obj.optString("housenumber").toLowerCase());
@@ -637,6 +638,7 @@ public class LocationsDumpImporter extends BackgroundExecutableTask {
 		BackgroudTaskDescription description = new BackgroudTaskDescription();
 		
 		description.setId(this.getId());
+		description.setUuid(this.getUUID());
 		
 		description.setClassName(getClass().getName());
 		Map<String, Object> parameters = new HashMap<String, Object>();

@@ -81,12 +81,14 @@ public class ImportLocations implements DocumentedApi {
 				result.put("state", "submited");
 				result.put("locations_import", imp);
 				result.put("task_id", importer.getId());
+				result.put("task_uuid", importer.getUUID());
 				result.put(BUILDINGS_GEOMETRY_HEADER, buildingsGeometry);
 			}
 			else {
 				result.put("state", "rejected");
 				result.put("locations_import", imp);
 				result.put("task_id", importer.getId());
+				result.put("task_uuid", importer.getUUID());
 				result.put(BUILDINGS_GEOMETRY_HEADER, buildingsGeometry);
 			}
 		}

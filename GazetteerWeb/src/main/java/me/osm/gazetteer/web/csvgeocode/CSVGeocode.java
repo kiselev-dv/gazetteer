@@ -5,6 +5,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -22,8 +23,10 @@ import me.osm.gazetteer.web.executions.BackgroundExecutorFacade.BackgroundExecut
 import me.osm.gazetteer.web.imp.LocationsDumpImporter;
 
 import org.apache.commons.compress.compressors.gzip.GzipCompressorOutputStream;
+import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.slf4j.LoggerFactory;
 import org.supercsv.io.CsvMapReader;
 import org.supercsv.io.CsvMapWriter;
 import org.supercsv.prefs.CsvPreference;
@@ -47,12 +50,7 @@ public class CSVGeocode extends BackgroundExecutableTask {
 		
 		File geocodeFolder = new File(GazetteerWeb.config().getMassGeocodeFolder());
 		geocodeFolder.mkdirs();
-		try {
-			this.outFile = geocodeFolder.createTempFile(
-					new File(this.filePath).getName() + "-task" + getId() + "-", ".csv.gz", geocodeFolder);
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
+		this.outFile = new File(geocodeFolder, getUUID() + ".csv.gz");
 	}
 
 	@Override
@@ -75,24 +73,29 @@ public class CSVGeocode extends BackgroundExecutableTask {
 
 				AnswerDetalization detalization = AnswerDetalization.FULL;
 				
-				JSONObject answer = searchAPI.internalSearch(
-						false, string, null, null, null, null, 
-						this.refs, true, false, true, 
-						detalization, null);
-				
-				if(!gotResult(answer)) {
-					Set<String> types = new HashSet<>(
-							Arrays.asList("hghnet", "hghway", "admbnd"));
-					
-					answer = searchAPI.internalSearch(
-							false, string, types, null, null, null, 
-							this.refs, false, false, true, 
+				try {
+					JSONObject answer = searchAPI.internalSearch(
+							false, string, null, null, null, null, 
+							this.refs, true, false, true, 
 							detalization, null);
+					
+					if(!gotResult(answer)) {
+						Set<String> types = new HashSet<>(
+								Arrays.asList("hghnet", "hghway", "admbnd", "plcpnt"));
+						
+						answer = searchAPI.internalSearch(
+								false, string, types, null, null, null, 
+								this.refs, false, false, true, 
+								detalization, null);
+					}
+					
+					fillTheRow(row, answer);
+					
+					csvMapWriter.write(row, writeHeader);
 				}
-				
-				fillTheRow(row, answer);
-				
-				csvMapWriter.write(row, writeHeader);
+				catch (Exception e) {
+					LoggerFactory.getLogger(getClass()).error("Failed to geocode {}", string, e);
+				}
 			}
 			
 			csvMapWriter.flush();
@@ -155,7 +158,7 @@ public class CSVGeocode extends BackgroundExecutableTask {
 			outHeader.add("result_lat");
 		}
 		if(!outHeader.contains("result_lon")) {
-			outHeader.add("result_lat");
+			outHeader.add("result_lon");
 		}
 		if(!outHeader.contains("result_score")) {
 			outHeader.add("result_score");
@@ -178,6 +181,7 @@ public class CSVGeocode extends BackgroundExecutableTask {
 		BackgroudTaskDescription description = new BackgroudTaskDescription();
 		
 		description.setId(this.getId());
+		description.setUuid(this.getUUID());
 		
 		description.setClassName(getClass().getName());
 		Map<String, Object> parameters = new HashMap<String, Object>();

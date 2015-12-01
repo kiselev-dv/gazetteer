@@ -17,8 +17,12 @@ import me.osm.gazetteer.web.utils.ReplacersCompiler;
 import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.common.unit.Fuzziness;
 import org.elasticsearch.index.query.BoolQueryBuilder;
+import org.elasticsearch.index.query.ConstantScoreQueryBuilder;
 import org.elasticsearch.index.query.DisMaxQueryBuilder;
+import org.elasticsearch.index.query.FilterBuilders;
+import org.elasticsearch.index.query.MatchQueryBuilder;
 import org.elasticsearch.index.query.MultiMatchQueryBuilder;
+import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,6 +38,8 @@ public class SearchBuilderImpl implements SearchBuilder {
 	protected List<Replacer> housenumberReplacers = new ArrayList<>();
 	
 	private Weights WEIGHTS;
+
+	private boolean boostExactName = false;
 	
 	private static final Logger log = LoggerFactory.getLogger(SearchBuilderImpl.class);
 	
@@ -54,9 +60,14 @@ public class SearchBuilderImpl implements SearchBuilder {
 		List<QToken> required = new ArrayList<QToken>();
 		LinkedHashSet<String> nums = new LinkedHashSet<String>();
 		
+		BoolQueryBuilder requiredQ = buildRequiredQuery(query, strict, required);
+		resultQuery.must(requiredQ);
+		
 		// Try to find housenumbers using hnSearchReplacers
 		Collection<String> housenumbers = fuzzyNumbers(query.woFuzzy().toString());
 		context.setHousenumberVariants(housenumbers);
+		
+		List<QueryBuilder> strictHousenumbers = new ArrayList<>();
 		
 		// If those numbers were found
 		// Add those numbers into subquery
@@ -81,21 +92,28 @@ public class SearchBuilderImpl implements SearchBuilder {
 			for(String variant : reversed) {
 				numberQ.should(QueryBuilders.termQuery("housenumber", variant).boost(i++ * WEIGHTS.hnVariansStep)); 
 			}
-			numberQ.should(QueryBuilders.matchQuery("search", housenumbers).boost(WEIGHTS.hnsInSearch));
+			numberQ.should(QueryBuilders.matchQuery("search", StringUtils.join(housenumbers, " "))
+					.boost(WEIGHTS.hnsInSearch));
 			
 			// if there is more then one number term, boost query over street names.
 			// for example in query "City, 8 march, 24" text part should be boosted. 
 			if(numbers > 1) {
 				int streetNumberMultiplyer = i++ * WEIGHTS.numbersInStreeMul;
-				numberQ.should(QueryBuilders.matchQuery("street_name", housenumbers).boost(streetNumberMultiplyer));
+				numberQ.should(QueryBuilders.matchQuery("street_name", StringUtils.join(housenumbers, " "))
+						.boost(streetNumberMultiplyer));
 			}
 			
 			if(strict) {
 				resultQuery.must(numberQ.boost(WEIGHTS.numberQBoost));
 			}
 			else {
-				resultQuery.should(numberQ.boost(WEIGHTS.numberQBoost / WEIGHTS.nonStrictHNDebuf));
+				resultQuery.should(QueryBuilders.filteredQuery(
+						// boost housenumbers only if we found street and locality
+						numberQ.boost(WEIGHTS.numberQBoost), 
+						FilterBuilders.queryFilter(requiredQ)));
 			}
+			
+			strictHousenumbers.add(numberQ);
 		}
 		
 		for(QToken token : query.listToken()) {
@@ -118,6 +136,8 @@ public class SearchBuilderImpl implements SearchBuilder {
 				// If hnSearch replacers fails to find any housenumbers
 				if(housenumbers.isEmpty()) {
 					
+					strictHousenumbers.add(QueryBuilders.matchQuery("search", token.toString()));
+					
 					// If there is only one number in query, it must be in matched data
 					if (numbers == 1) {
 						if(strict) {
@@ -126,16 +146,19 @@ public class SearchBuilderImpl implements SearchBuilder {
 						}
 						else {
 							resultQuery.should(QueryBuilders.matchQuery("search", token.toString()))
-								.boost(WEIGHTS.numberInHnStrict/ WEIGHTS.nonStrictHNDebuf);
+								.boost(WEIGHTS.numberInHnStrict / WEIGHTS.nonStrictHNDebuf);
 						}
 					}
 					else {
 						resultQuery.should(QueryBuilders.matchQuery("search", token.toString()))
-							.boost(WEIGHTS.numbersInHn/ (strict ? 1 : WEIGHTS.nonStrictHNDebuf));
+							.boost(WEIGHTS.numbersInHn / (strict ? 1 : WEIGHTS.nonStrictHNDebuf));
 					}
 				}
 			}
 			else if(token.isHasNumbers()) {
+				
+				strictHousenumbers.add(QueryBuilders.matchQuery("search", token.toString()));
+				
 				// Если реплейсеры не распознали номер дома, то пробуем действовать по старинке.
 				// If hnSearch replacers fails to find any housenumbers
 				if(housenumbers.isEmpty()) {
@@ -160,27 +183,91 @@ public class SearchBuilderImpl implements SearchBuilder {
 				}
 			}
 			else if(!token.isFuzzied()) {
-				// Add regular token to the list of required tokens
-				required.add(token);
 				nameExact.add(token.toString());
 			}
 			
 			if (token.isHasNumbers()) {
 				nums.add(token.toString());
 			}
+		}
+
+		if(nums.isEmpty()) {
+			resultQuery.mustNot(QueryBuilders.termQuery("type", "adrpnt"));
+		}
+		
+		log.debug("Request{}: {} Required tokens: {} Housenumbers variants: {}", 
+				new Object[]{strict ? " (strict)" : "", query.print(), required, housenumbers});
+		
+		List<String> exactNameVariants = new ArrayList<String>();
+		for(String s : nameExact) {
+			// Original term from query analyzer (lowercased)
+			exactNameVariants.add(s);
 			
+			// Camel Case
+			exactNameVariants.add(StringUtils.capitalize(s));
+
+			// UPPER CASE
+			exactNameVariants.add(StringUtils.upperCase(s));
+			
+			exactNameVariants.addAll(query.getOriginalVarians());
+		}
+		
+		if(boostExactName) {
+			// Boost for exact object name match
+			resultQuery.should(QueryBuilders.constantScoreQuery(
+					QueryBuilders.boolQuery()
+					.must(QueryBuilders.termsQuery("name.exact", exactNameVariants))
+					.must(QueryBuilders.termsQuery("type", new String[]{"poipnt", "hghway", "hghnet"}))
+					).boost(WEIGHTS.exactName));
+		}
+		
+		// Boost for house number match
+		if(strict) {
+			resultQuery.should(QueryBuilders.termsQuery("housenumber", nums)
+					.boost(WEIGHTS.numbersInHnOpt));
+		}
+		else {
+			resultQuery.should(QueryBuilders.termsQuery("housenumber", nums)
+					.boost(WEIGHTS.numbersInHnOpt / WEIGHTS.nonStrictHNDebuf));
+		}
+		
+		resultQuery.disableCoord(true);
+		resultQuery.mustNot(QueryBuilders.termQuery("weight", 0));
+		
+		// Если в запросе есть номер дома, выкидываем дома
+		// которые не сматчилист по номеру дома 
+		if(!strict && !strictHousenumbers.isEmpty()) {
+			
+			DisMaxQueryBuilder shn = QueryBuilders.disMaxQuery();
+			
+			for(QueryBuilder qb : strictHousenumbers) {
+				shn.add(qb);
+			}
+			
+			resultQuery.mustNot(
+					QueryBuilders.boolQuery()
+						.must(QueryBuilders.termQuery("type", "adrpnt"))
+						.mustNot(shn));
+		}
+	}
+
+	private BoolQueryBuilder buildRequiredQuery(Query query, boolean strict,
+			List<QToken> required) {
+		for(QToken token : query.listToken()) {
+			if(!token.isNumbersOnly() && !token.isHasNumbers() && !token.isOptional()) {
+				// Add regular token to the list of required tokens
+				required.add(token);
+			}
+
 			if (token.isFuzzied()) {
 				// Fuzzied tokens a are required by default 
 				required.add(token);
 			}
 		}
 		
+		
 		BoolQueryBuilder requiredQ = QueryBuilders.boolQuery();
 		requiredQ.disableCoord(true);
-		
-		if(nums.isEmpty()) {
-			resultQuery.mustNot(QueryBuilders.termQuery("type", "adrpnt"));
-		}
 		
 		if(strict) {
 			addTermsStrict(required, requiredQ);
@@ -204,42 +291,7 @@ public class SearchBuilderImpl implements SearchBuilder {
 				requiredQ.minimumNumberShouldMatch(requiredCount - 1);
 			}
 		}
-		
-		resultQuery.must(requiredQ);
-		
-		log.debug("Request{}: {} Required tokens: {} Housenumbers variants: {}", 
-				new Object[]{strict ? " (strict)" : "", query.print(), required, housenumbers});
-		
-		List<String> exactNameVariants = new ArrayList<String>();
-		for(String s : nameExact) {
-			// Original term from query analyzer (lowercased)
-			exactNameVariants.add(s);
-			
-			// Camel Case
-			exactNameVariants.add(StringUtils.capitalize(s));
-
-			// UPPER CASE
-			exactNameVariants.add(StringUtils.upperCase(s));
-			
-			exactNameVariants.addAll(query.getOriginalVarians());
-		}
-		
-		// Boost for exact object name match
-		resultQuery.should(QueryBuilders.termsQuery("name.exact", exactNameVariants)
-				.boost(WEIGHTS.exactName));
-		
-		// Boost for house number match
-		if(strict) {
-			resultQuery.should(QueryBuilders.termsQuery("housenumber", nums)
-					.boost(WEIGHTS.numbersInHnOpt));
-		}
-		else {
-			resultQuery.should(QueryBuilders.termsQuery("housenumber", nums)
-					.boost(WEIGHTS.numbersInHnOpt / WEIGHTS.nonStrictHNDebuf));
-		}
-		
-		resultQuery.disableCoord(true);
-		resultQuery.mustNot(QueryBuilders.termQuery("weight", 0));
+		return requiredQ;
 	}
 
 	/**
@@ -260,38 +312,74 @@ public class SearchBuilderImpl implements SearchBuilder {
 		
 		requiredQ.disableCoord(true);
 		
-		requiredQ.should(QueryBuilders.matchQuery("admin0_name", fuziedRequieredTerms).boost(101));
-		requiredQ.should(QueryBuilders.matchQuery("admin0_alternate_names", fuziedRequieredTerms).boost(100));
+		// Something which looks like locality, should match
+		if(required.size() > 1) {
+			BoolQueryBuilder localityQ = QueryBuilders.boolQuery();
+			localityQ.disableCoord(true);
+			localityQ.minimumNumberShouldMatch(1);
+			addRequiredTermsNotStrict4Locality(localityQ, fuziedRequieredTerms);
+			requiredQ.must(localityQ);
+		}
+		else {
+			addRequiredTermsNotStrict4Locality(requiredQ, fuziedRequieredTerms);
+		}
 		
-		requiredQ.should(QueryBuilders.matchQuery("admin1_name", fuziedRequieredTerms).boost(91));
-		requiredQ.should(QueryBuilders.matchQuery("admin1_alternate_names", fuziedRequieredTerms).boost(90));
+		requiredQ.should(QueryBuilders.constantScoreQuery(
+				fuzziedQ("street_name", fuziedRequieredTerms, Fuzziness.TWO)).boost(41));
+		requiredQ.should(asConstantScore("street_alternate_names", 40, fuziedRequieredTerms));
 
-		requiredQ.should(QueryBuilders.matchQuery("admin2_name", fuziedRequieredTerms).boost(81));
-		requiredQ.should(QueryBuilders.matchQuery("admin2_alternate_names", fuziedRequieredTerms).boost(80));
-
-		requiredQ.should(QueryBuilders.matchQuery("local_admin_name", fuziedRequieredTerms).boost(71));
-		requiredQ.should(QueryBuilders.matchQuery("local_admin_alternate_names", fuziedRequieredTerms).boost(70));
+		requiredQ.should(asConstantScore("nearby_streets.name", 35, fuziedRequieredTerms));
 		
-		requiredQ.should(QueryBuilders.matchQuery("locality_name", fuziedRequieredTerms).boost(61).fuzziness(Fuzziness.ONE));
-		requiredQ.should(QueryBuilders.matchQuery("locality_alternate_names", fuziedRequieredTerms).boost(60));
-
-		requiredQ.should(QueryBuilders.matchQuery("nearby_places.name", fuziedRequieredTerms).boost(56));
+		// -----------------------------------------------------
 		
-		requiredQ.should(QueryBuilders.matchQuery("neighborhood_name", fuziedRequieredTerms).boost(51).fuzziness(Fuzziness.ONE));
-		requiredQ.should(QueryBuilders.matchQuery("neighborhood_alternate_names", fuziedRequieredTerms).boost(50));
+		requiredQ.should(asConstantScore("housenumber", 30, fuziedRequieredTerms));
 
-		requiredQ.should(QueryBuilders.matchQuery("nearest_neighbour.name", fuziedRequieredTerms).boost(46));
-		requiredQ.should(QueryBuilders.matchQuery("nearest_neighbour.alt_names", fuziedRequieredTerms).boost(46));
+		requiredQ.should(asConstantScore("search", 10, fuziedRequieredTerms));
+		requiredQ.should(asConstantScore("name.text", 10, fuziedRequieredTerms));
 		
-		requiredQ.should(QueryBuilders.matchQuery("street_name", fuziedRequieredTerms).boost(41).fuzziness(Fuzziness.TWO));
-		requiredQ.should(QueryBuilders.matchQuery("street_alternate_names", fuziedRequieredTerms).boost(40));
+	}
 
-		requiredQ.should(QueryBuilders.matchQuery("nearby_streets.name", fuziedRequieredTerms).boost(35));
+	private void addRequiredTermsNotStrict4Locality(BoolQueryBuilder requiredQ,
+			List<String> fuziedRequieredTerms) {
 		
-		requiredQ.should(QueryBuilders.matchQuery("housenumber", fuziedRequieredTerms).boost(30));
+		requiredQ.should(QueryBuilders.disMaxQuery()
+				.add(asConstantScore("admin0_name", 101, fuziedRequieredTerms))
+				.add(asConstantScore("admin0_alternate_names", 100, fuziedRequieredTerms)));
 
-		requiredQ.should(QueryBuilders.matchQuery("search", fuziedRequieredTerms).boost(10));
+		requiredQ.should(QueryBuilders.disMaxQuery()
+				.add(asConstantScore("admin1_name", 91, fuziedRequieredTerms))
+				.add(asConstantScore("admin1_alternate_names", 90, fuziedRequieredTerms)));
+
+		requiredQ.should(QueryBuilders.disMaxQuery()
+				.add(asConstantScore("admin2_name", 81, fuziedRequieredTerms))
+				.add(asConstantScore("admin2_alternate_names", 80, fuziedRequieredTerms)));
+
+		requiredQ.should(QueryBuilders.disMaxQuery()
+				.add(asConstantScore("local_admin_name", 71, fuziedRequieredTerms))
+				.add(asConstantScore("local_admin_alternate_names", 70, fuziedRequieredTerms)));
+
+		requiredQ.should(QueryBuilders.disMaxQuery()
+				.add(fuzziedQ("locality_name", fuziedRequieredTerms, Fuzziness.ONE).boost(61))
+				.add(asConstantScore("locality_alternate_names", 60, fuziedRequieredTerms))
+				.add(asConstantScore("nearby_places.name", 56, fuziedRequieredTerms)));
 		
+		requiredQ.should(QueryBuilders.disMaxQuery()
+				.add(fuzziedQ("neighborhood_name", fuziedRequieredTerms, Fuzziness.ONE).boost(51))
+				.add(asConstantScore("neighborhood_alternate_names", 50, fuziedRequieredTerms))
+				.add(asConstantScore("nearest_neighbour.name", 46, fuziedRequieredTerms))
+				.add(asConstantScore("nearest_neighbour.alt_names", 46, fuziedRequieredTerms))
+				);
+	}
+
+	private MatchQueryBuilder fuzziedQ(String field, List<String> fuziedRequieredTerms, Fuzziness f) {
+		return QueryBuilders.matchQuery(field, StringUtils.join(fuziedRequieredTerms, " ")).fuzziness(f);
+	}
+
+	private ConstantScoreQueryBuilder asConstantScore(String field, float boost,
+			List<String> fuziedRequieredTerms) {
+		
+		return QueryBuilders.constantScoreQuery(
+				QueryBuilders.matchQuery(field, StringUtils.join(fuziedRequieredTerms, " "))).boost(boost);
 	}
 
 	/**

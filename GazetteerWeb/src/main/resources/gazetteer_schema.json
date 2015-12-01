@@ -10,7 +10,8 @@
                     "char_filter" : ["yo"],
                     "filter": [
                         "lowercase",
-                        "synonym_filter"
+                        "synonym_filter",
+                        "my_ascii_folding"
                     ]
                 }
             },
@@ -19,6 +20,10 @@
                     "type": "synonym",
                     "expand": true,
                     "synonyms" : []
+                },
+                "my_ascii_folding": {
+                	"type" : "asciifolding",
+                	"preserve_original" : true
                 }
             },
             "char_filter" : {

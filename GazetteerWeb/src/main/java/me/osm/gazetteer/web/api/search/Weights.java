@@ -93,7 +93,7 @@ public class Weights {
 	 * Debuff for numbers matched housenumber
 	 * */
 	@Auto
-	public float nonStrictHNDebuf = 10000; 
+	public float nonStrictHNDebuf = 100; 
 	
 	
 	
