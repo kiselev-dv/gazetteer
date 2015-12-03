@@ -25,8 +25,10 @@ import gnu.trove.set.hash.TLongHashSet;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
@@ -349,11 +351,11 @@ public class GazetteerOutWriter extends AddressPerRowJOHBase  {
 	}
 	
 	@Override
-	protected void handleHighwayNetAddrRow(JSONObject object, JSONObject address,
+	protected synchronized void handleHighwayNetAddrRow(JSONObject object, JSONObject address,
 			String stripe) {
 		JSONFeature result = new JSONFeature();
 		if(fillObject(result, address, object)) {
-			getHgNetWriter().println(result.optString("hhash") + "\t" + result.toString());
+			getHgNetWriter().println(object.getString("id") + "\t" + result.toString());
 		}
 	}
 	
@@ -1108,9 +1110,12 @@ public class GazetteerOutWriter extends AddressPerRowJOHBase  {
 					ExternalSort.estimateAvailableMemory(), 
 					Charset.forName("utf-8"), null, 
 					false, 0, true);
+			//new HgnetMergerFakeWriter(this)
+			//BufferedWriter dbgWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(new File("/home/dkiselev/hghnets.dbg"))));
+			ExternalSort.mergeSortedFiles(batch, new HgnetMergerFakeWriter(this), 
+					cmp, Charset.forName("utf-8"), false, true);
 			
-			ExternalSort.mergeSortedFiles(batch, new HgnetMerger(this), 
-			cmp, Charset.forName("utf-8"), true, true);
+			//dbgWriter.close();
 			
 			log.trace("Done ExternalSort.mergeSortedFiles");
 			

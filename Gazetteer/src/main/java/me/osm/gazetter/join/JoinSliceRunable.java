@@ -3,7 +3,6 @@ package me.osm.gazetter.join;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -36,8 +35,6 @@ import me.osm.gazetter.striper.GeoJsonWriter;
 import me.osm.gazetter.striper.JSONFeature;
 import me.osm.gazetter.utils.FileUtils;
 import me.osm.gazetter.utils.FileUtils.LineHandler;
-import me.osm.gazetter.utils.HilbertCurveHasher;
-import me.osm.gazetter.utils.LocatePoint;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DurationFormatUtils;
@@ -137,8 +134,6 @@ public class JoinSliceRunable implements Runnable {
 
 	private boolean dropHghNetGeometries;
 
-	private static final String[] HGHNET_COPY_KEYS_GEOMETRY = new String[]{"id", "properties", "geometry"};
-	private static final String[] HGHNET_COPY_KEYS_DROP_GEOMETRY = new String[]{"id", "properties"};
 
 	/**
 	 * @param handler 
@@ -191,7 +186,7 @@ public class JoinSliceRunable implements Runnable {
 		
 	}
 	
-	private static final ByIdComparator BY_ID_COMPARATOR = new ByIdComparator();
+	static final Comparator<JSONObject> BY_ID_COMPARATOR = new ByIdComparator();
 
 	private static final class ByIdComparator implements Comparator<JSONObject>{
 		@Override
@@ -586,126 +581,6 @@ public class JoinSliceRunable implements Runnable {
 		
 	}
 
-	/**
-	 * Find unique streets' addresses
-	 * @throws StreetNetworkJoinError 
-	 * */
-	private void createStreetsNetworks() throws StreetNetworkJoinError {
-		List<JSONObject> streetParts = new ArrayList<>(); 
-		
-		Iterator<JSONObject> iterator = streets.iterator();
-		while(iterator.hasNext()) {
-			JSONObject jsonObject = iterator.next();
-			
-			JSONArray boundaries = jsonObject.optJSONArray("boundaries");
-			if(boundaries != null) {
-				for(int i = 0; i < boundaries.length(); i++) {
-					JSONObject b = boundaries.getJSONObject(i);
-					long bhash = b.getLong("boundariesHash");
-
-					String[] keys = this.dropHghNetGeometries ? 
-							HGHNET_COPY_KEYS_DROP_GEOMETRY : HGHNET_COPY_KEYS_GEOMETRY;
-					JSONFeature hghway = new JSONFeature(jsonObject, keys);
-					hghway.put("boundariesHash", bhash);
-					hghway.put("boundaries", new JSONArray(Arrays.asList(b)));
-					
-					streetParts.add(hghway);
-				}
-			}
-			
-			iterator.remove();
-		}
-		
-		try {
-			Collections.sort(streetParts, StreetsSorterByNameAndBoundaries.INSTANCE);
-			
-			if(streetParts.size() > 1) {
-				List<JSONObject> streetsNetBunch = new ArrayList<>();
-				
-				JSONObject prev = streetParts.get(0);
-				streetsNetBunch.add(prev);
-				
-				for(int i = 1; i < streetParts.size(); i++) {
-					JSONObject next = streetParts.get(i);
-					
-					int compare = StreetsSorterByNameAndBoundaries.INSTANCE.compare(prev, next);
-					
-					// Equals
-					if(compare == 0) {
-						streetsNetBunch.add(next);
-					}
-					else {
-						joinStreetsNet(streetsNetBunch);
-						streetsNetBunch.clear();
-						streetsNetBunch.add(next);
-					}
-					prev = next;
-				}
-				
-				if(!streetsNetBunch.isEmpty()) {
-					joinStreetsNet(streetsNetBunch);
-				}
-			}
-		}
-		catch (Exception e) {
-			throw new StreetNetworkJoinError(e);
-		}
-		
-	}
-
-	private void joinStreetsNet(List<JSONObject> streetsNetBunch) {
-		if(!streetsNetBunch.isEmpty()) {
-			JSONObject first = streetsNetBunch.get(0);
-			JSONFeature hghnet = new JSONFeature(first);
-			
-			JSONObject cp = new JSONObject();
-			cp.put("type", "Point");
-			
-			JSONObject geometryJSON = first.getJSONObject(GeoJsonWriter.GEOMETRY);
-			LineString ls = GeoJsonWriter.getLineStringGeometry(
-					geometryJSON.getJSONArray(GeoJsonWriter.COORDINATES));
-			
-			Coordinate c = new LocatePoint(ls, ls.getLength() * 0.5).getPoint();
-			cp.put("lon", c.x);
-			cp.put("lat", c.y);
-			
-			long hash = HilbertCurveHasher.encode(cp.getDouble("lon"), cp.getDouble("lat"));
-			
-			String name = AddressesUtils.filterNameTags(first).get("name");
-			
-			String nameHash = StringUtils.replaceChars(
-					String.valueOf(name.hashCode()), '-', 'm');
-			
-			String id = "hghnet" + "-" + String.format("%010d", hash) + 
-					"-" + nameHash;
-			
-			hghnet.put("id", id);
-			hghnet.put("feature_id", id);
-			hghnet.put("type", "hghnet");
-			hghnet.put("ftype", "hghnet");
-
-			hghnet.put("center_point", cp);
-
-			hghnet.remove("full_geometry");
-			hghnet.remove("geometry");
-			
-			JSONArray members = new JSONArray();
-			JSONArray geometries = new JSONArray();
-			for(JSONObject o : streetsNetBunch) {
-				members.put(o.getString("id"));
-				geometries.put(o.getJSONObject(GeoJsonWriter.GEOMETRY));
-			}
-			
-			hghnet.put("members", members);
-			hghnet.put("geometries", geometries);
-			
-			GeoJsonWriter.addTimestamp(hghnet);
-			GeoJsonWriter.addMD5(hghnet);
-			
-			handleOut(hghnet);
-		}
-	}
-	
 	private void joinNeighbourPlaces(List<JSONObject> places,
 			List<JSONObject> placesVoronoi) {
 
@@ -839,7 +714,7 @@ public class JoinSliceRunable implements Runnable {
 	}
 
 	
-	private void handleOut(JSONObject poi) {
+	void handleOut(JSONObject poi) {
 		if(poi != null) {
 			for(JoinOutHandler handler : Options.get().getJoinOutHandlers()) {
 				try {
@@ -1047,7 +922,8 @@ public class JoinSliceRunable implements Runnable {
 			s = debug("write out neighboursVoronoi", s);
 			
 			if(buildStreetNetworks) {
-				createStreetsNetworks();
+				new HighwayNetworksJoiner(
+						streets, dropHghNetGeometries, this).createStreetsNetworks();
 			}
 		}
 		catch (Exception e) {

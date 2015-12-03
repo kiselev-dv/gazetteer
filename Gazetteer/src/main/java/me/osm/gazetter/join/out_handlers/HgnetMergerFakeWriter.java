@@ -3,14 +3,12 @@ package me.osm.gazetter.join.out_handlers;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.HashSet;
 import java.util.List;
-
-import me.osm.gazetter.striper.JSONFeature;
+import java.util.Set;
 
 import org.apache.commons.io.output.NullWriter;
 import org.apache.commons.lang3.StringUtils;
-import org.json.JSONArray;
 import org.json.JSONObject;
 
 /**
@@ -20,7 +18,7 @@ import org.json.JSONObject;
  * work only with ExternalSorting lib.
  *  
  * */
-public final class HgnetMerger extends BufferedWriter {
+public final class HgnetMergerFakeWriter extends BufferedWriter {
 
 	private List<String> batch = new ArrayList<>();
 	private String lastH = null;
@@ -29,34 +27,49 @@ public final class HgnetMerger extends BufferedWriter {
 	/**
 	 * @param gazetteerOutWriter
 	 */
-	public HgnetMerger(GazetteerOutWriter gazetteerOutWriter) {
+	public HgnetMergerFakeWriter(GazetteerOutWriter gazetteerOutWriter) {
 		super(new NullWriter());
 		this.gazetteerOutWriter = gazetteerOutWriter;
 	}
 
-	private void mergeBatch(List<String> batch2) {
+	private void mergeBatch(List<String> netBatch) {
 		
-		Iterator<String> iterator = batch2.iterator();
+		JSONObject baseFeature = null;
+		Set<String> members = new HashSet<>(100);
+		Set<JSONObject> geometries = new HashSet<>(100);
+		Set<String> geometryIds = new HashSet<>(100);
 		
-		JSONObject baseFeature = new JSONObject(iterator.next());
-		
-		while(iterator.hasNext()) {
-			JSONObject obj2 = new JSONFeature(iterator.next());
-			
-			JSONArray members = baseFeature.getJSONArray("members");
-			for(int i = 0; i < obj2.getJSONArray("members").length(); i++) {
-				members.put(obj2.getJSONArray("members").get(i));
+		for(String s : netBatch) {
+			JSONObject obj = new JSONObject(s);
+			if(baseFeature == null) {
+				baseFeature = obj;
 			}
-
-			JSONArray geometries = baseFeature.optJSONArray("geometries");
+			
+			for(int i = 0; i < obj.getJSONArray("members").length(); i++) {
+				members.add(obj.getJSONArray("members").getString(i));
+			}
+			
 			if(geometries != null) {
-				for(int i = 0; i < obj2.getJSONArray("geometries").length(); i++) {
-					geometries.put(obj2.getJSONArray("geometries").get(i));
+				for(int i = 0; i < obj.getJSONArray("geometries").length(); i++) {
+					JSONObject g = obj.getJSONArray("geometries").getJSONObject(i);
+					if(g != null && geometryIds.add(g.getString("id"))) {
+						geometries.add(g);
+					}
 				}
 			}
-
-			iterator.remove();
 		}
+		
+		baseFeature.put("members", members);
+		baseFeature.put("geometries", geometries);
+		
+		/* TODO: Проблема, даже если дороги не соединены, но находятся в пределах
+		 * одного набора границ, и имеют одинаковые имена - они будут склеены.
+		 * 
+		 * Можно на этапе джоина, когда мы создаем треды, доставать эндпоинты
+		 * и добавлять построенный на них хеш к айдишке сети.
+		 * 
+		 * Но я побаиваюсь накосячить с таким подходом и выкинуть лишнего.
+		 */
 		
 		writeOut(baseFeature.toString());
 				
@@ -78,7 +91,7 @@ public final class HgnetMerger extends BufferedWriter {
 				lastH = htag;
 			}
 			else {
-				if(lastH.equals(htag)) {
+				if(lastH.equals(htag) || batch.isEmpty()) {
 					batch.add(json);
 				}
 				else if(!batch.isEmpty()) {
