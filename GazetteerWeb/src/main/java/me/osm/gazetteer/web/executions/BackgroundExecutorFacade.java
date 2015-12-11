@@ -120,6 +120,8 @@ public class BackgroundExecutorFacade {
 		private void callBack(String callbackURL) {
 			try {
 				URLConnection connection = new URL(callbackURL).openConnection();
+				// 5 Seconds timeout
+				connection.setReadTimeout(5 * 1000);
 				InputStream is = connection.getInputStream();
 				is.close();
 				log.info("Call {}", callbackURL);
