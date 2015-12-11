@@ -19,6 +19,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import me.osm.gazetteer.web.GazetteerWeb;
+import me.osm.gazetteer.web.api.meta.health.AbortedTaskError;
 import me.osm.gazetteer.web.api.meta.health.BackgroundExecution;
 
 import org.apache.commons.lang3.StringUtils;
@@ -232,11 +233,11 @@ public class BackgroundExecutorFacade {
 			}
 			result.setQueued(list);
 			
-			Collection<Pair<BackgroudTaskDescription, String>> rejected = new ArrayList<>();
+			Collection<AbortedTaskError> rejected = new ArrayList<>();
 			for(Entry<Integer, String> entry : abortedTasks.entrySet()) {
 				BackgroudTaskDescription description = INSTANCE.descriptions.get(entry.getKey());
 				String errMsg = entry.getValue();
-				rejected.add(new ImmutablePair<BackgroudTaskDescription, String>(description, errMsg));
+				rejected.add(new AbortedTaskError(description, errMsg));
 			}
 			result.setAborted(rejected);
 			

@@ -14,7 +14,7 @@ public class BackgroundExecution {
 	private Collection<BackgroudTaskDescription> queued;
 	private Collection<BackgroudTaskDescription> active;
 
-	private Collection<Pair<BackgroudTaskDescription, String>> aborted;
+	private Collection<AbortedTaskError> aborted;
 	
 	public int getThreads() {
 		return threads;
@@ -48,12 +48,12 @@ public class BackgroundExecution {
 		this.active = active;
 	}
 
-	public Collection<Pair<BackgroudTaskDescription, String>> getAborted() {
+	public Collection<AbortedTaskError> getAborted() {
 		return aborted;
 	}
 
 	public void setAborted(
-			Collection<Pair<BackgroudTaskDescription, String>> aborted) {
+			Collection<AbortedTaskError> aborted) {
 		this.aborted = aborted;
 	}
 	
