@@ -29,6 +29,7 @@ import org.json.JSONObject;
 import org.restexpress.Request;
 import org.restexpress.Response;
 import org.restexpress.domain.metadata.UriMetadata;
+import org.slf4j.LoggerFactory;
 
 import com.google.inject.Inject;
 
@@ -71,26 +72,33 @@ public class SuggestAPI extends SearchAPI {
 		QueryBuilder prefQ = null;
 		
 		Query tail = querry.tail();
-		if(tail.countNumeric() == 1) {
-			prefQ = QueryBuilders.disMaxQuery()
-					.add(QueryBuilders.termQuery("housenumber", tail.toString()))
-					.add(QueryBuilders.matchQuery("search", tail.toString()));
-		}
-		else {
-			prefQ = QueryBuilders.prefixQuery("name.text", tail.toString());
-		}
-		
 		Query head = querry.head();
-
-		if(head == null) {
-			searchQuerry.must(prefQ)
-				.mustNot(QueryBuilders.termQuery("weight", 0));
+		
+		if(tail.countNumeric() == 1) {
+			searchBuilder.mainSearchQ(querry, searchQuerry, strict, context);
 		}
 		else {
-			searchBuilder.mainSearchQ(head, searchQuerry, strict, context);
-			searchQuerry.must(prefQ);
+			
+			String prefix = tail.toString();
+			
+			prefQ = QueryBuilders.disMaxQuery()
+					.add(QueryBuilders.termQuery("housenumber", prefix))
+					.add(QueryBuilders.prefixQuery("search", prefix))
+					.add(QueryBuilders.prefixQuery("name.text", prefix));
+			
+			LoggerFactory.getLogger(getClass()).info("Prefix: {}", prefix);
+			
+			
+			if(head == null) {
+				searchQuerry.must(prefQ)
+					.mustNot(QueryBuilders.termQuery("weight", 0));
+			}
+			else {
+				searchBuilder.mainSearchQ(head, searchQuerry, strict, context);
+				searchQuerry.must(prefQ);
+			}
 		}
-		
+
 		return searchQuerry;
 		
 	}
