@@ -243,7 +243,7 @@ public class InverseGeocodeAPI implements DocumentedApi {
 						));
 		
 		SearchRequestBuilder searchRequest = 
-				client.prepareSearch("gazetteer").setTypes("location").setQuery(q);
+				client.prepareSearch("gazetteer").setTypes(IndexHolder.LOCATION).setQuery(q);
 		
 		searchRequest.setSize(1);
 		SearchResponse searchResponse = searchRequest.get();
@@ -328,10 +328,13 @@ public class InverseGeocodeAPI implements DocumentedApi {
 						QueryBuilders.matchAllQuery(),
 						FilterBuilders.andFilter(
 								FilterBuilders.termsFilter("type", "adrpnt", "poipnt"),
-								FilterBuilders.geoDistanceFilter("center_point").point(lat, lon).distance(1000, DistanceUnit.METERS)
+								FilterBuilders.geoDistanceFilter("center_point").point(lat, lon)
+									.distance(1000, DistanceUnit.METERS)
 						));
 
-		SearchRequestBuilder searchRequest = client.prepareSearch("gazetteer").setTypes(IndexHolder.LOCATION).setQuery(q);
+		SearchRequestBuilder searchRequest = client.prepareSearch("gazetteer")
+				.setTypes(IndexHolder.LOCATION).setQuery(q);
+		
 		searchRequest.addSort(SortBuilders.geoDistanceSort("center_point").point(lat, lon));
 		
 		searchRequest.setSize(maxNeighbours == 0 ? 10 : maxNeighbours);
@@ -357,7 +360,8 @@ public class InverseGeocodeAPI implements DocumentedApi {
 						QueryBuilders.matchAllQuery(),
 						filter);
 		
-		SearchRequestBuilder searchRequest = client.prepareSearch("gazetteer").setQuery(q);
+		SearchRequestBuilder searchRequest = client.prepareSearch("gazetteer")
+				.setTypes(IndexHolder.LOCATION).setQuery(q);
 		
 		SearchResponse searchResponse = searchRequest.get();
 				
