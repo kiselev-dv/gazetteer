@@ -1,12 +1,12 @@
 package me.osm.gazetteer.web.imp;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import me.osm.gazetteer.web.ESNodeHolder;
 import me.osm.gazetteer.web.utils.FileUtils;
 import me.osm.gazetteer.web.utils.FileUtils.LineHandler;
 import me.osm.gazetteer.web.utils.OSMDocSinglton;
@@ -15,8 +15,10 @@ import me.osm.osmdoc.model.Tag.TagValueType;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.action.admin.indices.create.CreateIndexRequestBuilder;
+import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
+import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsRequest;
 import org.elasticsearch.client.AdminClient;
-import org.elasticsearch.client.Client;
+import org.elasticsearch.client.IndicesAdminClient;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.LoggerFactory;
@@ -26,9 +28,19 @@ public class IndexHolder {
 	public static final String POI_CLASS = "poi_class";
 	public static final String LOCATION = "location";
 	
-	public void createIndex(Client client) {
+	public static void dropIndex() {
+		
+		IndicesAdminClient indices = ESNodeHolder.getClient().admin().indices();
+		
+		if(indices.exists(new IndicesExistsRequest("gazetteer")).actionGet().isExists()) {
+			indices.delete(new DeleteIndexRequest("gazetteer")).actionGet();
+		}
+		
+	}
+	
+	public static void createIndex() {
 
-		AdminClient admin = client.admin();
+		AdminClient admin = ESNodeHolder.getClient().admin();
 
 		JSONObject settings = readJSON("/gazetteer_schema.json");
 		settings.getJSONObject("mappings").put(LOCATION, readJSON("/mappings/location.json"));
@@ -51,7 +63,7 @@ public class IndexHolder {
 			.addMapping(LOCATION, settings.getJSONObject("mappings").getJSONObject(LOCATION).toString())
 			.addMapping(POI_CLASS, settings.getJSONObject("mappings").getJSONObject(POI_CLASS).toString());
 		
-		LoggerFactory.getLogger(getClass()).info("Update mappings");
+		LoggerFactory.getLogger(IndexHolder.class).info("Update mappings");
 		
 		request.get();
 	}
@@ -82,7 +94,7 @@ public class IndexHolder {
 		return res;
 	}
 
-	private JSONObject getPropertyMapping(String value) {
+	private static JSONObject getPropertyMapping(String value) {
 		JSONObject result = new JSONObject();
 		
 		switch (TagValueType.valueOf(value)) {
@@ -127,17 +139,15 @@ public class IndexHolder {
 	}
 
 	private static JSONObject readJSON(String resource) {
-		JSONObject settings;
 		try {
-			settings = new JSONObject(IOUtils.toString(IndexHolder.class.getResourceAsStream(
+			return new JSONObject(IOUtils.toString(IndexHolder.class.getResourceAsStream(
 					resource)));
-		} catch (IOException e) {
+		} catch (Exception e) {
 			throw new RuntimeException("couldn't read index settings", e);
 		}
-		return settings;
 	}
 
-	private void addSynonyms(JSONObject indexSettings) {
+	private static void addSynonyms(JSONObject indexSettings) {
 		final JSONArray synonims = fillFormResources();
 		
 		File confSynonims = new File("config/synonims/");
@@ -155,7 +165,7 @@ public class IndexHolder {
 		
 	}
 
-	private void fillFormFile(File f, final JSONArray synonims) {
+	private static void fillFormFile(File f, final JSONArray synonims) {
 		FileUtils.handleLines(f, new LineHandler() {
 					
 			@Override
@@ -168,10 +178,10 @@ public class IndexHolder {
 		});
 	}
 
-	private JSONArray fillFormResources() {
+	private static JSONArray fillFormResources() {
 		final JSONArray synonims = new JSONArray();
 		
-		FileUtils.handleLines(getClass().getResourceAsStream("/synonims"), 
+		FileUtils.handleLines(IndexHolder.class.getResourceAsStream("/synonims"), 
 		new LineHandler() {
 			
 			@Override

@@ -5,6 +5,7 @@ import me.osm.gazetteer.web.api.GeocodeCSVAPI;
 import me.osm.gazetteer.web.api.HelthAPI;
 import me.osm.gazetteer.web.api.ImportLocations;
 import me.osm.gazetteer.web.api.ImportOSMDoc;
+import me.osm.gazetteer.web.api.IndexAPI;
 import me.osm.gazetteer.web.api.InverseGeocodeAPI;
 import me.osm.gazetteer.web.api.MetaInfoAPI;
 import me.osm.gazetteer.web.api.OSMDocAPI;
@@ -108,6 +109,10 @@ public class Routes {
 				new HelthAPI())
 				.method(HttpMethod.GET)
 				.flag(Flags.Auth.PUBLIC_ROUTE);
+
+		server.uri(root + "/index",
+				new IndexAPI())
+				.method(HttpMethod.GET);
 
 		server.uri(root + "/snapshot/.*",
 				new SnapshotsAPI(config))

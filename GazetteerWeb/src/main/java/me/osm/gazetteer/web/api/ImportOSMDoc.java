@@ -18,8 +18,11 @@ import me.osm.osmdoc.localization.L10n;
 import me.osm.osmdoc.model.Feature;
 
 import org.apache.commons.lang3.StringUtils;
+import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsRequestBuilder;
+import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsResponse;
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
 import org.elasticsearch.action.delete.DeleteRequest;
+import org.elasticsearch.action.delete.DeleteRequestBuilder;
 import org.elasticsearch.action.deletebyquery.DeleteByQueryRequest;
 import org.elasticsearch.action.deletebyquery.DeleteByQueryRequestBuilder;
 import org.elasticsearch.action.index.IndexRequestBuilder;
@@ -44,8 +47,16 @@ public class ImportOSMDoc implements DocumentedApi {
 		JSONObject result = new JSONObject();
 		
 		if(drop) {
-			new DeleteByQueryRequestBuilder(ESNodeHolder.getClient()).setQuery(QueryBuilders.matchAllQuery())
-				.setIndices("gazetteer").setTypes(IndexHolder.POI_CLASS).execute().actionGet();
+			new DeleteRequestBuilder(ESNodeHolder.getClient(), "gazetteer")
+				.setType(IndexHolder.POI_CLASS).execute().actionGet();
+		}
+		
+		IndicesExistsResponse response = new IndicesExistsRequestBuilder(
+				ESNodeHolder.getClient().admin().indices()).setIndices("gazetteer").execute()
+				.actionGet();
+
+		if (!response.isExists()) {
+			IndexHolder.createIndex();
 		}
 		
 		final BulkRequestBuilder bulk = ESNodeHolder.getClient().prepareBulk();

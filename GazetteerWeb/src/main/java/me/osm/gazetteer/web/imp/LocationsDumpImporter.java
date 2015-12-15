@@ -70,7 +70,6 @@ public class LocationsDumpImporter extends BackgroundExecutableTask {
 
 	private Client client;
 	private BulkRequestBuilder bulkRequest;
-	private IndexHolder index = new IndexHolder();
 
 	private String filePath;
 	
@@ -159,7 +158,7 @@ public class LocationsDumpImporter extends BackgroundExecutableTask {
 				.actionGet();
 
 		if (!response.isExists()) {
-			index.createIndex(client);
+			IndexHolder.createIndex();
 		}
 
 		InputStream fileIS = null;

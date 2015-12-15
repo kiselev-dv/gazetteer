@@ -4,13 +4,17 @@ import me.osm.gazetteer.web.ESNodeHolder;
 import me.osm.gazetteer.web.api.meta.Endpoint;
 import me.osm.gazetteer.web.api.meta.Parameter;
 import me.osm.gazetteer.web.api.utils.RequestUtils;
+import me.osm.gazetteer.web.imp.IndexHolder;
 import me.osm.gazetteer.web.imp.LocationsDumpImporter;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.validator.routines.UrlValidator;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsRequest;
+import org.elasticsearch.action.delete.DeleteRequestBuilder;
+import org.elasticsearch.action.deletebyquery.DeleteByQueryRequestBuilder;
 import org.elasticsearch.client.IndicesAdminClient;
+import org.elasticsearch.index.query.QueryBuilders;
 import org.json.JSONObject;
 import org.restexpress.Request;
 import org.restexpress.Response;
@@ -21,8 +25,6 @@ import org.restexpress.domain.metadata.UriMetadata;
  * */
 public class ImportLocations implements DocumentedApi {
 
-	private static final IndicesAdminClient INDICES_CLIENT = ESNodeHolder.getClient().admin().indices();
-	
 	/**
 	 * Path to dump file
 	 * */
@@ -48,7 +50,7 @@ public class ImportLocations implements DocumentedApi {
 	 * */
 	private static final String OSMDOC_HEADER = "osmdoc";
 	
-	public JSONObject read(Request request, Response response){
+	public JSONObject read(Request request, Response response) {
 		
 		JSONObject result = new JSONObject();
 		
@@ -60,11 +62,15 @@ public class ImportLocations implements DocumentedApi {
 		String callbackUrl = request.getHeader(CALLBACK_HEADER);
 		
 		if(drop) {
-			if(INDICES_CLIENT.exists(new IndicesExistsRequest("gazetteer")).actionGet().isExists()) {
-				INDICES_CLIENT.delete(new DeleteIndexRequest("gazetteer")).actionGet();
-			}
+			new DeleteRequestBuilder(ESNodeHolder.getClient(), "gazetteer")
+				.setType(IndexHolder.LOCATION).execute().actionGet();
 			
 			result.put(DROP_HEADER, true);
+		}
+		
+		if(osmdoc) {
+			new ImportOSMDoc().run(null, drop);
+			result.put(OSMDOC_HEADER, osmdoc);
 		}
 		
 		boolean imp = StringUtils.isNotEmpty(source);
@@ -93,12 +99,6 @@ public class ImportLocations implements DocumentedApi {
 			}
 		}
 
-		if(osmdoc) {
-			//if drop == true, we already drop whole index
-			new ImportOSMDoc().run(null, !drop);
-			result.put(OSMDOC_HEADER, osmdoc);
-		}
-		
 		return result;
 	}
 
