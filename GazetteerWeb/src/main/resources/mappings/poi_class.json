@@ -24,6 +24,10 @@
         "parsed_tags": {
 			"type": "object",
 			"index": "not_analyzed"        
+        },
+        "lang_to_title": {
+        	"type": "object",
+			"index": "not_analyzed"
         }
     } 
 }

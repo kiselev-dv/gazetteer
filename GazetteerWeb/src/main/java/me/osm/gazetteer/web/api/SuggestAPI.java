@@ -111,7 +111,13 @@ public class SuggestAPI extends SearchAPI {
 		DisMaxQueryBuilder dismax = QueryBuilders.disMaxQuery()
 				.add(QueryBuilders.prefixQuery("translated_title", filtered.toString()));
 		
-		dismax.add(QueryBuilders.prefixQuery("translated_title", query.tail().toString()));
+		dismax.add(
+				QueryBuilders.boolQuery()
+					.should(QueryBuilders.prefixQuery("translated_title", query.tail().toString()))
+					.should(QueryBuilders.prefixQuery("keywords", query.tail().toString()))
+					.minimumNumberShouldMatch(1)
+				);
+		
 		if(!query.listToken().isEmpty()) {
 			dismax.add(QueryBuilders.prefixQuery("translated_title", query.listToken().get(0).toString()));
 		}

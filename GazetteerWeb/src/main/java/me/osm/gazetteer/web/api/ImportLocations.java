@@ -94,7 +94,8 @@ public class ImportLocations implements DocumentedApi {
 		}
 
 		if(osmdoc) {
-			new ImportOSMDoc().run(null);
+			//if drop == true, we already drop whole index
+			new ImportOSMDoc().run(null, !drop);
 			result.put(OSMDOC_HEADER, osmdoc);
 		}
 		

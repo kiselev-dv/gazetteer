@@ -19,7 +19,11 @@ import me.osm.osmdoc.model.Feature;
 
 import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
+import org.elasticsearch.action.delete.DeleteRequest;
+import org.elasticsearch.action.deletebyquery.DeleteByQueryRequest;
+import org.elasticsearch.action.deletebyquery.DeleteByQueryRequestBuilder;
 import org.elasticsearch.action.index.IndexRequestBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.restexpress.Request;
@@ -31,12 +35,18 @@ public class ImportOSMDoc implements DocumentedApi {
 	public JSONObject read(Request request, Response response){
 		
 		String source = request.getHeader("source");
+		boolean drop = "true".equals(request.getHeader("drop"));
 		
-		return run(source);
+		return run(source, drop);
 	}
 
-	public JSONObject run(String source) {
+	public JSONObject run(String source, boolean drop) {
 		JSONObject result = new JSONObject();
+		
+		if(drop) {
+			new DeleteByQueryRequestBuilder(ESNodeHolder.getClient()).setQuery(QueryBuilders.matchAllQuery())
+				.setIndices("gazetteer").setTypes(IndexHolder.POI_CLASS).execute().actionGet();
+		}
 		
 		final BulkRequestBuilder bulk = ESNodeHolder.getClient().prepareBulk();
 
