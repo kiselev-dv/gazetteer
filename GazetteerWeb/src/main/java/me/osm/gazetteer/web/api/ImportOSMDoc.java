@@ -21,12 +21,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsRequestBuilder;
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsResponse;
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
-import org.elasticsearch.action.delete.DeleteRequest;
 import org.elasticsearch.action.delete.DeleteRequestBuilder;
-import org.elasticsearch.action.deletebyquery.DeleteByQueryRequest;
-import org.elasticsearch.action.deletebyquery.DeleteByQueryRequestBuilder;
 import org.elasticsearch.action.index.IndexRequestBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.restexpress.Request;
@@ -51,9 +47,9 @@ public class ImportOSMDoc implements DocumentedApi {
 				.setType(IndexHolder.POI_CLASS).execute().actionGet();
 		}
 		
-		IndicesExistsResponse response = new IndicesExistsRequestBuilder(
-				ESNodeHolder.getClient().admin().indices()).setIndices("gazetteer").execute()
-				.actionGet();
+		IndicesExistsResponse response = 
+				new IndicesExistsRequestBuilder(ESNodeHolder.getClient().admin().indices())
+					.setIndices("gazetteer").execute().actionGet();
 
 		if (!response.isExists()) {
 			IndexHolder.createIndex();
@@ -105,10 +101,8 @@ public class ImportOSMDoc implements DocumentedApi {
 						
 					}
 				}
-			
 				
 			});
-			
 			
 			result.put("result", "success");
 		}

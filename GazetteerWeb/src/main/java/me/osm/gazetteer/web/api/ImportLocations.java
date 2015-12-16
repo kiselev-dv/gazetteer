@@ -3,18 +3,14 @@ package me.osm.gazetteer.web.api;
 import me.osm.gazetteer.web.ESNodeHolder;
 import me.osm.gazetteer.web.api.meta.Endpoint;
 import me.osm.gazetteer.web.api.meta.Parameter;
+import me.osm.gazetteer.web.api.utils.ImportSrcType;
 import me.osm.gazetteer.web.api.utils.RequestUtils;
 import me.osm.gazetteer.web.imp.IndexHolder;
 import me.osm.gazetteer.web.imp.LocationsDumpImporter;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.validator.routines.UrlValidator;
-import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
-import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsRequest;
 import org.elasticsearch.action.delete.DeleteRequestBuilder;
-import org.elasticsearch.action.deletebyquery.DeleteByQueryRequestBuilder;
-import org.elasticsearch.client.IndicesAdminClient;
-import org.elasticsearch.index.query.QueryBuilders;
 import org.json.JSONObject;
 import org.restexpress.Request;
 import org.restexpress.Response;
@@ -26,9 +22,14 @@ import org.restexpress.domain.metadata.UriMetadata;
 public class ImportLocations implements DocumentedApi {
 
 	/**
-	 * Path to dump file
+	 * Path to file
 	 * */
 	private static final String SOURCE_HEADER = "source";
+
+	/**
+	 * Type of file, dump or diff
+	 * */
+	private static final String TYPE_HEADER = "source_type";
 	
 	/**
 	 * Drop index before import
@@ -50,6 +51,7 @@ public class ImportLocations implements DocumentedApi {
 	 * */
 	private static final String OSMDOC_HEADER = "osmdoc";
 	
+	
 	public JSONObject read(Request request, Response response) {
 		
 		JSONObject result = new JSONObject();
@@ -58,6 +60,8 @@ public class ImportLocations implements DocumentedApi {
 		boolean drop = RequestUtils.getBooleanHeader(request, DROP_HEADER, false);
 		boolean buildingsGeometry = RequestUtils.getBooleanHeader(request, BUILDINGS_GEOMETRY_HEADER, true);
 		boolean osmdoc = RequestUtils.getBooleanHeader(request, OSMDOC_HEADER, false);
+		ImportSrcType type = RequestUtils.getEnumHeader(
+				request, TYPE_HEADER, ImportSrcType.class, ImportSrcType.DUMP);
 		
 		String callbackUrl = request.getHeader(CALLBACK_HEADER);
 		

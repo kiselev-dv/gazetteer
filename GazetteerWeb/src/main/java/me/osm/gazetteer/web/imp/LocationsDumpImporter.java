@@ -66,14 +66,14 @@ public class LocationsDumpImporter extends BackgroundExecutableTask {
 
 	Logger log = LoggerFactory.getLogger(LocationsDumpImporter.class);
 
-	private static final int BATCH_SIZE = 1000;
+	protected static final int BATCH_SIZE = 1000;
 
-	private Client client;
-	private BulkRequestBuilder bulkRequest;
+	protected Client client;
+	protected BulkRequestBuilder bulkRequest;
 
 	private String filePath;
 	
-	private long counter = 0;
+	protected long counter = 0;
 
 	private boolean buildingsGeometry;
 
@@ -167,7 +167,7 @@ public class LocationsDumpImporter extends BackgroundExecutableTask {
 			BufferedReader reader = new BufferedReader(new InputStreamReader(fileIS, "UTF8"));
 			String line = reader.readLine();
 			while (line != null) {
-				add(line);
+				addRequestToBatch(line);
 				line = reader.readLine();
 			}
 			
@@ -189,20 +189,13 @@ public class LocationsDumpImporter extends BackgroundExecutableTask {
 		}
 	}
 	
-	private void add(String line) throws AbortedException {
+	protected void addRequestToBatch(String line) throws AbortedException {
 		if(line != null) {
 			if(bulkRequest == null) {
 				bulkRequest = client.prepareBulk();
 			}
 			
-			line = processLine(line);
-			
-			if (line != null) {
-				IndexRequestBuilder ind = indexRequest(line);
-				bulkRequest.add(ind.request());
-				
-				counter++;
-			}
+			createRequestAndAdd(line);
 			
 			if(counter % BATCH_SIZE == 0) {
 				executeBulk();
@@ -219,13 +212,24 @@ public class LocationsDumpImporter extends BackgroundExecutableTask {
 		}
 	}
 
-	private IndexRequestBuilder indexRequest(String line) {
+	protected void createRequestAndAdd(String line) {
+		line = processLine(line);
+		
+		if (line != null) {
+			IndexRequestBuilder ind = indexRequest(line);
+			bulkRequest.add(ind.request());
+			
+			counter++;
+		}
+	}
+
+	protected IndexRequestBuilder indexRequest(String line) {
 		IndexRequestBuilder ind = new IndexRequestBuilder(client)
 			.setSource(line).setIndex("gazetteer").setType(LOCATION);
 		return ind;
 	}
 
-	private void executeBulk() {
+	protected void executeBulk() {
 		
 		if(curentBulkRequest != null && !curentBulkRequest.isDone()) {
 			BulkResponse bulkResponse = curentBulkRequest.actionGet();
@@ -239,7 +243,7 @@ public class LocationsDumpImporter extends BackgroundExecutableTask {
 		}
 	}
 
-	private String processLine(String line) {
+	protected String processLine(String line) {
 		try {
 			
 			JSONObject obj = new JSONObject(line);
