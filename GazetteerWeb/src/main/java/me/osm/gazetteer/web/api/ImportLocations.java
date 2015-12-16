@@ -6,6 +6,7 @@ import me.osm.gazetteer.web.api.meta.Parameter;
 import me.osm.gazetteer.web.api.utils.ImportSrcType;
 import me.osm.gazetteer.web.api.utils.RequestUtils;
 import me.osm.gazetteer.web.imp.IndexHolder;
+import me.osm.gazetteer.web.imp.LocationsDiffImporter;
 import me.osm.gazetteer.web.imp.LocationsDumpImporter;
 
 import org.apache.commons.lang3.StringUtils;
@@ -80,7 +81,13 @@ public class ImportLocations implements DocumentedApi {
 		boolean imp = StringUtils.isNotEmpty(source);
 		if(imp) {
 			
-			LocationsDumpImporter importer = new LocationsDumpImporter(source, buildingsGeometry);
+			LocationsDumpImporter importer = null;
+			if(type == ImportSrcType.DIFF) {
+				importer = new LocationsDiffImporter(source, buildingsGeometry);
+			}
+			else {
+				importer = new LocationsDumpImporter(source, buildingsGeometry);
+			}
 			
 			if(StringUtils.isNotEmpty(callbackUrl) && isValidUrl(callbackUrl)) {
 				importer.setCallback(callbackUrl);
