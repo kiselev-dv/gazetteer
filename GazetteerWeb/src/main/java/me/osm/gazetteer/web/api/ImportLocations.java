@@ -127,15 +127,17 @@ public class ImportLocations implements DocumentedApi {
 			  + "This is endpoin is protected with HTTP Base Auth. "
 			  + "You could setup password via app config.");
 		
-		meta.getPathParameters().add(new Parameter(SOURCE_HEADER, "Path to dump file. "
+		
+		meta.getUrlParameters().add(new Parameter(SOURCE_HEADER, "Path to dump file. "
 				+ "Relative to working dir or absolute. "
 				+ "If file ends with .gz it will be unzipped automaticaly."));
-
-		meta.getPathParameters().add(new Parameter(DROP_HEADER, 
+		meta.getUrlParameters().add(new Parameter(TYPE_HEADER, 
+				"Type of source file, DUMP or DIFF. Default value is DUMP."));
+		meta.getUrlParameters().add(new Parameter(DROP_HEADER, 
 				"Drop exists index before import. false by default."));
-		meta.getPathParameters().add(new Parameter(BUILDINGS_GEOMETRY_HEADER, 
+		meta.getUrlParameters().add(new Parameter(BUILDINGS_GEOMETRY_HEADER, 
 				"Import buildings geometry for POIs and Addresses. true by default."));
-		meta.getPathParameters().add(new Parameter(OSMDOC_HEADER, 
+		meta.getUrlParameters().add(new Parameter(OSMDOC_HEADER, 
 				"Also import osmdoc (will uses embedded version of osmdoc catalog)."));
 		
 		return meta;
