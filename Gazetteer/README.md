@@ -1,12 +1,12 @@
 gazetteer
 =========
 
-Takes osm file and create json/csv output for every feature with crossreferences. 
+Takes OSM file and creates JSON/CSV output for every feature with crossreferences. 
 
 With next goals in mind:
-* Easy to deploy (keep number of external dependencyes as low as possible)
-* Memory friendly (most parts can be easily rewrited, to use file indexes and save ram)
-* Clusterization friendly (build whole process as a number of tasks, which can be performed in multi-thread/multi-node environment)
+* Easy to deploy (keep number of external dependencies as low as possible)
+* Memory friendly (most parts can be easily rewritten, to use file indices and to save RAM)
+* Clusterization friendly (build the whole process as a number of tasks, which can be performed in multi-thread/multi-node environment)
 
 Use latest release
 ------------------
@@ -14,7 +14,7 @@ Use latest release
 You could find binaries here https://github.com/kiselev-dv/gazetteer/releases/
 
 
-Or compile with apache maven
+Or compile with Apache maven
 ------------------
 
     # Install kiselev-dv/osm-doc-java
@@ -31,7 +31,7 @@ Or compile with apache maven
 how it works
 ------------
 
-Data processed in two steps:
+Data are processed in two steps:
 
 Stripe (map)
 Join   (reduce)
