@@ -1,94 +1,105 @@
-import me.osm.gazetteer.web.api.renders.SnapshotRender;
-import groovy.text.SimpleTemplateEngine;
-import groovy.json.JsonSlurper;
-import me.osm.gazetteer.web.utils.OSMDocSinglton;
+import groovy.text.SimpleTemplateEngine
+import me.osm.gazetteer.web.api.renders.SnapshotRender
+import me.osm.gazetteer.web.utils.OSMDocSinglton
 
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.LoggerFactory;
+import groovy.json.JsonSlurper
 
-import me.osm.osmdoc.model.Tag.TagValueType;
-
-import java.util.Locale;
+import org.apache.commons.lang3.StringUtils
+import org.slf4j.LoggerFactory
 
 class HTMLSnapshotRender implements SnapshotRender {
-	
+
 	def log = LoggerFactory.getLogger("HTMLSnapshotRender");
-	
+
 	def engine = new SimpleTemplateEngine();
-	
-	def tpls = [
-	    'config/html_templates/hgroup.html',
-	    'config/html_templates/hierarchy.html',
-		'config/html_templates/feature.html',
-		'config/html_templates/poi-types.html',
-		'config/html_templates/poi-more-tags.html',
-		'config/html_templates/poi-related.html',
-		'config/html_templates/name.html',
-		'config/html_templates/ref.html',
-		'config/html_templates/address.html'
-	];
+
+	def tpls = new File('config/html_templates/').list(new FilenameFilter() {
+		boolean accept(File f, String name) {
+			return StringUtils.endsWith(name, '.html');
+		};
+	});
 
 	def osmdoc = OSMDocSinglton.get();
-	def locale = Locale.forLanguageTag("ru");
 
-	def translations = [
-		"templates.feature.showOnMap": "Показать на карте",
-		"templates.feature.poiTypes": "Направления деятельности:",
-		"templates.feature.address": "Адрес: ",
-		"templates.feature.building": "Здание",
-		"templates.feature.moreTags": "Дополнительная информация: ",
-		"templates.feature.otherNames": "Другие названия этого места: ",
-		"templates.feature.sameBuilding": "Организации в том-же здании",
-		"templates.feature.sameType": "Организации того-же типа поблизости"
-	];
-	
+	def trA = [:];
+
 	def templates = [:];
 
 	public HTMLSnapshotRender() {
 		updateTemplate();
 	}
-	
+
 	@Override
 	public void updateTemplate() {
-		tpls.each { item ->
-			String[] s = StringUtils.split(item, "/");
-			String key = StringUtils.remove(s[s.length - 1], ".html"); 
-			
-			templates[key] = engine.createTemplate(new File(item));
-		}
-	}
-	
-	@Override
-	public String render(String json, String templateName) {
-		def jsonObj = new JsonSlurper().parseText(json);
-		def result = templates[templateName].make([
-			"f":jsonObj, 
-			"HTML_ROOT": "/", 
-			"RENDER":this, 
-			"OSM_DOC": osmdoc, 
-			"LOCALE": locale
-		]).toString();
-	
-		if(StringUtils.contains(result, "map?fid=AU")) {
-			log.debug("template: {}, feature: {}", templateName, json);
+
+		def base = 'config/html_templates/';
+
+		tpls = new File(base).list(new FilenameFilter() {
+			boolean accept(File f, String name) {
+				return StringUtils.endsWith(name, '.html');
+			};
+		});
+
+		tpls.each {
+			item ->
+			String key = StringUtils.remove(item, ".html");
+
+			templates[key] = engine.createTemplate(new File(base + item));
 		}
 		
-		return result;
+		for(loc in ['ru', 'en']) {
+			Properties prop = new Properties();
+			prop.load(new FileInputStream(
+				'config/html_templates/snapshots_' + loc + '.properties'));
+			trA.put(loc, prop);
+		}
 	}
-	
-	public String tr(String key) {
-		return translations[key] == null ? key : translations[key];
+
+	@Override
+	public String render(String localeName, String json, String templateName) {
+
+		def jsonObj = new JsonSlurper().parseText(json);
+
+		def context = new context(jsonObj, localeName);
+
+		return context.render(templateName);
 	}
-	
-	public String callTemplate(name, f, subj) {
-		return templates[name].make([
-			"f":f,
-			"subj": subj,
-			"HTML_ROOT": "/",
-			"RENDER":this,
-			"OSM_DOC": osmdoc,
-			"LOCALE": locale
-		]).toString();
+
+	class context  {
+
+		def jsonObj;
+		def localeName;
+
+		def context (jsonObj, localeName) {
+			this.jsonObj = jsonObj;
+			this.localeName = localeName;
+		}
+
+		def render(templateName) {
+			return templates[templateName].make([
+				"f":jsonObj,
+				"HTML_ROOT": "/",
+				"RENDER": this,
+				"OSM_DOC": osmdoc,
+				"LOCALE": Locale.forLanguageTag(localeName)
+			]).toString();
+		}
+
+		def tr(key) {
+			def translations = trA[localeName];
+			return translations.getProperty(key) == null ? key : translations.getProperty(key);
+		}
+
+		def callTemplate(name, f, subj) {
+
+			return templates[name].make([
+				"f":f,
+				"subj": subj,
+				"HTML_ROOT": "/",
+				"RENDER": this,
+				"OSM_DOC": osmdoc,
+				"LOCALE": Locale.forLanguageTag(localeName)
+			]).toString();
+		}
 	}
-	
 }

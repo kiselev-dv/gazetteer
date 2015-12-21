@@ -15,6 +15,7 @@ import me.osm.gazetteer.web.api.meta.Endpoint;
 import me.osm.gazetteer.web.api.renders.HTMLSitemapRender;
 import me.osm.gazetteer.web.api.renders.SnapshotRender;
 import me.osm.gazetteer.web.utils.OSMDocSinglton;
+import me.osm.osmdoc.localization.L10n;
 
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONObject;
@@ -74,6 +75,13 @@ public class SnapshotsAPI implements DocumentedApi {
 					renderIndexSnapshot(res);
 					return;
 				}
+
+				String lang = "ru";
+				for(String aLocation : L10n.supported) {
+					if(StringUtils.contains(parameters, "/" + aLocation + "/")) {
+						lang = aLocation;
+					}
+				}
 				
 				if(StringUtils.contains(parameters, "/id/")) {
 					String id = StringUtils.substringAfter(parameters, "/id/");
@@ -82,7 +90,7 @@ public class SnapshotsAPI implements DocumentedApi {
 					JSONObject feature = FeatureAPI.getFeature(id, true);
 					
 					if(feature != null) {
-						renderFeatureSnapshot(res, feature);
+						renderFeatureSnapshot(lang, res, feature);
 					}
 					else {
 						res.setResponseCode(404);
@@ -102,7 +110,7 @@ public class SnapshotsAPI implements DocumentedApi {
 						JSONObject feature = FeatureAPI.getFeature(args.get("fid"), true);
 						
 						if(feature != null) {
-							renderFeatureSnapshot(res, feature);
+							renderFeatureSnapshot(lang, res, feature);
 						}
 						else {
 							res.setResponseCode(404);
@@ -119,7 +127,7 @@ public class SnapshotsAPI implements DocumentedApi {
 				JSONObject hierarchyJSON = OSMDocSinglton.get().getFacade().getHierarchyJSON("osm-ru", Locale.forLanguageTag(lang));
 				if(hierarchyJSON != null) {
 					res.setContentType("text/html; charset=utf8");
-					res.setBody(render.render(hierarchyJSON.toString(), "hierarchy"));
+					res.setBody(render.render("ru", hierarchyJSON.toString(), "hierarchy"));
 				}
 				else {
 					res.setResponseCode(404);
@@ -158,14 +166,14 @@ public class SnapshotsAPI implements DocumentedApi {
 		}
 	}
 
-	private void renderFeatureSnapshot(Response res, JSONObject feature)
+	private void renderFeatureSnapshot(String lang, Response res, JSONObject feature)
 			throws Exception {
 		
 		addSchema(feature);
 		
 		try {
 			res.setContentType("text/html; charset=utf8");
-			res.setBody(render.render(feature.toString(), "feature"));
+			res.setBody(render.render(lang, feature.toString(), "feature"));
 		}
 		catch (Exception e) {
 			render.updateTemplate();
