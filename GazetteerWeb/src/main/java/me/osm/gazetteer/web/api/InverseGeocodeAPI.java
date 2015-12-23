@@ -23,12 +23,17 @@ import org.elasticsearch.client.Client;
 import org.elasticsearch.common.geo.ShapeRelation;
 import org.elasticsearch.common.geo.builders.ShapeBuilder;
 import org.elasticsearch.common.unit.DistanceUnit;
+import org.elasticsearch.index.query.FilterBuilder;
 import org.elasticsearch.index.query.FilterBuilders;
 import org.elasticsearch.index.query.FilteredQueryBuilder;
+import org.elasticsearch.index.query.GeoDistanceFilterBuilder;
 import org.elasticsearch.index.query.GeoShapeFilterBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.index.query.TermsFilterBuilder;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.sort.SortBuilders;
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.restexpress.Request;
 import org.restexpress.Response;
@@ -55,7 +60,8 @@ public class InverseGeocodeAPI implements DocumentedApi {
 	private static final String ALL_LEVEL = "all";
 	private static final String OBJECTS_LEVEL = "objects";
 	private static final String HIGHWAYS_LEVEL = "highways";
-
+	private static final String PLACE_LEVEL = "places";
+	
 	/**
 	 * REST Express routine read method
 	 * 
@@ -93,15 +99,20 @@ public class InverseGeocodeAPI implements DocumentedApi {
 		int maxNeighbours = request.getHeader(MAX_NEIGHBOURS_HEADER) == null ? 15 : 
 			Integer.valueOf(request.getHeader(MAX_NEIGHBOURS_HEADER));
 		
+		AnswerDetalization detalization = RequestUtils.getEnumHeader(request, 
+				SearchAPI.ANSWER_DETALIZATION_HEADER, AnswerDetalization.class, AnswerDetalization.FULL);
+		
 		/* How large objects what we are looking for?
 		 * 
-		 * OBJECTS_LEVEL   try to find enclosing poipnt or adrpoint only
+		 * OBJECTS_LEVEL    try to find enclosing poipnt or adrpoint only
 		 * 
-		 * HIGHWAYS_LEVEL  if there is no enclosing OBJECTS_LEVEL features,
-		 *                 try to find highway
+		 * HIGHWAYS_LEVEL   if there is no enclosing OBJECTS_LEVEL features,
+		 *                  try to find highway
 		 *                 
-		 * ALL_LEVEL       if there is no highways, return, at least all
-		 *                 enclosing boundaries
+		 * ALL_LEVEL        if there is no highways, return, at least all
+		 *                  enclosing boundaries
+		 *                 
+		 * PLACE_LEVEL      Search for places (without streets)               
 		 *                 
 		 * Why not to include all enclosing boundaries always by default?
 		 * All objects already have all enclosing boundaries                               
@@ -116,6 +127,13 @@ public class InverseGeocodeAPI implements DocumentedApi {
 		
 		if(maxNeighbours < 0) {
 			maxNeighbours = 0;
+		}
+		
+		if(PLACE_LEVEL.equals(largestLevel)) {
+			fillBoundaries(result, lon, lat, fullGeometry, 
+					new ArrayList<JSONObject>(), new LinkedHashMap<String, String>());
+			
+	 		return detalization(result, detalization);
 		}
 		
 		List<JSONObject> neighbours = maxNeighbours == 0 ? null : new ArrayList<JSONObject>(maxNeighbours);
@@ -133,7 +151,7 @@ public class InverseGeocodeAPI implements DocumentedApi {
 		// Return neighbours only
 		if(largestLevel.equals(OBJECTS_LEVEL)) {
 			result.put(_NEIGHBOURS, neighbours);
-			return result;
+			return detalization(result, detalization);
 		}
 
 		// If there is no enclosing features, look for highways within 25 meters
@@ -156,14 +174,90 @@ public class InverseGeocodeAPI implements DocumentedApi {
 			// Don't forget about neighbours
 			result.put(_NEIGHBOURS, neighbours);
 			
-			return result;
+			return detalization(result, detalization);
 		}
 		else if(largestLevel.equals(HIGHWAYS_LEVEL)) {
 			// Don't forget about neighbours
 			result.put(_NEIGHBOURS, neighbours);
-			return result;
+			return detalization(result, detalization);
 		}
 		
+		fillBoundaries(result, lon, lat, fullGeometry, neighbours, parts);
+		
+		return detalization(result, detalization);
+	}
+
+	private JSONObject detalization(JSONObject raw,
+			AnswerDetalization detalization) {
+		if (detalization == AnswerDetalization.FULL) {
+			return raw;
+		}
+		else if(detalization == AnswerDetalization.SHORT) {
+			JSONObject shortAnswer = shortAnswer(raw);
+			
+			if(raw.has("_related")) {
+				JSONObject shortRelated = new JSONObject();
+				JSONObject related = raw.getJSONObject("_related");
+				
+				// Split namespaces not to mess with keys
+				{
+					JSONArray sameType = related.optJSONArray("_same_type");
+					if(sameType != null) {
+						JSONArray shortSameType = new JSONArray();
+						for(int i = 0; i < sameType.length(); i++){
+							shortSameType.put(shortAnswer(sameType.getJSONObject(i)));
+						}
+						shortRelated.put("_same_type", shortSameType);
+					}
+				}
+				// Split namespaces
+				{
+					JSONArray sameBuilding = related.optJSONArray("_same_building");
+					if(sameBuilding != null) {
+						JSONArray shortSameBuilding = new JSONArray();
+						for(int i = 0; i < sameBuilding.length(); i++){
+							shortSameBuilding.put(shortAnswer(sameBuilding.getJSONObject(i)));
+						}
+						shortRelated.put("_same_building", shortSameBuilding);
+					}
+				}
+				
+				shortAnswer.put("_related", shortRelated);
+			}
+
+			if(raw.has("_neighbours")) {
+				JSONArray shortNeighbours = new JSONArray();
+				JSONArray neighbours = raw.getJSONArray("_neighbours");
+				for(int i = 0; i < neighbours.length(); i++) {
+					shortNeighbours.put(shortAnswer(neighbours.getJSONObject(i)));
+				}
+				shortAnswer.put("_neighbours", shortNeighbours);
+			}
+			
+			return shortAnswer;
+		}
+		return raw;
+	}
+
+	private JSONObject shortAnswer(JSONObject raw) {
+		JSONObject shortResult = new JSONObject(raw, 
+				new String[]{"id", "type", "name", "center_point"});
+		shortResult.put("address", getAddressText(raw));
+		return shortResult;
+	}
+	
+	private static String getAddressText(JSONObject source) {
+		try {
+			return source.getJSONObject("address").getString("text");
+		}
+		catch (JSONException e) {
+			return null;
+		}
+	}
+
+	private void fillBoundaries(JSONObject result, double lon, double lat,
+			boolean fullGeometry, List<JSONObject> neighbours,
+			LinkedHashMap<String, String> parts) {
 		// Get administrative boundaries 
 		Map<String, JSONObject> levels = getBoundariesLevels(lon, lat);
 		
@@ -176,8 +270,6 @@ public class InverseGeocodeAPI implements DocumentedApi {
 		
 		// Don't forget about neighbours 
 		result.put(_NEIGHBOURS, neighbours);
-		
- 		return result;
 	}
 
 	/**
@@ -375,6 +467,38 @@ public class InverseGeocodeAPI implements DocumentedApi {
 			boundaries.add(obj);
 			levels.put(obj.optString("addr_level"), obj);
 		}
+		
+		if (!levels.containsKey("locality")) {
+			
+			GeoDistanceFilterBuilder distanceF = FilterBuilders.geoDistanceFilter("center_point")
+					.distance("1km").lon(lon).lat(lat);
+			
+			FilterBuilder plcpnt = FilterBuilders.termFilter("type", "plcpnt");
+			
+			FilteredQueryBuilder hamlets =
+					QueryBuilders.filteredQuery(
+							QueryBuilders.matchAllQuery(),
+							FilterBuilders.andFilter()
+								.add(distanceF)
+								.add(plcpnt));
+			
+			searchRequest = client.prepareSearch("gazetteer")
+					.setTypes(IndexHolder.LOCATION).setQuery(hamlets);
+			searchRequest.addSort(SortBuilders.geoDistanceSort("center_point").point(lat, lon));
+			searchRequest.setSize(1);
+			
+			searchResponse = searchRequest.get();
+			hits = searchResponse.getHits().getHits();
+			
+			if(hits.length > 0) {
+				JSONObject obj = new JSONObject(hits[0].getSourceAsString());
+
+				boundaries.add(obj);
+				levels.put(obj.optString("addr_level"), obj);
+			}
+			
+		}
+		
 		return levels;
 	}
 	
