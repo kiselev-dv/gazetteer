@@ -34,7 +34,9 @@ import me.osm.gazetteer.web.utils.OSMDocSinglton;
 import me.osm.gazetteer.web.utils.ReplacersCompiler;
 import me.osm.osmdoc.localization.L10n;
 import me.osm.osmdoc.model.Feature;
+import me.osm.osmdoc.model.Tag.Val;
 import me.osm.osmdoc.read.OSMDocFacade;
+import me.osm.osmdoc.read.tagvalueparsers.LogTagsStatisticCollector;
 
 import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream;
 import org.apache.commons.io.IOUtils;
@@ -60,6 +62,8 @@ import com.vividsolutions.jts.operation.linemerge.LineMerger;
 
 public class LocationsDumpImporter extends BackgroundExecutableTask {
 	
+	private static final LogTagsStatisticCollector POI_STATISTICS = new LogTagsStatisticCollector();
+
 	private static final OSMDocFacade FACADE = OSMDocSinglton.get().getFacade();
 	
 	protected ObjectsWeightBuilder weighter;
@@ -271,6 +275,18 @@ public class LocationsDumpImporter extends BackgroundExecutableTask {
 			
 			if("poipnt".equals(obj.optString("type"))) {
 				obj.put("poi_class_trans", new JSONArray(getPoiTypesTranslated(obj)));
+				
+				List<Feature> poiClassess = listPoiClassesOSMDoc(obj);
+				Map<String, List<Val>> moreTagsVals = new HashMap<String, List<Val>>();
+				JSONObject moreTags = FACADE.parseMoreTags(poiClassess, obj.getJSONObject("tags"), 
+						POI_STATISTICS, moreTagsVals);
+				
+				obj.put("more_tags", moreTags);
+				
+				LinkedHashSet<String> keywords = new LinkedHashSet<String>();
+				FACADE.collectKeywords(poiClassess, moreTagsVals, keywords, null);
+				
+				obj.put("poi_keywords", new JSONArray(keywords));
 			}
 			
 			obj.remove("alt_addresses");
@@ -562,6 +578,19 @@ public class LocationsDumpImporter extends BackgroundExecutableTask {
 		
 		List<String> result = new ArrayList<String>(1);
 		
+		List<Feature> classes = listPoiClassesOSMDoc(obj);
+		
+		for(Feature f : classes) {
+			for(String ln : L10n.supported) {
+				String translatedTitle = FACADE.getTranslatedTitle(f, Locale.forLanguageTag(ln));
+				result.add(translatedTitle);
+			}
+		}
+		
+		return result;
+	}
+
+	private List<Feature> listPoiClassesOSMDoc(JSONObject obj) {
 		JSONArray poiClasses = obj.getJSONArray("poi_class");
 		
 		List<Feature> classes = new ArrayList<Feature>();
@@ -575,15 +604,7 @@ public class LocationsDumpImporter extends BackgroundExecutableTask {
 				log.warn("Couldn't find poi class for code {}", classCode);
 			}
 		}
-		
-		for(Feature f : classes) {
-			for(String ln : L10n.supported) {
-				String translatedTitle = FACADE.getTranslatedTitle(f, Locale.forLanguageTag(ln));
-				result.add(translatedTitle);
-			}
-		}
-		
-		return result;
+		return classes;
 	}
 
 	

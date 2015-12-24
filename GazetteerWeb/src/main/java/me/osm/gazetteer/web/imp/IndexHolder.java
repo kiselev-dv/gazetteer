@@ -132,6 +132,7 @@ public class IndexHolder {
 			
 		default: 
 			result.put("type", "string");
+			result.put("index", "not_analyzed");
 			break;
 		
 		}
