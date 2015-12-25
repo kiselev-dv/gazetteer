@@ -25,9 +25,20 @@
         	"type": "string",
         	"index": "not_analyzed"
         },
-        "timestamp": {
-            "type": "date",
-            "index": "not_analyzed"
+        "_imported": {
+        	"type": "object",
+			"properties": {
+				"region": {
+					"type": "string",
+        			"index": "not_analyzed"
+				},
+				"imp_ts": {
+					"type": "date"
+				},
+				"gen_ts": {
+					"type": "date"
+				}
+			}        	
         },
         "search": {
         	"type": "string",

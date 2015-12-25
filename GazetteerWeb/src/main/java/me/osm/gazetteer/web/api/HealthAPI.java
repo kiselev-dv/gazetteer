@@ -24,14 +24,14 @@ import org.restexpress.Request;
 import org.restexpress.Response;
 import org.restexpress.domain.metadata.UriMetadata;
 
-public class HelthAPI implements DocumentedApi {
+public class HealthAPI implements DocumentedApi {
 	
 	private static final Map<String, String> versions = new HashMap<>();
 	
 	static { 
 		try {
 			Properties versionProperties = new Properties();
-			versionProperties.load(HelthAPI.class.getResourceAsStream("/version.properties"));
+			versionProperties.load(HealthAPI.class.getResourceAsStream("/version.properties"));
 			
 			for(Map.Entry<Object, Object> entry : versionProperties.entrySet()) {
 				versions.put(entry.getKey().toString(), entry.getValue().toString());
@@ -65,15 +65,12 @@ public class HelthAPI implements DocumentedApi {
 			SearchRequestBuilder types = client.prepareSearch("gazetteer").setTypes(IndexHolder.LOCATION)
 					.setQuery(QueryBuilders.matchAllQuery())
 					.setSearchType(SearchType.COUNT)
-					.addAggregation(AggregationBuilders.terms("ftypes").field("type"));
+					.addAggregation(AggregationBuilders.terms("ftypes").field("type"))
+					.addAggregation(AggregationBuilders.terms("regions").field("_imported.region"));
 			
-			Map<String, Long> typesCount = new HashMap<>();
-			Terms aggregation = types.get().getAggregations().get("ftypes");
-			for(Bucket bucket : aggregation.getBuckets()) {
-				typesCount.put(bucket.getKey(), bucket.getDocCount()); 
-			}
+			fillTypeCounters(health, types);
+			fillRegions(health, types);
 			
-			health.setCounters(typesCount);
 		}
 		catch (Exception e) {
 			health.setEsnodeError(e.getMessage());
@@ -84,6 +81,26 @@ public class HelthAPI implements DocumentedApi {
 		health.setVersions(versions);
 		
 		return health;
+	}
+
+	private void fillRegions(Health health, SearchRequestBuilder types) {
+		Map<String, Long> regionCounters = new HashMap<>();
+		Terms aggregation = types.get().getAggregations().get("regions");
+		for(Bucket bucket : aggregation.getBuckets()) {
+			regionCounters.put(bucket.getKey(), bucket.getDocCount()); 
+		}
+		
+		health.setRegions(regionCounters);
+	}
+
+	private void fillTypeCounters(Health health, SearchRequestBuilder types) {
+		Map<String, Long> typesCount = new HashMap<>();
+		Terms aggregation = types.get().getAggregations().get("ftypes");
+		for(Bucket bucket : aggregation.getBuckets()) {
+			typesCount.put(bucket.getKey(), bucket.getDocCount()); 
+		}
+		
+		health.setCounters(typesCount);
 	}
 	
 	@Override

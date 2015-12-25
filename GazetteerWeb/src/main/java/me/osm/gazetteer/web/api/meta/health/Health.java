@@ -16,6 +16,8 @@ public class Health {
 	
 	private long features;
 	private Map<String, Long> counters;
+
+	private Map<String, Long> regions;
 	
 	private String esnodeError;
 	
@@ -115,6 +117,14 @@ public class Health {
 
 	public void setVersions(Map<String, String> versions) {
 		this.versions = versions;
+	}
+
+	public Map<String, Long> getRegions() {
+		return regions;
+	}
+
+	public void setRegions(Map<String, Long> regions) {
+		this.regions = regions;
 	}
 	
 }

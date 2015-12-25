@@ -49,6 +49,7 @@ import org.elasticsearch.action.bulk.BulkRequestBuilder;
 import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.index.IndexRequestBuilder;
 import org.elasticsearch.client.Client;
+import org.elasticsearch.common.joda.time.LocalDateTime;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -93,6 +94,8 @@ public class LocationsDumpImporter extends BackgroundExecutableTask {
 	private Set<String> skip;
 	
 	private String callback;
+
+	private String region;
 	
 	public void setCallback(String callback) {
 		this.callback = callback;
@@ -168,6 +171,7 @@ public class LocationsDumpImporter extends BackgroundExecutableTask {
 		InputStream fileIS = null;
 		try {
 			fileIS = getFileIS(filePath);
+			this.region = getRegionName(filePath);
 			BufferedReader reader = new BufferedReader(new InputStreamReader(fileIS, "UTF8"));
 			String line = reader.readLine();
 			while (line != null) {
@@ -186,13 +190,28 @@ public class LocationsDumpImporter extends BackgroundExecutableTask {
 			throw aborted;
 		}
 		catch (Exception e) {
-			throw new AbortedException("Import aborted. Root error msg: " + ExceptionUtils.getRootCauseMessage(e), e, false);
+			throw new AbortedException("Import aborted. Root error msg: " + 
+						ExceptionUtils.getRootCauseMessage(e), e, false);
 		}
 		finally {
 			IOUtils.closeQuietly(fileIS);
 		}
 	}
 	
+	private String getRegionName(String filepath) {
+		String[] parts = StringUtils.split(filepath, "/\\");
+		if(parts.length > 0) {
+			String last = parts[parts.length - 1];
+			
+			String name = StringUtils.remove(last, ".json");
+			name = StringUtils.remove(name, ".gz");
+			name = name.toLowerCase();
+			
+			return name;
+		}
+		return null;
+	}
+
 	protected void addRequestToBatch(String line) throws AbortedException {
 		if(line != null) {
 			if(bulkRequest == null) {
@@ -301,6 +320,8 @@ public class LocationsDumpImporter extends BackgroundExecutableTask {
 			}
 			
 			obj.put("weight", weighter.weight(obj));
+			
+			fillImported(obj);
 
 			return obj.toString();
 		}
@@ -309,6 +330,21 @@ public class LocationsDumpImporter extends BackgroundExecutableTask {
 			return null;
 		}
 		
+	}
+
+	private void fillImported(JSONObject obj) {
+		
+		JSONObject imported = new JSONObject();
+		imported.put("region", this.region);
+		imported.put("imp_ts", new LocalDateTime().toDateTime().toString());
+		
+		Object genTS = obj.opt("timestamp");
+		if(genTS != null) {
+			imported.put("gen_ts", genTS);
+			obj.remove("timestamp");
+		}
+		
+		obj.put("_imported", imported);
 	}
 
 	private String getMainHousenumber(String optString) {
