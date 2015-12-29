@@ -59,7 +59,7 @@ public class SearchAPI implements DocumentedApi {
 	/**
 	 * OSM Doc hierarchy name.
 	 * */
-	private static final String HIERARCHY_CODE_HEADER = "hierarchy";
+	public static final String HIERARCHY_CODE_HEADER = "hierarchy";
 
 	/**
 	 * Create strict query.
@@ -154,6 +154,8 @@ public class SearchAPI implements DocumentedApi {
 	
 	@Inject
 	private SearchBuilder searchBuilder;
+
+	private String apiDefaultHierarchy;
 	
 	/**
 	 * REST Express read routine method
@@ -181,7 +183,8 @@ public class SearchAPI implements DocumentedApi {
 		String querryString = StringUtils.stripToNull(request.getHeader(Q_HEADER));
 		
 		Set<String> types = getSet(request, TYPE_HEADER);
-		String hname = request.getHeader(HIERARCHY_CODE_HEADER);
+		apiDefaultHierarchy = GazetteerWeb.osmdocProperties().getApiDefaultHierarchy();
+		String hname = request.getHeader(HIERARCHY_CODE_HEADER, apiDefaultHierarchy);
 		
 		Set<String> poiClass = getSet(request, POI_CLASS_HEADER);
 		addPOIGroups(request, poiClass, hname);
@@ -542,9 +545,10 @@ public class SearchAPI implements DocumentedApi {
 	 * @param poiClass set of strings where parsed poi classes will be added
 	 * @param hname name of osm-doc hierarchy which contains group and poi classes
 	 * */
-	private void addPOIGroups(Request request, Set<String> poiClass, String hname) {
+	public static void addPOIGroups(Request request, Set<String> poiClass, String hname) {
 		for(String s : getSet(request, POI_GROUP_HEADER)) {
-			Collection<? extends Feature> hierarcyBranch = OSMDocSinglton.get().getReader().getHierarcyBranch(hname, s);
+			Collection<? extends Feature> hierarcyBranch = 
+					OSMDocSinglton.get().getReader().getHierarcyBranch(hname, s);
 			if(hierarcyBranch != null) {
 				for(Feature f : hierarcyBranch) {
 					poiClass.add(f.getName());

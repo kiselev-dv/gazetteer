@@ -91,7 +91,7 @@ public class Routes {
 				.method(HttpMethod.GET)
 				.parameter(Parameters.Cache.MAX_AGE, 3600);
 
-		server.uri(root + "/osmdoc/statistic/tagvalues/{poi_class}",
+		server.uri(root + "/osmdoc/statistic/tagvalues.{format}",
 				new StatisticAPI())
 				.method(HttpMethod.GET)
 				.flag(Flags.Auth.PUBLIC_ROUTE)

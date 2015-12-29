@@ -1,12 +1,17 @@
 package me.osm.gazetteer.web;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.Properties;
 
 import me.osm.gazetteer.web.postprocessor.AllowOriginPP;
 import me.osm.gazetteer.web.postprocessor.LastModifiedHeaderPostprocessor;
 import me.osm.gazetteer.web.postprocessor.MarkHeaderPostprocessor;
 import me.osm.gazetteer.web.serialization.SerializationProvider;
+import me.osm.gazetteer.web.utils.OSMDocProperties;
 import me.osm.gazetteer.web.utils.OSMDocSinglton;
 import me.osm.osmdoc.localization.L10n;
 
@@ -39,6 +44,7 @@ public class GazetteerWeb {
 	
 	private static RestExpress server;
 	private volatile static Configuration config = new Configuration();
+	private final static OSMDocProperties osmdocProperties = new OSMDocProperties();
 	private static final Injector injector = Guice.createInjector(new AppInjector());
 	
 	public static void main(String[] args) throws Exception {
@@ -87,7 +93,15 @@ public class GazetteerWeb {
 				L10n.setCatalogPath(config.getPoiCatalogPath());
 			}
 			
+			Properties props = new Properties();
+			InputStreamReader reader = new InputStreamReader(new FileInputStream(new File("config/osmdoc.properties")));
+			props.load(reader);
+			reader.close();
+			
+			osmdocProperties.load(props);
+			
 			OSMDocSinglton.initialize(config.getPoiCatalogPath());
+			
 		}
 		catch (Throwable t) {
 			LOG.error("Cant initialize OSMDoc", t);
@@ -133,6 +147,10 @@ public class GazetteerWeb {
 
 	public static Injector injector() {
 		return injector;
+	}
+	
+	public static OSMDocProperties osmdocProperties() {
+		return osmdocProperties;
 	}
 	
 }

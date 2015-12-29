@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Properties;
 import java.util.Set;
 import java.util.zip.GZIPInputStream;
 
@@ -30,6 +31,7 @@ import me.osm.gazetteer.web.GazetteerWeb;
 import me.osm.gazetteer.web.executions.AbortedException;
 import me.osm.gazetteer.web.executions.BackgroudTaskDescription;
 import me.osm.gazetteer.web.executions.BackgroundExecutorFacade.BackgroundExecutableTask;
+import me.osm.gazetteer.web.utils.OSMDocProperties;
 import me.osm.gazetteer.web.utils.OSMDocSinglton;
 import me.osm.gazetteer.web.utils.ReplacersCompiler;
 import me.osm.osmdoc.localization.L10n;
@@ -79,7 +81,10 @@ public class LocationsDumpImporter extends BackgroundExecutableTask {
 	private String filePath;
 	
 	protected long counter = 0;
-
+	
+	protected long skipedPoi = 0;
+	protected long skipedByType = 0;
+	
 	private boolean buildingsGeometry;
 
 	private ListenableActionFuture<BulkResponse> curentBulkRequest;
@@ -96,6 +101,8 @@ public class LocationsDumpImporter extends BackgroundExecutableTask {
 	private String callback;
 
 	private String region;
+
+	private HashSet<String> skipPoiTypes;
 	
 	public void setCallback(String callback) {
 		this.callback = callback;
@@ -130,6 +137,21 @@ public class LocationsDumpImporter extends BackgroundExecutableTask {
 		ReplacersCompiler.compile(streetsReplacers, new File("config/replacers/index/streetsReplacers"));
 		
 		this.skip = new HashSet<>(GazetteerWeb.config().getImportSkipTypes());
+		
+		this.skipPoiTypes = new HashSet<String>();
+		fillSkipPoiTypes();
+	}
+
+	private void fillSkipPoiTypes() {
+		OSMDocProperties osmdocProperties = GazetteerWeb.osmdocProperties();
+		for(String branch : osmdocProperties.getIgnoreBranches()) {
+			Collection<? extends Feature> hierarcyBranch = OSMDocSinglton.get().getReader().getHierarcyBranch(
+					osmdocProperties.getImportDefaultHierarchy(), branch);
+			for(Feature f : hierarcyBranch) {
+				this.skipPoiTypes.add(f.getName());
+			}
+		}
+		this.skipPoiTypes.addAll(osmdocProperties.getIgnoreTypes());
 	}
 
 	public static InputStream getFileIS(String osmFilePath) throws IOException,
@@ -393,7 +415,29 @@ public class LocationsDumpImporter extends BackgroundExecutableTask {
 	private boolean doSkip(JSONObject obj) {
 		
 		if(this.skip.contains(obj.getString("type"))) {
+			skipedByType++;
 			return true;
+		}
+		
+		if("poipnt".equals(obj.getString("type"))) {
+			Object poiClass = obj.opt("poi_class");
+			if(poiClass instanceof JSONArray ) {
+				JSONArray clazzA = (JSONArray)poiClass;
+				Set<String> asStrings = new HashSet<>();
+				for(int i = 0; i < clazzA.length(); i++) {
+					asStrings.add(clazzA.getString(i));
+				}
+				if(skipPoiTypes.containsAll(asStrings)) {
+					skipedPoi++;
+					return true;
+				}
+			}
+			else if(poiClass instanceof String ) {
+				if(skipPoiTypes.contains(poiClass)) {
+					skipedPoi++;
+					return true;
+				}
+			}
 		}
 		
 		return false;
@@ -707,6 +751,12 @@ public class LocationsDumpImporter extends BackgroundExecutableTask {
 		
 		parameters.put("source", filePath);
 		parameters.put("skip", new HashSet<>(skip));
+		parameters.put("skipPoiTypes", new HashSet<>(skipPoiTypes));
+		
+		// Not synchronized, we don't need 100% correct data here
+		parameters.put("skipPoiTypes", skipedPoi);
+		parameters.put("skipedByType", skipedByType);
+		
 		parameters.put("callback", callback);
 		
 		return description;

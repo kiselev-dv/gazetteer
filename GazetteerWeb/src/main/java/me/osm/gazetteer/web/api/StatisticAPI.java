@@ -4,31 +4,29 @@ import static me.osm.gazetteer.web.api.utils.RequestUtils.getSet;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.TreeSet;
 
 import me.osm.gazetteer.web.ESNodeHolder;
+import me.osm.gazetteer.web.GazetteerWeb;
 import me.osm.gazetteer.web.api.meta.Endpoint;
 import me.osm.gazetteer.web.api.meta.Parameter;
+import me.osm.gazetteer.web.api.utils.RequestUtils;
 import me.osm.gazetteer.web.imp.IndexHolder;
 import me.osm.gazetteer.web.utils.OSMDocSinglton;
 import me.osm.osmdoc.model.Feature;
 import me.osm.osmdoc.model.Tag;
 import me.osm.osmdoc.read.OSMDocFacade;
 
-import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.index.query.FilterBuilders;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.aggregations.Aggregation;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
@@ -50,16 +48,29 @@ public class StatisticAPI implements DocumentedApi {
 	 * */
 	public static final String REFERENCES_HEADER = "filter";
 	
+	private String apiDefaultHierarchy;
+	
 	public JSONObject read(Request request, Response response) {
 		
-		String clazz = request.getHeader("poi_class");
+		Set<String> classes = RequestUtils.getSet(request, SearchAPI.POI_CLASS_HEADER);
 		
 		Set<String> refs = getSet(request, REFERENCES_HEADER);
 		
-		OSMDocFacade osmdoc = OSMDocSinglton.get().getFacade();
-		Feature feature = osmdoc.getFeature(clazz);
+		apiDefaultHierarchy = GazetteerWeb.osmdocProperties().getApiDefaultHierarchy();
+		String hname = request.getHeader(SearchAPI.HIERARCHY_CODE_HEADER, apiDefaultHierarchy);
+		SearchAPI.addPOIGroups(request, classes, hname);
 		
-		if(feature == null) {
+		OSMDocFacade osmdoc = OSMDocSinglton.get().getFacade();
+		
+		List<Feature> features = new ArrayList<>();
+		for(String clazz : classes) {
+			Feature feature = osmdoc.getFeature(clazz);
+			if(feature != null) {
+				features.add(feature);
+			}
+		}
+		
+		if(features.isEmpty()) {
 			response.setResponseCode(404);
 			return null;
 		}
@@ -68,16 +79,26 @@ public class StatisticAPI implements DocumentedApi {
 		
 		BoolQueryBuilder filters = QueryBuilders.boolQuery()
 				.must(QueryBuilders.termQuery("type", "poipnt"))
-				.must(QueryBuilders.termQuery("poi_class", clazz));
+				.must(QueryBuilders.termsQuery("poi_class", classes));
 		
 		if(refs != null && !refs.isEmpty()) {
 			filters.must(QueryBuilders.termsQuery("refs", refs));
 		}
 		
-		SearchRequestBuilder searchQ = client.prepareSearch("gazetteer").setTypes(IndexHolder.LOCATION)
+		SearchRequestBuilder searchQ = client.prepareSearch("gazetteer")
+				.setTypes(IndexHolder.LOCATION)
 				.setQuery(filters);
 		
-		LinkedHashMap<String, Tag> moreTags = osmdoc.getMoreTags(Arrays.asList(feature));
+		LinkedHashMap<String, Tag> moreTags = osmdoc.getMoreTags(features);
+		Set<String> distinctTags = new HashSet<>(moreTags.keySet());
+		for(Feature f : features) {
+			Set<String> localTags = osmdoc.getMoreTags(Arrays.asList(f)).keySet();
+			distinctTags.removeAll(localTags);
+		}
+		
+		Set<String> commonTags = new HashSet<>(moreTags.keySet());
+		commonTags.removeAll(distinctTags);
+		
 
 		for(Entry<String, Tag> entry : moreTags.entrySet()) {
 			searchQ.addAggregation(AggregationBuilders.terms(entry.getKey()).field("more_tags." + entry.getKey()).minDocCount(10));
@@ -92,8 +113,9 @@ public class StatisticAPI implements DocumentedApi {
 		Aggregations aggregations = esResponse.getAggregations();
 		
 		JSONObject result = new JSONObject();
-		result.put("poi_class", clazz);
+		result.put("poi_class", new JSONArray(classes));
 		result.put("total_count", esResponse.getHits().getTotalHits());
+		result.put("common_tags", new JSONArray(commonTags));
 		
 		// Order tags by key
 		JSONObject tags = new JSONObject() {
@@ -113,7 +135,15 @@ public class StatisticAPI implements DocumentedApi {
 					values.put(bucket.getKey(), bucket.getDocCount()); 
 				}
 				
-				tags.put(agg.getName(), values);
+				if("name".equals(agg.getName())) {
+					result.put("names", values);
+				}
+				else if("type".equals(agg.getName())) {
+					result.put("types", values);
+				}
+				else {
+					tags.put(agg.getName(), values);
+				}
 			}
 		}
 		

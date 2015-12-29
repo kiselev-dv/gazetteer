@@ -2,6 +2,7 @@ package me.osm.gazetteer.web.utils;
 
 import java.util.ArrayList;
 
+import me.osm.gazetteer.web.GazetteerWeb;
 import me.osm.osmdoc.read.DOCFileReader;
 import me.osm.osmdoc.read.DOCFolderReader;
 import me.osm.osmdoc.read.DOCReader;
@@ -27,7 +28,8 @@ public class OSMDocSinglton {
 			reader = new DOCFolderReader(docPath);
 		}
 		
-		facade = new OSMDocFacade(reader, new ArrayList<String>());
+		ArrayList<String> exclude = new ArrayList<String>(GazetteerWeb.osmdocProperties().getIgnore());
+		facade = new OSMDocFacade(reader, exclude);
 	};
 	
 	public static void initialize(String docPath) {
