@@ -98,7 +98,7 @@ public class StatisticAPI implements DocumentedApi {
 		
 		Set<String> commonTags = new HashSet<>(moreTags.keySet());
 		commonTags.removeAll(distinctTags);
-		
+		commonTags.removeAll(GazetteerWeb.osmdocProperties().getIgnoreTagsGrouping());
 
 		for(Entry<String, Tag> entry : moreTags.entrySet()) {
 			searchQ.addAggregation(AggregationBuilders.terms(entry.getKey()).field("more_tags." + entry.getKey()).minDocCount(10));

@@ -23,6 +23,11 @@ public class OSMDocProperties {
 		if(types != null) {
 			setIgnoreBranches(new HashSet<String>(Arrays.asList(types)));
 		}
+		
+		String[] tags = StringUtils.split(p.getProperty("ignore.tags.aggregation"), " ,;");
+		if(tags != null) {
+			setIgnoreTagsGrouping(new HashSet<String>(Arrays.asList(tags)));
+		}
 	}
 	
 	private String importDefaultHierarchy;
@@ -32,6 +37,8 @@ public class OSMDocProperties {
 	private Set<String> ignoreBranches = new HashSet<>(); 
 
 	private Set<String> ignoreTypes = new HashSet<>();
+
+	private Set<String> ignoreTagsGrouping = new HashSet<>();
 
 	public String getImportDefaultHierarchy() {
 		return importDefaultHierarchy;
@@ -70,6 +77,14 @@ public class OSMDocProperties {
 		result.addAll(getIgnoreBranches());
 		result.addAll(getIgnoreTypes());
 		return result;
+	}
+
+	public Set<String> getIgnoreTagsGrouping() {
+		return ignoreTagsGrouping;
+	}
+
+	public void setIgnoreTagsGrouping(Set<String> ignoreTagsGrouping) {
+		this.ignoreTagsGrouping = ignoreTagsGrouping;
 	}
 	
 }
