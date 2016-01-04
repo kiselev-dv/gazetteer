@@ -32,13 +32,15 @@ public class GeocodeCSVAPI implements DocumentedApi {
 		JSONObject result = new JSONObject();
 		
 		String source = request.getHeader("source");
+		String searchField = request.getHeader("search_field");
+		
 		String callbackUrl = request.getHeader("callback_url");
 		Set<String> refs = getSet(request, SearchAPI.REFERENCES_HEADER);
 		
 		boolean imp = StringUtils.isNotEmpty(source);
 		if(imp) {
 			
-			CSVGeocode importer = new CSVGeocode(source, callbackUrl, searchAPI);
+			CSVGeocode importer = new CSVGeocode(source, callbackUrl, searchAPI, searchField);
 			importer.setRefs(refs);
 			
 			if(StringUtils.isNotEmpty(callbackUrl) && 

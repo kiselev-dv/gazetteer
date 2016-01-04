@@ -5,6 +5,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.nio.charset.Charset;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -35,18 +36,28 @@ public class CSVGeocode extends BackgroundExecutableTask {
 
 	private String filePath;
 	private String callback;
+
+	private String searchField = "search_text";
 	
 	private SearchAPI searchAPI;
 	private Set<String> refs;
 	private File outFile = null;
+	private int counter;
 	
 	public CSVGeocode(){};
 	
-	public CSVGeocode(String filePath, String callback, SearchAPI searchAPI) {
+	public CSVGeocode(String filePath, String callback, 
+			SearchAPI searchAPI, String searchField) {
 		super();
 		this.filePath = filePath;
 		this.callback = callback;
 		this.searchAPI = searchAPI;
+		
+		this.counter = 0;
+		
+		if(StringUtils.isNotEmpty(searchField)) {
+			this.searchField = searchField;
+		}
 		
 		File geocodeFolder = new File(GazetteerWeb.config().getMassGeocodeFolder());
 		geocodeFolder.mkdirs();
@@ -56,20 +67,27 @@ public class CSVGeocode extends BackgroundExecutableTask {
 	@Override
 	public void executeTask() throws AbortedException {
 		try {
+			
+			
+			CsvPreference csvPreferences = CsvPreference.STANDARD_PREFERENCE;
+			if(StringUtils.endsWith(filePath, ".tsv")) {
+				csvPreferences = CsvPreference.TAB_PREFERENCE;
+			}
+			
 			CsvMapReader csvMapReader = 
-					new CsvMapReader(new InputStreamReader(LocationsDumpImporter.getFileIS(filePath)), 
-							CsvPreference.STANDARD_PREFERENCE);
+					new CsvMapReader(new InputStreamReader(LocationsDumpImporter.getFileIS(filePath), 
+							Charset.forName("UTF-8")), csvPreferences);
 			
 			String[] header = csvMapReader.getHeader(true);
 
 			CsvMapWriter csvMapWriter = new CsvMapWriter(new OutputStreamWriter(new GzipCompressorOutputStream(
-					new FileOutputStream(outFile))), CsvPreference.STANDARD_PREFERENCE);
+					new FileOutputStream(outFile)), Charset.forName("UTF-8")), csvPreferences);
 
 			String[] writeHeader = writeHeader(header, csvMapWriter);
 			
 			Map<String, String> row = null;
 			while( (row = csvMapReader.read(header)) != null ) {
-				String string = row.get("search_text");
+				String string = row.get(searchField);
 
 				AnswerDetalization detalization = AnswerDetalization.FULL;
 				
@@ -78,6 +96,8 @@ public class CSVGeocode extends BackgroundExecutableTask {
 							false, string, null, null, null, null, 
 							this.refs, true, false, true, 
 							detalization, null, null);
+					
+					counter++;
 					
 					if(!gotResult(answer)) {
 						Set<String> types = new HashSet<>(
@@ -189,6 +209,8 @@ public class CSVGeocode extends BackgroundExecutableTask {
 		
 		parameters.put("source", filePath);
 		parameters.put("callback", callback);
+		parameters.put("searchField", searchField);
+		parameters.put("geocoded", counter);
 		
 		parameters.put("outfile", this.outFile.getAbsolutePath());
 		
