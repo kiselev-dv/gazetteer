@@ -77,7 +77,7 @@ public class CSVGeocode extends BackgroundExecutableTask {
 					JSONObject answer = searchAPI.internalSearch(
 							false, string, null, null, null, null, 
 							this.refs, true, false, true, 
-							detalization, null);
+							detalization, null, null);
 					
 					if(!gotResult(answer)) {
 						Set<String> types = new HashSet<>(
@@ -86,7 +86,7 @@ public class CSVGeocode extends BackgroundExecutableTask {
 						answer = searchAPI.internalSearch(
 								false, string, types, null, null, null, 
 								this.refs, false, false, true, 
-								detalization, null);
+								detalization, null, null);
 					}
 					
 					fillTheRow(row, answer);

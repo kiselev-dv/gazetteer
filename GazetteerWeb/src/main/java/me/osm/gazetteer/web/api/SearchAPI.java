@@ -106,6 +106,11 @@ public class SearchAPI implements DocumentedApi {
 	 * Look for poi of exact types (from hierarchy branch)
 	 * */
 	public static final String POI_GROUP_HEADER = "poigroup";
+
+	/**
+	 * Poi tag filters
+	 * */
+	public static final String POI_TAGS_FILTER_HEADER = "tag_filters";
 	
 	/**
 	 * Latitude of map center
@@ -203,6 +208,12 @@ public class SearchAPI implements DocumentedApi {
 		AnswerDetalization detalization = RequestUtils.getEnumHeader(request, 
 				ANSWER_DETALIZATION_HEADER, AnswerDetalization.class, AnswerDetalization.FULL);
 		
+		JSONObject poiTagFilters = null;
+		String poiTagFiltersString = request.getHeader(POI_TAGS_FILTER_HEADER);
+		if(StringUtils.isNotEmpty(poiTagFiltersString)) {
+			poiTagFilters = new JSONObject(poiTagFiltersString);
+		}
+		
 		List<String> bbox = getList(request, BBOX_HEADER);
 		
 		try {
@@ -210,7 +221,7 @@ public class SearchAPI implements DocumentedApi {
 			JSONObject answer = internalSearch(request, response,
 					resendedAfterFail, explain, querryString, types, poiClass,
 					lat, lon, refs, strictRequested, fullGeometry,
-					addressesOnly, detalization, bbox);
+					addressesOnly, detalization, bbox, poiTagFilters);
 			
 			return answer;
 		}
@@ -229,7 +240,7 @@ public class SearchAPI implements DocumentedApi {
 			Set<String> types, Set<String> poiClass, Double lat, Double lon,
 			Set<String> refs, boolean strict, boolean fullGeometry,
 			boolean addressesOnly, AnswerDetalization detalization,
-			List<String> bbox) throws IOException {
+			List<String> bbox, JSONObject poiTagFilters) throws IOException {
 		
 		if(types == null) {
 			types = new HashSet<>();
@@ -251,11 +262,10 @@ public class SearchAPI implements DocumentedApi {
 			resended = true;
 		}
 		
-		
 		return internalSearch(
 				null, null, resended, explain, querryString, types, 
 				poiClass, lat, lon, refs, strict, fullGeometry, 
-				addressesOnly, detalization, bbox);
+				addressesOnly, detalization, bbox, poiTagFilters);
 	}
 	
 	private JSONObject internalSearch(Request request, Response response,
@@ -263,7 +273,7 @@ public class SearchAPI implements DocumentedApi {
 			Set<String> types, Set<String> poiClass, Double lat, Double lon,
 			Set<String> refs, boolean strictRequested, boolean fullGeometry,
 			boolean addressesOnly, AnswerDetalization detalization,
-			List<String> bbox) throws IOException {
+			List<String> bbox, JSONObject poiTagFilters) throws IOException {
 		
 		if(querryString == null && poiClass.isEmpty() && types.isEmpty() && refs.isEmpty()) {
 			return null;
@@ -282,7 +292,7 @@ public class SearchAPI implements DocumentedApi {
 		boolean strict = strictRequested ? true : !resendedAfterFail;
 		
 		SearchRequestBuilder searchRequest = buildSearchRequest(bbox, strict,
-				explain, types, poiClass, addressesOnly,
+				explain, types, poiClass, poiTagFilters, addressesOnly,
 				lat, lon, refs, query);
 		
 		log.trace("Search request: {}", searchRequest);
@@ -335,12 +345,13 @@ public class SearchAPI implements DocumentedApi {
 
 	/**
 	 * Create search request
-	 * 
+	 *
+	 * @param bbox 
 	 * @param strict create a strict request
 	 * @param explain add query results explanations
 	 * @param types restrict query with types (poipnt, adrpnt and so on)
 	 * @param poiClass restrict query with poi classes
-	 * @param addressesOnly 
+	 * @param poiTagFilters 
 	 * @param lat latitude of user's viewport center 
 	 * @param lon longitude of user's viewport center 
 	 * @param refs restrict request with refs 
@@ -351,7 +362,7 @@ public class SearchAPI implements DocumentedApi {
 	 * */
 	public SearchRequestBuilder buildSearchRequest(List<String> bbox, boolean strict,
 			boolean explain, Set<String> types, Set<String> poiClass, 
-			boolean addressesOnly, Double lat, Double lon, 
+			JSONObject poiTagFilters, boolean addressesOnly, Double lat, Double lon, 
 			Set<String> refs, Query query) {
 		
 		BoolQueryBuilder q = null;
@@ -371,6 +382,11 @@ public class SearchAPI implements DocumentedApi {
 		if(!poiClass.isEmpty()) {
 			q.must(QueryBuilders.termsQuery("poi_class", poiClass));
 		}
+		
+		if(poiTagFilters != null) {
+			q.must(buildPoiTagsFilter(poiTagFilters));
+		}
+		
 		if(addressesOnly) {
 			q.mustNot(QueryBuilders.termQuery("type", "poipnt"));
 		}
@@ -414,6 +430,37 @@ public class SearchAPI implements DocumentedApi {
 
 		searchRequest.setFetchSource(true);
 		return searchRequest;
+	}
+
+	@SuppressWarnings("unchecked")
+	private QueryBuilder buildPoiTagsFilter(JSONObject poiTagFilters) {
+		
+		BoolQueryBuilder res = QueryBuilders.boolQuery();
+		
+		for(String key : (Set<String>)poiTagFilters.keySet()) {
+			if("opening_hours".equals(key)) {
+				JSONArray val = poiTagFilters.optJSONArray(key);
+				if(val.length() > 0 && "24_7".equals(val.getString(0))) {
+					res.must(QueryBuilders.termQuery("more_tags.opening_hours.24_7", true));
+				}
+			}
+			else {
+				Object val = poiTagFilters.get(key);
+				if(val instanceof JSONArray) {
+					JSONArray valArray = ((JSONArray)val);
+					List<String> options = new ArrayList<>();
+					for(int i = 0; i < valArray.length(); i++ ) {
+						options.add(valArray.getString(i));
+					}
+					res.must(QueryBuilders.termsQuery("more_tags." + key, options));
+				}
+				else {
+					res.must(QueryBuilders.termQuery("more_tags." + key, true));
+				}
+			}
+		}
+		
+		return res;
 	}
 
 	/**
