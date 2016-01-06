@@ -13,6 +13,7 @@ import me.osm.gazetteer.web.api.meta.health.Health;
 import me.osm.gazetteer.web.executions.BackgroundExecutorFacade;
 import me.osm.gazetteer.web.imp.IndexHolder;
 
+import org.elasticsearch.action.count.CountRequestBuilder;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.client.Client;
@@ -71,6 +72,11 @@ public class HealthAPI implements DocumentedApi {
 			fillTypeCounters(health, types);
 			fillRegions(health, types);
 			
+			
+			CountRequestBuilder poiClasses = client.prepareCount("gazetteer").setTypes(IndexHolder.POI_CLASS)
+					.setQuery(QueryBuilders.matchAllQuery());
+			
+			health.setPoiClasses(poiClasses.get().getCount());
 		}
 		catch (Exception e) {
 			health.setEsnodeError(e.getMessage());

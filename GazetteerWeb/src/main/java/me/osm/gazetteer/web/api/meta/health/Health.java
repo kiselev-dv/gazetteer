@@ -15,6 +15,7 @@ public class Health {
 	private long maxMemMB;
 	
 	private long features;
+	private long poiClasses;
 	private Map<String, Long> counters;
 
 	private Map<String, Long> regions;
@@ -125,6 +126,14 @@ public class Health {
 
 	public void setRegions(Map<String, Long> regions) {
 		this.regions = regions;
+	}
+
+	public long getPoiClasses() {
+		return poiClasses;
+	}
+
+	public void setPoiClasses(long poiClasses) {
+		this.poiClasses = poiClasses;
 	}
 	
 }

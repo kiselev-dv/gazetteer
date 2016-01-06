@@ -105,7 +105,7 @@ public class SuggestAPI extends SearchAPI {
 
 	private List<JSONObject> suggestPoiType(Query query) {
 		Client client = ESNodeHolder.getClient();
-		
+		// TODO: process with replacers
 		Query filtered = query.filter(new HashSet<String>(Arrays.asList("на", "дом")));
 		
 		DisMaxQueryBuilder dismax = QueryBuilders.disMaxQuery()
