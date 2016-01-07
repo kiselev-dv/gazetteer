@@ -26,6 +26,7 @@ import me.osm.osmdoc.model.Feature;
 import me.osm.osmdoc.model.Tag;
 import me.osm.osmdoc.read.OSMDocFacade;
 
+import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
@@ -102,6 +103,8 @@ public class StatisticAPI implements DocumentedApi {
 		
 		JSONObject tagOptions = osmdoc.collectCommonTagsWithTraitsJSON(osmdoc.getFeature(classes), locale);
 		Set<String> allTagKeys = getTagKeys(tagOptions);
+		
+		allTagKeys.removeAll(GazetteerWeb.osmdocProperties().getIgnoreTagsGrouping());
 
 		for(String tagKey : allTagKeys) {
 			searchQ.addAggregation(AggregationBuilders.terms(tagKey)
