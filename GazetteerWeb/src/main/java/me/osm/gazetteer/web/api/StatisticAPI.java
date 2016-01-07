@@ -5,6 +5,7 @@ import static me.osm.gazetteer.web.api.utils.RequestUtils.getSet;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -68,6 +69,8 @@ public class StatisticAPI implements DocumentedApi {
 		String hname = request.getHeader(SearchAPI.HIERARCHY_CODE_HEADER, apiDefaultHierarchy);
 		SearchAPI.addPOIGroups(request, classes, hname);
 		
+		boolean doc4Found = RequestUtils.getBooleanHeader(request, "doc4found", true);
+		
 		OSMDocFacade osmdoc = OSMDocSinglton.get().getFacade();
 		
 		List<Feature> features = new ArrayList<>();
@@ -119,13 +122,8 @@ public class StatisticAPI implements DocumentedApi {
 		result.put("tag_options", tagOptions);
 		
 		// Order tags by key
-		JSONObject tags = new JSONObject() {
-			@Override
-			public Set<String> keySet() {
-				return new TreeSet(super.keySet()); 
-			}
-		};
-		result.put("tags", tags);
+		JSONObject statistic = new JSONObject();
+		result.put("tagValuesStatistic", statistic);
 		
 		for(Aggregation agg : aggregations.asList()) {
 			if(agg instanceof Terms) {
@@ -142,10 +140,54 @@ public class StatisticAPI implements DocumentedApi {
 				else if("type".equals(agg.getName())) {
 					result.put("types", values);
 				}
-				else {
-					tags.put(agg.getName(), values);
+				else if(values.length() > 0) {
+					statistic.put(agg.getName(), values);
 				}
 			}
+		}
+		
+		if(doc4Found) {
+			Set<String> foundedKeys = statistic.keySet();
+			Set<String> notFound = new HashSet<>(allTagKeys);
+			notFound.removeAll(foundedKeys);
+			
+			JSONObject groupedTags = tagOptions.getJSONObject("groupedTags");
+			JSONArray options = tagOptions.getJSONArray("commonTagOptions");
+			
+			for(String notFoundKey : notFound) {
+				groupedTags.remove(notFoundKey);
+			}
+
+			TreeSet<Integer> remove = new TreeSet<>();
+			for(int i = 0; i < options.length(); i++) {
+				JSONObject filter = options.getJSONObject(i);
+				if(notFound.contains(filter.getString("key"))) {
+					remove.add(i);
+				}
+				else if(filter.getString("key").startsWith("trait_")) {
+					JSONArray group = filter.optJSONArray("options");
+					
+					TreeSet<Integer> gropRemove = new TreeSet<>();
+					for(int j = 0; j < group.length(); j++) {
+						if(notFound.contains(group.getJSONObject(j).getString("valueKey"))) {
+							gropRemove.add(j);
+						}
+					}
+					
+					for(Iterator<Integer> gri = gropRemove.descendingIterator(); gri.hasNext();) {
+						group.remove(gri.next());
+					}
+					
+					if(group.length() == 0) {
+						remove.add(i);
+					}
+				}
+			}
+			
+			for(Iterator<Integer> ri = remove.descendingIterator(); ri.hasNext();) {
+				options.remove(ri.next());
+			}
+			
 		}
 		
 		return result;
