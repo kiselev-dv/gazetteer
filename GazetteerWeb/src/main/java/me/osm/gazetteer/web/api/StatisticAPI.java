@@ -6,7 +6,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeSet;
@@ -18,6 +20,7 @@ import me.osm.gazetteer.web.api.meta.Parameter;
 import me.osm.gazetteer.web.api.utils.RequestUtils;
 import me.osm.gazetteer.web.imp.IndexHolder;
 import me.osm.gazetteer.web.utils.OSMDocSinglton;
+import me.osm.osmdoc.localization.L10n;
 import me.osm.osmdoc.model.Feature;
 import me.osm.osmdoc.model.Tag;
 import me.osm.osmdoc.read.OSMDocFacade;
@@ -56,6 +59,11 @@ public class StatisticAPI implements DocumentedApi {
 		
 		Set<String> refs = getSet(request, REFERENCES_HEADER);
 		
+		Locale locale = null;
+		if(L10n.supported.contains(request.getHeader("lang"))) {
+			locale = Locale.forLanguageTag(request.getHeader("lang"));
+		}
+		
 		apiDefaultHierarchy = GazetteerWeb.osmdocProperties().getApiDefaultHierarchy();
 		String hname = request.getHeader(SearchAPI.HIERARCHY_CODE_HEADER, apiDefaultHierarchy);
 		SearchAPI.addPOIGroups(request, classes, hname);
@@ -89,19 +97,12 @@ public class StatisticAPI implements DocumentedApi {
 				.setTypes(IndexHolder.LOCATION)
 				.setQuery(filters);
 		
-		LinkedHashMap<String, Tag> moreTags = osmdoc.getMoreTags(features);
-		Set<String> distinctTags = new HashSet<>(moreTags.keySet());
-		for(Feature f : features) {
-			Set<String> localTags = osmdoc.getMoreTags(Arrays.asList(f)).keySet();
-			distinctTags.removeAll(localTags);
-		}
-		
-		Set<String> commonTags = new HashSet<>(moreTags.keySet());
-		commonTags.removeAll(distinctTags);
-		commonTags.removeAll(GazetteerWeb.osmdocProperties().getIgnoreTagsGrouping());
+		JSONObject tagOptions = osmdoc.collectCommonTagsWithTraitsJSON(osmdoc.getFeature(classes), locale);
+		Set<String> allTagKeys = getTagKeys(tagOptions);
 
-		for(Entry<String, Tag> entry : moreTags.entrySet()) {
-			searchQ.addAggregation(AggregationBuilders.terms(entry.getKey()).field("more_tags." + entry.getKey()).minDocCount(10));
+		for(String tagKey : allTagKeys) {
+			searchQ.addAggregation(AggregationBuilders.terms(tagKey)
+					.field("more_tags." + tagKey).minDocCount(10));
 		}
 		searchQ.addAggregation(AggregationBuilders.terms("name").field("name.exact")
 				.minDocCount(10).size(25).order(Order.count(false)));
@@ -115,7 +116,7 @@ public class StatisticAPI implements DocumentedApi {
 		JSONObject result = new JSONObject();
 		result.put("poi_class", new JSONArray(classes));
 		result.put("total_count", esResponse.getHits().getTotalHits());
-		result.put("common_tags", new JSONArray(commonTags));
+		result.put("tag_options", tagOptions);
 		
 		// Order tags by key
 		JSONObject tags = new JSONObject() {
@@ -146,6 +147,23 @@ public class StatisticAPI implements DocumentedApi {
 				}
 			}
 		}
+		
+		return result;
+	}
+
+	private Set<String> getTagKeys(JSONObject tagOptions) {
+
+		Set<String> result = new HashSet<>();
+		
+		JSONArray tagOptionsJSON = tagOptions.optJSONArray("commonTagOptions");
+		for(int i = 0; i < tagOptionsJSON.length(); i++) {
+			JSONObject jsonObject = tagOptionsJSON.getJSONObject(i);
+			if(!jsonObject.getString("type").equals("GROUP_TRAIT")) {
+				result.add(jsonObject.getString("key"));
+			}
+		}
+		
+		result.addAll(tagOptions.getJSONObject("groupedTags").keySet());
 		
 		return result;
 	}
