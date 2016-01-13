@@ -24,6 +24,11 @@ import org.slf4j.LoggerFactory;
 
 public class Routes {
 	
+	private static final int MINUTE = 60;
+	private static final int HOUR = 60 * MINUTE;
+	private static final int DAY = 24 * HOUR;
+	private static final int WEEK = 7 * DAY;
+	
 	public static void defineRoutes(RestExpress server) {
 		
 		Configuration config = GazetteerWeb.config();
@@ -48,7 +53,7 @@ public class Routes {
 				.method(HttpMethod.GET)
 				.name("feature")
 				.flag(Flags.Auth.PUBLIC_ROUTE)
-				.parameter(Parameters.Cache.MAX_AGE, 3600);
+				.parameter(Parameters.Cache.MAX_AGE, MINUTE);
 
 		server.uri(root + "/location/_geocode_csv",
 				new GeocodeCSVAPI(searchAPIInstance))
@@ -60,7 +65,7 @@ public class Routes {
 				.method(HttpMethod.GET)
 				.name("feature")
 				.flag(Flags.Auth.PUBLIC_ROUTE)
-				.parameter(Parameters.Cache.MAX_AGE, 3600);
+				.parameter(Parameters.Cache.MAX_AGE, MINUTE);
 
 		server.uri(root + "/location/{id}/{_related}",
 				new FeatureAPI())
@@ -68,7 +73,7 @@ public class Routes {
 					.method(HttpMethod.GET)
 					.name("feature")
 					.flag(Flags.Auth.PUBLIC_ROUTE)
-					.parameter(Parameters.Cache.MAX_AGE, 3600);
+					.parameter(Parameters.Cache.MAX_AGE, MINUTE);
 		
 		server.uri(root + "/location/latlon/{lat}/{lon}/{_related}",
 				new InverseGeocodeAPI())
@@ -77,33 +82,32 @@ public class Routes {
 				.method(HttpMethod.GET)
 				.name("feature")
 				.flag(Flags.Auth.PUBLIC_ROUTE)
-				.parameter(Parameters.Cache.MAX_AGE, 3600);
+				.parameter(Parameters.Cache.MAX_AGE, MINUTE);
 
 		server.uri(root + "/osmdoc/hierarchy/{lang}/{id}",
 				new OSMDocAPI())
 				.method(HttpMethod.GET)
 				.flag(Flags.Auth.PUBLIC_ROUTE)
 				.parameter("handler", "hierarchy")
-				.parameter(Parameters.Cache.MAX_AGE, 3600);
+				.parameter(Parameters.Cache.MAX_AGE, DAY);
 
 		server.uri(root + "/osmdoc/_import",
 				new ImportOSMDoc())
-				.method(HttpMethod.GET)
-				.parameter(Parameters.Cache.MAX_AGE, 3600);
+				.method(HttpMethod.GET);
 
 		server.uri(root + "/osmdoc/statistic/tagvalues.{format}",
 				new StatisticAPI())
 				.method(HttpMethod.GET)
 				.flag(Flags.Auth.PUBLIC_ROUTE)
 				.defaultFormat("json")
-				.parameter(Parameters.Cache.MAX_AGE, 3600);
+				.parameter(Parameters.Cache.MAX_AGE, DAY);
 
 		server.uri(root + "/osmdoc/poi-class/{lang}/{id}",
 				new OSMDocAPI())
 				.method(HttpMethod.GET)
 				.flag(Flags.Auth.PUBLIC_ROUTE)
 				.parameter("handler", "poi-class")
-				.parameter(Parameters.Cache.MAX_AGE, 3600);
+				.parameter(Parameters.Cache.MAX_AGE, DAY);
 
 		server.uri(root + "/health.{format}",
 				new HealthAPI())
@@ -118,6 +122,7 @@ public class Routes {
 				new SnapshotsAPI(config))
 				.method(HttpMethod.GET)
 				.flag(Flags.Auth.PUBLIC_ROUTE)
+				.parameter(Parameters.Cache.MAX_AGE, MINUTE)
 				.noSerialization();
 		
 		if(config.isServeStatic()) {
@@ -130,6 +135,7 @@ public class Routes {
 		server.uri(root + "/sitemap.*", new Sitemap())
 			.method(HttpMethod.GET)
 			.flag(Flags.Auth.PUBLIC_ROUTE)
+			.parameter(Parameters.Cache.MAX_AGE, WEEK)
 			.noSerialization();
 		
 	}
