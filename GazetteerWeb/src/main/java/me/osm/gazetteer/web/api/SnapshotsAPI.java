@@ -176,7 +176,6 @@ public class SnapshotsAPI implements DocumentedApi {
 			res.setBody(render.render(lang, feature.toString(), "feature"));
 		}
 		catch (Exception e) {
-			render.updateTemplate();
 			throw e;
 		}
 	}
