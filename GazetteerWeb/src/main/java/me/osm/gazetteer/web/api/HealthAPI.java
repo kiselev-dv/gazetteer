@@ -3,6 +3,7 @@ package me.osm.gazetteer.web.api;
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.lang.management.RuntimeMXBean;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -17,10 +18,14 @@ import org.elasticsearch.action.count.CountRequestBuilder;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.client.Client;
+import org.elasticsearch.common.joda.time.DateTime;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.search.aggregations.Aggregation;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
+import org.elasticsearch.search.aggregations.Aggregations;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms.Bucket;
+import org.elasticsearch.search.aggregations.metrics.max.InternalMax;
 import org.restexpress.Request;
 import org.restexpress.Response;
 import org.restexpress.domain.metadata.UriMetadata;
@@ -67,10 +72,14 @@ public class HealthAPI implements DocumentedApi {
 					.setQuery(QueryBuilders.matchAllQuery())
 					.setSearchType(SearchType.COUNT)
 					.addAggregation(AggregationBuilders.terms("ftypes").field("type"))
-					.addAggregation(AggregationBuilders.terms("regions").field("_imported.region"));
+					.addAggregation(AggregationBuilders.terms("regions").field("_imported.region"))
+					.addAggregation(AggregationBuilders.max("last").field("_imported.gen_ts"));
 			
-			fillTypeCounters(health, types);
-			fillRegions(health, types);
+			Aggregations aggregations = types.get().getAggregations();
+			
+			fillTypeCounters(health, aggregations);
+			fillRegions(health, aggregations);
+			fillTimestamp(health, aggregations);
 			
 			
 			CountRequestBuilder poiClasses = client.prepareCount("gazetteer").setTypes(IndexHolder.POI_CLASS)
@@ -89,9 +98,15 @@ public class HealthAPI implements DocumentedApi {
 		return health;
 	}
 
-	private void fillRegions(Health health, SearchRequestBuilder types) {
+	private void fillTimestamp(Health health, Aggregations aggregations) {
+		InternalMax aggregation = aggregations.get("last");
+		Date valueDate = new Date(new Double(aggregation.getValue()).longValue());
+		health.setLastTS(valueDate);
+	}
+
+	private void fillRegions(Health health, Aggregations aggregations) {
 		Map<String, Long> regionCounters = new HashMap<>();
-		Terms aggregation = types.get().getAggregations().get("regions");
+		Terms aggregation = aggregations.get("regions");
 		for(Bucket bucket : aggregation.getBuckets()) {
 			regionCounters.put(bucket.getKey(), bucket.getDocCount()); 
 		}
@@ -99,9 +114,9 @@ public class HealthAPI implements DocumentedApi {
 		health.setRegions(regionCounters);
 	}
 
-	private void fillTypeCounters(Health health, SearchRequestBuilder types) {
+	private void fillTypeCounters(Health health, Aggregations aggregations) {
 		Map<String, Long> typesCount = new HashMap<>();
-		Terms aggregation = types.get().getAggregations().get("ftypes");
+		Terms aggregation = aggregations.get("ftypes");
 		for(Bucket bucket : aggregation.getBuckets()) {
 			typesCount.put(bucket.getKey(), bucket.getDocCount()); 
 		}

@@ -1,5 +1,6 @@
 package me.osm.gazetteer.web.api.meta.health;
 
+import java.util.Date;
 import java.util.Map;
 
 import org.elasticsearch.common.joda.time.Period;
@@ -25,6 +26,7 @@ public class Health {
 	private BackgroundExecution backgroundTasks;
 	
 	private Map<String, String> versions;
+	private Date lastTS;
 	
 	public static final PeriodFormatter PERIOD_FORMATTER = 
 			new PeriodFormatterBuilder()
@@ -134,6 +136,14 @@ public class Health {
 
 	public void setPoiClasses(long poiClasses) {
 		this.poiClasses = poiClasses;
+	}
+
+	public Date getLastTS() {
+		return this.lastTS;
+	}
+	
+	public void setLastTS(Date date) {
+		this.lastTS = date;
 	}
 	
 }
