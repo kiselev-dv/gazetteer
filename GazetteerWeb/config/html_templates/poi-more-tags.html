@@ -4,7 +4,7 @@
 				for(typeCode in f.poi_class) {
 					classes.add(OSM_DOC.facade.getFeature(typeCode));
 				}
-				def tags = OSM_DOC.facade.getMoreTags(classes);
+				def tags = OSM_DOC.facade.collectMoreTags(classes);
 			%>
 			<h4 class="title">${RENDER.tr("templates.feature.moreTags")}</h4>
 			<div class="more-tags">
