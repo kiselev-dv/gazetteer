@@ -97,7 +97,7 @@ public class ImportLocations implements DocumentedApi {
 			}
 			
 			if(importer.submit()) {
-				result.put("state", "submited");
+				result.put("state", "submitted");
 				result.put("locations_import", imp);
 				result.put("task_id", importer.getId());
 				result.put("task_uuid", importer.getUUID());

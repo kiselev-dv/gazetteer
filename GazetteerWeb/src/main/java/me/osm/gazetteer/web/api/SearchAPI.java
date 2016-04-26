@@ -189,7 +189,10 @@ public class SearchAPI implements DocumentedApi {
 		
 		Set<String> types = getSet(request, TYPE_HEADER);
 		apiDefaultHierarchy = GazetteerWeb.osmdocProperties().getApiDefaultHierarchy();
-		String hname = request.getHeader(HIERARCHY_CODE_HEADER, apiDefaultHierarchy);
+		String hname = request.getHeader(HIERARCHY_CODE_HEADER);
+		if (hname == null) {
+			hname = apiDefaultHierarchy;
+		}
 		
 		Set<String> poiClass = getSet(request, POI_CLASS_HEADER);
 		addPOIGroups(request, poiClass, hname);
