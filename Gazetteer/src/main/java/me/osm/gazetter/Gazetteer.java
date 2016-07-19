@@ -258,8 +258,9 @@ public class Gazetteer {
 					System.exit(1);
 				}
 				
-				new JoinExecutor(namespace.getBoolean("skip-hghnets"), 
-						namespace.getBoolean("keep-hghnets-geometry"),
+				new JoinExecutor(namespace.getBoolean("skip_hghnets"), 
+						namespace.getBoolean("keep_hghnets_geometry"),
+						namespace.getBoolean("clean_stripes"),
 						new HashSet(list(namespace.getList("check_boundaries")))).run(
 								namespace.getString(DATA_DIR_VAL), 
 								namespace.getString(JOIN_COMMON_VAL));
@@ -522,6 +523,10 @@ public class Gazetteer {
 			join.addArgument("--skip-hghnets").setConst(Boolean.TRUE)
 				.setDefault(Boolean.FALSE).action(new StoreTrueArgumentAction())
 				.help("Do not build highway networks.");
+
+			join.addArgument("--clean-stripes").setConst(Boolean.TRUE)
+				.setDefault(Boolean.FALSE).action(new StoreTrueArgumentAction())
+				.help("Remove stripes intermediate files, right after usage");
 
 			join.addArgument("--keep-hghnets-geometry").setConst(Boolean.TRUE)
 				.setDefault(Boolean.FALSE).action(new StoreTrueArgumentAction())

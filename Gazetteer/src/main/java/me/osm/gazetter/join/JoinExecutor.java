@@ -37,8 +37,9 @@ public class JoinExecutor implements JoinFailuresHandler{
 	private Set<String> filter;
 
 	private boolean dropHghNetGeometries = true;
+	private boolean cleanStripes = false;
 	
-	public JoinExecutor(Boolean skipHghNets, Boolean keepHghNetGeometries, Set<String> filter) {
+	public JoinExecutor(Boolean skipHghNets, Boolean keepHghNetGeometries, Boolean cleanStripes, Set<String> filter) {
 		this.filter = filter;
 		
 		if(skipHghNets != null) {
@@ -48,9 +49,14 @@ public class JoinExecutor implements JoinFailuresHandler{
 		if(keepHghNetGeometries != null) {
 			this.dropHghNetGeometries  = !dropHghNetGeometries;
 		}
+
+		if(cleanStripes != null) {
+			this.cleanStripes  = cleanStripes;
+		}
 	}
 
 	private JoinBoundariesExecutor jbe = new JoinBoundariesExecutor();
+
 	
 	
 	public static class StripeFilenameFilter implements FilenameFilter {
@@ -77,6 +83,16 @@ public class JoinExecutor implements JoinFailuresHandler{
 					"Join stripes done in {}",
 					DurationFormatUtils.formatDurationHMS(new Date().getTime()
 							- start));
+			
+			if (cleanStripes) {
+				log.info("Clean stripes in {}", stripesFolder);
+				File folder = new File(stripesFolder);
+				File[] stripesFiles = folder.listFiles(STRIPE_FILE_FN_FILTER);
+				for (File f : stripesFiles) {
+					f.delete();
+				}
+				log.info("Removed {} stripes files", stripesFiles.length);
+			}
 			
 			start = new Date().getTime();
 			jbe.run(stripesFolder, common, filter);
