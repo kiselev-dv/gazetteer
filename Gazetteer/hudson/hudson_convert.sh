@@ -95,7 +95,7 @@ if [ ! -z "$csv" ]; then
 	fi
     H="out-csv types=adrpnt out=$CC.csv columns=$csv $hdr"
 fi
-java $M -jar $JAR --log-prefix $CC $T join --find-langs $B --handlers $H
+java $M -jar $JAR --log-prefix $CC $T join --find-langs --clean-stripes $B --handlers $H
 
 
 if [ ! -f "$CC.json.gz" ] && [ ! -f "$CC.csv" ]; then
