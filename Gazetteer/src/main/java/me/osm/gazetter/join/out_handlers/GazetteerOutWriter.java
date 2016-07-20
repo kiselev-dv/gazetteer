@@ -1034,6 +1034,8 @@ public class GazetteerOutWriter extends AddressPerRowJOHBase  {
 			this.hghnetWriter.flush();
 			this.hghnetWriter.close();
 			
+			log.info("Merge higway networks");
+			
 			// it writes into def. writer, so do it before
 			// super.allDone() call which will close writer
 			mergeAndSortHghnets();
@@ -1044,6 +1046,7 @@ public class GazetteerOutWriter extends AddressPerRowJOHBase  {
 			log.info("Done merge highway networks");
 		}
 
+		// Flush and close out writer
 		super.allDone();
 		
 		sortResults();
@@ -1127,6 +1130,9 @@ public class GazetteerOutWriter extends AddressPerRowJOHBase  {
 
 	private void writeTagStat() {
 		if(StringUtils.isNotBlank(tagStatPath)) {
+			
+			log.info("Write tag usage statistics to {}", tagStatPath);
+			
 			Collection<JSONObject> usage = ((ExportTagsStatisticCollector)tagStatistics).asJson();
 			
 			try {
