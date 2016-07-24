@@ -40,6 +40,7 @@ public class Configuration extends org.restexpress.util.Environment
 	private Collection<String> importSkipTypes = new HashSet<>();
 	private String snapshotsRender = "config/html_templates/htmlRender.groovy";
 	private String massGeocodeFolder = "mass_geocode";
+	private String pidFilePath = "gazetteer-web.pid";
 	
 	@Override
 	protected void fillValues(Properties p)
@@ -64,6 +65,7 @@ public class Configuration extends org.restexpress.util.Environment
 		this.importSkipTypes = Arrays.asList(StringUtils.split(p.getProperty("import_skip_types", ""), " ,;"));
 		this.snapshotsRender = p.getProperty("snapshots_render", snapshotsRender);
 		this.massGeocodeFolder = p.getProperty("mass_geocode_folder", "mass_geocode");
+		this.pidFilePath = p.getProperty("pid_file_path", "gazetteer-web.pid");
 	}
 
 	public String getDefaultFormat()
@@ -147,6 +149,10 @@ public class Configuration extends org.restexpress.util.Environment
 
 	public String getMassGeocodeFolder() {
 		return massGeocodeFolder ;
+	}
+
+	public String getPidFilePath() {
+		return pidFilePath;
 	}
 
 }

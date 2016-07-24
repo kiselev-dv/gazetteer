@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.lang.management.ManagementFactory;
 import java.util.Properties;
 
 import me.osm.gazetteer.web.postprocessor.AllowOriginPP;
@@ -15,6 +16,7 @@ import me.osm.gazetteer.web.utils.OSMDocProperties;
 import me.osm.gazetteer.web.utils.OSMDocSinglton;
 import me.osm.osmdoc.localization.L10n;
 
+import org.apache.commons.io.FileUtils;
 import org.restexpress.RestExpress;
 import org.restexpress.util.Environment;
 import org.slf4j.Logger;
@@ -79,6 +81,11 @@ public class GazetteerWeb {
 			Runtime runtime = Runtime.getRuntime();
 			Thread thread = new Thread(new ShutDownListener());
 			runtime.addShutdownHook(thread);
+			
+			String processName = ManagementFactory.getRuntimeMXBean().getName();
+			int pid = Integer.parseInt(processName.split("@")[0]);
+			FileUtils.writeStringToFile(new File(config.getPidFilePath()), String.valueOf(pid));
+			LOG.info("Pid: {}", pid);
 			
 			LOG.info("{} server listening on port {}", config.getName(), config.getPort());
 		}
