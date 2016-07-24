@@ -3,6 +3,7 @@ package me.osm.gazetteer.web.executions;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -23,8 +24,6 @@ import me.osm.gazetteer.web.api.meta.health.AbortedTaskError;
 import me.osm.gazetteer.web.api.meta.health.BackgroundExecution;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.apache.commons.lang3.tuple.Pair;
 import org.elasticsearch.common.joda.time.LocalDateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -92,7 +91,7 @@ public class BackgroundExecutorFacade {
 				log.info("Task {} is done", this.id);
 				
 				if(StringUtils.isNotBlank(getCallbackURL())) {
-					callBack(getCallbackURL());
+					callBack(getCallbackURL(), null);
 				}
 			}
 			catch (AbortedException abortedE) {
@@ -102,6 +101,10 @@ public class BackgroundExecutorFacade {
 						dsc.setDoneTs(LocalDateTime.now());
 					}
 					INSTANCE.abortedTasks.put(this.id, abortedE.isByUser() ? "Aborted by user" : abortedE.getMessage());
+				}
+				
+				if(StringUtils.isNotBlank(getCallbackURL())) {
+					callBack(getCallbackURL(), abortedE);
 				}
 				
 				if(!abortedE.isByUser()) {
@@ -117,7 +120,25 @@ public class BackgroundExecutorFacade {
 			}
 		}
 		
-		private void callBack(String callbackURL) {
+		private void callBack(String callbackURL, AbortedException abortedE) {
+			String status = "done";
+			String errorMsg = "";
+			if (abortedE != null) {
+				status = abortedE.isByUser() ? "aborted_by_user" : "error";
+				errorMsg = abortedE.isByUser() ? "Aborted by user" : abortedE.getMessage();
+			}
+			callbackURL = StringUtils.replace(callbackURL, "{task_id}", String.valueOf(this.id));
+			callbackURL = StringUtils.replace(callbackURL, "{task_uuid}", this.getUUID());
+			callbackURL = StringUtils.replace(callbackURL, "{status}", status);
+			
+			try {
+				callbackURL = StringUtils.replace(callbackURL, "{error_msg}", URLEncoder.encode(errorMsg, "utf-8"));
+			}
+			catch (Exception e) {
+				callbackURL = StringUtils.replace(callbackURL, "{error_msg}", "");
+				log.error("Failed to url encode error_msg callback parameter.", e);
+			}
+			
 			try {
 				URLConnection connection = new URL(callbackURL).openConnection();
 				// 5 Seconds timeout
