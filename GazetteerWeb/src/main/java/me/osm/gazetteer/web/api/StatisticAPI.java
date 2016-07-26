@@ -134,7 +134,7 @@ public class StatisticAPI implements DocumentedApi {
 
 				JSONObject values = new JSONObject();
 				for(Bucket bucket : termsAgg.getBuckets()) {
-					values.put(bucket.getKey(), bucket.getDocCount()); 
+					values.put(bucket.getKey().toString(), bucket.getDocCount()); 
 				}
 				
 				if("name".equals(agg.getName())) {

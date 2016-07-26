@@ -24,7 +24,7 @@ import me.osm.gazetteer.web.api.meta.health.AbortedTaskError;
 import me.osm.gazetteer.web.api.meta.health.BackgroundExecution;
 
 import org.apache.commons.lang3.StringUtils;
-import org.elasticsearch.common.joda.time.LocalDateTime;
+import org.joda.time.LocalDateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

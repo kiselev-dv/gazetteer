@@ -14,6 +14,9 @@ import me.osm.gazetteer.web.GazetteerWeb;
 import me.osm.gazetteer.web.api.meta.Endpoint;
 import me.osm.gazetteer.web.api.renders.HTMLSitemapRender;
 import me.osm.gazetteer.web.api.renders.SnapshotRender;
+import me.osm.gazetteer.web.stats.APIRequest.APIRequestBuilder;
+import me.osm.gazetteer.web.stats.StatWriterUtils;
+import me.osm.gazetteer.web.stats.StatisticsWriter;
 import me.osm.gazetteer.web.utils.OSMDocSinglton;
 import me.osm.osmdoc.localization.L10n;
 
@@ -70,9 +73,16 @@ public class SnapshotsAPI implements DocumentedApi {
 		try	{
 			if(StringUtils.contains(req.getPath(), "_escaped_fragment_=")) {
 				String parameters = StringUtils.substringAfter(req.getPath(), "_escaped_fragment_=");
-
+				
+				APIRequestBuilder stat = StatWriterUtils.fillFromRequest(req);
+				stat.api("snapshot");
+				
+				fillBotStats(req, stat);
+				
 				if(StringUtils.remove(parameters, '/').isEmpty()) {
 					renderIndexSnapshot(res);
+					stat.query("index");
+					StatisticsWriter.write(stat.build());
 					return;
 				}
 
@@ -86,14 +96,18 @@ public class SnapshotsAPI implements DocumentedApi {
 				if(StringUtils.contains(parameters, "/id/")) {
 					String id = StringUtils.substringAfter(parameters, "/id/");
 					id = StringUtils.substringBefore(id, "/details");
+					stat.resultId(id);
 					
 					JSONObject feature = FeatureAPI.getFeature(id, true);
 					
 					if(feature != null) {
 						renderFeatureSnapshot(lang, res, feature);
+						stat.status(200).resultLatLon(feature);
 					}
 					else {
 						res.setResponseCode(404);
+						stat.status(404);
+						StatisticsWriter.write(stat.build());
 						return;
 					}
 				}
@@ -141,6 +155,22 @@ public class SnapshotsAPI implements DocumentedApi {
 		} 
 	}
 
+	private void fillBotStats(Request req, APIRequestBuilder stat) {
+		String uaHeader = req.getHeader("User-Agent");
+		if (uaHeader != null) {
+			uaHeader = uaHeader.toLowerCase();
+			if(StringUtils.contains(uaHeader, "googlebot")) {
+				stat.userId("googlebot");
+			}
+			if(StringUtils.contains(uaHeader, "yandexbot")) {
+				stat.userId("yandexbot");
+			}
+			if(StringUtils.contains(uaHeader, "bingbot")) {
+				stat.userId("bingbot");
+			}
+		}
+	}
+
 	private void renderSitemapPage(int page, Response res) {
 		res.setContentType("text/html; charset=utf8");
 		HTMLSitemapRender httpSitemapRender = new HTMLSitemapRender(config);
@@ -160,7 +190,6 @@ public class SnapshotsAPI implements DocumentedApi {
 			Sitemap.renderIndex(httpSitemapRender);
 			res.setContentType("text/html; charset=utf8");
 			res.setBody(httpSitemapRender.toString());
-			
 		} catch (UnsupportedEncodingException e) {
 			throw new RuntimeException(e);
 		}

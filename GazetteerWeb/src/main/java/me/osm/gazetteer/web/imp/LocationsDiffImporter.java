@@ -1,6 +1,7 @@
 package me.osm.gazetteer.web.imp;
 
 import org.apache.commons.lang3.StringUtils;
+import org.elasticsearch.action.delete.DeleteAction;
 import org.elasticsearch.action.delete.DeleteRequestBuilder;
 import org.elasticsearch.action.index.IndexRequestBuilder;
 import org.json.JSONObject;
@@ -49,7 +50,7 @@ public class LocationsDiffImporter extends LocationsDumpImporter {
 
 	private void deleteRequest(String id) {
 		
-		DeleteRequestBuilder reqB = new DeleteRequestBuilder(client, "gazetteer")
+		DeleteRequestBuilder reqB = new DeleteRequestBuilder(client, DeleteAction.INSTANCE, "gazetteer")
 			.setType(IndexHolder.LOCATION).setId(id);
 		
 		bulkRequest.add(reqB.request());

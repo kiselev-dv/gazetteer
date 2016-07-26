@@ -18,7 +18,7 @@ import org.elasticsearch.action.count.CountRequestBuilder;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.client.Client;
-import org.elasticsearch.common.joda.time.DateTime;
+import org.joda.time.DateTime;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.aggregations.Aggregation;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
@@ -108,7 +108,7 @@ public class HealthAPI implements DocumentedApi {
 		Map<String, Long> regionCounters = new HashMap<>();
 		Terms aggregation = aggregations.get("regions");
 		for(Bucket bucket : aggregation.getBuckets()) {
-			regionCounters.put(bucket.getKey(), bucket.getDocCount()); 
+			regionCounters.put(bucket.getKey().toString(), bucket.getDocCount()); 
 		}
 		
 		health.setRegions(regionCounters);
@@ -118,7 +118,7 @@ public class HealthAPI implements DocumentedApi {
 		Map<String, Long> typesCount = new HashMap<>();
 		Terms aggregation = aggregations.get("ftypes");
 		for(Bucket bucket : aggregation.getBuckets()) {
-			typesCount.put(bucket.getKey(), bucket.getDocCount()); 
+			typesCount.put(bucket.getKey().toString(), bucket.getDocCount()); 
 		}
 		
 		health.setCounters(typesCount);

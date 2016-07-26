@@ -14,6 +14,9 @@ import me.osm.gazetteer.web.api.meta.Endpoint;
 import me.osm.gazetteer.web.api.meta.Parameter;
 import me.osm.gazetteer.web.api.utils.RequestUtils;
 import me.osm.gazetteer.web.imp.IndexHolder;
+import me.osm.gazetteer.web.stats.APIRequest.APIRequestBuilder;
+import me.osm.gazetteer.web.stats.StatWriterUtils;
+import me.osm.gazetteer.web.stats.StatisticsWriter;
 import me.osm.gazetteer.web.utils.GeometryUtils;
 
 import org.apache.commons.lang3.StringUtils;
@@ -23,13 +26,11 @@ import org.elasticsearch.client.Client;
 import org.elasticsearch.common.geo.ShapeRelation;
 import org.elasticsearch.common.geo.builders.ShapeBuilder;
 import org.elasticsearch.common.unit.DistanceUnit;
-import org.elasticsearch.index.query.FilterBuilder;
-import org.elasticsearch.index.query.FilterBuilders;
 import org.elasticsearch.index.query.FilteredQueryBuilder;
-import org.elasticsearch.index.query.GeoDistanceFilterBuilder;
-import org.elasticsearch.index.query.GeoShapeFilterBuilder;
+import org.elasticsearch.index.query.GeoDistanceQueryBuilder;
+import org.elasticsearch.index.query.GeoShapeQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.index.query.TermsFilterBuilder;
+import org.elasticsearch.index.query.TermQueryBuilder;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.sort.SortBuilders;
 import org.json.JSONArray;
@@ -78,7 +79,10 @@ public class InverseGeocodeAPI implements DocumentedApi {
 	 * 
 	 * @return JSONObject with following structure
 	 * */
-	public JSONObject read(Request request, Response response){
+	public JSONObject read(Request request, Response response) {
+		
+		APIRequestBuilder stat = StatWriterUtils.fillFromRequest(request);
+		stat.api("inverse_geocode");
 		
 		JSONObject result = new JSONObject();
 		
@@ -128,6 +132,11 @@ public class InverseGeocodeAPI implements DocumentedApi {
 		if(maxNeighbours < 0) {
 			maxNeighbours = 0;
 		}
+		
+		stat.resultLon(lon);
+		stat.resultLat(lat);
+		
+		StatisticsWriter.write(stat.build());
 		
 		if(PLACE_LEVEL.equals(largestLevel)) {
 			fillBoundaries(result, lon, lat, fullGeometry, 
@@ -327,9 +336,9 @@ public class InverseGeocodeAPI implements DocumentedApi {
 		FilteredQueryBuilder q =
 				QueryBuilders.filteredQuery(
 						QueryBuilders.matchAllQuery(),
-						FilterBuilders.andFilter(
-								FilterBuilders.termsFilter("type", "hghway", "hghnet"),
-								FilterBuilders.geoShapeFilter("full_geometry", 
+						QueryBuilders.andQuery(
+								QueryBuilders.termsQuery("type", "hghway", "hghnet"),
+								QueryBuilders.geoShapeQuery("full_geometry", 
 										ShapeBuilder.newCircleBuilder().center(lon, lat)
 											.radius(r, DistanceUnit.METERS), ShapeRelation.INTERSECTS)
 						));
@@ -418,9 +427,9 @@ public class InverseGeocodeAPI implements DocumentedApi {
 		FilteredQueryBuilder q =
 				QueryBuilders.filteredQuery(
 						QueryBuilders.matchAllQuery(),
-						FilterBuilders.andFilter(
-								FilterBuilders.termsFilter("type", "adrpnt", "poipnt"),
-								FilterBuilders.geoDistanceFilter("center_point").point(lat, lon)
+						QueryBuilders.andQuery(
+								QueryBuilders.termsQuery("type", "adrpnt", "poipnt"),
+								QueryBuilders.geoDistanceQuery("center_point").point(lat, lon)
 									.distance(1000, DistanceUnit.METERS)
 						));
 
@@ -444,7 +453,7 @@ public class InverseGeocodeAPI implements DocumentedApi {
 	public Map<String, JSONObject> getBoundariesLevels(double lon, double lat) {
 		Client client = ESNodeHolder.getClient();
 		
-		GeoShapeFilterBuilder filter = FilterBuilders.geoShapeFilter("full_geometry", 
+		GeoShapeQueryBuilder filter = QueryBuilders.geoShapeQuery("full_geometry", 
 				ShapeBuilder.newPoint(lon, lat), ShapeRelation.INTERSECTS);
 		
 		FilteredQueryBuilder q =
@@ -470,17 +479,15 @@ public class InverseGeocodeAPI implements DocumentedApi {
 		
 		if (!levels.containsKey("locality")) {
 			
-			GeoDistanceFilterBuilder distanceF = FilterBuilders.geoDistanceFilter("center_point")
+			GeoDistanceQueryBuilder distanceF = QueryBuilders.geoDistanceQuery("center_point")
 					.distance("1km").lon(lon).lat(lat);
 			
-			FilterBuilder plcpnt = FilterBuilders.termFilter("type", "plcpnt");
+			TermQueryBuilder plcpnt = QueryBuilders.termQuery("type", "plcpnt");
 			
 			FilteredQueryBuilder hamlets =
 					QueryBuilders.filteredQuery(
 							QueryBuilders.matchAllQuery(),
-							FilterBuilders.andFilter()
-								.add(distanceF)
-								.add(plcpnt));
+							QueryBuilders.andQuery(distanceF, plcpnt));
 			
 			searchRequest = client.prepareSearch("gazetteer")
 					.setTypes(IndexHolder.LOCATION).setQuery(hamlets);

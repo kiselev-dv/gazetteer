@@ -11,7 +11,7 @@ import me.osm.gazetteer.web.imp.LocationsDumpImporter;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.validator.routines.UrlValidator;
-import org.elasticsearch.action.delete.DeleteRequestBuilder;
+import org.elasticsearch.action.deletebyquery.DeleteByQueryAction;
 import org.elasticsearch.action.deletebyquery.DeleteByQueryRequestBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.json.JSONObject;
@@ -69,7 +69,7 @@ public class ImportLocations implements DocumentedApi {
 		String callbackUrl = request.getHeader(CALLBACK_HEADER);
 		
 		if(drop) {
-			new DeleteByQueryRequestBuilder(ESNodeHolder.getClient()).setIndices("gazetteer")
+			new DeleteByQueryRequestBuilder(ESNodeHolder.getClient(), DeleteByQueryAction.INSTANCE).setIndices("gazetteer")
 				.setTypes(IndexHolder.LOCATION).setQuery(QueryBuilders.matchAllQuery()).execute().actionGet();
 			
 			result.put(DROP_HEADER, true);

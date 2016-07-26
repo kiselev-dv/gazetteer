@@ -2,7 +2,7 @@ package me.osm.gazetteer.web.utils;
 
 import java.io.IOException;
 
-import org.elasticsearch.common.joda.time.LocalDateTime;
+import org.joda.time.LocalDateTime;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;

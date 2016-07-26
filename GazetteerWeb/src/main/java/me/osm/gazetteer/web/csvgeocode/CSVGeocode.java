@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.nio.charset.Charset;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -22,6 +21,7 @@ import me.osm.gazetteer.web.executions.AbortedException;
 import me.osm.gazetteer.web.executions.BackgroudTaskDescription;
 import me.osm.gazetteer.web.executions.BackgroundExecutorFacade.BackgroundExecutableTask;
 import me.osm.gazetteer.web.imp.LocationsDumpImporter;
+import me.osm.gazetteer.web.stats.APIRequest.APIRequestBuilder;
 
 import org.apache.commons.compress.compressors.gzip.GzipCompressorOutputStream;
 import org.apache.commons.lang3.StringUtils;
@@ -91,11 +91,14 @@ public class CSVGeocode extends BackgroundExecutableTask {
 
 				AnswerDetalization detalization = AnswerDetalization.FULL;
 				
+				APIRequestBuilder stat = APIRequestBuilder.builder();
+				stat.api("mass_geocode");
+				
 				try {
 					JSONObject answer = searchAPI.internalSearch(
 							false, string, null, null, null, null, 
 							this.refs, true, false, true, 
-							detalization, null, null);
+							detalization, null, null, stat);
 					
 					counter++;
 					
@@ -106,7 +109,7 @@ public class CSVGeocode extends BackgroundExecutableTask {
 						answer = searchAPI.internalSearch(
 								false, string, types, null, null, null, 
 								this.refs, false, false, true, 
-								detalization, null, null);
+								detalization, null, null, stat);
 					}
 					
 					fillTheRow(row, answer);

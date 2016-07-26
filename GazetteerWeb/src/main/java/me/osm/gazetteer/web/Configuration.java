@@ -41,6 +41,7 @@ public class Configuration extends org.restexpress.util.Environment
 	private String snapshotsRender = "config/html_templates/htmlRender.groovy";
 	private String massGeocodeFolder = "mass_geocode";
 	private String pidFilePath = "gazetteer-web.pid";
+	private String esHome = "./";
 	
 	@Override
 	protected void fillValues(Properties p)
@@ -66,6 +67,7 @@ public class Configuration extends org.restexpress.util.Environment
 		this.snapshotsRender = p.getProperty("snapshots_render", snapshotsRender);
 		this.massGeocodeFolder = p.getProperty("mass_geocode_folder", "mass_geocode");
 		this.pidFilePath = p.getProperty("pid_file_path", "gazetteer-web.pid");
+		this.esHome = p.getProperty("es_home", "./");
 	}
 
 	public String getDefaultFormat()
@@ -153,6 +155,10 @@ public class Configuration extends org.restexpress.util.Environment
 
 	public String getPidFilePath() {
 		return pidFilePath;
+	}
+
+	public String getESHome() {
+		return esHome ;
 	}
 
 }

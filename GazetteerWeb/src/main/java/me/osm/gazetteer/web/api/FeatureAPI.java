@@ -12,11 +12,13 @@ import me.osm.gazetteer.web.ESNodeHolder;
 import me.osm.gazetteer.web.api.meta.Endpoint;
 import me.osm.gazetteer.web.api.meta.Parameter;
 import me.osm.gazetteer.web.imp.IndexHolder;
+import me.osm.gazetteer.web.stats.APIRequest.APIRequestBuilder;
+import me.osm.gazetteer.web.stats.StatWriterUtils;
+import me.osm.gazetteer.web.stats.StatisticsWriter;
 
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.Client;
-import org.elasticsearch.index.query.FilterBuilders;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
@@ -36,17 +38,28 @@ public class FeatureAPI implements DocumentedApi {
 	public JSONObject read(Request request, Response response) 
 			throws IOException {
 		
+		APIRequestBuilder stat = StatWriterUtils.fillFromRequest(request);
+		stat.api("feature");
+		
 		String id = request.getHeader("id");
+		stat.resultId(id);
 
 		boolean withRelated = request.getHeader("_related") != null;
 		
 		JSONObject feature = getFeature(id, withRelated);
 		
 		if(feature != null) {
+			stat.status(200);
+			stat.fillByFeature(feature);
+			StatisticsWriter.write(stat.build());
+			
 			return feature;
 		}
 		
+		stat.status(404);
+		StatisticsWriter.write(stat.build());
 		response.setResponseCode(404);
+		
 		return null;
 	}
 
@@ -57,11 +70,11 @@ public class FeatureAPI implements DocumentedApi {
 			return null;
 		}
 		
-		QueryBuilder q = QueryBuilders.filteredQuery(QueryBuilders.matchAllQuery(), 
-				FilterBuilders.orFilter(
-					FilterBuilders.termsFilter("feature_id", idParam), 
-					FilterBuilders.termsFilter("id", idParam))
-				);
+		QueryBuilder q = QueryBuilders.boolQuery()
+				.must(QueryBuilders.matchAllQuery())
+				.filter(QueryBuilders.orQuery(
+						QueryBuilders.termsQuery("feature_id", idParam), 
+						QueryBuilders.termsQuery("id", idParam))); 
 		
 		SearchResponse searchResponse = client.prepareSearch("gazetteer")
 			.setTypes(IndexHolder.LOCATION)
@@ -189,12 +202,13 @@ public class FeatureAPI implements DocumentedApi {
 		
 		JSONArray result = new JSONArray();
 		
-		QueryBuilder q = QueryBuilders.filteredQuery(
-				QueryBuilders.matchAllQuery(), 
-				FilterBuilders.andFilter(
-						FilterBuilders.termsFilter("refs.street", id),
-						FilterBuilders.termFilter("type", "adrpnt")));
-
+		QueryBuilder q = QueryBuilders.boolQuery()
+				.must(QueryBuilders.matchAllQuery())
+				.filter(QueryBuilders.andQuery(
+						QueryBuilders.termsQuery("refs.street", id), 
+						QueryBuilders.termQuery("type", "adrpnt")));
+				
+				
 		SearchRequestBuilder querry = client.prepareSearch("gazetteer")
 				.setTypes(IndexHolder.LOCATION)
 				.setSize(200)
@@ -223,14 +237,14 @@ public class FeatureAPI implements DocumentedApi {
 			JSONArray result) {
 		
 		QueryBuilder q = QueryBuilders.filteredQuery(QueryBuilders.matchAllQuery(), 
-				FilterBuilders.andFilter(
+				QueryBuilders.andQuery(
 						//same class
-						FilterBuilders.termsFilter("poi_class", types),
+						QueryBuilders.termsQuery("poi_class", types),
 						//no more than 5km far away 
-						FilterBuilders.geoDistanceFilter("center_point")
+						QueryBuilders.geoDistanceQuery("center_point")
 							.point(point.getDouble("lat"), point.getDouble("lon")).distance("5km"),
 						//and not the original poi
-						FilterBuilders.notFilter(FilterBuilders.termFilter("feature_id", curentFeatureId))));
+						QueryBuilders.notQuery(QueryBuilders.termQuery("feature_id", curentFeatureId))));
 	
 		SearchRequestBuilder querry = client.prepareSearch("gazetteer")
 				.setTypes(IndexHolder.LOCATION)
@@ -251,9 +265,9 @@ public class FeatureAPI implements DocumentedApi {
 			JSONArray result) {
 		
 		QueryBuilder q = QueryBuilders.filteredQuery(QueryBuilders.matchAllQuery(), 
-				FilterBuilders.andFilter(
-						FilterBuilders.termFilter("refs.poi_addresses", id),
-						FilterBuilders.notFilter(FilterBuilders.termFilter("poi_addr_match", "nearest")))
+				QueryBuilders.andQuery(
+						QueryBuilders.termQuery("refs.poi_addresses", id),
+						QueryBuilders.notQuery(QueryBuilders.termQuery("poi_addr_match", "nearest")))
 				
 		);
 		

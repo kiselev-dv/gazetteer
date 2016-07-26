@@ -19,7 +19,6 @@ import org.elasticsearch.common.unit.Fuzziness;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.ConstantScoreQueryBuilder;
 import org.elasticsearch.index.query.DisMaxQueryBuilder;
-import org.elasticsearch.index.query.FilterBuilders;
 import org.elasticsearch.index.query.MatchQueryBuilder;
 import org.elasticsearch.index.query.MultiMatchQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
@@ -107,10 +106,10 @@ public class SearchBuilderImpl implements SearchBuilder {
 				resultQuery.must(numberQ.boost(WEIGHTS.numberQBoost));
 			}
 			else {
-				resultQuery.should(QueryBuilders.filteredQuery(
+				resultQuery.should(QueryBuilders.boolQuery()
 						// boost housenumbers only if we found street and locality
-						numberQ.boost(WEIGHTS.numberQBoost), 
-						FilterBuilders.queryFilter(requiredQ)));
+						.must(numberQ.boost(WEIGHTS.numberQBoost))
+						.filter(requiredQ));
 			}
 			
 			strictHousenumbers.add(numberQ);

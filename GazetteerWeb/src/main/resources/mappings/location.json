@@ -3,7 +3,7 @@
 		"enabled": false
     },
     "_source": {
-    	"compressed": true
+    	
     },
     "_id": {
     	"path": "id"
@@ -47,7 +47,7 @@
         	"search_analyzer": "standard"
         },
         "name": {
-            "type": "multi_field",
+            "type": "string",
             "fields": {
             	"exact": {
             		"type":"string",
@@ -68,8 +68,7 @@
             "search_analyzer": "standard"
         },
         "name_trans": {
-        	"type": "object",
-        	"index": "not_analyzed"
+        	"type": "object"
         },
         "weight": {
         	"type": "long"
@@ -97,8 +96,7 @@
                     "search_analyzer": "whitespace"
                 },
                 "name_trans": {
-                	"type": "object",
-                	"index": "not_analyzed"
+                	"type": "object"
                 }
             }
         },
@@ -125,8 +123,7 @@
                     "search_analyzer": "standard"
                 },
                 "name_trans": {
-                	"type": "object",
-                	"index": "not_analyzed"
+                	"type": "object"
                 }
             }
         },
@@ -153,8 +150,7 @@
         			"search_analyzer": "standard"
         		},
         		"name_trans": {
-                	"type": "object",
-                	"index": "not_analyzed"
+                	"type": "object"
                 }
         	}
         },
@@ -181,8 +177,7 @@
                     "search_analyzer": "standard"
                 },
                 "name_trans": {
-                	"type": "object",
-                	"index": "not_analyzed"
+                	"type": "object"
                 }
             }
         },
@@ -191,8 +186,7 @@
         	"index": "not_analyzed"
         },
         "address": {
-            "type": "object",
-            "index": "not_analyzed"
+            "type": "object"
         },
         "scheme": {
             "type": "string",
@@ -205,8 +199,7 @@
             "search_analyzer": "standard"
         },
         "admin0_name_trans": {
-        	"type": "object",
-        	"index": "not_analyzed"
+        	"type": "object"
         },
         "admin0_alternate_names": {
             "type": "string",
@@ -221,8 +214,7 @@
             "search_analyzer": "standard"
         },
         "admin1_name_trans": {
-        	"type": "object",
-        	"index": "not_analyzed"
+        	"type": "object"
         },
         "admin1_alternate_names": {
             "type": "string",
@@ -237,8 +229,7 @@
             "search_analyzer": "standard"
         },
         "admin2_name_trans": {
-        	"type": "object",
-        	"index": "not_analyzed"
+        	"type": "object"
         },
         "admin2_alternate_names": {
             "type": "string",
@@ -253,8 +244,7 @@
             "search_analyzer": "standard"
         },
         "local_admin_name_trans": {
-        	"type": "object",
-        	"index": "not_analyzed"
+        	"type": "object"
         },
         "local_admin_alternate_names": {
             "type": "string",
@@ -269,8 +259,7 @@
             "search_analyzer": "standard"
         },
         "locality_name_trans": {
-        	"type": "object",
-        	"index": "not_analyzed"
+        	"type": "object"
         },
         "locality_alternate_names": {
             "type": "string",
@@ -285,8 +274,7 @@
             "search_analyzer": "standard"
         },
         "neighborhood_name_trans": {
-        	"type": "object",
-        	"index": "not_analyzed"
+        	"type": "object"
         },
         "neighborhood_alternate_names": {
             "type": "string",
@@ -305,8 +293,7 @@
             "index": "not_analyzed"
         },
         "street_name_trans": {
-        	"type": "object",
-        	"index": "not_analyzed"
+        	"type": "object"
         },
         "street_alternate_names": {
             "type": "string",
@@ -328,7 +315,6 @@
         },
         "tags": {
             "type": "object",
-            "index": "not_analyzed",
             "enabled" : false 
         },
         "poi_class": {
@@ -361,7 +347,6 @@
         },
         "more_tags": {
         	"type": "object",
-        	"index": "not_analyzed",
         	"properties": {
         		"ref": {
         			"type": "string",

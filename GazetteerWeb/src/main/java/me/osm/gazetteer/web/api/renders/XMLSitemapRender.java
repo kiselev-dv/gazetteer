@@ -3,7 +3,7 @@ package me.osm.gazetteer.web.api.renders;
 import me.osm.gazetteer.web.Configuration;
 
 import org.apache.commons.lang3.StringUtils;
-import org.elasticsearch.common.joda.time.DateTime;
+import org.joda.time.DateTime;
 import org.json.JSONObject;
 
 public class XMLSitemapRender extends ASitemapRender {

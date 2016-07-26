@@ -5,8 +5,8 @@ import java.util.Map;
 import me.osm.gazetteer.web.api.meta.health.Health;
 import me.osm.gazetteer.web.utils.LocalDateTimeSerializer;
 
-import org.elasticsearch.common.joda.time.LocalDateTime;
-import org.elasticsearch.common.joda.time.Period;
+import org.joda.time.LocalDateTime;
+import org.joda.time.Period;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 

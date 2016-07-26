@@ -1,19 +1,19 @@
 package me.osm.gazetteer.web.api;
 
-import java.util.Map.Entry;
-
 import me.osm.gazetteer.web.ESNodeHolder;
 import me.osm.gazetteer.web.imp.IndexHolder;
 
+import org.elasticsearch.action.admin.indices.mapping.get.GetMappingsAction;
 import org.elasticsearch.action.admin.indices.mapping.get.GetMappingsRequestBuilder;
 import org.elasticsearch.action.admin.indices.mapping.get.GetMappingsResponse;
 import org.elasticsearch.cluster.metadata.MappingMetaData;
 import org.elasticsearch.common.collect.ImmutableOpenMap;
-import org.elasticsearch.common.hppc.ObjectContainer;
-import org.elasticsearch.common.hppc.cursors.ObjectCursor;
 import org.json.JSONObject;
 import org.restexpress.Request;
 import org.restexpress.Response;
+
+import com.carrotsearch.hppc.ObjectContainer;
+import com.carrotsearch.hppc.cursors.ObjectCursor;
 
 public class IndexAPI {
 	
@@ -31,7 +31,7 @@ public class IndexAPI {
 		}
 		else {
 			GetMappingsResponse mappingsResponse = new GetMappingsRequestBuilder(
-					ESNodeHolder.getClient().admin().indices(), "gazetteer").get();
+					ESNodeHolder.getClient(), GetMappingsAction.INSTANCE, "gazetteer").get();
 			
 			JSONObject result = new JSONObject();
 			

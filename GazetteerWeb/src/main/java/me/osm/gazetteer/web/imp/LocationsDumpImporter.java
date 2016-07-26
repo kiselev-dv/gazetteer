@@ -45,13 +45,15 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.elasticsearch.action.ListenableActionFuture;
+import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsAction;
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsRequestBuilder;
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsResponse;
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
 import org.elasticsearch.action.bulk.BulkResponse;
+import org.elasticsearch.action.index.IndexAction;
 import org.elasticsearch.action.index.IndexRequestBuilder;
 import org.elasticsearch.client.Client;
-import org.elasticsearch.common.joda.time.LocalDateTime;
+import org.joda.time.LocalDateTime;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -182,8 +184,8 @@ public class LocationsDumpImporter extends BackgroundExecutableTask {
 		client = ESNodeHolder.getClient();
 		bulkRequest = client.prepareBulk();
 		
-		IndicesExistsResponse response = new IndicesExistsRequestBuilder(
-				client.admin().indices()).setIndices("gazetteer").execute()
+		IndicesExistsResponse response = new IndicesExistsRequestBuilder(client, IndicesExistsAction.INSTANCE)
+			.setIndices("gazetteer").execute()
 				.actionGet();
 
 		if (!response.isExists()) {
@@ -269,7 +271,7 @@ public class LocationsDumpImporter extends BackgroundExecutableTask {
 	}
 
 	protected IndexRequestBuilder indexRequest(String line) {
-		IndexRequestBuilder ind = new IndexRequestBuilder(client)
+		IndexRequestBuilder ind = new IndexRequestBuilder(client, IndexAction.INSTANCE)
 			.setSource(line).setIndex("gazetteer").setType(LOCATION);
 		return ind;
 	}

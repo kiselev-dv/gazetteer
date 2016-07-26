@@ -15,6 +15,9 @@ import me.osm.gazetteer.web.api.search.SearchBuilder;
 import me.osm.gazetteer.web.api.utils.BuildSearchQContext;
 import me.osm.gazetteer.web.api.utils.RequestUtils;
 import me.osm.gazetteer.web.imp.IndexHolder;
+import me.osm.gazetteer.web.stats.StatWriterUtils;
+import me.osm.gazetteer.web.stats.APIRequest.APIRequestBuilder;
+import me.osm.gazetteer.web.stats.StatisticsWriter;
 
 import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.action.search.SearchRequestBuilder;
@@ -48,17 +51,26 @@ public class SuggestAPI extends SearchAPI {
 	public JSONObject read(Request request, Response response)
 			throws IOException {
 		
+		APIRequestBuilder stat = StatWriterUtils.fillFromRequest(request);
+		stat.api("search");
+		
 		String querryString = StringUtils.stripToNull(request.getHeader(Q_HEADER));
 		Query query = queryAnalyzer.getQuery(querryString);
+		
+		stat.query(querryString);
 
 		boolean addressesOnly = RequestUtils.getBooleanHeader(request, SearchAPI.ADDRESSES_ONLY_HEADER, false);
 		
 		@SuppressWarnings("unchecked")
 		List<JSONObject> type = addressesOnly ? Collections.EMPTY_LIST : suggestPoiType(query);
 
-		JSONObject answer = super.read(request, response);
+		JSONObject answer = super.read(request, response, stat, false);
 		
 		answer.put("matched_type", new JSONArray(type));
+		
+		stat.fillSearchResult(answer);
+		
+		StatisticsWriter.write(stat.build());
 		
 		return answer;
 	}
@@ -104,7 +116,7 @@ public class SuggestAPI extends SearchAPI {
 	}
 
 	private List<JSONObject> suggestPoiType(Query query) {
-		Client client = ESNodeHolder.getClient();
+		
 		// TODO: process with replacers
 		Query filtered = query.filter(new HashSet<String>(Arrays.asList("на", "дом")));
 		
@@ -122,6 +134,7 @@ public class SuggestAPI extends SearchAPI {
 			dismax.add(QueryBuilders.prefixQuery("translated_title", query.listToken().get(0).toString()));
 		}
 		
+		Client client = ESNodeHolder.getClient();
 		SearchRequestBuilder searchRequest = client.prepareSearch("gazetteer")
 				.setTypes(IndexHolder.POI_CLASS)
 				.setQuery(dismax);

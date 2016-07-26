@@ -23,6 +23,9 @@ import me.osm.gazetteer.web.api.utils.BuildSearchQContext;
 import me.osm.gazetteer.web.api.utils.Paginator;
 import me.osm.gazetteer.web.api.utils.RequestUtils;
 import me.osm.gazetteer.web.imp.IndexHolder;
+import me.osm.gazetteer.web.stats.APIRequest.APIRequestBuilder;
+import me.osm.gazetteer.web.stats.StatWriterUtils;
+import me.osm.gazetteer.web.stats.StatisticsWriter;
 import me.osm.gazetteer.web.utils.OSMDocSinglton;
 import me.osm.osmdoc.model.Feature;
 
@@ -35,13 +38,15 @@ import org.elasticsearch.client.Client;
 import org.elasticsearch.common.geo.GeoPoint;
 import org.elasticsearch.common.lucene.search.function.CombineFunction;
 import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.index.query.FilterBuilder;
-import org.elasticsearch.index.query.FilterBuilders;
-import org.elasticsearch.index.query.OrFilterBuilder;
+//import org.elasticsearch.index.query.FilterBuilder;
+//import org.elasticsearch.index.query.FilterBuilders;
+//import org.elasticsearch.index.query.OrFilterBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.functionscore.FunctionScoreQueryBuilder;
 import org.elasticsearch.index.query.functionscore.ScoreFunctionBuilders;
+import org.elasticsearch.script.Script;
+import org.elasticsearch.script.ScriptService.ScriptType;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.sort.SortBuilders;
 import org.json.JSONArray;
@@ -169,7 +174,14 @@ public class SearchAPI implements DocumentedApi {
 	 * @param response REST Express response
 	 * */
 	public JSONObject read(Request request, Response response) throws IOException  {
-		return read(request, response, false);
+		APIRequestBuilder stat = StatWriterUtils.fillFromRequest(request);
+		stat.api("search");
+		
+		JSONObject result = read(request, response, stat, false);
+		stat.fillSearchResult(result);
+		StatisticsWriter.write(stat.build());
+		
+		return result;
 	}
 	
 	/**
@@ -181,7 +193,7 @@ public class SearchAPI implements DocumentedApi {
 	 * 
 	 * @return Search results encoded with {@link JSONObject}}
 	 * */
-	public JSONObject read(Request request, Response response, boolean resendedAfterFail) 
+	public JSONObject read(Request request, Response response, APIRequestBuilder stat, boolean resendedAfterFail) 
 			throws IOException {
 
 		boolean explain = "true".equals(request.getHeader(EXPLAIN_HEADER));
@@ -224,8 +236,17 @@ public class SearchAPI implements DocumentedApi {
 			JSONObject answer = internalSearch(request, response,
 					resendedAfterFail, explain, querryString, types, poiClass,
 					lat, lon, refs, strictRequested, fullGeometry,
-					addressesOnly, detalization, bbox, poiTagFilters);
+					addressesOnly, detalization, bbox, poiTagFilters, stat);
 			
+			if (querryString != null) {
+				stat.query(querryString);
+			}
+			else {
+				stat.api("search_poi_by_type");
+				stat.query(StringUtils.join(poiClass) + ";" + 
+						StringUtils.join(types) + ";" + poiTagFiltersString);
+			}
+
 			return answer;
 		}
 		catch (Exception e) {
@@ -243,7 +264,7 @@ public class SearchAPI implements DocumentedApi {
 			Set<String> types, Set<String> poiClass, Double lat, Double lon,
 			Set<String> refs, boolean strict, boolean fullGeometry,
 			boolean addressesOnly, AnswerDetalization detalization,
-			List<String> bbox, JSONObject poiTagFilters) throws IOException {
+			List<String> bbox, JSONObject poiTagFilters, APIRequestBuilder stat) throws IOException {
 		
 		if(types == null) {
 			types = new HashSet<>();
@@ -268,7 +289,7 @@ public class SearchAPI implements DocumentedApi {
 		return internalSearch(
 				null, null, resended, explain, querryString, types, 
 				poiClass, lat, lon, refs, strict, fullGeometry, 
-				addressesOnly, detalization, bbox, poiTagFilters);
+				addressesOnly, detalization, bbox, poiTagFilters, stat);
 	}
 	
 	private JSONObject internalSearch(Request request, Response response,
@@ -276,7 +297,7 @@ public class SearchAPI implements DocumentedApi {
 			Set<String> types, Set<String> poiClass, Double lat, Double lon,
 			Set<String> refs, boolean strictRequested, boolean fullGeometry,
 			boolean addressesOnly, AnswerDetalization detalization,
-			List<String> bbox, JSONObject poiTagFilters) throws IOException {
+			List<String> bbox, JSONObject poiTagFilters, APIRequestBuilder stat) throws IOException {
 		
 		if(querryString == null && poiClass.isEmpty() && types.isEmpty() && refs.isEmpty()) {
 			return null;
@@ -311,7 +332,7 @@ public class SearchAPI implements DocumentedApi {
 			if(request != null && response != null) {
 				if(searchResponse.getHits().getHits().length == 0) {
 					if(GazetteerWeb.config().isReRestrict() && !strictRequested && !resendedAfterFail) {
-						return read(request, response, true);
+						return read(request, response, stat, true);
 					}
 				}
 			}
@@ -325,7 +346,7 @@ public class SearchAPI implements DocumentedApi {
 			
 			JSONObject answer = APIUtils.encodeSearchResult(
 					searchResponse,	fullGeometry, explain, detalization);
-			
+
 			answer.put("request", StringEscapeUtils.escapeHtml4(querryString));
 			
 			if(poiType != null && !poiType.isEmpty()) {
@@ -505,7 +526,7 @@ public class SearchAPI implements DocumentedApi {
 	 * @return modified query
 	 * */
 	private QueryBuilder addRefsRestriction(QueryBuilder qb, Set<String> refs) {
-		qb = QueryBuilders.filteredQuery(qb, FilterBuilders.termsFilter("refs", refs));
+		qb = QueryBuilders.boolQuery().must(qb).filter(QueryBuilders.termsQuery("refs", refs));
 		return qb;
 	}
 
@@ -518,18 +539,17 @@ public class SearchAPI implements DocumentedApi {
 	 * 
 	 * @return filter to search over pois
 	 * */
-	private FilterBuilder createPoiFilter(Query querry) {
+	private QueryBuilder createPoiFilter(Query querry) {
 		
 		// Мне нужны только те пои, для которых совпал name и/или тип.
 		BoolQueryBuilder filterQ = QueryBuilders.boolQuery()
 				.must(QueryBuilders.termQuery("type", "poipnt"))
 				.must(QueryBuilders.multiMatchQuery(querry.toString(), "name.text", "poi_class", "poi_class_trans"));
 		
-		OrFilterBuilder orFilter = FilterBuilders.orFilter(
-				FilterBuilders.queryFilter(filterQ), 
-				FilterBuilders.notFilter(FilterBuilders.termsFilter("type", "poipnt")));
+		return QueryBuilders.orQuery(
+				filterQ, 
+				QueryBuilders.boolQuery().mustNot(QueryBuilders.termsQuery("type", "poipnt")));
 		
-		return orFilter;
 	}
 
 	/**
@@ -542,10 +562,11 @@ public class SearchAPI implements DocumentedApi {
 	 * @return restricted query
 	 * */
 	private QueryBuilder addBBOXRestriction(QueryBuilder qb, List<String> bbox) {
-		qb = QueryBuilders.filteredQuery(qb, 
-				FilterBuilders.geoBoundingBoxFilter("center_point")
-				.bottomLeft(Double.parseDouble(bbox.get(1)), Double.parseDouble(bbox.get(0)))
-				.topRight(Double.parseDouble(bbox.get(3)), Double.parseDouble(bbox.get(2))));
+		qb = QueryBuilders.boolQuery().must(qb).filter(
+				QueryBuilders.geoBoundingBoxQuery("center_point")
+					.bottomLeft(Double.parseDouble(bbox.get(1)), Double.parseDouble(bbox.get(0)))
+					.topRight(Double.parseDouble(bbox.get(3)), Double.parseDouble(bbox.get(2)))); 
+				
 		return qb;
 	}
 
@@ -577,12 +598,14 @@ public class SearchAPI implements DocumentedApi {
 		
 		qb.add(ScoreFunctionBuilders.fieldValueFactorFunction("weight").setWeight(0.005f));
 		
-		qb.add(ScoreFunctionBuilders.scriptFunction("score", "expression").setWeight(10));
+		Script scoreScript = new Script("score", ScriptType.INLINE, "expression", null);
+		qb.add(ScoreFunctionBuilders.scriptFunction(scoreScript).setWeight(10));
 
 		if(shortHNFirst) {
 			String script = "def s = doc['housenumber'].values.size(); \n return (s == 0 ? 1 : 100/s)";
 			
-			qb.add(ScoreFunctionBuilders.scriptFunction(script, "groovy").setWeight(0.1f));
+			Script hnScript = new Script(script, ScriptType.INLINE, "groovy", null);
+			qb.add(ScoreFunctionBuilders.scriptFunction(hnScript).setWeight(0.1f));
 		}
 		
 		return qb;

@@ -18,10 +18,13 @@ import me.osm.osmdoc.localization.L10n;
 import me.osm.osmdoc.model.Feature;
 
 import org.apache.commons.lang3.StringUtils;
+import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsAction;
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsRequestBuilder;
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsResponse;
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
+import org.elasticsearch.action.delete.DeleteAction;
 import org.elasticsearch.action.delete.DeleteRequestBuilder;
+import org.elasticsearch.action.index.IndexAction;
 import org.elasticsearch.action.index.IndexRequestBuilder;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -43,12 +46,12 @@ public class ImportOSMDoc implements DocumentedApi {
 		JSONObject result = new JSONObject();
 		
 		if(drop) {
-			new DeleteRequestBuilder(ESNodeHolder.getClient(), "gazetteer")
+			new DeleteRequestBuilder(ESNodeHolder.getClient(), DeleteAction.INSTANCE, "gazetteer")
 				.setType(IndexHolder.POI_CLASS).execute().actionGet();
 		}
 		
 		IndicesExistsResponse response = 
-				new IndicesExistsRequestBuilder(ESNodeHolder.getClient().admin().indices())
+				new IndicesExistsRequestBuilder(ESNodeHolder.getClient(), IndicesExistsAction.INSTANCE)
 					.setIndices("gazetteer").execute().actionGet();
 
 		if (!response.isExists()) {
@@ -60,7 +63,7 @@ public class ImportOSMDoc implements DocumentedApi {
 		List<JSONObject> features = OSMDocSinglton.get().getFacade().listTranslatedFeatures(null);
 		for(JSONObject obj : features) {
 			
-			IndexRequestBuilder ind = new IndexRequestBuilder(ESNodeHolder.getClient())
+			IndexRequestBuilder ind = new IndexRequestBuilder(ESNodeHolder.getClient(), IndexAction.INSTANCE)
 				.setSource(obj.toString()).setIndex("gazetteer").setType(IndexHolder.POI_CLASS);
 			
 			bulk.add(ind.request());
@@ -95,7 +98,7 @@ public class ImportOSMDoc implements DocumentedApi {
 						
 						obj.put("keywords", new JSONArray(kwds));
 						
-						IndexRequestBuilder ind = new IndexRequestBuilder(ESNodeHolder.getClient())
+						IndexRequestBuilder ind = new IndexRequestBuilder(ESNodeHolder.getClient(), IndexAction.INSTANCE)
 						.setSource(obj.toString()).setIndex("gazetteer").setType(IndexHolder.POI_CLASS);
 						bulk.add(ind.request());
 						

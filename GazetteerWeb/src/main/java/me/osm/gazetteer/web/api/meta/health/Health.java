@@ -3,9 +3,9 @@ package me.osm.gazetteer.web.api.meta.health;
 import java.util.Date;
 import java.util.Map;
 
-import org.elasticsearch.common.joda.time.Period;
-import org.elasticsearch.common.joda.time.format.PeriodFormatter;
-import org.elasticsearch.common.joda.time.format.PeriodFormatterBuilder;
+import org.joda.time.Period;
+import org.joda.time.format.PeriodFormatter;
+import org.joda.time.format.PeriodFormatterBuilder;
 
 public class Health {
 

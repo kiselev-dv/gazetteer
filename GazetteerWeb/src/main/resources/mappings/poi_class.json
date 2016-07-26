@@ -3,7 +3,6 @@
 		"enabled": false
     },
     "_source": {
-    	"compressed": true
     },
     "_id": {
     	"path": "name"
@@ -22,12 +21,10 @@
         	"index": "analyzed"
         },
         "parsed_tags": {
-			"type": "object",
-			"index": "not_analyzed"        
+			"type": "object"        
         },
         "lang_to_title": {
-        	"type": "object",
-			"index": "not_analyzed"
+        	"type": "object"
         }
     } 
 }
