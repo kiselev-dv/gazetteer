@@ -75,7 +75,7 @@ public class Slicer implements BoundariesHandler,
 	private String osmSlicesPath;
 	
 	public static final List<String> sliceTypes = Arrays.asList(
-			"all", "boundaries", "places", "highways", "addresses", "pois"
+			"all", "boundaries", "places", "highways", "addresses", "pois", "no-pois"
 	);
 	
 	public static double snap(double x) {
@@ -136,7 +136,7 @@ public class Slicer implements BoundariesHandler,
 				builders.add(new AddrPointsBuilder(this));
 			}
 			
-			if(typesSet.contains("all") || typesSet.contains("pois")) {
+			if((typesSet.contains("all") || typesSet.contains("pois")) && !typesSet.contains("no-pois")) {
 				builders.add(new PoisBuilder(this, poiCatalogPath, exclude, named));
 			}
 			
