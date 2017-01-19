@@ -100,7 +100,7 @@ public class Slicer implements BoundariesHandler,
 	
 	public void run(String poiCatalogPath, List<String> types, List<String> exclude, 
 			List<String> named, List<String> dropList, String boundariesFallbackIndex, 
-			List<String> boundariesFallbackTypes, boolean x10) {
+			List<String> boundariesFallbackTypes, boolean x10, boolean skipInterpolation) {
 		
 		long start = new Date().getTime(); 
 
@@ -133,7 +133,7 @@ public class Slicer implements BoundariesHandler,
 			}
 			
 			if(typesSet.contains("all") || typesSet.contains("addresses")) {
-				builders.add(new AddrPointsBuilder(this));
+				builders.add(new AddrPointsBuilder(this, skipInterpolation));
 			}
 			
 			if((typesSet.contains("all") || typesSet.contains("pois")) && !typesSet.contains("no-pois")) {

@@ -242,7 +242,8 @@ public class Gazetteer {
 						list(namespace.getList("drop")),
 						namespace.getString(BOUNDARIES_FALLBACK_VAL),
 						list(namespace.getList(BOUNDARIES_FALLBACK_TYPES_VAL)),
-						namespace.getBoolean("x10")
+						namespace.getBoolean("x10"),
+						namespace.getBoolean("skip_interpolation")
 				);
 				
 			}
@@ -374,7 +375,7 @@ public class Gazetteer {
 	 * */
 	private static void initLog(String[] args) {
 		System.setProperty(org.slf4j.impl.SimpleLogger.SHOW_DATE_TIME_KEY, "true");
-		System.setProperty(org.slf4j.impl.SimpleLogger.DATE_TIME_FORMAT_KEY, "yyyy-MM-dd HH.mm.ss.S");
+		System.setProperty(org.slf4j.impl.SimpleLogger.DATE_TIME_FORMAT_KEY, "yyyy-MM-dd HH.mm.ss.SSS");
 		System.setProperty(org.slf4j.impl.SimpleLogger.SHOW_SHORT_LOG_NAME_KEY, "true");
 
 		Iterator<String> iterator = Arrays.asList(args).iterator();
@@ -388,7 +389,7 @@ public class Gazetteer {
 			}
 			else if(k.equals(LOG_PREFIX_OPT) && iterator.hasNext()) {
 				System.setProperty(org.slf4j.impl.SimpleLogger.DATE_TIME_FORMAT_KEY, 
-						"'" + iterator.next()	+ "' " + "yyyy-MM-dd HH.mm.ss.S");
+						"'" + iterator.next()	+ "' " + "yyyy-MM-dd HH.mm.ss.SSS");
 			}
 		}
 	}
@@ -484,6 +485,10 @@ public class Gazetteer {
 			slice.addArgument("--x10").setConst(Boolean.TRUE)
 				.setDefault(Boolean.FALSE).action(new StoreTrueArgumentAction())
 				.help("Slice ten times thinner stripes");
+			
+			slice.addArgument("--skip-interpolation").setConst(Boolean.TRUE)
+				.setDefault(Boolean.FALSE).action(new StoreTrueArgumentAction())
+				.help("Do not parse addr:interpolation lines");
 			
 		}
 

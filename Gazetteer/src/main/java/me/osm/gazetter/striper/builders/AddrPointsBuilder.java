@@ -61,9 +61,12 @@ public class AddrPointsBuilder extends ABuilder {
 	
 	private GeometryFactory factory = new GeometryFactory();
 	private boolean byRealtionOrdered = false;
+
+	private boolean skipInterpolation = false;
 	
-	public AddrPointsBuilder (AddrPointHandler handler) {
+	public AddrPointsBuilder (AddrPointHandler handler, boolean skipInterpolation) {
 		this.handler = handler;
+		this.skipInterpolation = skipInterpolation;
 	}
 	
 	private static final boolean fullGeometry = true;
@@ -438,7 +441,7 @@ public class AddrPointsBuilder extends ABuilder {
 		if(line.isClosed() && hasAddr(line.tags)) {
 			indexLine(line);
 		}
-		else if (isInterpolation(line.tags)) {
+		else if (!skipInterpolation && isInterpolation(line.tags)) {
 			short i = 1;
 			for(long p : line.nodes) {
 				ByteBuffer bb = ByteBuffer.allocate(8 + 8 + 2 + 8 + 8);
