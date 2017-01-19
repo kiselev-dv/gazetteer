@@ -126,12 +126,12 @@ public class PlaceBuilder extends BoundariesBuilder {
 			if (PLACE_CITY.contains(node.tags.get("place"))) {
 				cityesIndex.insert(envelope, feature);
 				cityes.put(coordinate, feature);
-				files.add(Slicer.getFilePrefix(node.lon));
+				files.add(Slicer.getFilePrefix(node.lon, node.lat));
 			}
 
 			if (PLACE_NEIGHBOUR.contains(node.tags.get("place"))) {
 				neighbours.put(coordinate, feature);
-				files.add(Slicer.getFilePrefix(node.lon));
+				files.add(Slicer.getFilePrefix(node.lon, node.lat));
 			}
 		}
 

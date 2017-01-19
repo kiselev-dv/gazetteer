@@ -37,7 +37,9 @@ public class LineSplitTest {
 		assertEquals(6, result.size());
 
 		for(LineString ls : result) {
-			System.out.println(Slicer.getFilePrefix(ls.getCentroid().getX()));
+			System.out.println(Slicer.getFilePrefix(
+					ls.getCentroid().getX(), 
+					ls.getCentroid().getY()));
 		}
 		
 		System.out.println();
@@ -59,7 +61,9 @@ public class LineSplitTest {
 		}
 		
 		for(LineString ls : result) {
-			System.out.println(Slicer.getFilePrefix(ls.getCentroid().getX()));
+			System.out.println(Slicer.getFilePrefix(
+					ls.getCentroid().getX(), 
+					ls.getCentroid().getY()));
 		}
 		
 		System.out.println();

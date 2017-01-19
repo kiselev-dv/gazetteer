@@ -1,8 +1,5 @@
 package me.osm.gazetter.striper.builders;
 
-import gnu.trove.list.TLongList;
-import gnu.trove.list.array.TLongArrayList;
-
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -10,19 +7,6 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import me.osm.gazetter.striper.GeoJsonWriter;
-import me.osm.gazetter.striper.builders.handlers.AddrPointHandler;
-import me.osm.gazetter.striper.readers.PointsReader.Node;
-import me.osm.gazetter.striper.readers.RelationsReader.Relation;
-import me.osm.gazetter.striper.readers.RelationsReader.Relation.RelationMember;
-import me.osm.gazetter.striper.readers.RelationsReader.Relation.RelationMember.ReferenceType;
-import me.osm.gazetter.striper.readers.WaysReader.Way;
-import me.osm.gazetter.utils.LocatePoint;
-import me.osm.gazetter.utils.binary.Accessor;
-import me.osm.gazetter.utils.binary.Accessors;
-import me.osm.gazetter.utils.binary.BinaryBuffer;
-import me.osm.gazetter.utils.binary.ByteBufferList;
 
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONObject;
@@ -36,6 +20,22 @@ import com.vividsolutions.jts.geom.LinearRing;
 import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
+
+import gnu.trove.list.TLongList;
+import gnu.trove.list.array.TLongArrayList;
+import me.osm.gazetter.LOGMarkers;
+import me.osm.gazetter.striper.GeoJsonWriter;
+import me.osm.gazetter.striper.builders.handlers.AddrPointHandler;
+import me.osm.gazetter.striper.readers.PointsReader.Node;
+import me.osm.gazetter.striper.readers.RelationsReader.Relation;
+import me.osm.gazetter.striper.readers.RelationsReader.Relation.RelationMember;
+import me.osm.gazetter.striper.readers.RelationsReader.Relation.RelationMember.ReferenceType;
+import me.osm.gazetter.striper.readers.WaysReader.Way;
+import me.osm.gazetter.utils.LocatePoint;
+import me.osm.gazetter.utils.binary.Accessor;
+import me.osm.gazetter.utils.binary.Accessors;
+import me.osm.gazetter.utils.binary.BinaryBuffer;
+import me.osm.gazetter.utils.binary.ByteBufferList;
 
 public class AddrPointsBuilder extends ABuilder {
 	
@@ -79,6 +79,7 @@ public class AddrPointsBuilder extends ABuilder {
 	private static final Accessor n2wWayAccessor = Accessors.longAccessor(8);
 	private static final Accessor inplnNodeAccessor = Accessors.longAccessor(0);
 	private static final Accessor n2wLineAccessor = Accessors.longAccessor(8);
+	
 	
 	@Override
 	public void handle(final Relation rel) {
@@ -126,7 +127,9 @@ public class AddrPointsBuilder extends ABuilder {
 				}
 
 				if(coords.isEmpty()) {
-					log.error("Failed to build geometry for relation {}. No points found.", rel.id);
+					log.error(LOGMarkers.E_NO_POINTS_FOR_RELATION, 
+							"Failed to build geometry for relation rel_osm_id({}). No points found.", 
+							rel.id);
 					return;
 				}
 				
@@ -258,7 +261,9 @@ public class AddrPointsBuilder extends ABuilder {
 						}
 						
 						if (hn <= 0 && line.nodes.get(0).equals(pid)) {
-							log.warn("Broken interpolation at point {}. First point has no recognizeable addr:housenumber", pid);
+							log.warn(LOGMarkers.E_INTRPLTN_NO_ADDR_POINT, 
+									"Broken interpolation at point node_osm_id({}). "
+									+ "First point has no recognizeable addr:housenumber", pid);
 						}
 						
 						prevPID = pid;
@@ -267,12 +272,16 @@ public class AddrPointsBuilder extends ABuilder {
 				}
 				
 				if(coords.size() > 1) {
-					log.warn("Broken interpolation at point {}. Last point has no recognizeable addr:housenumber", prevPID);
+					log.warn(LOGMarkers.E_INTRPLTN_NO_ADDR_POINT, 
+							"Broken interpolation at point node_osm_id({}). "
+							+ "Last point has no recognizeable addr:housenumber", prevPID);
 				}
 			}
 		}
 		else {
-			log.warn("Unsupported interpolation type: {} for way {}", interpolation, line.id);
+			log.warn(LOGMarkers.E_INTRPLTN_UNSPRTED_TYPE, 
+					"Unsupported interpolation type: {} for way way_osm_id({})", 
+					interpolation, line.id);
 		}
 		
 	}
@@ -397,16 +406,21 @@ public class AddrPointsBuilder extends ABuilder {
 				}
 				
 				if(coords.isEmpty()) {
-					log.error("Failed to build geometry for way {}. No points found.", line.id);
+					log.error(LOGMarkers.E_NO_POINTS_FOR_WAY, 
+							"Failed to build geometry for way way_osm_id({}). "
+							+ "No points found.", line.id);
 					return;
 				}
 				
 				if(coords.size() != line.nodes.size()) {
-					log.warn("Failed to build geometry for way {}. Some points wasn't found.", line.id);
+					log.warn(LOGMarkers.E_NO_POINTS_FOR_WAY, 
+							"Failed to build geometry for way way_osm_id({}). "
+							+ "Some points wasn't found.", line.id);
 					centroid = factory.createPoint(coords.get(0));
 				}
 				else if(coords.size() < 4) {
-					log.warn("Wrong number of points for {}", line.id);
+					log.warn(LOGMarkers.E_WRONG_NUM_OF_POINTS, 
+							"Wrong number of points for way_osm_id({})", line.id);
 					centroid = factory.createPoint(coords.get(0));
 				}
 				else {
@@ -525,7 +539,7 @@ public class AddrPointsBuilder extends ABuilder {
 						interpolation2Street.put(intWayId, street);
 					}
 					else if(!interpolation2Street.get(intWayId).equals(street)) {
-						log.warn("Different streets on addr interpolated nodes. "
+						log.warn(LOGMarkers.E_INTRPLTN_DIF_STREETS, "Different streets on addr interpolated nodes. "
 								+ "Interpolation way id: {} street: {} ({}) Node: {}", 
 								new Object[]{intWayId, street, interpolation2Street.get(intWayId), node.id});
 					}

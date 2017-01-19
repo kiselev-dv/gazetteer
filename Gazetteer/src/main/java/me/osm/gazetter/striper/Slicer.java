@@ -61,15 +61,8 @@ public class Slicer implements BoundariesHandler,
 	private static final Set<String> threadPoolUsers = new HashSet<String>();
 
 	private static final GeometryFactory factory = new GeometryFactory();
+	private static FileNameKeyGenerator fileNameKeyGenerator = new FileNameKeyGenerator(1, 1);
 	private ExecutorService executorService;
-	
-	private static int f = 1;
-	private static double dx = 0.1 / f;
-	private static double dxinv = 1/dx;
-	private static double x0 = 0;
-	private static int chars = 4 + f / 10; 
-	private static int roundPlaces = 4 + f / 10; 
-	private static String FILE_MASK = "%0" + chars + "d";
 	
 	private WriteDao writeDAO;
 	private String osmSlicesPath;
@@ -78,24 +71,14 @@ public class Slicer implements BoundariesHandler,
 			"all", "boundaries", "places", "highways", "addresses", "pois", "no-pois"
 	);
 	
-	public static double snap(double x) {
-		return Math.round((x - x0)/ dx) * dx + x0;
-	}
-	
 	public Slicer(String dirPath) {
 		this.osmSlicesPath = dirPath;
 		writeDAO = new FileWriteDao(new File(dirPath));
 		executorService = Executors.newFixedThreadPool(Options.get().getNumberOfThreads());
 	}
 	
-	public static void setFactor(int newf) {
-		int f = newf;
-		dx = 0.1 / f;
-		dxinv = 1/dx;
-		x0 = 0;
-		chars = 4 + f / 10; 
-		roundPlaces = 4 + f / 10; 
-		FILE_MASK = "%0" + chars + "d";
+	public static void setFactor(int xfactor) {
+		fileNameKeyGenerator = new FileNameKeyGenerator(xfactor, 1);
 	}
 	
 	public void run(String poiCatalogPath, List<String> types, List<String> exclude, 
@@ -223,7 +206,8 @@ public class Slicer implements BoundariesHandler,
 			
 			
 			for(Polygon p : polygons) {
-				String n = getFilePrefix(p.getEnvelope().getCentroid().getX());
+				Point centroid = p.getEnvelope().getCentroid();
+				String n = getFilePrefix(centroid.getX(), centroid.getY());
 				featureWithoutGeometry.put(GeoJsonWriter.GEOMETRY, GeoJsonWriter.geometryToJSON(p));
 				String geoJSONString = featureWithoutGeometry.toString();
 				writeOut(geoJSONString, n);
@@ -268,7 +252,8 @@ public class Slicer implements BoundariesHandler,
 		Polygon bbox = (Polygon) p.getEnvelope();
 		
 		Point centroid = bbox.getCentroid();
-		double snapX = round(snap(centroid.getX()), roundPlaces);
+		
+		double snapX = fileNameKeyGenerator.roundX(centroid);
 		
 		double minX = p.getEnvelopeInternal().getMinX();
 		double maxX = p.getEnvelopeInternal().getMaxX();
@@ -290,17 +275,8 @@ public class Slicer implements BoundariesHandler,
 		
 		Envelope bbox = l.getEnvelopeInternal();
 		
-		double minX = bbox.getMinX();
-		double maxX = bbox.getMaxX();
-		
-		List<Double> bladesX = new ArrayList<>();
-		for(double x = minX;x <= maxX;x += dx) {
-			double snapX = round(snap(x), roundPlaces);
-			
-			if(snapX > minX && snapX < maxX) {
-				bladesX.add(snapX);
-			}
-		}
+		List<Polygon> polygons = fileNameKeyGenerator.getBladePolygons(bbox);
+		List<Double> bladesX = fileNameKeyGenerator.getBlades(bbox);
 		
 		//simple case
 		if(bladesX.size() == 1) {
@@ -315,32 +291,6 @@ public class Slicer implements BoundariesHandler,
 			}
 		}
 		
-		List<Polygon> polygons = new ArrayList<>();
-		double x1 = minX; 
-		double x2 = maxX;
-		for(double x : bladesX) {
-			x2 = x; 
-			polygons.add(
-				factory.createPolygon(new Coordinate[]{
-					new Coordinate(x1, bbox.getMinY() - 0.00001),	
-					new Coordinate(x2, bbox.getMinY() - 0.00001),	
-					new Coordinate(x2, bbox.getMaxY() + 0.00001),	
-					new Coordinate(x1, bbox.getMaxY() + 0.00001),	
-					new Coordinate(x1, bbox.getMinY() - 0.00001)	
-			}));
-			x1 = x2;
-		}
-		x2 = maxX;
-		polygons.add(
-			factory.createPolygon(new Coordinate[]{
-					new Coordinate(x1, bbox.getMinY() - 0.00001),	
-					new Coordinate(x2, bbox.getMinY() - 0.00001),	
-					new Coordinate(x2, bbox.getMaxY() + 0.00001),	
-					new Coordinate(x1, bbox.getMaxY() + 0.00001),	
-					new Coordinate(x1, bbox.getMinY() - 0.00001)	
-		}));
-		
-		
 		for(Polygon p : polygons) {
 			Geometry intersection = l.intersection(p);
 			for(int i = 0; i < intersection.getNumGeometries(); i++) {
@@ -353,22 +303,12 @@ public class Slicer implements BoundariesHandler,
 		
 		return result;
 	}
-	
-	public static double round(double value, int places) {
-	    if (places < 0) throw new IllegalArgumentException();
-
-	    BigDecimal bd = new BigDecimal(value);
-	    bd = bd.setScale(places, RoundingMode.HALF_UP);
-	    return bd.doubleValue();
-	}
-
-
 
 	@Override
 	public void handleAddrPoint(Map<String, String> attributes, Point point,
 			JSONObject meta) {
 		String id = GeoJsonWriter.getId(FeatureTypes.ADDR_POINT_FTYPE, point, meta);
-		String n = getFilePrefix(point.getX());
+		String n = getFilePrefix(point.getX(), point.getY());
 		
 		String geoJSONString = GeoJsonWriter.featureAsGeoJSON(id, FeatureTypes.ADDR_POINT_FTYPE, attributes, point, meta);
 		
@@ -381,15 +321,15 @@ public class Slicer implements BoundariesHandler,
 		writeOut(geoJSONString, n);
 	}
 
-	public static String getFilePrefix(double x) {
-		return String.format(FILE_MASK, (new Double((x + 180.0) * dxinv).intValue()));
+	public static String getFilePrefix(double x, double y) {
+		return fileNameKeyGenerator.getFilePrefix(x, y);
 	}
 
 	@Override
 	public void handlePlacePoint(Map<String, String> tags, Point pnt,
 			JSONObject meta) {
 		String fid = GeoJsonWriter.getId(FeatureTypes.PLACE_POINT_FTYPE, pnt, meta);
-		String n = getFilePrefix(pnt.getX());
+		String n = getFilePrefix(pnt.getX(), pnt.getY());
 		String geoJSONString = GeoJsonWriter.featureAsGeoJSON(fid, FeatureTypes.PLACE_POINT_FTYPE, tags, pnt, meta);
 		
 		assert GeoJsonWriter.getId(geoJSONString).equals(fid) 
@@ -411,7 +351,7 @@ public class Slicer implements BoundariesHandler,
 		meta.put("type", "node");
 		if(HilbertCurveHasher.encode(pnt.getX(), pnt.getY()) != 0 ) {
 			String fid = GeoJsonWriter.getId(FeatureTypes.JUNCTION_FTYPE, pnt, meta);
-			String n = getFilePrefix(pnt.getX());
+			String n = getFilePrefix(pnt.getX(), pnt.getY());
 			
 			@SuppressWarnings("unchecked")
 			JSONObject r = GeoJsonWriter.createFeature(fid, FeatureTypes.JUNCTION_FTYPE, Collections.EMPTY_MAP, pnt, meta);
@@ -442,8 +382,8 @@ public class Slicer implements BoundariesHandler,
 		
 		// most of highways hits only one stripe so it's faster to write
 		// it into all of them without splitting 
-		int min = new Double((env.getMinX() + 180.0) * dxinv).intValue();
-		int max = new Double((env.getMaxX() + 180.0) * dxinv).intValue();
+		int minX = fileNameKeyGenerator.getMinX(env);
+		int maxX = fileNameKeyGenerator.getMaxX(env);
 		
 		Point centroid = geometry.getCentroid();
 		
@@ -457,14 +397,14 @@ public class Slicer implements BoundariesHandler,
 		assert GeoJsonWriter.getFtype(geoJSONString).equals(FeatureTypes.HIGHWAY_FEATURE_TYPE) 
 			: "Failed getFtype for " + geoJSONString;
 		
-		if(min == max) {
-			String n = getFilePrefix(centroid.getX());
+		if(minX == maxX) {
+			String n = getFilePrefix(centroid.getX(), centroid.getY());
 			writeOut(geoJSONString, n);
 		}
-		else if(max - min == 1) {
+		else if(maxX - minX == 1) {
 			//it's faster to write geometry as is in such case.
-			for(int i = min; i <= max; i++) {
-				String n = String.format(FILE_MASK, i); 
+			for(int i = minX; i <= maxX; i++) {
+				String n = fileNameKeyGenerator.format(i, 0); 
 				writeOut(geoJSONString, n);
 			}
 		}
@@ -473,7 +413,7 @@ public class Slicer implements BoundariesHandler,
 				List<LineString> segments = stripe(geometry);
 
 				for(LineString stripe : segments) {
-					String n = getFilePrefix(stripe.getCentroid().getX());
+					String n = getFilePrefix(stripe.getCentroid().getX(), stripe.getCentroid().getY());
 					String featureAsGeoJSON = GeoJsonWriter.featureAsGeoJSON(fid, FeatureTypes.HIGHWAY_FEATURE_TYPE, way.tags, stripe, meta);
 					
 					assert GeoJsonWriter.getId(featureAsGeoJSON).equals(fid) 
@@ -496,7 +436,7 @@ public class Slicer implements BoundariesHandler,
 			JSONObject meta) {
 		
 		String id = GeoJsonWriter.getId(FeatureTypes.POI_FTYPE, point, meta);
-		String n = getFilePrefix(point.getX());
+		String n = getFilePrefix(point.getX(), point.getY());
 		
 		JSONObject feature = GeoJsonWriter.createFeature(id, FeatureTypes.POI_FTYPE, attributes, point, meta);
 		feature.put("poiTypes", new JSONArray(types));
@@ -583,7 +523,7 @@ public class Slicer implements BoundariesHandler,
 		
 		if(minN <= maxN) {
 			for(int i = minN; i <= maxN; i++) {
-				String n = String.format(FILE_MASK, i);
+				String n = fileNameKeyGenerator.format(i, 0);
 				
 				JSONObject feature = new JSONFeature();
 

@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import me.osm.gazetter.LOGMarkers;
 import me.osm.gazetter.striper.readers.RelationsReader.Relation;
 import me.osm.gazetter.striper.readers.WaysReader.Way;
 import me.osm.gazetter.utils.MultiMap;
@@ -137,11 +138,13 @@ public class BuildUtils {
 					if(log.isDebugEnabled()) {
 						log.debug(outer.toString());
 					}
-					
 					return null;
 				}
 				
-				log.info("Mend polygon for {}. Error is {}", rel.id, validationError.toString());
+				log.info(LOGMarkers.E_POLYGON_BUID_ERR, 
+						"Polygon for rel_osm_id({}) mended. Error is {}", 
+						rel.id, validationError.toString());
+				
 				outer = mended;
 			}
 			catch (Exception e) {

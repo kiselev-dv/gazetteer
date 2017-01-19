@@ -29,7 +29,8 @@ public class LogbackConfigurator extends ContextAwareBase implements Configurato
 				"%d{yyyy-MM-dd HH:mm:ss.SSS} %marker %-5level %logger{36} - %msg%n"}, ' ');
 
 		Logger rootLogger = lc.getLogger(Logger.ROOT_LOGGER_NAME);
-
+		rootLogger.detachAndStopAllAppenders();
+		
 		if (!muteConsole) {
 			
 			ConsoleAppender<ILoggingEvent> ca = new ConsoleAppender<ILoggingEvent>();

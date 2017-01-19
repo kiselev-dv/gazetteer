@@ -25,20 +25,23 @@
 		<dependencySet>
 			<outputDirectory>/</outputDirectory>
 			<unpack>true</unpack>
+			<!-- 
 			<unpackOptions>
 				<excludes>
 					<exclude>META-INF/services/ch.qos.logback.classic.spi.Configurator</exclude>
 				</excludes>
 			</unpackOptions>
+			 -->
 			<scope>runtime</scope>
 		</dependencySet>
 	</dependencySets>
-	
+	<!-- 
 	<files>
 		<file>
 			<source>${project.basedir}/src/main/resources/META-INF/services/ch.qos.logback.classic.spi.Configurator</source>
 			<outputDirectory>META-INF/services</outputDirectory>
 		</file>
 	</files>
+	 -->
 
 </assembly>
