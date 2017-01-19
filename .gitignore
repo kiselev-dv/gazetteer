@@ -16,3 +16,4 @@ RemoteSystemsTempFiles/
 *.osm
 data/
 */.recomenders/*
+.recommenders/
