@@ -9,6 +9,11 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import me.osm.gazetter.addresses.AddrLevelsSorting;
 import me.osm.gazetter.diff.Diff;
 import me.osm.gazetter.join.JoinExecutor;
@@ -23,12 +28,6 @@ import net.sourceforge.argparse4j.inf.ArgumentParserException;
 import net.sourceforge.argparse4j.inf.Namespace;
 import net.sourceforge.argparse4j.inf.Subparser;
 import net.sourceforge.argparse4j.inf.Subparsers;
-
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.exception.ExceptionUtils;
-import org.codehaus.groovy.runtime.metaclass.MethodMetaProperty.GetBeanMethodMetaProperty;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Entry point for executable jar.
@@ -65,6 +64,7 @@ public class Gazetteer {
 	private static final String LOG_OPT = "--log-level";
 	private static final String LOG_FILE_OPT = "--log-file";
 	private static final String LOG_PREFIX_OPT = "--log-prefix";
+	private static final String LOG_FILE_ONLY = "--log-console-mute";
 
 	private static final String POI_CATALOG_VAL = "poi_catalog";
 	private static final String POI_CATALOG_OPT = "--poi-catalog";
@@ -72,6 +72,7 @@ public class Gazetteer {
 	private static final String FEATURE_TYPES_VAL = "feature_types";
 
 	private static final String COMMAND = "command";
+	
 	
 	private static Logger log;
 	
@@ -374,24 +375,37 @@ public class Gazetteer {
 	 * Logging options should be set before any logger will be instantiated.
 	 * */
 	private static void initLog(String[] args) {
-		System.setProperty(org.slf4j.impl.SimpleLogger.SHOW_DATE_TIME_KEY, "true");
-		System.setProperty(org.slf4j.impl.SimpleLogger.DATE_TIME_FORMAT_KEY, "yyyy-MM-dd HH.mm.ss.SSS");
-		System.setProperty(org.slf4j.impl.SimpleLogger.SHOW_SHORT_LOG_NAME_KEY, "true");
 
+		/**
+		 * XXX: Static not final access to LogbackConfigurator is a crap
+		 * 
+		 * Done on purpose, logback use LogbackConfigurator 
+		 * binded via META-INF/services. And I don't want to move it inside
+		 * Gazetteer class, because I don't know when it will be created and
+		 * accessed. So I need a way to set that fields. 
+		 * 
+		 * From the other hand it just wanted to work the right way, thats
+		 * why I've made ugly configureStatic which completly unnecessary
+		 * if services providesrs works
+		 * */
 		Iterator<String> iterator = Arrays.asList(args).iterator();
 		while(iterator.hasNext()) {
 			String k = iterator.next();
 			if(k.equals(LOG_OPT) && iterator.hasNext()) {
-				System.setProperty(org.slf4j.impl.SimpleLogger.DEFAULT_LOG_LEVEL_KEY, iterator.next());
+				LogbackConfigurator.level = iterator.next();
 			}
 			else if(k.equals(LOG_FILE_OPT) && iterator.hasNext()) {
-				System.setProperty(org.slf4j.impl.SimpleLogger.LOG_FILE_KEY, iterator.next());
+				LogbackConfigurator.outFile = iterator.next();
 			}
 			else if(k.equals(LOG_PREFIX_OPT) && iterator.hasNext()) {
-				System.setProperty(org.slf4j.impl.SimpleLogger.DATE_TIME_FORMAT_KEY, 
-						"'" + iterator.next()	+ "' " + "yyyy-MM-dd HH.mm.ss.SSS");
+				LogbackConfigurator.logPrefix = iterator.next();
+			}
+			else if(k.equals(LOG_FILE_ONLY)) {
+				LogbackConfigurator.muteConsole = true;
 			}
 		}
+		
+		LogbackConfigurator.configureStatic();
 	}
 
 	/**
@@ -416,8 +430,12 @@ public class Gazetteer {
         	.setDefault("data");
         
         parser.addArgument(LOG_OPT).required(false).setDefault("WARN");
-        parser.addArgument(LOG_FILE_OPT).required(false);
-        parser.addArgument(LOG_PREFIX_OPT).required(false);
+        parser.addArgument(LOG_FILE_OPT).required(false).help("Path to log file");
+        parser.addArgument(LOG_PREFIX_OPT).required(false).help("Add that prefix to all log messages");
+        parser.addArgument(LOG_FILE_ONLY).required(false)
+        	.action(Arguments.storeTrue())
+        	.setDefault(Boolean.TRUE)
+        	.help("Mute console output");
 
         parser.addArgument("--version", "-v").required(false)
         	.help("Print version and exit.")

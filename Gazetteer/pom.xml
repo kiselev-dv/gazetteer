@@ -71,10 +71,17 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xs
 			<version>1.7.12</version>
 		</dependency>
 		<dependency>
+		    <groupId>ch.qos.logback</groupId>
+		    <artifactId>logback-classic</artifactId>
+		    <version>1.1.8</version>
+		</dependency>
+		<!--
+		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-simple</artifactId>
 			<version>1.7.12</version>
 		</dependency>
+		-->
 		<dependency>
 			<groupId>me.osm.osm-doc</groupId>
 			<artifactId>osm-doc-java</artifactId>
@@ -119,6 +126,7 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xs
 	</reporting>
 
 	<build>
+		<!-- Substitute versions info -->
 		<resources>
 			<resource>
 				<directory>src/main/resources</directory>
@@ -128,25 +136,33 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xs
 				</includes>
 			</resource>
 		</resources>
+		
+		<!--  make executable jar with dependancies -->
 		<plugins>
 			<plugin>
 				<artifactId>maven-assembly-plugin</artifactId>
+				<version>2.6</version>
 				<configuration>
+					<!-- Make single jar with dependancies -->
+					<descriptors>
+						<descriptor>src/assembly/jar-with-dependancies.xml</descriptor>
+					</descriptors>
+					
+					<!-- Make executable via java -jar -->
 					<archive>
 						<manifest>
 							<mainClass>me.osm.gazetter.Gazetteer</mainClass>
 						</manifest>
 					</archive>
-					<descriptorRefs>
-						<descriptorRef>jar-with-dependencies</descriptorRef>
-					</descriptorRefs>
+
 					<finalName>${project.artifactId}</finalName>
 					<appendAssemblyId>false</appendAssemblyId>
 				</configuration>
 				<executions>
 					<execution>
-						<id>make-assembly</id> <!-- this is used for inheritance merges -->
-						<phase>package</phase> <!-- bind to the packaging phase -->
+						<id>make-assembly</id>
+						<!-- bind to the packaging phase --> 
+						<phase>package</phase> 
 						<goals>
 							<goal>single</goal>
 						</goals>
