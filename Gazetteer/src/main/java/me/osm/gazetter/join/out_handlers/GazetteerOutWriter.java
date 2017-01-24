@@ -24,6 +24,7 @@ import gnu.trove.set.hash.TLongHashSet;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -144,6 +145,8 @@ public class GazetteerOutWriter extends AddressPerRowJOHBase  {
 
 	private PrintWriter hghnetWriter;
 	private File hghNetFile;
+
+	ByteArrayOutputStream hashBAOS = new ByteArrayOutputStream(); 
 
 	@Override
 	public JoinOutHandler initialize(HandlerOptions parsedOpts) {
@@ -301,6 +304,10 @@ public class GazetteerOutWriter extends AddressPerRowJOHBase  {
 		System.out.println(usage.toString());
 	}
 
+	private synchronized void handleMD5(String md5) {
+		hashBAOS.write(md5.hashCode());
+	}
+
 	@Override
 	protected void handlePoiPointAddrRow(JSONObject object, JSONObject address,
 			String stripe) {
@@ -313,8 +320,8 @@ public class GazetteerOutWriter extends AddressPerRowJOHBase  {
 		JSONFeature result = new JSONFeature();
 		if(fillObject(result, address, object)) {
 			fillPOI(result, object, address.getString("poiAddrMatch"));
-
 			println(result.toString());
+			handleMD5(result.getString("md5"));
 			flush();
 
 			poipntc.getAndIncrement();
@@ -328,6 +335,7 @@ public class GazetteerOutWriter extends AddressPerRowJOHBase  {
 		JSONFeature result = new JSONFeature();
 		if(fillObject(result, address, object)){
 			println(result.toString());
+			handleMD5(result.getString("md5"));
 			flush();
 			adrpntc.getAndIncrement();
 		}
@@ -351,6 +359,7 @@ public class GazetteerOutWriter extends AddressPerRowJOHBase  {
 		JSONFeature result = new JSONFeature();
 		if(fillObject(result, address, object)) {
 			println(result.toString());
+			handleMD5(result.getString("md5"));
 			flush();
 			hghwayc.getAndIncrement();
 		}
@@ -403,6 +412,7 @@ public class GazetteerOutWriter extends AddressPerRowJOHBase  {
 		JSONFeature result = new JSONFeature();
 		if(fillObject(result, address, object)) {
 			println(result.toString());
+			handleMD5(result.getString("md5"));
 			flush();
 			plcbndc.getAndIncrement();
 		}
@@ -414,6 +424,7 @@ public class GazetteerOutWriter extends AddressPerRowJOHBase  {
 		JSONFeature result = new JSONFeature();
 		if(fillObject(result, address, object)) {
 			println(result.toString());
+			handleMD5(result.getString("md5"));
 			flush();
 			plcpntc.getAndIncrement();
 		}
@@ -426,6 +437,7 @@ public class GazetteerOutWriter extends AddressPerRowJOHBase  {
 			JSONFeature result = new JSONFeature();
 			if(fillObject(result, address, object)) {
 				println(result.toString());
+				handleMD5(result.getString("md5"));
 				flush();
 				admbndc.getAndIncrement();
 			}
@@ -1056,6 +1068,17 @@ public class GazetteerOutWriter extends AddressPerRowJOHBase  {
 
 			log.info("Done merge highway networks");
 		}
+		
+		byte[] byteArray = hashBAOS.toByteArray();
+		Arrays.sort(byteArray);
+		int hash = Arrays.hashCode(byteArray);
+		String hashString = String.valueOf(Math.abs(hash)); 
+		
+		JSONObject meta = new JSONObject();
+		meta.put("type", "mtainf");
+		meta.put("hash", hashString);
+		GeoJsonWriter.addTimestamp(meta);
+		println(meta.toString());
 
 		// Flush and close out writer
 		super.allDone();
@@ -1071,7 +1094,8 @@ public class GazetteerOutWriter extends AddressPerRowJOHBase  {
 		log.info("Wrote place boundaries: {}", 	plcbndc.get());
 		log.info("Wrote place points: {}", 		plcpntc.get());
 		log.info("Wrote admin boundaries: {}", 	admbndc.get());
-
+		log.info("Hash: {}", hashString);
+		
 	}
 
 	private void sortResults() {
