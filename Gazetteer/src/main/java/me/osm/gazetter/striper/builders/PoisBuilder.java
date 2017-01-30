@@ -1,8 +1,5 @@
 package me.osm.gazetter.striper.builders;
 
-import gnu.trove.list.TLongList;
-import gnu.trove.list.array.TLongArrayList;
-
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -11,24 +8,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import me.osm.gazetter.striper.GeoJsonWriter;
-import me.osm.gazetter.striper.builders.handlers.PoisHandler;
-import me.osm.gazetter.striper.readers.PointsReader.Node;
-import me.osm.gazetter.striper.readers.RelationsReader.Relation;
-import me.osm.gazetter.striper.readers.RelationsReader.Relation.RelationMember;
-import me.osm.gazetter.striper.readers.RelationsReader.Relation.RelationMember.ReferenceType;
-import me.osm.gazetter.striper.readers.WaysReader.Way;
-import me.osm.gazetter.utils.binary.Accessor;
-import me.osm.gazetter.utils.binary.Accessors;
-import me.osm.gazetter.utils.binary.BinaryBuffer;
-import me.osm.gazetter.utils.binary.ByteBufferList;
-import me.osm.osmdoc.model.Feature;
-import me.osm.osmdoc.read.DOCFileReader;
-import me.osm.osmdoc.read.DOCFolderReader;
-import me.osm.osmdoc.read.DOCReader;
-import me.osm.osmdoc.read.OSMDocFacade;
-import me.osm.osmdoc.read.TagsDecisionTree;
 
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONObject;
@@ -43,6 +22,27 @@ import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
 
+import gnu.trove.list.TLongList;
+import gnu.trove.list.array.TLongArrayList;
+import me.osm.gazetter.striper.GeoJsonWriter;
+import me.osm.gazetter.striper.Slicer;
+import me.osm.gazetter.striper.builders.handlers.PoisHandler;
+import me.osm.gazetter.striper.readers.PointsReader.Node;
+import me.osm.gazetter.striper.readers.RelationsReader.Relation;
+import me.osm.gazetter.striper.readers.RelationsReader.Relation.RelationMember;
+import me.osm.gazetter.striper.readers.RelationsReader.Relation.RelationMember.ReferenceType;
+import me.osm.gazetter.striper.readers.WaysReader.Way;
+import me.osm.gazetter.utils.index.Accessor;
+import me.osm.gazetter.utils.index.Accessors;
+import me.osm.gazetter.utils.index.BinaryIndex;
+import me.osm.gazetter.utils.index.IndexFactory;
+import me.osm.osmdoc.model.Feature;
+import me.osm.osmdoc.read.DOCFileReader;
+import me.osm.osmdoc.read.DOCFolderReader;
+import me.osm.osmdoc.read.DOCReader;
+import me.osm.osmdoc.read.OSMDocFacade;
+import me.osm.osmdoc.read.TagsDecisionTree;
+
 public class PoisBuilder extends ABuilder {
 	
 	private TagsDecisionTree tagsFilter;
@@ -55,7 +55,28 @@ public class PoisBuilder extends ABuilder {
 	
 	private DOCReader reader;
 	
-	public PoisBuilder(PoisHandler handler, String catalogFolder, List<String> exclude, List<String> named) {
+	private static final Logger log = LoggerFactory.getLogger(PoisBuilder.class.getName());
+
+	private BinaryIndex way2relation; 
+	private BinaryIndex node2way;
+
+	//Trying to save some memory
+	private TLongList writedAddrNodes = new TLongArrayList(); 
+	
+	private boolean indexFilled = false;
+	private boolean orderedByway = false;
+	private boolean byRealtionOrdered = false;
+	
+	private static final boolean fullGeometry = true;
+	private static final long MASK_16_BITS = 0xFFFFL;
+
+	private static final Accessor w2rRelAccessor = Accessors.longAccessor(8);
+	private static final Accessor w2rWayAccessor = Accessors.longAccessor(0);
+	private static final Accessor n2wWayAccessor = Accessors.longAccessor(8);
+	private static final Accessor n2wNodeAccessor = Accessors.longAccessor(0);
+	
+	public PoisBuilder(PoisHandler handler, IndexFactory indexFactory, 
+			String catalogFolder, List<String> exclude, List<String> named) {
 		this.handler = handler;
 		
 		if(catalogFolder.endsWith(".xml") || catalogFolder.equals("jar")) {
@@ -74,27 +95,9 @@ public class PoisBuilder extends ABuilder {
 			this.named.add(f.getName());
 		}
 		
+		way2relation = indexFactory.newByteIndex(8 + 8);
+		node2way = indexFactory.newByteIndex(8 + 8 + 2 + 8 + 8);
 	}
-	
-	private static final Logger log = LoggerFactory.getLogger(PoisBuilder.class.getName());
-
-	private BinaryBuffer way2relation = new ByteBufferList(8 + 8); 
-	private BinaryBuffer node2way = new ByteBufferList(8 + 8 + 2 + 8 + 8);
-
-	//Trying to save some memory
-	private TLongList writedAddrNodes = new TLongArrayList(); 
-	
-	private boolean indexFilled = false;
-	private boolean orderedByway = false;
-	private boolean byRealtionOrdered = false;
-	
-	private static final boolean fullGeometry = true;
-	private static final long MASK_16_BITS = 0xFFFFL;
-
-	private static final Accessor w2rRelAccessor = Accessors.longAccessor(8);
-	private static final Accessor w2rWayAccessor = Accessors.longAccessor(0);
-	private static final Accessor n2wWayAccessor = Accessors.longAccessor(8);
-	private static final Accessor n2wNodeAccessor = Accessors.longAccessor(0);
 	
 	@Override
 	public void handle(final Relation rel) {
@@ -247,7 +250,8 @@ public class PoisBuilder extends ABuilder {
 						long addrNodeIdWithN = writedAddrNodes.get(nodeIndex);
 						long n = addrNodeIdWithN & MASK_16_BITS;
 						long addrNodeId = addrNodeIdWithN >> 16;
-						this.handler.handlePoi2Building(String.format("%04d", n), addrNodeId, line.id, line.tags);
+						this.handler.handlePoi2Building(
+								Slicer.formatFilePrefix((int)n, 1), addrNodeId, line.id, line.tags);
 					}
 				}
 			}
@@ -413,6 +417,12 @@ public class PoisBuilder extends ABuilder {
 	@Override
 	public void secondRunDoneRelations() {
 		handler.freeThreadPool(getThreadPoolUser());
+	}
+
+	@Override
+	public void close() {
+		way2relation.close(); 
+		node2way.close();
 	}
 
 }

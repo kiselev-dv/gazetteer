@@ -63,7 +63,7 @@ public class JoinExecutor implements JoinFailuresHandler{
 
 		@Override
 		public boolean accept(File dir, String name) {
-			return name.matches("stripe[\\.\\d-]+\\.gjson(\\.gz)?(?!.)");
+			return name.matches("stripe[\\.\\d-_]+\\.gjson(\\.gz)?(?!.)");
 		}
 
 	}

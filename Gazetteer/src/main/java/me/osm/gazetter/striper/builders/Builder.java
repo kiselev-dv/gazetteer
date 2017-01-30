@@ -48,4 +48,6 @@ public interface Builder extends RelationsHandler, WaysHandler, PointsHandler {
 	public void firstRunDoneWays();
 	public void firstRunDoneRelations();
 	
+	public void close();
+	
 }

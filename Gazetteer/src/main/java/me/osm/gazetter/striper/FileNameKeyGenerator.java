@@ -75,6 +75,11 @@ public class FileNameKeyGenerator {
 	public String getFilePrefix(double x, double y) {
 		String xpref = String.format(FILE_MASK_X, (new Double((x + 180.0) * dxinv).intValue()));
 		String ypref = String.format(FILE_MASK_Y, (new Double((y + 90.0) * dyinv).intValue()));
+		
+		if (xpref.length() == 4) {
+			System.out.println(xpref);
+		}
+		
 		return xpref + ypref;
 	}
 
@@ -136,6 +141,9 @@ public class FileNameKeyGenerator {
 	}
 
 	public String format(int x, int y) {
+		if (String.format(FILE_MASK_X, x).length() == 4) {
+			System.out.println(String.format(FILE_MASK_X, x));
+		}
 		return String.format(FILE_MASK_X, x);
 	}
 }

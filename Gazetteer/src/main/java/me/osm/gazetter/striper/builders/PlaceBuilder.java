@@ -23,6 +23,7 @@ import me.osm.gazetter.striper.builders.handlers.PlacePointHandler;
 import me.osm.gazetter.striper.readers.PointsReader.Node;
 import me.osm.gazetter.striper.readers.RelationsReader.Relation;
 import me.osm.gazetter.striper.readers.WaysReader.Way;
+import me.osm.gazetter.utils.index.IndexFactory;
 
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
@@ -89,8 +90,11 @@ public class PlaceBuilder extends BoundariesBuilder {
 		return x - DEGREE_OFFSET;
 	}
 
-	public PlaceBuilder(PlacePointHandler slicer, BoundariesHandler handler, BoundariesFallbacker fallback) {
-		super(handler, fallback);
+	public PlaceBuilder(PlacePointHandler slicer, 
+			BoundariesHandler handler, 
+			BoundariesFallbacker fallback,
+			IndexFactory indexFactory) {
+		super(handler, indexFactory, fallback);
 		this.handler = slicer;
 	}
 	
@@ -416,7 +420,7 @@ public class PlaceBuilder extends BoundariesBuilder {
 
 	private void writeToExistFiles(String rstring, int from, int to) {
 		for (int i = from; i <= to; i++) {
-			String filePrefix = String.format("%04d", i);
+			String filePrefix = Slicer.formatFilePrefix(i, 1);
 			if (files.contains(filePrefix)) {
 				handler.writeOut(rstring, filePrefix);
 			}

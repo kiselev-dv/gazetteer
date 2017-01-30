@@ -36,6 +36,9 @@ import me.osm.gazetter.striper.readers.RelationsReader.Relation.RelationMember.R
 import me.osm.gazetter.striper.readers.WaysReader.Way;
 import me.osm.gazetter.utils.GeometryUtils;
 import me.osm.gazetter.utils.HilbertCurveHasher;
+import me.osm.gazetter.utils.index.BBListIndexFactory;
+import me.osm.gazetter.utils.index.IndexFactory;
+import me.osm.gazetter.utils.index.MMapIndexFactory;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.lang3.time.DurationFormatUtils;
@@ -83,7 +86,8 @@ public class Slicer implements BoundariesHandler,
 	
 	public void run(String poiCatalogPath, List<String> types, List<String> exclude, 
 			List<String> named, List<String> dropList, String boundariesFallbackIndex, 
-			List<String> boundariesFallbackTypes, boolean x10, boolean skipInterpolation) {
+			List<String> boundariesFallbackTypes, boolean x10, 
+			boolean skipInterpolation, boolean offMemoryIndex) {
 		
 		long start = new Date().getTime(); 
 
@@ -95,6 +99,13 @@ public class Slicer implements BoundariesHandler,
 				setFactor(10);
 			}
 			
+			IndexFactory indexesFactory = new BBListIndexFactory();
+			if (offMemoryIndex) {
+				File indexFolder = new File(this.osmSlicesPath, "slice_indxs");
+				indexFolder.mkdirs();
+				indexesFactory = new MMapIndexFactory(indexFolder);
+			}
+			
 			HashSet<String> drop = new HashSet<String>(dropList);
 			
 			List<Builder> builders = new ArrayList<>();
@@ -102,30 +113,34 @@ public class Slicer implements BoundariesHandler,
 			Set<String> typesSet = new HashSet<String>(types);
 			
 			if(typesSet.contains("all") || typesSet.contains("boundaries")) {
-				builders.add(new BoundariesBuilder(this, 
+				builders.add(new BoundariesBuilder(this, indexesFactory, 
 						BoundariesFallbacker.getInstance(boundariesFallbackIndex, boundariesFallbackTypes)));
 			}
 			
 			if(typesSet.contains("all") || typesSet.contains("places")) {
-				builders.add(new PlaceBuilder(this, this, 
-						BoundariesFallbacker.getInstance(boundariesFallbackIndex, boundariesFallbackTypes)));
+				builders.add(new PlaceBuilder(this, this,  
+						BoundariesFallbacker.getInstance(boundariesFallbackIndex, boundariesFallbackTypes), indexesFactory));
 			}
 			
 			if(typesSet.contains("all") || typesSet.contains("highways")) {
-				builders.add(new HighwaysBuilder(this, this));
+				builders.add(new HighwaysBuilder(this, this, indexesFactory));
 			}
 			
 			if(typesSet.contains("all") || typesSet.contains("addresses")) {
-				builders.add(new AddrPointsBuilder(this, skipInterpolation));
+				builders.add(new AddrPointsBuilder(this, indexesFactory, skipInterpolation));
 			}
 			
 			if((typesSet.contains("all") || typesSet.contains("pois")) && !typesSet.contains("no-pois")) {
-				builders.add(new PoisBuilder(this, poiCatalogPath, exclude, named));
+				builders.add(new PoisBuilder(this, indexesFactory, poiCatalogPath, exclude, named));
 			}
 			
 			
 			Builder[] buildersArray = builders.toArray(new Builder[builders.size()]);
 			new Engine().filter(drop, osmSlicesPath, buildersArray);
+			
+			for (Builder b : builders) {
+				b.close();
+			}
 		}
 		finally {
 			writeDAO.close();
@@ -323,6 +338,10 @@ public class Slicer implements BoundariesHandler,
 
 	public static String getFilePrefix(double x, double y) {
 		return fileNameKeyGenerator.getFilePrefix(x, y);
+	}
+	
+	public static String formatFilePrefix(int x, int y) {
+		return fileNameKeyGenerator.format(x, y);
 	}
 
 	@Override

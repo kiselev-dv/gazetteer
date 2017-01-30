@@ -1,10 +1,10 @@
-package me.osm.gazetter.utils.binary;
+package me.osm.gazetter.utils.index;
 
 import java.nio.ByteBuffer;
 import java.util.Comparator;
 import java.util.List;
 
-public interface BinaryBuffer extends Iterable<ByteBuffer>{
+public interface BinaryIndex extends Iterable<ByteBuffer>{
 	
 	/**
 	 * Add new row.
@@ -28,5 +28,18 @@ public interface BinaryBuffer extends Iterable<ByteBuffer>{
 	 * */
 	public ByteBuffer get(int i);
 	
+	/**
+	 * Returns number of stored lines
+	 * */
 	public int size();
+	
+	/**
+	 * Free all resources
+	 * */
+	public void close();
+	
+	/**
+	 * Intermediate index save
+	 * */
+	public void synchronize();
 }

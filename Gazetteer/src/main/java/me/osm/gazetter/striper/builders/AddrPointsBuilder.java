@@ -24,7 +24,9 @@ import com.vividsolutions.jts.geom.Polygon;
 import gnu.trove.list.TLongList;
 import gnu.trove.list.array.TLongArrayList;
 import me.osm.gazetter.LOGMarkers;
+import me.osm.gazetter.striper.FileNameKeyGenerator;
 import me.osm.gazetter.striper.GeoJsonWriter;
+import me.osm.gazetter.striper.Slicer;
 import me.osm.gazetter.striper.builders.handlers.AddrPointHandler;
 import me.osm.gazetter.striper.readers.PointsReader.Node;
 import me.osm.gazetter.striper.readers.RelationsReader.Relation;
@@ -32,10 +34,10 @@ import me.osm.gazetter.striper.readers.RelationsReader.Relation.RelationMember;
 import me.osm.gazetter.striper.readers.RelationsReader.Relation.RelationMember.ReferenceType;
 import me.osm.gazetter.striper.readers.WaysReader.Way;
 import me.osm.gazetter.utils.LocatePoint;
-import me.osm.gazetter.utils.binary.Accessor;
-import me.osm.gazetter.utils.binary.Accessors;
-import me.osm.gazetter.utils.binary.BinaryBuffer;
-import me.osm.gazetter.utils.binary.ByteBufferList;
+import me.osm.gazetter.utils.index.Accessor;
+import me.osm.gazetter.utils.index.Accessors;
+import me.osm.gazetter.utils.index.BinaryIndex;
+import me.osm.gazetter.utils.index.IndexFactory;
 
 public class AddrPointsBuilder extends ABuilder {
 	
@@ -46,9 +48,9 @@ public class AddrPointsBuilder extends ABuilder {
 	private static final String ADDR_INTERPOLATION = "addr:interpolation";
 	private static final String ADDR_HOUSENUMBER = "addr:housenumber";
 
-	private BinaryBuffer way2relation = new ByteBufferList(8 + 8); 
-	private BinaryBuffer node2way = new ByteBufferList(8 + 8 + 2 + 8 + 8);
-	private BinaryBuffer nodeInterpolation = new ByteBufferList(8 + 2 + 8);
+	private BinaryIndex way2relation; 
+	private BinaryIndex node2way;
+	private BinaryIndex nodeInterpolation;
 	
 	private Map<Long, String> interpolation2Street = new HashMap<>();
 	
@@ -63,10 +65,15 @@ public class AddrPointsBuilder extends ABuilder {
 	private boolean byRealtionOrdered = false;
 
 	private boolean skipInterpolation = false;
-	
-	public AddrPointsBuilder (AddrPointHandler handler, boolean skipInterpolation) {
+
+	public AddrPointsBuilder (AddrPointHandler handler, 
+			IndexFactory indexFactory, boolean skipInterpolation) {
 		this.handler = handler;
 		this.skipInterpolation = skipInterpolation;
+		
+		way2relation = indexFactory.newByteIndex(8 + 8);
+		node2way = indexFactory.newByteIndex(8 + 8 + 2 + 8 + 8);
+		nodeInterpolation = indexFactory.newByteIndex(8 + 2 + 8);
 	}
 	
 	private static final boolean fullGeometry = true;
@@ -207,7 +214,7 @@ public class AddrPointsBuilder extends ABuilder {
 			if (line.isClosed() && hasAddr(line.tags)) {
 				buildAddrPointForWay(line);
 			} 
-			else if (isInterpolation(line.tags)) {
+			else if (isInterpolation(line.tags) && !skipInterpolation) {
 				buildAddrPoints4Interpolation(line);
 			} 
 			
@@ -220,7 +227,7 @@ public class AddrPointsBuilder extends ABuilder {
 						long n = addrNodeIdWithN & MASK_16_BITS;
 						long addrNodeId = addrNodeIdWithN >> 16;
 						this.handler.handleAddrPoint2Building(
-								String.format("%04d", n), addrNodeId, line.id,
+								Slicer.formatFilePrefix((int)n, 1), addrNodeId, line.id,
 								line.tags);
 					}
 				}
@@ -584,6 +591,13 @@ public class AddrPointsBuilder extends ABuilder {
 	@Override
 	public void secondRunDoneRelations() {
 		handler.freeThreadPool(getThreadPoolUser());
+	}
+
+	@Override
+	public void close() {
+		nodeInterpolation.close();
+		way2relation.close(); 
+		node2way.close();
 	}
 	
 }

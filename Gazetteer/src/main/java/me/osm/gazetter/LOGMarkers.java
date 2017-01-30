@@ -28,4 +28,7 @@ public class LOGMarkers {
 	public static final Marker E_POLYGON_BUID_ERR 
 		= MarkerFactory.getMarker("E_POLYGON_BUID_ERR");
 	
+	public static final Marker E_NO_ASSOCIATED_STREET_FOUND 
+		= MarkerFactory.getMarker("E_NO_ASSOCIATED_STREET_FOUND");
+	
 }

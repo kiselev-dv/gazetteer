@@ -1,4 +1,4 @@
-package me.osm.gazetter.utils.binary;
+package me.osm.gazetter.utils.index;
 
 import java.nio.ByteBuffer;
 

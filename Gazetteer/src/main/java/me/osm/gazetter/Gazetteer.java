@@ -244,7 +244,8 @@ public class Gazetteer {
 						namespace.getString(BOUNDARIES_FALLBACK_VAL),
 						list(namespace.getList(BOUNDARIES_FALLBACK_TYPES_VAL)),
 						namespace.getBoolean("x10"),
-						namespace.getBoolean("skip_interpolation")
+						namespace.getBoolean("skip_interpolation"),
+						namespace.getBoolean("disk_index")
 				);
 				
 			}
@@ -505,6 +506,10 @@ public class Gazetteer {
 				.help("Slice ten times thinner stripes");
 			
 			slice.addArgument("--skip-interpolation").setConst(Boolean.TRUE)
+				.setDefault(Boolean.FALSE).action(new StoreTrueArgumentAction())
+				.help("Do not parse addr:interpolation lines");
+			
+			slice.addArgument("--disk-index").setConst(Boolean.TRUE)
 				.setDefault(Boolean.FALSE).action(new StoreTrueArgumentAction())
 				.help("Do not parse addr:interpolation lines");
 			

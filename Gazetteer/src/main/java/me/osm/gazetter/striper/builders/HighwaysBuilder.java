@@ -1,8 +1,5 @@
 package me.osm.gazetter.striper.builders;
 
-import gnu.trove.map.TLongIntMap;
-import gnu.trove.map.hash.TLongIntHashMap;
-
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -13,6 +10,19 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Marker;
+import org.slf4j.MarkerFactory;
+
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Envelope;
+import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.LineString;
+
+import gnu.trove.map.TLongIntMap;
+import gnu.trove.map.hash.TLongIntHashMap;
+import me.osm.gazetter.LOGMarkers;
 import me.osm.gazetter.Options;
 import me.osm.gazetter.striper.builders.handlers.HighwaysHandler;
 import me.osm.gazetter.striper.builders.handlers.JunctionsHandler;
@@ -21,18 +31,10 @@ import me.osm.gazetter.striper.readers.RelationsReader.Relation;
 import me.osm.gazetter.striper.readers.RelationsReader.Relation.RelationMember;
 import me.osm.gazetter.striper.readers.RelationsReader.Relation.RelationMember.ReferenceType;
 import me.osm.gazetter.striper.readers.WaysReader.Way;
-import me.osm.gazetter.utils.binary.Accessor;
-import me.osm.gazetter.utils.binary.Accessors;
-import me.osm.gazetter.utils.binary.BinaryBuffer;
-import me.osm.gazetter.utils.binary.ByteBufferList;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Envelope;
-import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.geom.LineString;
+import me.osm.gazetter.utils.index.Accessor;
+import me.osm.gazetter.utils.index.Accessors;
+import me.osm.gazetter.utils.index.BinaryIndex;
+import me.osm.gazetter.utils.index.IndexFactory;
 
 /**
  * Класс строит геометрию way'ев
@@ -45,7 +47,7 @@ public class HighwaysBuilder extends ABuilder implements HighwaysHandler {
 	private static final ExecutorService executorService = 
 			Executors.newFixedThreadPool(Options.get().getNumberOfThreads());
 	
-	private static final class BuildWayGeometryTask implements Runnable {
+	private final class BuildWayGeometryTask implements Runnable {
 
 		private Way way;
 		private HighwaysHandler handler;
@@ -71,12 +73,15 @@ public class HighwaysBuilder extends ABuilder implements HighwaysHandler {
 	private static final int LAT_OFFSET = 8 + 8 + 8;
 	
 	public HighwaysBuilder(HighwaysHandler highwaysHandler,
-			JunctionsHandler junctionsHandler) {
+			JunctionsHandler junctionsHandler,
+			IndexFactory indexFactory) {
 		this.highwaysHandler = highwaysHandler;
 		this.junctionsHandler = junctionsHandler;
+		
+		node2way = indexFactory.newByteIndex(8 + 8 + 8 + 8 + 2);
 	}
 
-	private static final BinaryBuffer node2way = new ByteBufferList(8 + 8 + 8 + 8 + 2);
+	private BinaryIndex node2way;
 	
 	private boolean indexFilled = false;
 	private boolean byWayOrdered = false;
@@ -127,7 +132,8 @@ public class HighwaysBuilder extends ABuilder implements HighwaysHandler {
 					}
 				}
 				else {
-					log.warn("No streets found for associated street relation, id {}", rel.id);
+					log.warn(LOGMarkers.E_NO_ASSOCIATED_STREET_FOUND, 
+							"No streets found for associated street relation, rel_osm_id({})", rel.id);
 				}
 			}
 		}
@@ -172,7 +178,7 @@ public class HighwaysBuilder extends ABuilder implements HighwaysHandler {
 		return line.tags.containsKey("name");
 	}
 
-	private static void buildLine(final Way line, HighwaysHandler handler) {
+	private void buildLine(final Way line, HighwaysHandler handler) {
 
 		Accessor lneIDAccessor = Accessors.longAccessor(8);
 		int li = node2way.find(line.id, lneIDAccessor);
@@ -320,6 +326,11 @@ public class HighwaysBuilder extends ABuilder implements HighwaysHandler {
 			List<RelationMember> buildings, long relationId,
 			Map<String, String> relAttributes) {
 		//do nothing
+	}
+
+	@Override
+	public void close() {
+		node2way.close();
 	}
 
 }

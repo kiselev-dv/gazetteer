@@ -1,4 +1,4 @@
-package me.osm.gazetter.utils.binary;
+package me.osm.gazetter.utils.index;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -7,7 +7,7 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 
-public class ByteBufferList implements BinaryBuffer {
+public class ByteBufferList implements BinaryIndex {
 	
 	private final List<ByteBuffer> storage = new ArrayList<>();
 	
@@ -58,19 +58,19 @@ public class ByteBufferList implements BinaryBuffer {
 		List<ByteBuffer> result = new ArrayList<ByteBuffer>();
 		
 		if(index >= 0 ) {
-			result.add(storage.get(index));
+			result.add(get(index));
 			for(int i = 1; ;i++) {
 
 				boolean lp = false;
 				boolean ln = false;
 				
-				ByteBuffer lineP = getSafe(storage, index + i);
+				ByteBuffer lineP = getSafe(index + i);
 				if(lineP != null && accessor.get(lineP) == id) {
 					result.add(lineP);
 					lp = true;
 				}
 
-				ByteBuffer lineN = getSafe(storage, index - i);
+				ByteBuffer lineN = getSafe(index - i);
 				if(lineN != null && accessor.get(lineN) == id) {
 					result.add(lineN);
 					ln = true;
@@ -86,9 +86,9 @@ public class ByteBufferList implements BinaryBuffer {
 		return result;
 	}
 	
-	private static ByteBuffer getSafe(List<ByteBuffer> collection, int i) {
-		if(i >= 0 && i < collection.size()) {
-			return collection.get(i);
+	protected ByteBuffer getSafe(int i) {
+		if(i >= 0 && i < size()) {
+			return get(i);
 		}
 		return null;
 	}
@@ -101,6 +101,16 @@ public class ByteBufferList implements BinaryBuffer {
 	@Override
 	public int size() {
 		return storage.size();
+	}
+
+	@Override
+	public void close() {
+		
+	}
+
+	@Override
+	public void synchronize() {
+		
 	}
 	
 }

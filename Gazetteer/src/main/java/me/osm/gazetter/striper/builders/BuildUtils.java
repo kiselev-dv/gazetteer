@@ -277,9 +277,8 @@ public class BuildUtils {
 	
 	public static Coordinate[] buildWayGeometry(Way line, List<ByteBuffer> nodes, 
 			final int idOffset, int lonOffset, int latOffset) {
-		int c = 0;
 		if(!nodes.isEmpty()) {
-			Coordinate[] geometry = new Coordinate[line.nodes.size()];
+			List<Coordinate> geometry = new ArrayList<>(line.nodes.size());
 			Collections.sort(nodes, Builder.FIRST_LONG_FIELD_COMPARATOR);
 			
 			for(final long n : line.nodes) {
@@ -295,10 +294,10 @@ public class BuildUtils {
 					double lon = node.getDouble(lonOffset);
 					double lat = node.getDouble(latOffset);
 					
-					geometry[c++] = new Coordinate(lon, lat);
+					geometry.add(new Coordinate(lon, lat));
 				}
 			}
-			return geometry;
+			return geometry.toArray(new Coordinate[geometry.size()]);
 		}
 		
 		return null;

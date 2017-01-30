@@ -13,21 +13,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import me.osm.gazetter.Options;
-import me.osm.gazetter.striper.BoundariesFallbacker;
-import me.osm.gazetter.striper.FeatureTypes;
-import me.osm.gazetter.striper.GeoJsonWriter;
-import me.osm.gazetter.striper.builders.handlers.BoundariesHandler;
-import me.osm.gazetter.striper.readers.PointsReader.Node;
-import me.osm.gazetter.striper.readers.RelationsReader.Relation;
-import me.osm.gazetter.striper.readers.RelationsReader.Relation.RelationMember;
-import me.osm.gazetter.striper.readers.RelationsReader.Relation.RelationMember.ReferenceType;
-import me.osm.gazetter.striper.readers.WaysReader.Way;
-import me.osm.gazetter.utils.binary.Accessor;
-import me.osm.gazetter.utils.binary.Accessors;
-import me.osm.gazetter.utils.binary.BinaryBuffer;
-import me.osm.gazetter.utils.binary.ByteBufferList;
-
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,6 +25,21 @@ import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
 
+import me.osm.gazetter.Options;
+import me.osm.gazetter.striper.BoundariesFallbacker;
+import me.osm.gazetter.striper.FeatureTypes;
+import me.osm.gazetter.striper.GeoJsonWriter;
+import me.osm.gazetter.striper.builders.handlers.BoundariesHandler;
+import me.osm.gazetter.striper.readers.PointsReader.Node;
+import me.osm.gazetter.striper.readers.RelationsReader.Relation;
+import me.osm.gazetter.striper.readers.RelationsReader.Relation.RelationMember;
+import me.osm.gazetter.striper.readers.RelationsReader.Relation.RelationMember.ReferenceType;
+import me.osm.gazetter.striper.readers.WaysReader.Way;
+import me.osm.gazetter.utils.index.Accessor;
+import me.osm.gazetter.utils.index.Accessors;
+import me.osm.gazetter.utils.index.BinaryIndex;
+import me.osm.gazetter.utils.index.IndexFactory;
+
 public class BoundariesBuilder extends ABuilder {
 	
 	private static final Logger log = LoggerFactory.getLogger(BoundariesBuilder.class.getName());
@@ -48,21 +48,16 @@ public class BoundariesBuilder extends ABuilder {
 	protected BoundariesHandler handler;
 	private BoundariesFallbacker fallback = null;
 	
-	public BoundariesBuilder(BoundariesHandler handler, BoundariesFallbacker fallback) {
-		this.fallback = fallback;
-		this.handler = handler;
-	}
-	
 	private static Set<String> ADMIN_LEVELS = new HashSet<>();
 	static {
 		ADMIN_LEVELS.addAll(Arrays.asList(new String[]{"1", "2", "3", "4", "5", "6", "7", "8", "9", "10"}));
 	}
 	
 	//way rel role
-	private BinaryBuffer way2relation = new ByteBufferList(8);
+	private BinaryIndex way2relation;
 
 	//node way index
-	private BinaryBuffer node2way = new ByteBufferList(8 + 8 + 4 + 8 + 8);
+	private BinaryIndex node2way;
 
 	private boolean byMemberOrdered = false;
 	private boolean byNodeOrdered = false;
@@ -77,6 +72,15 @@ public class BoundariesBuilder extends ABuilder {
 	private static final Accessor n2wWayAccessor = Accessors.longAccessor(8);
 	private static final Accessor n2wNodeAccessor = Accessors.longAccessor(0);
 	private static final Accessor w2rWayAccessor = Accessors.longAccessor(0);
+	
+	public BoundariesBuilder(BoundariesHandler handler, IndexFactory indexFactory, 
+			BoundariesFallbacker fallback) {
+		this.fallback = fallback;
+		this.handler = handler;
+		
+		way2relation = indexFactory.newByteIndex(8);
+		node2way = indexFactory.newByteIndex(8 + 8 + 4 + 8 + 8);
+	}
 	
 	private static final class Task implements Runnable {
 
@@ -260,26 +264,29 @@ public class BoundariesBuilder extends ABuilder {
 			Coordinate[] wayGeometry = buildWayGeometry(line);
 			
 			if(wayGeometry != null && wayGeometry.length > 3) {
-				
-				LinearRing shell = geometryFactory.createLinearRing(wayGeometry);
-				Polygon poly = geometryFactory.createPolygon(shell);
-				MultiPolygon multiPolygon = geometryFactory.createMultiPolygon(new Polygon[]{poly});
-				
-				doneWay(line, multiPolygon);
+				try {
+					LinearRing shell = geometryFactory.createLinearRing(wayGeometry);
+					Polygon poly = geometryFactory.createPolygon(shell);
+					MultiPolygon multiPolygon = geometryFactory.createMultiPolygon(new Polygon[]{poly});
+					
+					doneWay(line, multiPolygon);
+				}
+				catch (Exception e) {
+					throw e;
+				}
 			}
 			else {
-				
 				MultiPolygon geometry = null;
 				if(fallback != null) {
 					geometry = fallback.getGeometry("w" + line.id);
 				}
 				
 				if(geometry != null) {
-					log.warn("Load fallback geometry for way {}." + line.id);
+					log.warn("Load fallback geometry for way {}.", line.id);
 					doneWay(line, geometry);
 				}
 				else {
-					log.warn("Failed to build geometry for way {}." + line.id);
+					log.warn("Failed to build geometry for way {}.", line.id);
 				}
 			}
 		}
@@ -390,6 +397,12 @@ public class BoundariesBuilder extends ABuilder {
 		if(fallback != null) {
 			this.fallback.saveBoundary(feature, geometry);
 		}
+	}
+
+	@Override
+	public void close() {
+		way2relation.close();
+		node2way.close();
 	}
 	
 }
