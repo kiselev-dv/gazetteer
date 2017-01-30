@@ -29,9 +29,6 @@ public class Diff {
 	private String oldPath;
 	private String newPath;
 
-	private String oldHeader;
-	private String newHeader;
-	
 	private PrintWriter out;
 	
 	private boolean fillOld = false;
@@ -92,14 +89,6 @@ public class Diff {
 			
 			out.println("@old-file " + oldPath);
 			out.println("@new-file " + newPath);
-
-			if(oldHeader != null) {
-				out.println("@old-file-header " + oldHeader);
-			}
-
-			if(newHeader != null) {
-				out.println("@new-file-header " + newHeader);
-			}
 
 			out.println("@old-timestamp " + counters.oldTs.toInstant().toString());
 			out.println("@old-hash " + counters.oldHash);
@@ -168,41 +157,4 @@ public class Diff {
 			throw new RuntimeException(e);
 		}
 	}
-
-	/**
-	 * Write header for old file
-	 * 
-	 * @return header
-	 */
-	public String getOldHeader() {
-		return oldHeader;
-	}
-
-	/**
-	 * Write header for old file
-	 * 
-	 * @param oldHeader
-	 */
-	public void setOldHeader(String oldHeader) {
-		this.oldHeader = oldHeader;
-	}
-
-	/**
-	 * Write header for new file
-	 * 
-	 * @return header
-	 */
-	public String getNewHeader() {
-		return newHeader;
-	}
-
-	/**
-	 * Write header for new file
-	 * 
-	 * @param newHeader
-	 */
-	public void setNewHeader(String newHeader) {
-		this.newHeader = newHeader;
-	}
-	
 }

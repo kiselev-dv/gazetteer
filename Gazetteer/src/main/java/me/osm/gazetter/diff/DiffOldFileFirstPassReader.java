@@ -6,6 +6,7 @@ import me.osm.gazetter.striper.GeoJsonWriter;
 import me.osm.gazetter.utils.FileUtils.LineHandler;
 
 import org.joda.time.DateTime;
+import org.json.JSONObject;
 
 /**
  * Read Old file and get timestamps and md5 hashes of strings
@@ -29,13 +30,18 @@ public final class DiffOldFileFirstPassReader implements LineHandler {
 
 	@Override
 	public void handle(String s) {
-		String id = GeoJsonWriter.getId(s);
-		DateTime timestamp = GeoJsonWriter.getTimestamp(s);
-		String md5 = GeoJsonWriter.getMD5(s);
 		
-		counters.oldHash = counters.oldHash ^ s.hashCode();
-		counters.oldTs = counters.oldTs.isAfter(timestamp) ? counters.oldTs : timestamp;
-		
-		map.put(id, new Object[]{md5, timestamp});
+		if (s.contains("\"type\":\"mtainf\"")) {
+			JSONObject meta = new JSONObject(s);
+			counters.oldHash = meta.getString("hash");
+			counters.oldTs =  GeoJsonWriter.getTimestamp(s);
+		}
+		else {
+			String id = GeoJsonWriter.getId(s);
+			DateTime timestamp = GeoJsonWriter.getTimestamp(s);
+			String md5 = GeoJsonWriter.getMD5(s);
+			
+			map.put(id, new Object[]{md5, timestamp});
+		}
 	}
 }

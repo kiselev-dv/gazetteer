@@ -32,7 +32,7 @@ public final class Counters {
 	/**
 	 * Old file lines hash
 	 * */
-	public int oldHash = 0;
+	public String oldHash = "";
 	
 	/**
 	 * Old file timestamp
@@ -42,7 +42,7 @@ public final class Counters {
 	/**
 	 * New file lines hash
 	 * */
-	public int newHash = 0;
+	public String newHash = "";
 	
 	/**
 	 * New file timestamp

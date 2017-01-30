@@ -28,6 +28,7 @@ import me.osm.gazetter.addresses.sorters.StreetHNCityComparator;
 import me.osm.gazetter.join.PoiAddrJoinBuilder.BestFitAddresses;
 import me.osm.gazetter.join.out_handlers.JoinOutHandler;
 import me.osm.gazetter.join.util.JoinFailuresHandler;
+import me.osm.gazetter.join.util.JsonObjectWrapper;
 import me.osm.gazetter.join.util.MemorySupervizor;
 import me.osm.gazetter.join.util.MemorySupervizor.InsufficientMemoryException;
 import me.osm.gazetter.striper.FeatureTypes;
@@ -751,10 +752,11 @@ public class JoinSliceRunable implements Runnable {
 				String assStreetAddrKey = StringUtils.split(adr.getString("id"), '-')[2];
 				
 				JSONObject r = new JSONFeature(adr);
+				List<JSONObject> nearbyStreets = distanceSortStreets(adr, addr2streets.get(adr));
 				handler.handle(
 						r, 
 						boundaries, 
-						addr2streets.get(adr),
+						nearbyStreets,
 						addr2PlaceVoronoy.get(adr), 
 						addr2NeighbourVoronoy.get(adr), 
 						addrPnt2AsStreet.get(assStreetAddrKey));
@@ -765,6 +767,34 @@ public class JoinSliceRunable implements Runnable {
 		}
 		
 		return result;
+	}
+
+	private List<JSONObject> distanceSortStreets(JSONObject adr, List<JSONObject> list) {
+		
+		
+		JSONArray pntg = adr.getJSONObject(GeoJsonWriter.GEOMETRY).getJSONArray(GeoJsonWriter.COORDINATES);
+		Coordinate pntc = new Coordinate(pntg.getDouble(0), pntg.getDouble(1));
+		final Point pnt = factory.createPoint(pntc);
+		
+		Collections.sort(list, new Comparator<JSONObject>() {
+
+			@Override
+			public int compare(JSONObject o1, JSONObject o2) {
+				LineString ls1 = GeoJsonWriter.getLineStringGeometry(
+						o1.getJSONObject("geometry").getJSONArray("coordinates"));
+				
+				LineString ls2 = GeoJsonWriter.getLineStringGeometry(
+						o2.getJSONObject("geometry").getJSONArray("coordinates"));
+
+				double d1 = ls1.distance(pnt);
+				double d2 = ls2.distance(pnt);
+				
+				return Double.compare(d1, d2);
+			}
+			
+		});
+		
+		return list;
 	}
 
 	private List<JSONObject> nullSafeList(List<JSONObject> list) {
@@ -828,10 +858,11 @@ public class JoinSliceRunable implements Runnable {
 					
 					String assStreetAddrKey = StringUtils.split(adr.getString("id"), '-')[2];
 					
+					List<JSONObject> nearbyStreets = distanceSortStreets(adr, addr2streets.get(adr));
 					handler.handle(
 							adr, 
 							boundaries, 
-							addr2streets.get(adr),
+							nearbyStreets,
 							addr2PlaceVoronoy.get(adr), 
 							addr2NeighbourVoronoy.get(adr), 
 							addrPnt2AsStreet.get(assStreetAddrKey));
@@ -965,7 +996,7 @@ public class JoinSliceRunable implements Runnable {
 		for (Object entry : index.query(polygonEnvelop)) {
 			
 			JSONArray pntg = ((JSONObject)entry).getJSONObject(GeoJsonWriter.GEOMETRY).getJSONArray(GeoJsonWriter.COORDINATES);
-			Coordinate pnt = new Coordinate(pntg.getDouble(0), pntg.getDouble(1));;
+			Coordinate pnt = new Coordinate(pntg.getDouble(0), pntg.getDouble(1));
 			JSONObject obj = (JSONObject) entry;
 			
 			if(polyg.intersects(factory.createPoint(pnt))) {

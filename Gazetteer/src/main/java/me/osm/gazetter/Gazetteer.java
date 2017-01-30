@@ -278,15 +278,9 @@ public class Gazetteer {
 				Boolean full = namespace.getBoolean("--full");
 				full = full == null ? false : full;
 				
-				String oldHeader = namespace.getString("old_header");
-				String newHeader = namespace.getString("new_header");
-				
 				Diff diffExecutor = new Diff(namespace.getString("old"), 
 						namespace.getString("new"), 
 						namespace.getString("out_file"), full);
-				
-				diffExecutor.setOldHeader(oldHeader);
-				diffExecutor.setNewHeader(newHeader);
 				
 				diffExecutor.run();
 			}
@@ -588,15 +582,9 @@ public class Gazetteer {
 			diff.addArgument("--new").required(true)
 				.help("Path to new file.");
 			
-			diff.addArgument("--old-header").required(false)
-				.help("Add meta for old file.");
-			diff.addArgument("--new-header").required(false)
-				.help("Add meta for new file.");
-			
 			diff.addArgument("--full").setConst(Boolean.TRUE)
 				.setDefault(Boolean.FALSE).action(new StoreTrueArgumentAction())
 				.help("Print full object data for deleted and old rows.");
-			
 			
 		}
 		
