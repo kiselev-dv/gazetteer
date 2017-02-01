@@ -27,7 +27,7 @@ public class MMapBBIndex implements BinaryIndex {
 	
 	public static final int SEARCH_PAGE_SIZE_BYTES = 1024 * 4;
 	public static final int CACHE_SIZE_PAGES = 250;
-	
+
 	protected LRUCache<Integer, CachePage> pagesCache = new LRUCache<>(CACHE_SIZE_PAGES);
 	
 	protected int rowLength = 0;
@@ -219,29 +219,41 @@ public class MMapBBIndex implements BinaryIndex {
 		int from = pageN * searchPageSize;
 		int to =   pageN * searchPageSize + searchPageSize;
 		
+		
 		CachePage page = this.pagesCache.get(from);
 		if (page != null) {
 			this.hit++;
 			return page;
 		}
-		this.miss++;
 		
-		CachePage cachePage = new CachePage();
-		cachePage.from = Math.max(from, 0);
-		cachePage.to   = Math.min(to, size());
-		
-		try {
-			MappedByteBuffer cache = getRandomAccessFile().getChannel().map(MapMode.READ_WRITE, 
-					cachePage.from * rowLength, 
-					(cachePage.to - cachePage.from) * rowLength);
-			cachePage.buffer = cache;
+		synchronized(this.pagesCache) {
 			
-			this.pagesCache.put(cachePage.from, cachePage);
+			page = this.pagesCache.get(from);
+			if (page != null) {
+				this.hit++;
+				return page;
+			}
+
+			this.miss++;
 			
-			return this.pagesCache.get(from);
-		}
-		catch (Exception e) {
-			throw new RuntimeException("Can't read line " + i + " from " + this.indexFile, e);
+			CachePage cachePage = new CachePage();
+			cachePage.from = Math.max(from, 0);
+			cachePage.to   = Math.min(to, size());
+			
+			try {
+				MappedByteBuffer cache = getRandomAccessFile().getChannel().map(MapMode.READ_WRITE, 
+						cachePage.from * rowLength, 
+						(cachePage.to - cachePage.from) * rowLength);
+				cachePage.buffer = cache;
+				
+				this.pagesCache.put(cachePage.from, cachePage);
+				
+				// Hit cache to update last accessed node
+				return this.pagesCache.get(from);
+			}
+			catch (Exception e) {
+				throw new RuntimeException("Can't read line " + i + " from " + this.indexFile, e);
+			}
 		}
 	}
 	
