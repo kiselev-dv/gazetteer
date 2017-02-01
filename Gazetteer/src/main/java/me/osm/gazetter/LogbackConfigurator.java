@@ -24,9 +24,10 @@ public class LogbackConfigurator extends ContextAwareBase implements Configurato
 	@Override
 	public void configure(LoggerContext lc) {
 		
-		String pattern = StringUtils.join(new String[]{
-				logPrefix, 
-				"%d{yyyy-MM-dd HH:mm:ss.SSS} %marker %-5level %logger{36} - %msg%n"}, ' ');
+		String pattern = "%d{yyyy-MM-dd HH:mm:ss.SSS} %marker %-5level %logger{36} - %msg%n";
+		if (StringUtils.stripToNull(logPrefix) != null) {
+			pattern = logPrefix + " " + pattern;
+		}
 
 		Logger rootLogger = lc.getLogger(Logger.ROOT_LOGGER_NAME);
 		rootLogger.detachAndStopAllAppenders();

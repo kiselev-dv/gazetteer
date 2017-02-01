@@ -3,6 +3,8 @@ package me.osm.gazetter.join.out_handlers;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -10,6 +12,9 @@ import java.util.Set;
 import org.apache.commons.io.output.NullWriter;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONObject;
+
+import me.osm.gazetter.striper.GeoJsonWriter;
+import me.osm.gazetter.striper.JSONFeature;
 
 /**
  * Allow to pass line handler into external libraries
@@ -34,13 +39,33 @@ public final class HgnetMergerFakeWriter extends BufferedWriter {
 
 	private void mergeBatch(List<String> netBatch) {
 		
-		JSONObject baseFeature = null;
+		JSONFeature baseFeature = null;
 		Set<String> members = new HashSet<>(100);
 		Set<JSONObject> geometries = new HashSet<>(100);
 		Set<String> geometryIds = new HashSet<>(100);
 		
+		List<JSONFeature> batch = new ArrayList<>(netBatch.size());
 		for(String s : netBatch) {
-			JSONObject obj = new JSONObject(s);
+			batch.add(new JSONFeature(s));
+		}
+		
+		Collections.sort(batch, new Comparator<JSONFeature>(){
+
+			@Override
+			public int compare(JSONFeature o1, JSONFeature o2) {
+				int l1 = o1.getJSONObject("full_geometry").getJSONArray("coordinates").length();
+				int l2 = o2.getJSONObject("full_geometry").getJSONArray("coordinates").length();
+				
+				if (l1 == l2) {
+					return o1.getString("id").compareTo(o2.getString("id"));
+				}
+				
+				return Integer.compare(l1, l2);
+			}
+			
+		});
+		
+		for(JSONFeature obj : batch) {
 			if(baseFeature == null) {
 				baseFeature = obj;
 			}

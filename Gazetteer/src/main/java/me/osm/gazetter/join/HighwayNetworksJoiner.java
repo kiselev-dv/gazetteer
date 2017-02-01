@@ -50,7 +50,8 @@ public class HighwayNetworksJoiner {
 	 * */
 	public void createStreetsNetworks() throws StreetNetworkJoinError {
 		
-		Map<Coordinate, List<JSONObject>> streetParts = Collections.synchronizedMap(new TreeMap<Coordinate, List<JSONObject>>()); 
+		Map<Coordinate, List<JSONObject>> streetParts = 
+				Collections.synchronizedMap(new TreeMap<Coordinate, List<JSONObject>>()); 
 		fillHghNetEndPointsToObjMap(streetParts);
 
 		

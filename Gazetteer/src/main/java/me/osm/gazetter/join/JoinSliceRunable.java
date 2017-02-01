@@ -770,7 +770,9 @@ public class JoinSliceRunable implements Runnable {
 	}
 
 	private List<JSONObject> distanceSortStreets(JSONObject adr, List<JSONObject> list) {
-		
+		if (list == null) {
+			return null;
+		}
 		
 		JSONArray pntg = adr.getJSONObject(GeoJsonWriter.GEOMETRY).getJSONArray(GeoJsonWriter.COORDINATES);
 		Coordinate pntc = new Coordinate(pntg.getDouble(0), pntg.getDouble(1));
@@ -786,8 +788,19 @@ public class JoinSliceRunable implements Runnable {
 				LineString ls2 = GeoJsonWriter.getLineStringGeometry(
 						o2.getJSONObject("geometry").getJSONArray("coordinates"));
 
+				// That's possible to get two streets on the exactly the same distance
+				// for instance two segments of the corner, with building close to the
+				// corner.
 				double d1 = ls1.distance(pnt);
 				double d2 = ls2.distance(pnt);
+				
+				// around 10 cm
+				if(Math.abs(d1 - d2) < 1.0 / 1000000.0) {
+					String id1 = o1.getString("id");
+					String id2 = o2.getString("id");
+					
+					return id1.compareTo(id2);
+				}
 				
 				return Double.compare(d1, d2);
 			}
