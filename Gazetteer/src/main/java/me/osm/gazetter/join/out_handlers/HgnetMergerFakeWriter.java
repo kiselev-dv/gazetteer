@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -40,30 +41,16 @@ public final class HgnetMergerFakeWriter extends BufferedWriter {
 	private void mergeBatch(List<String> netBatch) {
 		
 		JSONFeature baseFeature = null;
-		Set<String> members = new HashSet<>(100);
-		Set<JSONObject> geometries = new HashSet<>(100);
-		Set<String> geometryIds = new HashSet<>(100);
+		LinkedHashSet<String> members = new LinkedHashSet<>(100);
+		LinkedHashSet<JSONObject> geometries = new LinkedHashSet<>(100);
+		LinkedHashSet<String> geometryIds = new LinkedHashSet<>(100);
+		
+		Collections.sort(netBatch);
 		
 		List<JSONFeature> batch = new ArrayList<>(netBatch.size());
 		for(String s : netBatch) {
 			batch.add(new JSONFeature(s));
 		}
-		
-		Collections.sort(batch, new Comparator<JSONFeature>(){
-
-			@Override
-			public int compare(JSONFeature o1, JSONFeature o2) {
-				int l1 = o1.getJSONObject("full_geometry").getJSONArray("coordinates").length();
-				int l2 = o2.getJSONObject("full_geometry").getJSONArray("coordinates").length();
-				
-				if (l1 == l2) {
-					return o1.getString("id").compareTo(o2.getString("id"));
-				}
-				
-				return Integer.compare(l1, l2);
-			}
-			
-		});
 		
 		for(JSONFeature obj : batch) {
 			if(baseFeature == null) {
