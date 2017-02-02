@@ -6,6 +6,7 @@ import java.util.List;
 
 import me.osm.gazetter.out.AddrRowValueExctractorImpl;
 import me.osm.gazetter.striper.FeatureTypes;
+import me.osm.gazetter.striper.JSONFeature;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -287,7 +288,7 @@ public abstract class AddressPerRowJOHBase extends SingleWriterJOHBase {
 		
 		boolean founded = false;
 		
-		JSONArray contains = joinedAddresses.optJSONArray("contains");
+		JSONArray contains = joinedAddresses.optJSONArray(key);
 		if(contains != null && contains.length() > 0) {
 			
 			for(int ci = 0; ci < contains.length(); ci++) {
@@ -295,7 +296,14 @@ public abstract class AddressPerRowJOHBase extends SingleWriterJOHBase {
 				JSONArray addresses = co.optJSONArray("addresses");
 				if(addresses != null) {
 					for(int i = 0; i < addresses.length(); i++) {
-						result.add(addresses.getJSONObject(i));
+						JSONObject rowJsonObject = JSONFeature.copy(addresses.getJSONObject(i));
+						String id = co.optString("id");
+						
+						if (id != null) {
+							rowJsonObject.put("linked-addr-id", id);
+						}
+						
+						result.add(rowJsonObject);
 						founded = true;
 					}
 				}

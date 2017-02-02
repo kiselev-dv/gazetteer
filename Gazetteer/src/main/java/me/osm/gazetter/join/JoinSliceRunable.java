@@ -135,6 +135,8 @@ public class JoinSliceRunable implements Runnable {
 
 	private boolean dropHghNetGeometries;
 
+	private boolean checkDoubledPOIIds = false;
+
 
 	/**
 	 * @param handler 
@@ -355,8 +357,15 @@ public class JoinSliceRunable implements Runnable {
 	@SuppressWarnings("unchecked")
 	private void mergePois() {
 		for(JSONObject poi : pois) {
+			
+			// Was already merged, just skip
+			if("remove".equals(poi.optString("action"))) {
+				continue;
+			}
+
 			JSONObject meta = poi.getJSONObject(GeoJsonWriter.META);
 			JSONObject fullGeometry = meta.optJSONObject("fullGeometry");
+			
 			if(fullGeometry != null && "Polygon".equals(fullGeometry.getString("type"))) {
 				Polygon poly = GeoJsonWriter.getPolygonGeometry(
 						fullGeometry.getJSONArray(GeoJsonWriter.COORDINATES));
@@ -365,58 +374,125 @@ public class JoinSliceRunable implements Runnable {
 				if(dubles.size() > 1) {
 					//remove self
 					dubles.remove(poi);
-					
+					// match by type
 					filterMatchedPois(poi, dubles);
-					JSONObject poiProperties = poi.getJSONObject(GeoJsonWriter.PROPERTIES);
 					
-					Iterator<JSONObject> iterator = dubles.iterator();
-					while(iterator.hasNext()) {
-						JSONObject matched = iterator.next();
-						JSONArray coords = matched.getJSONObject(GeoJsonWriter.GEOMETRY).getJSONArray(GeoJsonWriter.COORDINATES);
+					if (dubles.size() != 0) {
 						
-						Point centroid = factory.createPoint(new Coordinate(coords.getDouble(0), coords.getDouble(1)));
-						if(!poly.contains(centroid)) {
-							iterator.remove();
-							continue;
-						}
+						JSONObject poiProperties = poi.getJSONObject(GeoJsonWriter.PROPERTIES);
 						
-						matched.put("action", "remove");
-						String poiId = poi.getString("id");
-						matched.put("actionDetailed", 
-								"Remove merged with polygonal boundary poi point." + poiId);
-						
-						JSONObject matchedProperties = matched.getJSONObject(GeoJsonWriter.PROPERTIES);
-						for(String key : (Set<String>)matchedProperties.keySet()) {
-							if(!poiProperties.has(key)) {
-								poiProperties.put(key, matchedProperties.get(key));
+						Iterator<JSONObject> iterator = dubles.iterator();
+						while(iterator.hasNext()) {
+							JSONObject matched = iterator.next();
+							JSONArray coords = matched.getJSONObject(GeoJsonWriter.GEOMETRY).getJSONArray(GeoJsonWriter.COORDINATES);
+							
+							// Check that point actually fell inside polygon
+							Point centroid = factory.createPoint(new Coordinate(coords.getDouble(0), coords.getDouble(1)));
+							if(!poly.contains(centroid)) {
+								iterator.remove();
+								continue;
+							}
+							
+							matched.put("action", "remove");
+							String poiId = poi.getString("id");
+							matched.put("actionDetailed", 
+									"Remove merged with polygonal boundary poi point." + poiId);
+							
+							JSONObject matchedProperties = matched.getJSONObject(GeoJsonWriter.PROPERTIES);
+							for(String key : (Set<String>)matchedProperties.keySet()) {
+								if(!poiProperties.has(key)) {
+									poiProperties.put(key, matchedProperties.get(key));
+								}
 							}
 						}
+						
+						reassignPOICentroid(poi, dubles);
+						
 					}
-					
-					//move center to the poi point instead of centroid
-					if(dubles.size() == 1) {
-						JSONArray coords = dubles.get(0).getJSONObject(GeoJsonWriter.GEOMETRY).getJSONArray(GeoJsonWriter.COORDINATES);
-						poi.getJSONObject(GeoJsonWriter.GEOMETRY).put(GeoJsonWriter.COORDINATES, coords);
-					}
-					
 				}
 			}
+		}
+		
+		for(Iterator<JSONObject> i = pois.iterator();i.hasNext(); ) {
+			if("remove".equals(i.next().optString("action"))) {
+				i.remove();
+			}
+		}
+		
+		if (checkDoubledPOIIds) {
+			Collections.sort(pois, new Comparator<JSONObject>() {
+				
+				@Override
+				public int compare(JSONObject o1, JSONObject o2) {
+					String id1 = o1.getString("id");
+					String id2 = o2.getString("id");
+					
+					int strcmp = id1.compareTo(id2);
+					if (strcmp == 0) {
+						o1.toString().compareTo(o2.toString());
+					}
+					return strcmp;
+				}
+				
+			});
+			
+			String lastId = null;
+			for(Iterator<JSONObject> i = pois.iterator();i.hasNext(); ) {
+				String id = i.next().getString("id");
+				if(id.equals(lastId)) {
+					i.remove();
+				}
+				else {
+					lastId = id;
+				}
+			}
+		}
+	}
+	
+	/**
+	 * Move center to the poi point instead of centroid
+	 * */
+	private void reassignPOICentroid(JSONObject poi, List<JSONObject> dubles) {
+		if(dubles.size() >= 1) {
+			JSONArray coords = null; 
+			for (JSONObject obj : dubles) {
+				JSONArray c = obj.getJSONObject(GeoJsonWriter.GEOMETRY)
+						.getJSONArray(GeoJsonWriter.COORDINATES);
+				
+				// Write centroid idempotentially
+				if (coords == null || c.toString().compareTo(coords.toString()) < 0) {
+					coords = c;
+				}
+			}
+			poi.getJSONObject(GeoJsonWriter.GEOMETRY).put(GeoJsonWriter.COORDINATES, coords);
 		}
 	}
 
 	private void filterMatchedPois(JSONObject poi,
 			List<JSONObject> dubles) {
 		
-		String clazz = poi.getJSONArray("poiTypes").getString(0);
+		JSONArray subjTypes = poi.getJSONArray("poiTypes");
 		
 		Iterator<JSONObject> iterator = dubles.iterator();
 		while (iterator.hasNext()) {
-			
 			JSONObject candidate = iterator.next();
-			if(!clazz.equals(candidate.getJSONArray("poiTypes"))) {
+			JSONArray candidateTypes = candidate.getJSONArray("poiTypes");
+			if(!intersects(subjTypes, candidateTypes)) {
 				iterator.remove();
 			}
 		}
+	}
+
+	private boolean intersects(JSONArray subjTypes, JSONArray candidateTypes) {
+		for(int i = 0; i < subjTypes.length(); i++) {
+			String subjType = subjTypes.getString(i);
+			for(int j = 0; j < candidateTypes.length(); j++) {
+				if (subjType.equals(candidateTypes.getString(j))) {
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 
 	private void initializeMaps() {
@@ -717,6 +793,7 @@ public class JoinSliceRunable implements Runnable {
 	
 	void handleOut(JSONObject poi) {
 		if(poi != null) {
+			
 			for(JoinOutHandler handler : Options.get().getJoinOutHandlers()) {
 				try {
 					handler.handle(poi, this.src.getName());

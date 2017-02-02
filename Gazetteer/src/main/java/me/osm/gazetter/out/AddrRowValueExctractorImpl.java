@@ -9,7 +9,9 @@ import java.util.Set;
 import me.osm.gazetter.addresses.AddressesSchemesParser;
 import me.osm.gazetter.striper.FeatureTypes;
 import me.osm.gazetter.striper.GeoJsonWriter;
+import me.osm.gazetter.utils.JSONHash;
 
+import org.apache.commons.lang3.StringUtils;
 import org.json.JSONObject;
 
 public class AddrRowValueExctractorImpl implements AddrRowValueExtractor {
@@ -144,10 +146,18 @@ public class AddrRowValueExctractorImpl implements AddrRowValueExtractor {
 			return jsonObject.getString("id") + "--" + addrType;
 		}
 
+		// POI Can has more than one address with the same addrType
 		if(FeatureTypes.POI_FTYPE.equals(ftype)) {
 			String addrType = addrRow.optString(AddressesSchemesParser.ADDR_SCHEME);
+			String baseId = jsonObject.getString("id");
+
+			String linkedId = addrRow.optString("linked-addr-id");
 			
-			return jsonObject.getString("id") + "--" + addrType;
+			if (StringUtils.isNotEmpty(linkedId)) {
+				baseId += "-" + StringUtils.split(linkedId,'-')[2];
+			}
+			
+			return baseId + "--" + addrType;
 		}
 		
 		return jsonObject.getString("id");

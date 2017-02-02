@@ -7,6 +7,8 @@ import me.osm.gazetter.utils.FileUtils.LineHandler;
 
 import org.joda.time.DateTime;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Read Old file and get timestamps and md5 hashes of strings
@@ -15,6 +17,8 @@ import org.json.JSONObject;
  * @author dkiselev
  */
 public final class DiffOldFileFirstPassReader implements LineHandler {
+	
+	private static final Logger log = LoggerFactory.getLogger(DiffOldFileFirstPassReader.class);
 	
 	private final Counters counters;
 	private TreeMap<String, Object[]> map;
@@ -41,7 +45,11 @@ public final class DiffOldFileFirstPassReader implements LineHandler {
 			DateTime timestamp = GeoJsonWriter.getTimestamp(s);
 			String md5 = GeoJsonWriter.getMD5(s);
 			
-			map.put(id, new Object[]{md5, timestamp});
+			Object[] previous = map.put(id, new Object[]{md5, timestamp});
+			if (previous != null) {
+				log.warn("Different lines with the same id. first md5: {} second md5: {} id: {}", 
+						previous[0], md5, id);
+			}
 		}
 	}
 }

@@ -24,6 +24,7 @@ import com.vividsolutions.jts.geom.Polygon;
 
 import gnu.trove.list.TLongList;
 import gnu.trove.list.array.TLongArrayList;
+import me.osm.gazetter.LOGMarkers;
 import me.osm.gazetter.striper.GeoJsonWriter;
 import me.osm.gazetter.striper.Slicer;
 import me.osm.gazetter.striper.builders.handlers.PoisHandler;
@@ -199,7 +200,15 @@ public class PoisBuilder extends ABuilder {
 			}
 		}
 		
-		handler.handlePoi(tagsFilter.getType(rel.tags), rel.tags, centroid, meta);
+		if(Double.isNaN(centroid.getCoordinate().x) 
+				|| Double.isNaN(centroid.getCoordinate().y)) {
+			log.warn(LOGMarkers.E_INVALID_NAN_POI_PNT, 
+					"Invalid centroid for poi point rel_id_osm({})", rel.id);
+		}
+		else {
+			handler.handlePoi(tagsFilter.getType(rel.tags), rel.tags, centroid, meta);
+		}
+		
 	}
 
 	private void orderByRelation() {
@@ -334,7 +343,14 @@ public class PoisBuilder extends ABuilder {
 				centroid = factory.createPoint(new Coordinate(lon, lat));
 			}
 			
-			handler.handlePoi(tagsFilter.getType(line.tags), line.tags, centroid, meta);
+			if(Double.isNaN(centroid.getCoordinate().x) 
+					|| Double.isNaN(centroid.getCoordinate().y)) {
+				log.warn(LOGMarkers.E_INVALID_NAN_POI_PNT, 
+						"Invalid centroid for poi point way_id_osm({})", line.id);
+			}
+			else {
+				handler.handlePoi(tagsFilter.getType(line.tags), line.tags, centroid, meta);
+			}
 		}
 		
 	}
@@ -385,15 +401,22 @@ public class PoisBuilder extends ABuilder {
 			meta.put("id", node.id);
 			meta.put("type", "node");
 			Point point = factory.createPoint(new Coordinate(node.lon, node.lat));
-			handler.handlePoi(types, node.tags, point, meta);
 			
-			short n = new Double((point.getX() + 180.0) * 10.0).shortValue();
-			
-			long nodeWithN = node.id;
-			nodeWithN <<= 16;
-			nodeWithN |= n;
-			
-			writedAddrNodes.add(nodeWithN);
+			if(Double.isNaN(point.getCoordinate().x) || Double.isNaN(point.getCoordinate().y)) {
+				log.warn(LOGMarkers.E_INVALID_NAN_POI_PNT, 
+						"Invalid centroid for poi point node_id_osm({})", node.id);
+			}
+			else {
+				handler.handlePoi(types, node.tags, point, meta);
+				
+				short n = new Double((point.getX() + 180.0) * 10.0).shortValue();
+				
+				long nodeWithN = node.id;
+				nodeWithN <<= 16;
+				nodeWithN |= n;
+				
+				writedAddrNodes.add(nodeWithN);
+			}
 		}
 		
 		indexNode2Way(node);

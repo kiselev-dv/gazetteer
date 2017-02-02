@@ -214,9 +214,17 @@ public class HighwaysBuilder extends ABuilder implements HighwaysHandler {
 
 		if (handler != null) {
 			if (coords.size() > 1) {
-				LineString linestring = factory.createLineString(coords
-						.toArray(new Coordinate[coords.size()]));
-				handler.handleHighway(linestring, line);
+				
+				if(coords.size() == 2 && coords.get(0).equals(coords.get(1))) {
+					log.warn(LOGMarkers.E_WAY_ONLY_TWO_EQAL_POINTS, 
+							"Way has only two eqal poins. id_way_osm({})", line.id);
+				}
+				else {
+					LineString linestring = factory.createLineString(coords
+							.toArray(new Coordinate[coords.size()]));
+					handler.handleHighway(linestring, line);
+				}
+				
 			}
 		}
 	}

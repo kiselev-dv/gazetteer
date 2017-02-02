@@ -450,6 +450,7 @@ public class GazetteerOutWriter extends AddressPerRowJOHBase  {
 	protected boolean fillObject(JSONFeature result, JSONObject addrRow, JSONObject jsonObject) {
 
 		try {
+			
 			String ftype = jsonObject.getString("ftype");
 			String rowId = AddrRowValueExctractorImpl.getUID(jsonObject, addrRow, ftype);
 
