@@ -281,21 +281,25 @@ public class FileUtils {
 		//create new
 		file.createNewFile();
 
-		//rewrite ( Damn, Java why can't you just append to exist gzip archive)
-		final PrintWriter writer = getPrintWriter(file, false);
-		handleLines(tmp, new LineHandler() {
-			
-			@Override
-			public void handle(String s) {
-				writer.println(s);
-			}
-			
-		});
+		try {
+			final PrintWriter writer = getPrintWriter(file, false);
+			handleLines(tmp, new LineHandler() {
+				
+				@Override
+				public void handle(String s) {
+					writer.println(s);
+				}
+				
+			});
 		
-		//delete temp file
-		tmp.delete();
+			//delete temp file
+			tmp.delete();
 		
-		return writer;
+			return writer;
+		}
+		catch (IOException e) {
+			throw new IOException("Failed to append to " + file.toString(), e);
+		}
 	}
 	
 	/**
