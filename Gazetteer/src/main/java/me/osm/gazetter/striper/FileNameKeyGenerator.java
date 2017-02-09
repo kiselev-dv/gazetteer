@@ -137,9 +137,6 @@ public class FileNameKeyGenerator {
 	}
 
 	public String format(int x, int y) {
-		if (String.format(FILE_MASK_X, x).length() == 4) {
-			System.out.println(String.format(FILE_MASK_X, x));
-		}
 		return String.format(FILE_MASK_X, x);
 	}
 }
