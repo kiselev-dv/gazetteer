@@ -23,7 +23,7 @@ Take an osm.bz2 dump and generate `json` with
 
 Details are here https://github.com/kiselev-dv/gazetteer/tree/develop/Gazetteer
 
-You could find data extracts here: http://tr1.nowtaxi.ru/dumps/
+You could find data extracts here: http://data.osm.me/dumps/
 
 GazetteerWeb
 ============
