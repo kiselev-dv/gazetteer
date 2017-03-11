@@ -1,9 +1,10 @@
-package me.osm.gazetter.diff;
+package me.osm.gazetter.diff.readers;
 
 import java.io.PrintWriter;
 import java.util.Set;
-import java.util.TreeMap;
 
+import me.osm.gazetter.diff.Counters;
+import me.osm.gazetter.diff.indx.DiffMapIndex;
 import me.osm.gazetter.striper.GeoJsonWriter;
 import me.osm.gazetter.utils.FileUtils.LineHandler;
 
@@ -19,21 +20,21 @@ public final class DiffOldFileSecondPassReader implements
 	private final Set<String> olds;
 	private final Counters counters;
 	
-	private TreeMap<String, Object[]> map;
+	private DiffMapIndex map;
 	private PrintWriter outTmp;
 
 	/**
-	 * @param map with ids timestamps and hashes
+	 * @param mapIndex with ids timestamps and hashes
 	 * @param outTmp where to write results
 	 * @param olds ids to write
 	 * @param counters
 	 */
-	public DiffOldFileSecondPassReader(TreeMap<String, Object[]> map,  
+	public DiffOldFileSecondPassReader(DiffMapIndex mapIndex,  
 			PrintWriter outTmp, Set<String> olds, Counters counters) {
 		
 		this.olds = olds;
 		this.counters = counters;
-		this.map = map;
+		this.map = mapIndex;
 		this.outTmp = outTmp;
 	}
 
@@ -41,7 +42,7 @@ public final class DiffOldFileSecondPassReader implements
 	public void handle(String s) {
 		String id = GeoJsonWriter.getId(s);
 		
-		if(map.containsKey(id)) {
+		if(map.get(id) != null) {
 			outTmp.println("- " + s);
 			counters.remove++;
 		}

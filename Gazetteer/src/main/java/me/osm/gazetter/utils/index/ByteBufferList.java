@@ -48,6 +48,22 @@ public class ByteBufferList implements BinaryIndex {
 				});
 	}
 	
+	public int find(final ByteBuffer search, final BBAccessor accessor) {
+		final byte[] sa = search.array();
+		
+		return Collections.binarySearch(storage, null,
+				new Comparator<ByteBuffer>() {
+					
+					@Override
+					public int compare(ByteBuffer row, ByteBuffer key) {
+						byte[] b1 = accessor.get(row).array();
+						
+						return compareByteArrays(sa, b1);
+					}
+					
+				});
+	}
+	
 	@Override
 	public ByteBuffer get(int i)  {
 		return storage.get(i);
@@ -84,6 +100,22 @@ public class ByteBufferList implements BinaryIndex {
 		}
 		
 		return result;
+	}
+	
+	public static int compareByteArrays(final byte[] array1, byte[] array2) {
+		if(array2.length != array1.length) {
+			throw new RuntimeException();
+		}
+		
+		for (int i = 0; i < array2.length && i < array1.length; i++) {
+			byte b = array2[i];
+			byte s = array1[i];
+			int c = Byte.compare(b, s);
+			if (c != 0) {
+				return c;
+			}
+		}
+		return 0;
 	}
 	
 	protected ByteBuffer getSafe(int i) {

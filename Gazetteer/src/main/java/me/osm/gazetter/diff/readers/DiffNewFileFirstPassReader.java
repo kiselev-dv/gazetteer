@@ -1,9 +1,12 @@
-package me.osm.gazetter.diff;
+package me.osm.gazetter.diff.readers;
 
 import java.io.PrintWriter;
 import java.util.Set;
 import java.util.TreeMap;
 
+import me.osm.gazetter.diff.Counters;
+import me.osm.gazetter.diff.indx.DiffMapIndex;
+import me.osm.gazetter.diff.indx.DiffMapIndex.DiffMapIndexRow;
 import me.osm.gazetter.striper.GeoJsonWriter;
 import me.osm.gazetter.utils.FileUtils.LineHandler;
 
@@ -23,20 +26,20 @@ public final class DiffNewFileFirstPassReader implements LineHandler {
 	private final Set<String> olds;
 	private final Counters counters;
 
-	private TreeMap<String, Object[]> map;
+	private DiffMapIndex map;
 	private PrintWriter outTmp;
 	
 	/**
-	 * @param map with ids and timestamps from old 
+	 * @param mapIndex with ids and timestamps from old 
 	 * @param outTmp output writer
 	 * @param olds old object ids
 	 * @param counters 
 	 */
-	public DiffNewFileFirstPassReader(TreeMap<String, Object[]> map,  
+	public DiffNewFileFirstPassReader(DiffMapIndex mapIndex,  
 			PrintWriter outTmp, Set<String> olds, Counters counters) {
 		this.olds = olds;
 		this.counters = counters;
-		this.map = map;
+		this.map = mapIndex;
 		this.outTmp = outTmp;
 	}
 
@@ -52,29 +55,29 @@ public final class DiffNewFileFirstPassReader implements LineHandler {
 		}
 		else {
 			
-			String id = GeoJsonWriter.getId(s);
-			DateTime timestamp = GeoJsonWriter.getTimestamp(s);
-			String md5 = GeoJsonWriter.getMD5(s);
+			DiffMapIndexRow rowNew = new DiffMapIndexRow(); 
+			rowNew.key = GeoJsonWriter.getId(s);
+			rowNew.timestamp = GeoJsonWriter.getTimestamp(s);
+			rowNew.hash = GeoJsonWriter.getMD5(s).hashCode();
 			
-			Object[] row = map.get(id);
-			if(row == null) {
+			DiffMapIndexRow rowOld = map.get(rowNew.key);
+			if(rowOld == null) {
 				outTmp.println("+ " + s);
 				counters.add++;
 			}
 			else {
-				if (!((String)row[0]).equals(md5)) {
-					DateTime old = (DateTime)row[1];
-					if(old.isBefore(timestamp)) {
+				if (! map.areHashesEquals(rowOld, rowNew)) {
+					if(rowOld.timestamp.isBefore(rowNew.timestamp)) {
 						outTmp.println("N " + s);
 						counters.takeNew++;
 					}
 					else {
-						olds.add(id);
+						olds.add(rowNew.key);
 					}
 				}
 			}
 			
-			map.remove(id);
+			map.remove(rowNew.key);
 		}
 		
 	}

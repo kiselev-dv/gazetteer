@@ -280,7 +280,10 @@ public class Gazetteer {
 				
 				Diff diffExecutor = new Diff(namespace.getString("old"), 
 						namespace.getString("new"), 
-						namespace.getString("out_file"), full);
+						namespace.getString("out_file"), 
+						full,
+						namespace.getBoolean("disk_index"),
+						namespace.getBoolean("only_key_length"));
 				
 				diffExecutor.run();
 			}
@@ -583,6 +586,14 @@ public class Gazetteer {
 				.help("Path to new file.");
 			
 			diff.addArgument("--full").setConst(Boolean.TRUE)
+				.setDefault(Boolean.FALSE).action(new StoreTrueArgumentAction())
+				.help("Print full object data for deleted and old rows.");
+			
+			diff.addArgument("--disk-index").setConst(Boolean.TRUE)
+				.setDefault(Boolean.FALSE).action(new StoreTrueArgumentAction())
+				.help("Print full object data for deleted and old rows.");
+		
+			diff.addArgument("--only-key-length").setConst(Boolean.TRUE)
 				.setDefault(Boolean.FALSE).action(new StoreTrueArgumentAction())
 				.help("Print full object data for deleted and old rows.");
 			
