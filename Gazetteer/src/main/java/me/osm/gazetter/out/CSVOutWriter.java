@@ -80,7 +80,15 @@ public class CSVOutWriter extends AddressPerRowJOHBase {
 			initializeWriter(parsedOpts.getString("out", null));
 		}
 		
-		this.columns = parseColumns(StringUtils.join(parsedOpts.getList("columns", null), " "));
+		String columnsString = StringUtils.join(parsedOpts.getList("columns", null), " ");
+		if (columnsString == null) {
+			System.err.println("There are no columns provided.");
+			System.err.println("\tUse columns=column1,column2,column3");
+			System.err.println("\tSee https://github.com/kiselev-dv/gazetteer/wiki/csv-output for more info.");
+			
+			System.exit(2);
+		}
+		this.columns = parseColumns(columnsString);
 		this.header = parsedOpts.getList("header", null);
 		
 		allSupportedKeys.addAll(addrRowKeys);
