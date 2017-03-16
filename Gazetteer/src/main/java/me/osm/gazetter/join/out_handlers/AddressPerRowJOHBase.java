@@ -288,11 +288,12 @@ public abstract class AddressPerRowJOHBase extends SingleWriterJOHBase {
 		
 		boolean founded = false;
 		
-		JSONArray contains = joinedAddresses.optJSONArray(key);
-		if(contains != null && contains.length() > 0) {
+		JSONArray candidates = joinedAddresses.optJSONArray(key);
+		if(candidates != null && candidates.length() > 0) {
 			
-			for(int ci = 0; ci < contains.length(); ci++) {
-				JSONObject co = contains.getJSONObject(ci);
+			for(int ci = 0; ci < candidates.length(); ci++) {
+				JSONObject co = candidates.getJSONObject(ci);
+				
 				JSONArray addresses = co.optJSONArray("addresses");
 				if(addresses != null) {
 					for(int i = 0; i < addresses.length(); i++) {

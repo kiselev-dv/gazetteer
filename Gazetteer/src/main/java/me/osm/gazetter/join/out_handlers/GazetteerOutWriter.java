@@ -146,7 +146,9 @@ public class GazetteerOutWriter extends AddressPerRowJOHBase  {
 	private PrintWriter hghnetWriter;
 	private File hghNetFile;
 
-	ByteArrayOutputStream hashBAOS = new ByteArrayOutputStream(); 
+	ByteArrayOutputStream hashBAOS = new ByteArrayOutputStream();
+
+	private boolean geoJSONFormat; 
 
 	@Override
 	public JoinOutHandler initialize(HandlerOptions parsedOpts) {
@@ -173,6 +175,8 @@ public class GazetteerOutWriter extends AddressPerRowJOHBase  {
 
 		neighborhoodKeys = parsedOpts.getList("locality",
 				Arrays.asList("place:town", "place:village", "place:hamlet", "place:neighbour", "boundary:9", "boundary:10"));
+		
+		geoJSONFormat = parsedOpts.getFlag("format_geojson", true, false);
 
 		String poiCatalogPath = parsedOpts.getString("poi_catalog", "jar");
 
@@ -517,8 +521,11 @@ public class GazetteerOutWriter extends AddressPerRowJOHBase  {
 					if(g != null && g.isValid()) {
 
 						if(geom != null) {
-							String esGeomType = geom.getString(GAZETTEER_SCHEME_TYPE).toLowerCase();
-							geom.put(GAZETTEER_SCHEME_TYPE, esGeomType);
+							String geomType = geom.getString(GAZETTEER_SCHEME_TYPE);
+							if (!geoJSONFormat) {
+								geomType = geomType.toLowerCase();
+							}
+							geom.put(GAZETTEER_SCHEME_TYPE, geomType);
 						}
 
 						result.put(GAZETTEER_SCHEME_FULL_GEOMETRY, geom);
@@ -631,21 +638,35 @@ public class GazetteerOutWriter extends AddressPerRowJOHBase  {
 
 		if(poiAddrMatch != null) {
 			result.put(GAZETTEER_SCHEME_POI_ADDR_MATCH, poiAddrMatch);
-
+			
 			if(!"boundaries".equals(poiAddrMatch)) {
 				Object matchedAddresses = jsonObject.getJSONObject("joinedAddresses").opt(poiAddrMatch);
-
+				
+				JSONObject addrLink = new JSONObject();
+				
 				if(matchedAddresses instanceof JSONObject) {
 					poiAddrRefs.put(((JSONObject)matchedAddresses).getString("id"));
+					
+					addrLink.put("properties", 
+							((JSONObject)matchedAddresses).getJSONObject("properties"));
+					addrLink.put("id", 
+							((JSONObject)matchedAddresses).getString("id"));
 				}
 				else if(matchedAddresses instanceof JSONArray) {
 					JSONArray maa = (JSONArray) matchedAddresses;
-					for(int i=0; i<maa.length();i++) {
+					for(int i = 0; i < maa.length(); i++) {
 						poiAddrRefs.put(maa.getJSONObject(i).getString("id"));
+						
+						addrLink.put("properties", 
+								maa.getJSONObject(i).getJSONObject("properties"));
+						addrLink.put("id", 
+								maa.getJSONObject(i).getString("id"));
 					}
 				}
+				
+				result.put("linked-addr-obj", addrLink);
 			}
-
+			
 			result.getJSONObject("refs").put("poi_addresses", poiAddrRefs);
 		}
 	}
