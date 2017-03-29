@@ -62,9 +62,12 @@ public class PointsReader extends DefaultHandler {
 			this.node.lon = Double.valueOf(attributes.getValue("lon"));
 			this.node.lat = Double.valueOf(attributes.getValue("lat"));
 			
-			Timestamp ts = Timestamp.valueOf(StringUtils.remove(attributes.getValue("timestamp"), 'Z').replace('T', ' '));
-			if(lastNodeTimestamp == null || ts.after(lastNodeTimestamp)) {
-				lastNodeTimestamp = ts;
+			String tsRaw = attributes.getValue("timestamp");
+			if (StringUtils.isNotBlank(tsRaw)) {
+				Timestamp ts = Timestamp.valueOf(StringUtils.remove(tsRaw, 'Z').replace('T', ' '));
+				if(lastNodeTimestamp == null || ts.after(lastNodeTimestamp)) {
+					lastNodeTimestamp = ts;
+				}
 			}
 		}
 		
