@@ -41,15 +41,24 @@ public class Routes {
 				.flag(Flags.Auth.PUBLIC_ROUTE)
 				.method(HttpMethod.GET);
 		
-		server.uri(root + "/location/_import",
-				new ImportLocations())
+		ImportLocations importLocationsInstance = new ImportLocations();
+		server.uri(root + "/location/_import", importLocationsInstance)
+				.method(HttpMethod.GET)
+				.flag(Flags.Cache.DONT_CACHE);
+		
+		server.uri(root + "/location/_import.{format}", importLocationsInstance)
 				.method(HttpMethod.GET)
 				.flag(Flags.Cache.DONT_CACHE);
 
 		SearchAPI searchAPIInstance = new SearchAPI();
 		
-		server.uri(root + "/location/_search",
-				searchAPIInstance)
+		server.uri(root + "/location/_search", searchAPIInstance)
+				.method(HttpMethod.GET)
+				.name("feature")
+				.flag(Flags.Auth.PUBLIC_ROUTE)
+				.parameter(Parameters.Cache.MAX_AGE, MINUTE);
+		
+		server.uri(root + "/location/_search.{format}", searchAPIInstance)
 				.method(HttpMethod.GET)
 				.name("feature")
 				.flag(Flags.Auth.PUBLIC_ROUTE)

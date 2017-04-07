@@ -18,18 +18,13 @@ import static me.osm.gazetter.join.out_handlers.GazetteerSchemeConstants.GAZETTE
 import static me.osm.gazetter.join.out_handlers.GazetteerSchemeConstants.GAZETTEER_SCHEME_TAGS;
 import static me.osm.gazetter.join.out_handlers.GazetteerSchemeConstants.GAZETTEER_SCHEME_TIMESTAMP;
 import static me.osm.gazetter.join.out_handlers.GazetteerSchemeConstants.GAZETTEER_SCHEME_TYPE;
-import gnu.trove.impl.sync.TSynchronizedLongSet;
-import gnu.trove.set.TLongSet;
-import gnu.trove.set.hash.TLongHashSet;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
@@ -49,6 +44,22 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.code.externalsorting.ExternalSort;
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.LineString;
+
+import gnu.trove.impl.sync.TSynchronizedLongSet;
+import gnu.trove.set.TLongSet;
+import gnu.trove.set.hash.TLongHashSet;
 import me.osm.gazetter.Options;
 import me.osm.gazetter.addresses.AddressesUtils;
 import me.osm.gazetter.join.util.ExportTagsStatisticCollector;
@@ -69,19 +80,6 @@ import me.osm.osmdoc.read.OSMDocFacade;
 import me.osm.osmdoc.read.tagvalueparsers.LogTagsStatisticCollector;
 import me.osm.osmdoc.read.tagvalueparsers.TagsStatisticCollector;
 
-import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.google.code.externalsorting.ExternalSort;
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.LineString;
-
 /**
  * Writes data as JSON, out-gazetteer out handler.
  * */
@@ -96,7 +94,7 @@ public class GazetteerOutWriter extends AddressPerRowJOHBase  {
 			"neighborhood", "poi_catalog",
 			TRANSLATE_POI_TYPES_OPTION,
 			"fill_addresses", "export_all_names",
-			"full_geometry",
+			"full_geometry", "format_geojson",
 			"usage", "tag-stat",
 			"sort", "isort");
 

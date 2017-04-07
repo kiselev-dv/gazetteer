@@ -15,6 +15,7 @@ import me.osm.gazetteer.web.ESNodeHolder;
 import me.osm.gazetteer.web.GazetteerWeb;
 import me.osm.gazetteer.web.api.meta.Endpoint;
 import me.osm.gazetteer.web.api.meta.Parameter;
+import me.osm.gazetteer.web.api.query.QToken;
 import me.osm.gazetteer.web.api.query.Query;
 import me.osm.gazetteer.web.api.query.QueryAnalyzer;
 import me.osm.gazetteer.web.api.search.SearchBuilder;
@@ -28,19 +29,25 @@ import me.osm.osmdoc.model.Feature;
 
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.lucene.search.BooleanQuery;
 import org.elasticsearch.action.search.SearchPhaseExecutionException;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.geo.GeoPoint;
 import org.elasticsearch.common.lucene.search.function.CombineFunction;
+import org.elasticsearch.index.query.AndFilterBuilder;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.FilterBuilder;
 import org.elasticsearch.index.query.FilterBuilders;
+import org.elasticsearch.index.query.FilteredQueryBuilder;
+import org.elasticsearch.index.query.MatchQueryBuilder;
 import org.elasticsearch.index.query.OrFilterBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.index.query.TermsQueryBuilder;
 import org.elasticsearch.index.query.functionscore.FunctionScoreQueryBuilder;
+import org.elasticsearch.index.query.functionscore.ScoreFunctionBuilder;
 import org.elasticsearch.index.query.functionscore.ScoreFunctionBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.sort.SortBuilders;
@@ -371,27 +378,31 @@ public class SearchAPI implements DocumentedApi {
 		BoolQueryBuilder q = null;
 		BuildSearchQContext buildSearchQContext = new BuildSearchQContext();
 		
-		if(query != null) {
-			q = getSearchQuerry(query, strict, buildSearchQContext);
-		}
-		else {
-			q = QueryBuilders.boolQuery();
-		}
+		boolean EXPERIMANTAL = true;
 		
-		if(!types.isEmpty()) {
-			q.must(QueryBuilders.termsQuery("type", types));
-		}
-		
-		if(!poiClass.isEmpty()) {
-			q.must(QueryBuilders.termsQuery("poi_class", poiClass));
-		}
-		
-		if(poiTagFilters != null) {
-			q.must(buildPoiTagsFilter(poiTagFilters));
-		}
-		
-		if(addressesOnly) {
-			q.mustNot(QueryBuilders.termQuery("type", "poipnt"));
+		if (!EXPERIMANTAL) {
+			if(query != null ) {
+				q = getSearchQuerry(query, strict, buildSearchQContext);
+			}
+			else {
+				q = QueryBuilders.boolQuery();
+			}
+			
+			if(!types.isEmpty()) {
+				q.must(QueryBuilders.termsQuery("type", types));
+			}
+			
+			if(!poiClass.isEmpty()) {
+				q.must(QueryBuilders.termsQuery("poi_class", poiClass));
+			}
+			
+			if(poiTagFilters != null) {
+				q.must(buildPoiTagsFilter(poiTagFilters));
+			}
+			
+			if(addressesOnly) {
+				q.mustNot(QueryBuilders.termQuery("type", "poipnt"));
+			}
 		}
 		
 		// if poiClass.isEmpty() try to search over objcts names
@@ -403,18 +414,23 @@ public class SearchAPI implements DocumentedApi {
 		else {
 			qb = q;
 		}
+		
+		if (!EXPERIMANTAL) {
+			boolean sortByHNVariants = false;
+			if(buildSearchQContext.getHousenumberVariants() != null && strict) {
+				sortByHNVariants = buildSearchQContext.getHousenumberVariants().size() == 1;
+			}
+			
+			// Do not rescore with distance if we are in debug mode, 
+			// because rescore will erase match query scoring 
+			if(!explain && (lat != null || lon != null || poiClass != null)) {
+				qb = rescore(qb, lat, lon, poiClass, sortByHNVariants);
+			}
+		}
+		else {
+			qb = getExperimantalQuery(query);
+		}
 
-		boolean sortByHNVariants = false;
-		if(buildSearchQContext.getHousenumberVariants() != null && strict) {
-			sortByHNVariants = buildSearchQContext.getHousenumberVariants().size() == 1;
-		}
-		
-		// Do not rescore with distance if we are in debug mode, 
-		// because rescore will erase match query scoring 
-		if(!explain && (lat != null || lon != null || poiClass != null)) {
-			qb = rescore(qb, lat, lon, poiClass, sortByHNVariants);
-		}
-		
 		if(!bbox.isEmpty() && bbox.size() == 4) {
 			qb = addBBOXRestriction(qb, bbox);
 		}
@@ -433,6 +449,108 @@ public class SearchAPI implements DocumentedApi {
 
 		searchRequest.setFetchSource(true);
 		return searchRequest;
+	}
+
+	private QueryBuilder getExperimantalQuery(Query query) {
+		QueryBuilder qb;
+		{
+			float baseWeight = 1.0f;
+			
+			AndFilterBuilder housenumberMatch = FilterBuilders.andFilter(
+					FilterBuilders.termFilter("type", "adrpnt"),
+					FilterBuilders.termsFilter("housenumber", query.listToken()));
+				
+			AndFilterBuilder streetMatch = FilterBuilders.andFilter(
+				FilterBuilders.termsFilter("type", "hghway", "hghnet"),
+				FilterBuilders.orFilter(
+					FilterBuilders.termsFilter("street_name", query.listToken()),
+					FilterBuilders.termsFilter("street_alternate_names", query.listToken())
+			));
+			
+			AndFilterBuilder localityMatch = FilterBuilders.andFilter(
+				FilterBuilders.termFilter("addr_level", "locality"),
+				FilterBuilders.orFilter(
+					FilterBuilders.termsFilter("name", query.listToken()),
+					FilterBuilders.termsFilter("alt_names", query.listToken())
+			));
+			
+			BoolQueryBuilder admin0 = QueryBuilders.boolQuery()
+				.should(QueryBuilders.termsQuery("admin0_name", query.listToken()).boost(1.0f))
+				.should(QueryBuilders.termsQuery("admin0_alternate_names", query.listToken()).boost(0.9f))
+				.minimumNumberShouldMatch(1);
+			
+			BoolQueryBuilder admin1 = QueryBuilders.boolQuery()
+					.should(QueryBuilders.termsQuery("admin1_name", query.listToken()).boost(1.0f))
+					.should(QueryBuilders.termsQuery("admin1_alternate_names", query.listToken()).boost(0.9f))
+					.minimumNumberShouldMatch(1);
+			
+			BoolQueryBuilder admin2 = QueryBuilders.boolQuery()
+					.should(QueryBuilders.termsQuery("admin2_name", query.listToken()).boost(1.0f))
+					.should(QueryBuilders.termsQuery("admin2_alternate_names", query.listToken()).boost(0.9f))
+					.minimumNumberShouldMatch(1);
+			
+			BoolQueryBuilder localAdmin = QueryBuilders.boolQuery()
+					.should(QueryBuilders.termsQuery("local_admin_name", query.listToken()).boost(1.0f))
+					.should(QueryBuilders.termsQuery("local_admin_alternate_names", query.listToken()).boost(0.9f))
+					.minimumNumberShouldMatch(1);
+			
+			BoolQueryBuilder locality = QueryBuilders.boolQuery()
+					.should(QueryBuilders.termsQuery("locality_name", query.listToken()).boost(1.0f))
+					.should(QueryBuilders.termsQuery("locality_alternate_names", query.listToken()).boost(0.9f))
+					.minimumNumberShouldMatch(1);
+			
+			BoolQueryBuilder neighborhood = QueryBuilders.boolQuery()
+					.should(QueryBuilders.termsQuery("neighborhood_name", query.listToken()).boost(1.0f))
+					.should(QueryBuilders.termsQuery("neighborhood_alternate_names", query.listToken()).boost(0.9f))
+					.minimumNumberShouldMatch(1);
+			
+			BoolQueryBuilder street = QueryBuilders.boolQuery()
+					.should(QueryBuilders.termsQuery("street_name", query.listToken()).boost(1.0f))
+					.should(QueryBuilders.termsQuery("street_alternate_names", query.listToken()).boost(0.9f))
+					.minimumNumberShouldMatch(1);
+
+			TermsQueryBuilder house = QueryBuilders.termsQuery("housenumber", query.listToken());
+			
+			OrFilterBuilder streetNameMatchLocalityOrFilter = FilterBuilders.orFilter();
+			for(QToken token : query.listToken()) {
+				streetNameMatchLocalityOrFilter.add(FilterBuilders.andFilter(
+						FilterBuilders.termFilter("locality_name", token.toString()),
+						FilterBuilders.termFilter("street_name", token.toString())
+				));
+			}
+			
+			FilteredQueryBuilder streetNameMatchLocalityDebuf = QueryBuilders.filteredQuery(QueryBuilders.matchAllQuery(), FilterBuilders.andFilter(
+					FilterBuilders.termsFilter("type", "hghway", "hghnet"),
+					streetNameMatchLocalityOrFilter
+			));
+			
+			MatchQueryBuilder nameText = QueryBuilders.matchPhraseQuery("name.text", query.toString());
+//			MatchQueryBuilder nameExact = QueryBuilders.matchPhraseQuery("name.exact", query.toString());
+			
+			MatchQueryBuilder search = QueryBuilders.matchPhraseQuery("search", query.toString())
+					.boost(baseWeight);
+			
+			qb = QueryBuilders.disMaxQuery()
+					.add(nameText.boost(baseWeight))
+					.add(admin0.boost(baseWeight))
+					.add(admin1.boost(baseWeight / 2))
+					.add(admin2.boost(baseWeight / 2))
+					.add(localAdmin.boost(baseWeight / 8))
+					.add(locality.boost(baseWeight / 4))
+					.add(neighborhood.boost(baseWeight / 16))
+					.add(street.boost(baseWeight / 16))
+					.add(house.boost(baseWeight / 32))
+					.add(streetNameMatchLocalityDebuf.boost(-baseWeight / 4))
+					.tieBreaker(8.0f);
+			
+			qb = QueryBuilders.filteredQuery(
+				qb, 
+				FilterBuilders.orFilter(
+					housenumberMatch, streetMatch, localityMatch	
+			));
+			
+		}
+		return qb;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -505,7 +623,18 @@ public class SearchAPI implements DocumentedApi {
 	 * @return modified query
 	 * */
 	private QueryBuilder addRefsRestriction(QueryBuilder qb, Set<String> refs) {
-		qb = QueryBuilders.filteredQuery(qb, FilterBuilders.termsFilter("refs", refs));
+		qb = QueryBuilders.filteredQuery(qb, FilterBuilders.orFilter(
+				FilterBuilders.termsFilter("refs.admin0", refs),
+				FilterBuilders.termsFilter("refs.admin1", refs),
+				FilterBuilders.termsFilter("refs.admin2", refs),
+				FilterBuilders.termsFilter("refs.local_admin", refs),
+				FilterBuilders.termsFilter("refs.locality", refs),
+				FilterBuilders.termsFilter("refs.neighborhood", refs),
+				FilterBuilders.termsFilter("refs.street", refs),
+				FilterBuilders.termsFilter("refs.poi_addresses", refs),
+				FilterBuilders.termsFilter("id", refs)
+		));
+		
 		return qb;
 	}
 

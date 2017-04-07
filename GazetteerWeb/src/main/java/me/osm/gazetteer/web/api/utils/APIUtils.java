@@ -34,6 +34,16 @@ public class APIUtils {
 				feature.put("address", getAddressText(source));
 			}
 			
+			if(detalization == AnswerDetalization.SHORT_SCORE) {
+				JSONObject source = feature;
+				feature = new JSONObject();
+				
+				feature.put("id", source.getString("id"));
+				feature.put("center_point", source.getJSONObject("center_point"));
+				feature.put("address", getAddressText(source));
+				feature.put("addr_level", source.getString("addr_level"));
+			}
+			
 			if(!fullGeometry) {
 				feature.remove("full_geometry");
 			}
