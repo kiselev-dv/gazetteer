@@ -297,6 +297,9 @@ public class GazetteerOutWriter extends AddressPerRowJOHBase  {
 				+ "HIERARCHICAL (Sort with dependencies) | UNIQUE (Do not sort results, but skip duplicates) ].");
 		usage.append("\t\tisort - Inverse order");
 		usage.append("\n");
+		usage.append("\t\tformat_geojson - Write geometry type keys in CammelCase to fit geojson standard.");
+		usage.append("\t\tisort - Inverse order");
+		usage.append("\n");
 
 		usage.append("\n");
 		usage.append("\tusage Print this message and exit.");
@@ -460,6 +463,8 @@ public class GazetteerOutWriter extends AddressPerRowJOHBase  {
 			result.put(GAZETTEER_SCHEME_FEATURE_ID, jsonObject.getString("id"));
 			result.put(GAZETTEER_SCHEME_TYPE, ftype);
 			result.put(GAZETTEER_SCHEME_TIMESTAMP, jsonObject.getString("timestamp"));
+			result.put("osm_id", jsonObject.getJSONObject("metainfo").get("id"));
+			result.put("osm_type", jsonObject.getJSONObject("metainfo").getString("type"));
 
 			if(fillAddrOpts.contains("obj")) {
 				result.put(GAZETTEER_SCHEME_ADDRESS, addrRow);
