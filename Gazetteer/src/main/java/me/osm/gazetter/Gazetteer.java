@@ -9,6 +9,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.sound.midi.SysexMessage;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
@@ -20,6 +22,7 @@ import me.osm.gazetter.join.JoinExecutor;
 import me.osm.gazetter.sortupdate.SortUpdate;
 import me.osm.gazetter.split.Split;
 import me.osm.gazetter.striper.Slicer;
+import me.osm.gazetter.tilebuildings.TileBuildings;
 import net.sourceforge.argparse4j.ArgumentParsers;
 import net.sourceforge.argparse4j.impl.Arguments;
 import net.sourceforge.argparse4j.impl.action.StoreTrueArgumentAction;
@@ -82,6 +85,7 @@ public class Gazetteer {
 	private static Subparser update;
 	private static Subparser man;
 	private static Subparser diff;
+	private static Subparser tileBuildings;
 
 	/**
 	 * Command line command description
@@ -112,7 +116,7 @@ public class Gazetteer {
 			@Override
 			public String longName() {return name().toLowerCase();}
 			@Override
-			public String help() {return "Prints extended usage";}
+			public String help() {return "Print detailed usage.";}
 		}, 
 
 		SPLIT {
@@ -154,7 +158,7 @@ public class Gazetteer {
 	    	@Override
 	    	public String longName() {return name().toLowerCase().replace('_', '-');}
 	    	@Override
-	    	public String help() {return "Write difference between two gazetteer json files";}
+	    	public String help() {return "Write difference between two gazetteer json files.";}
 	    },
 
 	    MATCH_FLAP {
@@ -162,6 +166,13 @@ public class Gazetteer {
 	    	public String longName() {return name().toLowerCase().replace('_', '-');}
 	    	@Override
 	    	public String help() {return "Match features with flap objects.";}
+	    },
+		
+		TILE_BUILDINGS {
+	    	@Override
+	    	public String longName() {return name().toLowerCase().replace('_', '-');}
+	    	@Override
+	    	public String help() {return "Export building and building:part objects into tiles.";}
 	    };
 
 	};
@@ -217,8 +228,9 @@ public class Gazetteer {
 				System.exit(0);
 			}
 
+			String data_dir = namespace.getString(DATA_DIR_VAL);
 			if(namespace.get(COMMAND).equals(Command.SPLIT)) {
-				File destFolder = new File(namespace.getString(DATA_DIR_VAL));
+				File destFolder = new File(data_dir);
 				String in = namespace.getString("osm_file");
 				String compression = namespace.getString("compression");
 				boolean append = namespace.getBoolean("append");
@@ -235,7 +247,7 @@ public class Gazetteer {
 					types.addAll((Collection<String>)namespace.get(FEATURE_TYPES_VAL));
 				}
 				
-				new Slicer(namespace.getString(DATA_DIR_VAL)).run(
+				new Slicer(data_dir).run(
 						namespace.getString(POI_CATALOG_VAL), 
 						types,
 						list(namespace.getList(EXCCLUDE_POI_BRANCH_VAL)),
@@ -265,13 +277,13 @@ public class Gazetteer {
 						namespace.getBoolean("keep_hghnets_geometry"),
 						namespace.getBoolean("clean_stripes"),
 						new HashSet(list(namespace.getList("check_boundaries")))).run(
-								namespace.getString(DATA_DIR_VAL), 
+								data_dir, 
 								namespace.getString(JOIN_COMMON_VAL));
 				
 			}
 
 			if(namespace.get(COMMAND).equals(Command.SYNCHRONIZE)) {
-				new SortUpdate(namespace.getString(DATA_DIR_VAL)).run();
+				new SortUpdate(data_dir).run();
 			}
 			
 			if(namespace.get(COMMAND).equals(Command.DIFF)) {
@@ -289,8 +301,24 @@ public class Gazetteer {
 			}
 			
 			if(namespace.get(COMMAND).equals(Command.MATCH_FLAP)) {
+				log.info("Not implemented, exit");
+			}
+			
+			if(namespace.get(COMMAND).equals(Command.TILE_BUILDINGS)) {
+				File destFolder = new File(namespace.getString("out_dir"));
+				File dataDir = new File(namespace.getString(DATA_DIR_VAL));
+				Integer lvl = Integer.valueOf(namespace.getString("level"));
+				if (lvl == null || lvl < 0 || lvl > 22) {
+					log.info("Use default level 13");
+					lvl = 13;
+				}
+				boolean diskIndex = namespace.getBoolean("disk_index");
+				List<String> drop = list(namespace.getList("drop"));
 				
-			} 
+				TileBuildings tiler = new TileBuildings(
+						dataDir, lvl, destFolder, drop, diskIndex);
+				tiler.run();
+			}
 			
 		} 
 		catch (ArgumentParserException e) {
@@ -350,6 +378,9 @@ public class Gazetteer {
 
 		System.out.print("\n\n\nDIFF\n\n");
 		diff.printHelp();
+		
+		System.out.print("\n\n\nDIFF\n\n");
+		tileBuildings.printHelp();
 	}
 
 	/**
@@ -596,6 +627,28 @@ public class Gazetteer {
 			diff.addArgument("--only-key-length").setConst(Boolean.TRUE)
 				.setDefault(Boolean.FALSE).action(new StoreTrueArgumentAction())
 				.help("Print full object data for deleted and old rows.");
+			
+		}
+		
+		{
+			Command command = Command.TILE_BUILDINGS;
+			tileBuildings = subparsers.addParser(command.longName())
+        			.setDefault(COMMAND, command)
+					.help(command.help());
+			
+			tileBuildings.addArgument("--drop").nargs("*")
+				.help("List of objects osm ids which will be dropped ex r60189.");
+			
+			tileBuildings.addArgument("--disk-index").setConst(Boolean.TRUE)
+				.setDefault(Boolean.FALSE).action(new StoreTrueArgumentAction())
+				.help("Do not parse addr:interpolation lines");
+			
+			tileBuildings.addArgument("--out-dir").setDefault("tiles")
+				.help("Where to print results.");
+			
+			tileBuildings.addArgument("--level").setDefault("12")
+				.help("Zoom level for generated tiles.");
+			
 			
 		}
 		
