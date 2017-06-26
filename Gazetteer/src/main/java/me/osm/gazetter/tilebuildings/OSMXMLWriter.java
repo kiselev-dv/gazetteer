@@ -67,7 +67,7 @@ public class OSMXMLWriter {
 	}
 
 	private String formatDouble(double d) {
-		return String.format("%.6f", d).replace(',', '.');
+		return String.format("%.7f", d).replace(',', '.');
 	}
 	
 	public void close() {
