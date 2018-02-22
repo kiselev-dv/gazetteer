@@ -7,6 +7,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.RandomAccessFile;
+import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
@@ -152,10 +153,10 @@ public class MMapBBIndex implements BinaryIndex {
 		CachePage page = getCachePage(i);
 		
 		if (i >= page.from && i < page.to) {
-			page.buffer.position((i - page.from) * rowLength);
+			((Buffer)page.buffer).position((i - page.from) * rowLength);
 			
 			ByteBuffer subbufer = page.buffer.slice();
-			subbufer.limit(rowLength);
+			((Buffer)subbufer).limit(rowLength);
 			
 			return subbufer;
 		}
@@ -322,7 +323,7 @@ public class MMapBBIndex implements BinaryIndex {
 	}
 
 	protected void writePage(MappedByteBuffer page, List<ByteBuffer> bblist) {
-		page.clear();
+		((Buffer)page).clear();
 		for (ByteBuffer bb : bblist) {
 			page.put(bb.array());
 		}
@@ -330,7 +331,7 @@ public class MMapBBIndex implements BinaryIndex {
 	}
 
 	private List<ByteBuffer> asByteBuffersList(MappedByteBuffer page) {
-		page.rewind();
+		((Buffer)page).rewind();
 		List<ByteBuffer> result = new ArrayList<>();
 		while(page.hasRemaining()) {
 			byte[] rowBuffer = new byte[this.rowLength];
@@ -363,7 +364,7 @@ public class MMapBBIndex implements BinaryIndex {
 			while (pq.size() > 0) {
 				BinaryFileBuffer bfb = pq.poll();
 				ByteBuffer r = bfb.pop();
-				r.rewind();
+				((Buffer)r).rewind();
 				while (r.hasRemaining()) {
 					fbw.write(r.get());
 				}

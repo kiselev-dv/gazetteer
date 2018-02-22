@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.nio.Buffer;
 import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 import java.nio.MappedByteBuffer;
@@ -28,8 +29,8 @@ public class MMapIndexTest {
 		@Override
 		public int compare(ByteBuffer o1, ByteBuffer o2) {
 			try {
-				o1.rewind();
-				o2.rewind();
+				((Buffer)o1).rewind();
+				((Buffer)o2).rewind();
 				
 				o1.getInt();
 				o2.getInt();
@@ -90,7 +91,7 @@ public class MMapIndexTest {
 		
 		for(int i = 0; i < TEST_INDEX_SIZE; i++) {
 			ByteBuffer byteBuffer = index.get(i);
-			byteBuffer.rewind();
+			((Buffer)byteBuffer).rewind();
 			Assert.assertEquals(i, byteBuffer.getInt()); 
 		}
 		
@@ -105,7 +106,7 @@ public class MMapIndexTest {
 			protected void writePage(MappedByteBuffer page, List<ByteBuffer> bblist) {
 				int min = Integer.MIN_VALUE;
 				for(ByteBuffer bb : bblist) {
-					bb.rewind();
+					((Buffer)bb).rewind();
 					bb.getInt();
 					int i = bb.getInt();
 					if (i >= min) {
@@ -114,7 +115,7 @@ public class MMapIndexTest {
 					else {
 						throw new AssertionError("Page not sorted");
 					}
-					bb.rewind();
+					((Buffer)bb).rewind();
 				}
 				super.writePage(page, bblist);
 			}
@@ -132,7 +133,7 @@ public class MMapIndexTest {
 		
 		int min = Integer.MIN_VALUE;
 		for(ByteBuffer bb : index) {
-			bb.rewind();
+			((Buffer)bb).rewind();
 			
 			bb.getInt();
 			int i = bb.getInt();
@@ -155,7 +156,7 @@ public class MMapIndexTest {
 			protected void writePage(MappedByteBuffer page, List<ByteBuffer> bblist) {
 				int min = Integer.MIN_VALUE;
 				for(ByteBuffer bb : bblist) {
-					bb.rewind();
+					((Buffer)bb).rewind();
 					bb.getInt();
 					int i = bb.getInt();
 					if (i >= min) {
@@ -164,7 +165,7 @@ public class MMapIndexTest {
 					else {
 						throw new AssertionError("Page for write not sorted");
 					}
-					bb.rewind();
+					((Buffer)bb).rewind();
 				}
 				super.writePage(page, bblist);
 			}
@@ -196,7 +197,7 @@ public class MMapIndexTest {
 		int min = Integer.MIN_VALUE;
 		int rc = 0;
 		for(ByteBuffer bb : index) {
-			bb.rewind();
+			((Buffer)bb).rewind();
 			bb.getInt();
 			int i = bb.getInt();
 			if(i >= min) {
@@ -258,7 +259,7 @@ public class MMapIndexTest {
 			
 			Assert.assertEquals(offset1 + length1, j);
 			
-			map.clear();
+			((Buffer)map).clear();
 			
 			for(int i = 0; i < length1; i++) {
 				map.putInt(i);
@@ -296,13 +297,13 @@ public class MMapIndexTest {
 			MappedByteBuffer map1 = raf.getChannel().map(MapMode.READ_WRITE, 4 * offset1, 4 * length1);
 			MappedByteBuffer map2 = raf.getChannel().map(MapMode.READ_WRITE, 4 * offset2, 4 * length2);
 			
-			map1.clear();
+			((Buffer)map1).clear();
 			for(int i = 0; i < length1; i++) {
 				map1.putInt(length1 - i);
 			}
 			map1.force();
 			
-			map2.clear();
+			((Buffer)map2).clear();
 			for(int i = 0; i < length2; i++) {
 				map2.putInt(i * 2);
 			}
@@ -353,7 +354,7 @@ public class MMapIndexTest {
 		int min = Integer.MIN_VALUE;
 		int rc = 0;
 		for(ByteBuffer bb : index) {
-			bb.rewind();
+			((Buffer)bb).rewind();
 			bb.getInt();
 			int i = bb.getInt();
 			if(i >= min) {

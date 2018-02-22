@@ -1,5 +1,6 @@
 package me.osm.gazetter.diff.indx;
 
+import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -26,9 +27,9 @@ public class DiffMapFileIndex implements DiffMapIndex {
 		@Override
 		public ByteBuffer get(ByteBuffer row) {
 			ByteBuffer keyBB = ByteBuffer.allocate(keyLenght);
-			row.position(rowLenght - keyLenght);
+			((Buffer)row).position(rowLenght - keyLenght);
 			keyBB.put(row);
-			keyBB.rewind();
+			((Buffer)keyBB).rewind();
 			return keyBB;
 		}
 	}
@@ -60,7 +61,7 @@ public class DiffMapFileIndex implements DiffMapIndex {
 		ByteBuffer bb = ByteBuffer.allocate(rowLenght);
 		
 		ByteBuffer encoded = ByteUtils.encode(parsedId);
-		encoded.rewind();
+		((Buffer)encoded).rewind();
 		
 		// removed | hash | timestamp | id
 		bb.put((byte) 0).putInt(row.hash).putLong(row.timestamp.getMillis()).put(encoded);
@@ -89,7 +90,7 @@ public class DiffMapFileIndex implements DiffMapIndex {
 			ByteBuffer byteBuffer = bbindex.get(index);
 			IdParts idPartsDecoded = ByteUtils.decode(KEY_ACCESSOR.get(byteBuffer), idParts.type);
 			ir.key = ByteUtils.joinToId(idPartsDecoded);
-			byteBuffer.position(0);
+			((Buffer)byteBuffer).position(0);
 			byteBuffer.get();
 			ir.hash = byteBuffer.getInt();
 			ir.timestamp = new DateTime(byteBuffer.getLong());
@@ -142,7 +143,7 @@ public class DiffMapFileIndex implements DiffMapIndex {
 			ByteBufferList oldindex = getIndex(type);
 			ByteBufferList newindex = new ByteBufferList(rowLenght); 
 			for(ByteBuffer bb : oldindex) {
-				bb.rewind();
+				((Buffer)bb).rewind();
 				if(bb.get() != (byte) -128) {
 					newindex.add(bb);
 				}
@@ -191,7 +192,7 @@ public class DiffMapFileIndex implements DiffMapIndex {
 				DiffMapIndexRow row = new DiffMapIndexRow();
 				
 				row.key = ByteUtils.joinToId(decode);
-				bb.position(1);
+				((Buffer)bb).position(1);
 				row.hash = bb.getInt();
 				row.timestamp = new DateTime(bb.getLong());
 				
