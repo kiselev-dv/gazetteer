@@ -35,6 +35,7 @@ import me.osm.gazetter.utils.index.Accessor;
 import me.osm.gazetter.utils.index.Accessors;
 import me.osm.gazetter.utils.index.BinaryIndex;
 import me.osm.gazetter.utils.index.IndexFactory;
+import me.osm.gazetter.utils.index.BinaryIndex.IndexLineAccessMode;
 
 /**
  * Класс строит геометрию way'ев
@@ -181,9 +182,9 @@ public class HighwaysBuilder extends ABuilder implements HighwaysHandler {
 	private void buildLine(final Way line, HighwaysHandler handler) {
 
 		Accessor lneIDAccessor = Accessors.longAccessor(8);
-		int li = node2way.find(line.id, lneIDAccessor);
+		int li = node2way.find(line.id, lneIDAccessor, IndexLineAccessMode.UNLINKED);
 		
-		List<ByteBuffer> nodeRows = node2way.findAll(li, line.id, lneIDAccessor);
+		List<ByteBuffer> nodeRows = node2way.findAll(li, line.id, lneIDAccessor, IndexLineAccessMode.UNLINKED);
 		
 		//sort by node
 		Collections.sort(nodeRows, Builder.FIRST_LONG_FIELD_COMPARATOR);
@@ -240,9 +241,9 @@ public class HighwaysBuilder extends ABuilder implements HighwaysHandler {
 	public void handle(final Node node) {
 		
 		Accessor nodeIdAccessor = Accessors.longAccessor(0);
-		int ni = node2way.find(node.id, nodeIdAccessor); 
+		int ni = node2way.find(node.id, nodeIdAccessor, IndexLineAccessMode.LINKED); 
 		
-		List<ByteBuffer> nodeRows = node2way.findAll(ni, node.id, nodeIdAccessor);
+		List<ByteBuffer> nodeRows = node2way.findAll(ni, node.id, nodeIdAccessor, IndexLineAccessMode.LINKED);
 		for (ByteBuffer row : nodeRows) {
 			row.putDouble(LON_OFFSET, node.lon);
 			row.putDouble(LAT_OFFSET, node.lat);

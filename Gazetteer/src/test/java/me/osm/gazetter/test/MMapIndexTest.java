@@ -9,9 +9,7 @@ import java.nio.Buffer;
 import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 import java.nio.MappedByteBuffer;
-import java.nio.channels.FileChannel;
 import java.nio.channels.FileChannel.MapMode;
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
@@ -22,6 +20,7 @@ import junit.framework.Assert;
 import me.osm.gazetter.utils.index.BinaryIndex;
 import me.osm.gazetter.utils.index.MMapBBIndex;
 import me.osm.gazetter.utils.index.MMapIndexFactory;
+import me.osm.gazetter.utils.index.BinaryIndex.IndexLineAccessMode;
 
 public class MMapIndexTest {
 	
@@ -90,7 +89,7 @@ public class MMapIndexTest {
 		index.synchronize();
 		
 		for(int i = 0; i < TEST_INDEX_SIZE; i++) {
-			ByteBuffer byteBuffer = index.get(i);
+			ByteBuffer byteBuffer = index.get(i, IndexLineAccessMode.IGNORE);
 			((Buffer)byteBuffer).rewind();
 			Assert.assertEquals(i, byteBuffer.getInt()); 
 		}
@@ -385,9 +384,8 @@ public class MMapIndexTest {
 
 		// Update rows
 		{
-			int i = 0;
-			for(ByteBuffer bb : index) {
-				bb.putInt(i++);
+			for (int i = 0; i < index.size(); i++) {
+				index.get(i, IndexLineAccessMode.LINKED).putInt(i);
 			}
 		}
 		
@@ -396,12 +394,39 @@ public class MMapIndexTest {
 		// Check
 		{
 			int i = 0;
+			// Underlying iterator uses UNLINKED access, so we
+			// check synchronization as well
 			for(ByteBuffer bb : index) {
 				Assert.assertEquals(i++, bb.getInt());
 			}
 		}
 		
 		index.close();
+	}
+	
+	@Test
+	public void testPageCalculation() {
+		// Can't get subbufer for 
+		// row: 363286 
+		// buffer.from=302640 
+		// buffer.to=302760 
+		// rowLength=34 
+		int indexSize=7750127;
+
+		int searchPageSize=120; 
+		
+		int i = 363286;
+		
+		int pageN = i / searchPageSize;
+		
+		int from = pageN * searchPageSize;
+		int to =   pageN * searchPageSize + searchPageSize;
+		
+		from = Math.max(from, 0);
+		to   = Math.min(to, indexSize);
+		
+		Assert.assertTrue(i >= from && i < to); 
+		
 	}
 	
 }

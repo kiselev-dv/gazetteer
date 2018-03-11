@@ -11,6 +11,7 @@ import java.util.Set;
 
 import me.osm.gazetter.LOGMarkers;
 import me.osm.gazetter.striper.readers.RelationsReader.Relation;
+import me.osm.gazetter.striper.readers.RelationsReader.Relation.RelationMember;
 import me.osm.gazetter.striper.readers.WaysReader.Way;
 import me.osm.gazetter.utils.MultiMap;
 
@@ -221,24 +222,13 @@ public class BuildUtils {
 				point2line.put(ls.getEndPoint(), ls);
 			}
 			
-			boolean closed = true;
 			for(Entry<Point, Set<LineString>> entry : point2line.entrySet()) {
 				if(entry.getValue().size() < 2 ) {
 					if(!(entry.getValue().size() == 1 && entry.getValue().iterator().next().isClosed())) {
 						log.warn("Not closed ring in multipolygon. Relation {} near {}", 
 								rel.id, entry.getKey().toString());
-						
-						closed = false;
 					}
 				}
-			}
-			if(!closed) {
-				if(log.isDebugEnabled()) {
-					for(LineString ls : linestrings) {
-						log.debug("Not closed ring in {}. Way: {}", rel.id, ls.toString());
-					}
-				}
-				return null;
 			}
 			
 			Polygonizer polygonizer = new Polygonizer();
@@ -252,6 +242,7 @@ public class BuildUtils {
 					MultiPolygon mp = geometryFactory.createMultiPolygon(ps);
 					return mp;
 				}
+				log.warn("Got empty polygon for relation {}", rel.id);
 			}
 			catch (Exception e) {
 				if(log.isWarnEnabled()) {

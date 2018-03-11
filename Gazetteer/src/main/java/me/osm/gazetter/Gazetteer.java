@@ -257,7 +257,9 @@ public class Gazetteer {
 						list(namespace.getList(BOUNDARIES_FALLBACK_TYPES_VAL)),
 						namespace.getBoolean("x10"),
 						namespace.getBoolean("skip_interpolation"),
-						namespace.getBoolean("disk_index")
+						namespace.getBoolean("disk_index"),
+						!namespace.getBoolean("skip_point_to_boundary_merge"),
+						!namespace.getBoolean("skip_nearest_city")
 				);
 				
 			}
@@ -539,7 +541,15 @@ public class Gazetteer {
 			
 			slice.addArgument("--disk-index").setConst(Boolean.TRUE)
 				.setDefault(Boolean.FALSE).action(new StoreTrueArgumentAction())
-				.help("Do not parse addr:interpolation lines");
+				.help("Use off RAM index for points/ways/relations build");
+			
+			slice.addArgument("--skip-point-to-boundary-merge").setConst(Boolean.TRUE)
+				.setDefault(Boolean.FALSE).action(new StoreTrueArgumentAction())
+				.help("Don't merge place point to it's boundary");
+			
+			slice.addArgument("--skip-nearest-city").setConst(Boolean.TRUE)
+				.setDefault(Boolean.FALSE).action(new StoreTrueArgumentAction())
+				.help("Use only polygonal boundaries for cities");
 			
 		}
 

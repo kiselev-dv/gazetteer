@@ -5,14 +5,19 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.lang3.StringUtils;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,6 +44,7 @@ import me.osm.gazetter.utils.index.Accessor;
 import me.osm.gazetter.utils.index.Accessors;
 import me.osm.gazetter.utils.index.BinaryIndex;
 import me.osm.gazetter.utils.index.IndexFactory;
+import me.osm.gazetter.utils.index.BinaryIndex.IndexLineAccessMode;
 
 public class BoundariesBuilder extends ABuilder {
 	
@@ -66,8 +72,15 @@ public class BoundariesBuilder extends ABuilder {
 	
 	private boolean indexFilled = false;
 	
-	private final ExecutorService executorService = 
-			Executors.newFixedThreadPool(Options.get().getNumberOfThreads());
+	private final BlockingQueue<Runnable> boundariesBuildQueue = 
+			new LinkedBlockingQueue<Runnable>(Options.get().getNumberOfThreads() * 2);
+	private final ExecutorService executorService = new ThreadPoolExecutor(
+			Options.get().getNumberOfThreads(), 
+			Options.get().getNumberOfThreads(),
+            100L, 
+            TimeUnit.MILLISECONDS,
+            boundariesBuildQueue,
+            new ThreadPoolExecutor.CallerRunsPolicy());
 	
 	private static final Accessor n2wWayAccessor = Accessors.longAccessor(8);
 	private static final Accessor n2wNodeAccessor = Accessors.longAccessor(0);
@@ -106,7 +119,14 @@ public class BoundariesBuilder extends ABuilder {
 				addRelIndex(rel);
 			}
 			else {
-				executorService.execute(new Task(rel, this));
+				try {
+					executorService.execute(new Task(rel, this));
+				}
+				catch (Exception e) {
+					log.error("Failed to submit relation {} to polygon builder. Queue size: {}", 
+							rel.id, boundariesBuildQueue.size());
+					throw e;
+				}
 			}
 		}
 	}
@@ -164,14 +184,31 @@ public class BoundariesBuilder extends ABuilder {
 			
 		orderByWay();
 		
+		int relOuters = 0;
+		int relInners = 0;
+		
 		List<LineString> outers = new ArrayList<>();
 		List<LineString> inners = new ArrayList<>();
 		
+		List<String> notFound = new ArrayList<>();
+		
 		for(final RelationMember m : rel.members) {
 			if(m.type == ReferenceType.WAY) {
-				int wi = node2way.find(m.ref, n2wWayAccessor);
+				
+				if(isInnerRole(m)) {
+					relInners++;
+				}
+				else if (isOuterRole(m)){
+					relOuters++;
+				}
+				else {
+					// Ignore members with undefined role
+					continue;
+				}
+				
+				int wi = node2way.find(m.ref, n2wWayAccessor, IndexLineAccessMode.UNLINKED);
 
-				List<ByteBuffer> points = node2way.findAll(wi, m.ref, n2wWayAccessor);
+				List<ByteBuffer> points = node2way.findAll(wi, m.ref, n2wWayAccessor, IndexLineAccessMode.UNLINKED);
 				Collections.sort(points, new Comparator<ByteBuffer>() {
 					@Override
 					public int compare(ByteBuffer bb1, ByteBuffer bb2) {
@@ -192,25 +229,51 @@ public class BoundariesBuilder extends ABuilder {
 
 					if(coords.size() >= 2) {
 						LineString ls = geometryFactory.createLineString(coords.toArray(new Coordinate[coords.size()]));
-						if("inner".equals(m.role)) {
+						if(isInnerRole(m)) {
 							inners.add(ls);
 						}
-						else {
+						else if (isOuterRole(m)){
 							outers.add(ls);
 						}
 					}
+					else {
+						notFound.add(String.valueOf(m.ref));
+					}
+				}
+				else {
+					notFound.add(String.valueOf(m.ref));
 				}
 			}
 		}
 		
-		return BuildUtils.buildMultyPolygon(log, rel, outers, inners);
+		if (relOuters == outers.size() && relInners == inners.size()) {
+			return BuildUtils.buildMultyPolygon(log, rel, outers, inners);
+		}
+		else {
+			
+			log.warn("Some memmbers of admin boundary relation {} ({}) are missed.\n{}", 
+					rel.id, 
+					rel.tags.get("name"), 
+					StringUtils.join(notFound, ", "));
+			
+			return null;
+		}
+		
+	}
+
+	private boolean isOuterRole(final RelationMember m) {
+		return StringUtils.stripToNull(m.role) == null || "outer".equals(m.role);
+	}
+
+	private static boolean isInnerRole(final RelationMember m) {
+		return "inner".equals(m.role);
 	}
 
 	private Coordinate[] buildWayGeometry(Way line) {
 		orderByWay();
 		
-		int wayIndex = node2way.find(line.id, n2wWayAccessor);
-		List<ByteBuffer> nodes = node2way.findAll(wayIndex, line.id, n2wWayAccessor);
+		int wayIndex = node2way.find(line.id, n2wWayAccessor, IndexLineAccessMode.UNLINKED);
+		List<ByteBuffer> nodes = node2way.findAll(wayIndex, line.id, n2wWayAccessor, IndexLineAccessMode.UNLINKED);
 		
 		return BuildUtils.buildWayGeometry(line, nodes, 0, 20, 28);
 	}
@@ -239,7 +302,7 @@ public class BoundariesBuilder extends ABuilder {
 		if("outer".equals(m.role) || "".equals(m.role) || m.role == null || "exclave".equals(m.role))	{
 			outer = true;
 		}
-		else if("inner".equals(m.role) || "enclave".equals(m.role)) {
+		else if(isInnerRole(m) || "enclave".equals(m.role)) {
 			outer = false;
 		}
 		return outer;
@@ -255,7 +318,7 @@ public class BoundariesBuilder extends ABuilder {
 	public void handle(Way line) {
 		
 		if(!isIndexFilled()) {
-			int i = way2relation.find(line.id, w2rWayAccessor);
+			int i = way2relation.find(line.id, w2rWayAccessor, IndexLineAccessMode.UNLINKED);
 			if (i >= 0 || (line.isClosed() && filterByTags(line.tags))) {
 				addWayToIndex(line);
 			}
@@ -363,8 +426,8 @@ public class BoundariesBuilder extends ABuilder {
 	@Override
 	public void handle(Node node) {
 		
-		int i = node2way.find(node.id, n2wNodeAccessor);		
-		List<ByteBuffer> lines = node2way.findAll(i, node.id, n2wNodeAccessor);
+		int i = node2way.find(node.id, n2wNodeAccessor, IndexLineAccessMode.LINKED);		
+		List<ByteBuffer> lines = node2way.findAll(i, node.id, n2wNodeAccessor, IndexLineAccessMode.LINKED);
 		
 		for(ByteBuffer bb : lines) {
 			bb.putDouble(20, node.lon).putDouble(28, node.lat);

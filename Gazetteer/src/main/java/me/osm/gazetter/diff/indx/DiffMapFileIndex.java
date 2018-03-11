@@ -18,6 +18,7 @@ import org.joda.time.DateTime;
 import me.osm.gazetter.diff.indx.ByteUtils.IdParts;
 import me.osm.gazetter.utils.index.BBAccessor;
 import me.osm.gazetter.utils.index.ByteBufferList;
+import me.osm.gazetter.utils.index.BinaryIndex.IndexLineAccessMode;
 
 public class DiffMapFileIndex implements DiffMapIndex {
 
@@ -87,7 +88,7 @@ public class DiffMapFileIndex implements DiffMapIndex {
 		
 		if (index >= 0) {
 			DiffMapIndexRow ir = new DiffMapIndexRow();
-			ByteBuffer byteBuffer = bbindex.get(index);
+			ByteBuffer byteBuffer = bbindex.get(index, IndexLineAccessMode.IGNORE);
 			IdParts idPartsDecoded = ByteUtils.decode(KEY_ACCESSOR.get(byteBuffer), idParts.type);
 			ir.key = ByteUtils.joinToId(idPartsDecoded);
 			((Buffer)byteBuffer).position(0);
@@ -114,7 +115,7 @@ public class DiffMapFileIndex implements DiffMapIndex {
 		
 		int index = bbindex.find(bbid, KEY_ACCESSOR);
 		if (index >= 0) {
-			ByteBuffer row = bbindex.get(index);
+			ByteBuffer row = bbindex.get(index, IndexLineAccessMode.IGNORE);
 			row.put((byte) -128);
 		}
 	}

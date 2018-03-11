@@ -31,6 +31,8 @@ import com.vividsolutions.jts.io.WKTReader;
  * */
 public class BoundariesFallbacker {
 	
+	private static final WKTReader WKT_READER = new WKTReader();
+
 	private static final Logger log = LoggerFactory.getLogger(BoundariesFallbacker.class);  
 	
 	private String fallbackPath;
@@ -119,7 +121,7 @@ public class BoundariesFallbacker {
 			if(cache != null) {
 				String wkt = cache.get(id);
 				if(wkt != null) {
-					return (MultiPolygon)new WKTReader().read(wkt);
+					return (MultiPolygon)WKT_READER.read(wkt);
 				}
 			}
 		}
@@ -165,6 +167,9 @@ public class BoundariesFallbacker {
 		public String geometry = null;
 	}
 
+	/**
+	 * Sort by Id and leave newly created geometry 
+	 * */
 	private void sortAndMerge() {
 		try {
 			ExternalSort.sort(file, file);

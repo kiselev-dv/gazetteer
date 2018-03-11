@@ -24,7 +24,6 @@ import com.vividsolutions.jts.geom.Polygon;
 import gnu.trove.list.TLongList;
 import gnu.trove.list.array.TLongArrayList;
 import me.osm.gazetter.LOGMarkers;
-import me.osm.gazetter.striper.FileNameKeyGenerator;
 import me.osm.gazetter.striper.GeoJsonWriter;
 import me.osm.gazetter.striper.Slicer;
 import me.osm.gazetter.striper.builders.handlers.AddrPointHandler;
@@ -37,6 +36,7 @@ import me.osm.gazetter.utils.LocatePoint;
 import me.osm.gazetter.utils.index.Accessor;
 import me.osm.gazetter.utils.index.Accessors;
 import me.osm.gazetter.utils.index.BinaryIndex;
+import me.osm.gazetter.utils.index.BinaryIndex.IndexLineAccessMode;
 import me.osm.gazetter.utils.index.IndexFactory;
 
 public class AddrPointsBuilder extends ABuilder {
@@ -104,7 +104,11 @@ public class AddrPointsBuilder extends ABuilder {
 	}
 
 	private void buildAddrPoint4Relation(final Relation rel) {
-		int i = way2relation.find(rel.id, way2RelRelIdAccessor);
+		
+		// We don't need linked access to index rows here
+		// because we don't modify rows here
+		
+		int i = way2relation.find(rel.id, way2RelRelIdAccessor, IndexLineAccessMode.UNLINKED);
 
 		if(i < 0) {
 			return;
@@ -113,13 +117,13 @@ public class AddrPointsBuilder extends ABuilder {
 		Point centroid = null;
 		List<LineString> lines = new ArrayList<>();
 		
-		for(ByteBuffer bb : way2relation.findAll(i, rel.id, way2RelRelIdAccessor)) {
+		for(ByteBuffer bb : way2relation.findAll(i, rel.id, way2RelRelIdAccessor, IndexLineAccessMode.UNLINKED)) {
 			final long way = bb.getLong(0);
 			
-			int p = node2way.find(way, n2wWayAccessor);
+			int p = node2way.find(way, n2wWayAccessor, IndexLineAccessMode.UNLINKED);
 
 			if(fullGeometry) {
-				List<ByteBuffer> wayPoints = getWayPoints(way);
+				List<ByteBuffer> wayPoints = getWayPoints(way, IndexLineAccessMode.UNLINKED);
 				Collections.sort(wayPoints, new Comparator<ByteBuffer>() {
 					@Override
 					public int compare(ByteBuffer o1, ByteBuffer o2) {
@@ -144,7 +148,7 @@ public class AddrPointsBuilder extends ABuilder {
 				lines.add(l);
 			}
 			else {
-				for(ByteBuffer bb2 : node2way.findAll(p, way, n2wWayAccessor)) {
+				for(ByteBuffer bb2 : node2way.findAll(p, way, n2wWayAccessor, IndexLineAccessMode.UNLINKED)) {
 					double lon = bb2.getDouble(8 + 8 + 2);
 					double lat = bb2.getDouble(8 + 8 + 2 + 8);
 					centroid = factory.createPoint(new Coordinate(lon, lat));
@@ -241,7 +245,7 @@ public class AddrPointsBuilder extends ABuilder {
 		int step = getInterpolationStep(interpolation);
 		
 		if(step > 0) {
-			List<ByteBuffer> points = getWayPoints(line.id);
+			List<ByteBuffer> points = getWayPoints(line.id, IndexLineAccessMode.UNLINKED);
 
 			long prevPID = -1;
 			short prevHN = -1;
@@ -345,10 +349,10 @@ public class AddrPointsBuilder extends ABuilder {
 	}
 
 	private short getInterpolationPointHN(final long id) {
-		int i = nodeInterpolation.find(id, inplnNodeAccessor);
+		int i = nodeInterpolation.find(id, inplnNodeAccessor, IndexLineAccessMode.UNLINKED);
 
 		if(i >= 0) {
-			return nodeInterpolation.get(i).getShort(8);
+			return nodeInterpolation.get(i, IndexLineAccessMode.UNLINKED).getShort(8);
 		}
 		
 		return -1;
@@ -374,10 +378,10 @@ public class AddrPointsBuilder extends ABuilder {
 		return -1;
 	}
 
-	private List<ByteBuffer> getWayPoints(final long lineId) {
-		int i = node2way.find(lineId, n2wLineAccessor);
+	private List<ByteBuffer> getWayPoints(final long lineId, IndexLineAccessMode mode) {
+		int i = node2way.find(lineId, n2wLineAccessor, mode);
 
-		List<ByteBuffer> points = node2way.findAll(i, lineId, n2wLineAccessor);
+		List<ByteBuffer> points = node2way.findAll(i, lineId, n2wLineAccessor, mode);
 		Collections.sort(points, new Comparator<ByteBuffer>() {
 
 			@Override
@@ -390,7 +394,7 @@ public class AddrPointsBuilder extends ABuilder {
 	}
 
 	private void buildAddrPointForWay(final Way line) {
-		int i = node2way.find(line.id, n2wLineAccessor);
+		int i = node2way.find(line.id, n2wLineAccessor, IndexLineAccessMode.UNLINKED);
 		if(i >= 0) {
 			JSONObject meta = new JSONObject();
 			meta.put("id", line.id);
@@ -398,7 +402,7 @@ public class AddrPointsBuilder extends ABuilder {
 
 			Point centroid = null;
 			if(fullGeometry) {
-				List<ByteBuffer> wayPoints = getWayPoints(line.id);
+				List<ByteBuffer> wayPoints = getWayPoints(line.id, IndexLineAccessMode.UNLINKED);
 				Collections.sort(wayPoints, new Comparator<ByteBuffer>() {
 					@Override
 					public int compare(ByteBuffer o1, ByteBuffer o2) {
@@ -441,7 +445,7 @@ public class AddrPointsBuilder extends ABuilder {
 				
 			}
 			else {
-				ByteBuffer bb = node2way.get(i);
+				ByteBuffer bb = node2way.get(i, IndexLineAccessMode.UNLINKED);
 				double lon = bb.getDouble(8 + 8 + 2);
 				double lat = bb.getDouble(8 + 8 + 2 + 8);
 				centroid = factory.createPoint(new Coordinate(lon, lat));
@@ -475,7 +479,7 @@ public class AddrPointsBuilder extends ABuilder {
 				nodeInterpolation.add(bb);
 			}
 		}
-		else if (way2relation.find(line.id, w2rRelAccessor) >= 0) {
+		else if (way2relation.find(line.id, w2rRelAccessor, IndexLineAccessMode.LINKED) >= 0) {
 			indexLine(line);
 		}
 	}
@@ -534,9 +538,9 @@ public class AddrPointsBuilder extends ABuilder {
 
 	private void indexNodeInterpolation(final Node node) {
 		if(hasAddr(node.tags)) {
-			int ni = nodeInterpolation.find(node.id, niNodeAccessor);
+			int ni = nodeInterpolation.find(node.id, niNodeAccessor, IndexLineAccessMode.LINKED);
 			
-			for(ByteBuffer bb : nodeInterpolation.findAll(ni, node.id, niNodeAccessor)) {
+			for(ByteBuffer bb : nodeInterpolation.findAll(ni, node.id, niNodeAccessor, IndexLineAccessMode.LINKED)) {
 				bb.putShort(8, getHN(node.tags));
 				
 				String street = node.tags.get(ADDR_STREET);
@@ -572,9 +576,9 @@ public class AddrPointsBuilder extends ABuilder {
 	}
 
 	private void indexNode2Way(final Node node) {
-		int ni = node2way.find(node.id, n2wNodeAccessor);
+		int ni = node2way.find(node.id, n2wNodeAccessor, IndexLineAccessMode.LINKED);
 		
-		for(ByteBuffer bb : node2way.findAll(ni, node.id, n2wNodeAccessor)) {
+		for(ByteBuffer bb : node2way.findAll(ni, node.id, n2wNodeAccessor, IndexLineAccessMode.LINKED)) {
 			bb.putDouble(8 + 8 + 2, node.lon);
 			bb.putDouble(8 + 8 + 2 + 8, node.lat);
 		}

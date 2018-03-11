@@ -37,6 +37,7 @@ import me.osm.gazetter.utils.index.Accessor;
 import me.osm.gazetter.utils.index.Accessors;
 import me.osm.gazetter.utils.index.BinaryIndex;
 import me.osm.gazetter.utils.index.IndexFactory;
+import me.osm.gazetter.utils.index.BinaryIndex.IndexLineAccessMode;
 import me.osm.osmdoc.model.Feature;
 import me.osm.osmdoc.read.DOCFileReader;
 import me.osm.osmdoc.read.DOCFolderReader;
@@ -126,7 +127,7 @@ public class PoisBuilder extends ABuilder {
 
 	private void buildAddrPoint4Relation(final Relation rel) {
 		
-		int i = way2relation.find(rel.id, w2rRelAccessor);
+		int i = way2relation.find(rel.id, w2rRelAccessor, IndexLineAccessMode.UNLINKED);
 
 		if(i < 0) {
 			return;
@@ -135,10 +136,10 @@ public class PoisBuilder extends ABuilder {
 		Point centroid = null;
 		List<LineString> lines = new ArrayList<>();
 		
-		for(ByteBuffer bb : way2relation.findAll(i, rel.id, w2rRelAccessor)) {
+		for(ByteBuffer bb : way2relation.findAll(i, rel.id, w2rRelAccessor, IndexLineAccessMode.UNLINKED)) {
 			final long way = bb.getLong(0);
 			
-			int p = node2way.find(way, n2wWayAccessor);
+			int p = node2way.find(way, n2wWayAccessor, IndexLineAccessMode.UNLINKED);
 
 			if(fullGeometry) {
 				List<ByteBuffer> wayPoints = getWayPoints(way);
@@ -170,7 +171,7 @@ public class PoisBuilder extends ABuilder {
 				}
 			}
 			else {
-				for(ByteBuffer bb2 : node2way.findAll(p, way, n2wWayAccessor)) {
+				for(ByteBuffer bb2 : node2way.findAll(p, way, n2wWayAccessor, IndexLineAccessMode.UNLINKED)) {
 					double lon = bb2.getDouble(8 + 8 + 2);
 					double lat = bb2.getDouble(8 + 8 + 2 + 8);
 					centroid = factory.createPoint(new Coordinate(lon, lat));
@@ -268,9 +269,10 @@ public class PoisBuilder extends ABuilder {
 	}
 	
 	private List<ByteBuffer> getWayPoints(final long lineId) {
-		int i = node2way.find(lineId, n2wWayAccessor);
+		int i = node2way.find(lineId, n2wWayAccessor, IndexLineAccessMode.UNLINKED);
 
-		List<ByteBuffer> points = node2way.findAll(i, lineId, n2wWayAccessor);
+		List<ByteBuffer> points = node2way.findAll(
+				i, lineId, n2wWayAccessor, IndexLineAccessMode.UNLINKED);
 		Collections.sort(points, new Comparator<ByteBuffer>() {
 
 			@Override
@@ -284,7 +286,7 @@ public class PoisBuilder extends ABuilder {
 	}
 
 	private void buildAddrPointForWay(final Way line) {
-		int i = node2way.find(line.id, n2wWayAccessor);
+		int i = node2way.find(line.id, n2wWayAccessor, IndexLineAccessMode.UNLINKED);
 		if(i >= 0) {
 			JSONObject meta = new JSONObject();
 			meta.put("id", line.id);
@@ -337,7 +339,7 @@ public class PoisBuilder extends ABuilder {
 				
 			}
 			else {
-				ByteBuffer bb = node2way.get(i);
+				ByteBuffer bb = node2way.get(i, IndexLineAccessMode.UNLINKED);
 				double lon = bb.getDouble(8 + 8 + 2);
 				double lat = bb.getDouble(8 + 8 + 2 + 8);
 				centroid = factory.createPoint(new Coordinate(lon, lat));
@@ -367,7 +369,7 @@ public class PoisBuilder extends ABuilder {
 	}
 
 	private void indexWay(Way line) {
-		if(filterByTags(line.tags) || way2relation.find(line.id, w2rWayAccessor) >= 0) {
+		if(filterByTags(line.tags) || way2relation.find(line.id, w2rWayAccessor, IndexLineAccessMode.IGNORE) >= 0) {
 			indexLine(line);
 		}
 	}
@@ -429,9 +431,9 @@ public class PoisBuilder extends ABuilder {
 
 	private void indexNode2Way(final Node node) {
 		
-		int ni = node2way.find(node.id, n2wNodeAccessor);
+		int ni = node2way.find(node.id, n2wNodeAccessor, IndexLineAccessMode.LINKED);
 		
-		for(ByteBuffer bb : node2way.findAll(ni, node.id, n2wNodeAccessor)) {
+		for(ByteBuffer bb : node2way.findAll(ni, node.id, n2wNodeAccessor, IndexLineAccessMode.LINKED)) {
 			bb.putDouble(8 + 8 + 2, node.lon);
 			bb.putDouble(8 + 8 + 2 + 8, node.lat);
 		}

@@ -10,6 +10,7 @@ import java.io.RandomAccessFile;
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.MappedByteBuffer;
+import java.nio.channels.ClosedChannelException;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileChannel.MapMode;
 import java.util.ArrayList;
@@ -20,16 +21,21 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.PriorityQueue;
 
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class MMapBBIndex implements BinaryIndex {
 	
+	private static final Logger LOGGER = LoggerFactory.getLogger(MMapBBIndex.class);
+	
+	public static final boolean USE_READ_FOR_READONLY_FILE_ACCESS = true;
+
 	public static final int PAGE_SIZE = 100000;
 	
 	public static final int SEARCH_PAGE_SIZE_BYTES = 1024 * 4;
 	public static final int CACHE_SIZE_PAGES = 250;
 
-	protected LRUCache<Integer, CachePage> pagesCache = new LRUCache<>(CACHE_SIZE_PAGES);
+	protected final LRUCache<Integer, CachePage> pagesCache = new LRUCache<>(CACHE_SIZE_PAGES);
 	
 	protected int rowLength = 0;
 	protected int rows = 0;
@@ -43,8 +49,7 @@ public class MMapBBIndex implements BinaryIndex {
 	protected long miss = 0;
 
 	private RandomAccessFile indexRandomAccessFile;
-
-
+	
 	public MMapBBIndex(int rowLength, File tempDir) {
 		this.searchPageSize = SEARCH_PAGE_SIZE_BYTES / rowLength;
 		this.rowLength = rowLength;
@@ -53,12 +58,7 @@ public class MMapBBIndex implements BinaryIndex {
 			
 			@Override
 			public void onEviction(Entry<Integer, CachePage> entry) {
-				try {
-					closeCachePage(entry.getValue());
-				}
-				catch (IOException e) {
-					throw new RuntimeException(e);
-				}
+				entry.getValue().flush();
 			}
 			
 		});
@@ -77,6 +77,9 @@ public class MMapBBIndex implements BinaryIndex {
 	@Override
 	public void add(ByteBuffer bb) {
 		try {
+			if (rows == Integer.MAX_VALUE) {
+				throw new RuntimeException("Index is too big");
+			}
 			rows++;
 			fileOutputStream.write(bb.array());
 		} catch (IOException e) {
@@ -91,7 +94,7 @@ public class MMapBBIndex implements BinaryIndex {
 	}
 
 	@Override
-	public int find(long key, Accessor accessor) {
+	public int find(long key, Accessor accessor, IndexLineAccessMode mode) {
 		int lower = 0;
 		int upper = size() - 1;
 		
@@ -103,7 +106,7 @@ public class MMapBBIndex implements BinaryIndex {
 		
 		while (true) {
 			
-			ByteBuffer guess = get(index);
+			ByteBuffer guess = get(index, mode);
 			long g = accessor.get(guess);
 			
 			if (g == key) {
@@ -116,11 +119,11 @@ public class MMapBBIndex implements BinaryIndex {
 			
 			// integer division may fails to hit up boundary
 			if (upper - lower == 1) {
-				long upval = accessor.get(get(upper));
+				long upval = accessor.get(get(upper, mode));
 				if (upval == key) {
 					return upper;
 				} 
-				long loval = accessor.get(get(lower));
+				long loval = accessor.get(get(lower, mode));
 				if (loval == key) {
 					return lower;
 				}
@@ -148,42 +151,36 @@ public class MMapBBIndex implements BinaryIndex {
 	}
 	
 	@Override
-	public ByteBuffer get(int i) {
+	public ByteBuffer get(int i, IndexLineAccessMode mode) {
 		
-		CachePage page = getCachePage(i);
-		
-		if (i >= page.from && i < page.to) {
-			((Buffer)page.buffer).position((i - page.from) * rowLength);
-			
-			ByteBuffer subbufer = page.buffer.slice();
-			((Buffer)subbufer).limit(rowLength);
-			
-			return subbufer;
+		try {
+			return getCachePage(i, mode).subBuffer(i);
 		}
-		else {
-			throw new RuntimeException();
+		catch (Exception e) {
+			LOGGER.warn(e.getMessage());
+			return getCachePage(i, mode).subBuffer(i);
 		}
 		
 	}
 
 	@Override
-	public List<ByteBuffer> findAll(int index, long id, Accessor accessor) {
+	public List<ByteBuffer> findAll(int index, long id, Accessor accessor, IndexLineAccessMode mode) {
 		List<ByteBuffer> result = new ArrayList<ByteBuffer>();
 		
 		if(index >= 0 ) {
-			result.add(get(index));
+			result.add(get(index, mode));
 			for(int i = 1; ;i++) {
 
 				boolean lp = false;
 				boolean ln = false;
 				
-				ByteBuffer lineP = getSafe(index + i);
+				ByteBuffer lineP = getSafe(index + i, mode);
 				if(lineP != null && accessor.get(lineP) == id) {
 					result.add(lineP);
 					lp = true;
 				}
 
-				ByteBuffer lineN = getSafe(index - i);
+				ByteBuffer lineN = getSafe(index - i, mode);
 				if(lineN != null && accessor.get(lineN) == id) {
 					result.add(lineN);
 					ln = true;
@@ -199,9 +196,9 @@ public class MMapBBIndex implements BinaryIndex {
 		return result;
 	}
 	
-	protected ByteBuffer getSafe(int i) {
+	protected ByteBuffer getSafe(int i, IndexLineAccessMode mode) {
 		if(i >= 0 && i < size()) {
-			return get(i);
+			return get(i, mode);
 		}
 		return null;
 	}
@@ -213,48 +210,68 @@ public class MMapBBIndex implements BinaryIndex {
 	
 	// Internals ------------------------------------
 	
-	private CachePage getCachePage(int i) {
+	private synchronized CachePage getCachePage(int i, IndexLineAccessMode mode) {
 		
 		int pageN = i / searchPageSize;
 		
 		int from = pageN * searchPageSize;
 		int to =   pageN * searchPageSize + searchPageSize;
 		
+		from = Math.max(from, 0);
+		to   = Math.min(to, size());
 		
 		CachePage page = this.pagesCache.get(from);
+			
+		if (page != null && mode != IndexLineAccessMode.IGNORE && page.mode != mode) {
+			page = null;
+			this.pagesCache.remove(from);
+		}
+		
 		if (page != null) {
 			this.hit++;
 			return page;
 		}
-		
-		synchronized(this.pagesCache) {
-			
-			page = this.pagesCache.get(from);
-			if (page != null) {
-				this.hit++;
-				return page;
-			}
 
-			this.miss++;
+		this.miss++;
+		
+		try {
 			
-			CachePage cachePage = new CachePage();
-			cachePage.from = Math.max(from, 0);
-			cachePage.to   = Math.min(to, size());
+			MapMode fileAccessMode = MapMode.READ_ONLY;
 			
-			try {
-				MappedByteBuffer cache = getRandomAccessFile().getChannel().map(MapMode.READ_WRITE, 
-						cachePage.from * rowLength, 
-						(cachePage.to - cachePage.from) * rowLength);
-				cachePage.buffer = cache;
-				
-				this.pagesCache.put(cachePage.from, cachePage);
-				
-				// Hit cache to update last accessed node
-				return this.pagesCache.get(from);
+			if (IndexLineAccessMode.IGNORE == mode) {
+				// Access file for readwrite
+				mode = IndexLineAccessMode.LINKED;
 			}
-			catch (Exception e) {
-				throw new RuntimeException("Can't read line " + i + " from " + this.indexFile, e);
+			if (IndexLineAccessMode.LINKED == mode) {
+				fileAccessMode = MapMode.READ_WRITE;
 			}
+			
+			ByteBuffer cache;
+			if (IndexLineAccessMode.UNLINKED == mode && USE_READ_FOR_READONLY_FILE_ACCESS) {
+				byte[] buffer = new byte[(to - from) * rowLength];
+				getRandomAccessFile().seek(from * rowLength);
+				getRandomAccessFile().read(buffer);
+				cache = ByteBuffer.wrap(buffer);
+			}
+			else {
+				cache = getRandomAccessFile().getChannel().map(fileAccessMode, 
+						from * rowLength, 
+						(to - from) * rowLength);
+			}
+			
+			CachePage cachePage = new CachePage(cache, from, to, mode);
+			
+			this.pagesCache.put(cachePage.from, cachePage);
+			
+			// Hit cache to update last accessed node
+			this.pagesCache.get(cachePage.from);
+			
+			// strange issue, if I try to return this.pagesCache.get(cachePage.from)
+			// it returns null, so it's bullet proof solution
+			return cachePage;
+		}
+		catch (Exception e) {
+			throw new RuntimeException("Can't read line " + i + " from " + this.indexFile, e);
 		}
 	}
 	
@@ -266,7 +283,7 @@ public class MMapBBIndex implements BinaryIndex {
 			return this.indexRandomAccessFile;
 		}
 		catch (FileNotFoundException e) {
-			throw new RuntimeException();
+			throw new RuntimeException(e);
 		}
 	}
 
@@ -346,7 +363,14 @@ public class MMapBBIndex implements BinaryIndex {
 		int fromRow = page * size;
 		int toRow = page * size + size;
 		toRow = Math.min(toRow, rows);
-		return file.getChannel().map(FileChannel.MapMode.READ_WRITE, fromRow * rowLength, (toRow - fromRow) * rowLength);
+		FileChannel channel = file.getChannel();
+		
+		MappedByteBuffer buffer = channel.map(
+				FileChannel.MapMode.READ_WRITE, 
+				fromRow * rowLength, 
+				(toRow - fromRow) * rowLength);
+		
+		return buffer;
 	}
 
 	public int mergeSorted(OutputStream fbw, final Comparator<ByteBuffer> cmp,
@@ -401,7 +425,8 @@ public class MMapBBIndex implements BinaryIndex {
 
 		@Override
 		public ByteBuffer next() {
-			return buf.get(index++);
+			// Iterator doesn't allow rows changing
+			return buf.get(index++, IndexLineAccessMode.UNLINKED);
 		}
 	}
 
@@ -468,10 +493,44 @@ public class MMapBBIndex implements BinaryIndex {
 	}
 	
 	private final class CachePage {
-		public MappedByteBuffer buffer;
-		private int from;
-		private int to;
+		private final ByteBuffer buffer;
+		private final IndexLineAccessMode mode;
+		private final int from;
+		private final int to;
 		
+		public CachePage(ByteBuffer buffer, int from, int to, IndexLineAccessMode mode) {
+			this.buffer = mode == IndexLineAccessMode.LINKED ? buffer : ByteBuffer.wrap(buffer.array());
+			this.from = from;
+			this.to = to;
+			this.mode = mode;
+			
+			if (buffer == null) {
+				throw new BinaryIndexException("can't create cache page for null buffer");
+			}
+		}
+		
+		public ByteBuffer subBuffer(int i) {
+			if(buffer != null && i >= from && i < to) {
+				((Buffer)buffer).position((i - from) * rowLength);
+				
+				ByteBuffer subbufer = buffer.slice();
+				((Buffer)subbufer).limit(rowLength);
+				
+				return subbufer;
+			}
+			
+			if (buffer == null) {
+				throw new BinaryIndexException("Can't get subbufer for row: " + i + 
+						" buffer is null");
+			}
+
+			throw new BinaryIndexException("Can't get subbufer for row: " + i + 
+					" buffer.from=" + from + " buffer.to=" + to + 
+					" rowLength=" + rowLength + 
+					" searchPageSize=" + searchPageSize + 
+					" indexSize=" + rows);
+		}
+
 		@Override
 		public int hashCode() {
 			return from;
@@ -481,29 +540,43 @@ public class MMapBBIndex implements BinaryIndex {
 		public boolean equals(Object obj) {
 			return obj != null && obj.hashCode() == this.hashCode();
 		}
+
+		public void flush() {
+			if (buffer instanceof MappedByteBuffer) {
+				((MappedByteBuffer)buffer).force();
+			}
+		}
 	}
 
 	@Override
 	public void close() {
 		synchronize();
 		
-		LoggerFactory.getLogger(getClass()).info("Index hit/miss ratio: {}/{}", hit, miss);
+		LOGGER.info("Index hit/miss ratio: {}/{}", hit, miss);
 		this.indexFile.delete();
 	}
 
-	private void closeCachePage(CachePage cachePage) throws IOException {
-		cachePage.buffer.force();
-	}
-
 	@Override
-	public void synchronize() {
+	public synchronized void synchronize() {
 		try {
 			fileOutputStream.flush();
 			fileOutputStream.close();
-			
+		}
+		catch (ClosedChannelException e) {
+			// Do nothing
+		}
+		catch (IOException ioe) {
+			throw new RuntimeException(ioe);
+		}
+		
+		synchronizeCache();
+	}
+	
+	private synchronized void synchronizeCache() {
+		try {
 			if (!this.pagesCache.isEmpty()) {
 				for (CachePage p : this.pagesCache.values()) {
-					closeCachePage(p);
+					p.flush();
 				}
 				this.pagesCache.clear();
 			}
@@ -517,7 +590,7 @@ public class MMapBBIndex implements BinaryIndex {
 			throw new RuntimeException(e);
 		}
 	}
-	
+
 	public File getFile() {
 		return indexFile;
 	}
