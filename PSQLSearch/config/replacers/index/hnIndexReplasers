@@ -1,0 +1,63 @@
+# This replacers will be used to parse housenumbers while data indexing.
+#
+# Each line contains one replacer.
+# Lines starts with # symbol is a comment.
+# 
+# Replacer format: 
+# regexp matching pattern => groovy SimpleTemplateEngine replacement.
+#
+# Matcher expressions are case sensetive! 
+# You can use default groovy functions and Apache string utils under the name SU.
+# matched groups avaible in groups list.
+# 
+# Return replaced String. Empty or null strings will be ignored, duplications will be removed. 
+#
+# Use pattern => ///<%
+# out << 'for multi line replacers \n'
+# ['with', 'some', 'groovy', 'insanty', 'here'].forEach({ item ->
+# 		out << item + ' ';
+# })
+# %>
+# ///
+#
+# Multiline output will be treated as collection.
+# Exceptions are ignored.
+#
+# Original string is added by dafault.
+
+# д. 123Aкорпус №5a => 123а к5а
+([\d]+(?:[\wa-яА-Яё]?)(?![\d]+))[\s]*(корпус|корп|к|участок|уч|у|литера|лит|л|строение|стр|с-е|с|/)?[\.]?[\s]*([\d]*[\wa-яА-Яё]?) => ///
+
+<% 
+def spacer = SU.startsWith(groups[2], "/") ? "" : " ";
+def main = SU.lowerCase(groups[1]);
+def tail = SU.stripToEmpty(SU.lowerCase(groups[3]));
+def delFll = SU.stripToEmpty(SU.lowerCase(groups[2]));
+%>
+
+${main}${spacer}${delFll}${tail}
+
+<%
+if(groups[2]?.length()?:0 > 2) { 
+def delSht = SU.stripToEmpty(SU.lowerCase(groups[2])).substring(0, 1);
+%>
+${main}${spacer}${delFll} ${tail}
+${main}${spacer}${delSht}${tail}
+${main}${delSht}${tail}
+<% } %>
+
+# 123а 5а
+${SU.lowerCase(groups[1])} ${SU.stripToEmpty(SU.lowerCase(groups[3]))}
+
+# 123а
+${SU.lowerCase(groups[1])}
+///
+
+
+([\d]+)([/-])([\wa-юА-ЮёЁ]) => ///
+
+${SU.lowerCase(groups[1])}${SU.lowerCase(groups[3])}
+${SU.lowerCase(groups[1])} ${SU.lowerCase(groups[3])}
+${SU.lowerCase(groups[1])}${SU.lowerCase(groups[3])}${SU.lowerCase(groups[3])}
+
+///

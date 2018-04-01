@@ -1,0 +1,9 @@
+@include config/replacers/common/я_й_ой
+
+@include config/replacers/common/летия
+
+@include config/replacers/common/года
+
+@include config/replacers/common/го_ти_ых
+
+@include config/replacers/common/числительные_прописью
