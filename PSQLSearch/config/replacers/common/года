@@ -1,9 +1,0 @@
-#1905 года
-([\d]+)[ -]?(года)\b => ///
-
-${SU.lowerCase(groups[1])}
-${SU.lowerCase(groups[1])}года
-${SU.lowerCase(groups[1])}го года
-${SU.lowerCase(groups[1])}-го года
-
-///

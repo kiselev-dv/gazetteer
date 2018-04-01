@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 OpenStreetMap (OSM) geocoder
 ======================
 
@@ -35,3 +36,6 @@ Details are here https://github.com/kiselev-dv/gazetteer/tree/develop/GazetteerW
 
 Live demo map: http://osm.me/
 (covers Russia, Montenegro, Croatia, Bosnia and Hercegovina)
+=======
+# gazetteer-psql
+>>>>>>> 1d40819fe5de342b5d214c0519a922123733ead0
