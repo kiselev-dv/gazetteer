@@ -278,7 +278,8 @@ public class Gazetteer {
 				new JoinExecutor(namespace.getBoolean("skip_hghnets"), 
 						namespace.getBoolean("keep_hghnets_geometry"),
 						namespace.getBoolean("clean_stripes"),
-						new HashSet(list(namespace.getList("check_boundaries")))).run(
+						new HashSet(list(namespace.getList("check_boundaries"))),
+						namespace.getInt("throttle_mem_threshold")).run(
 								data_dir, 
 								namespace.getString(JOIN_COMMON_VAL));
 				
@@ -598,6 +599,9 @@ public class Gazetteer {
 				.setDefault(Boolean.FALSE).action(new StoreTrueArgumentAction())
 				.help("Do not drop highway networks geometries.");
 
+			join.addArgument("--throttle-mem-threshold").setDefault(-1).nargs("?")
+				.help("Throttle join tasks execution if available mameory is less then threshold im mb.");
+			
 			join.addArgument("--handlers").nargs("*");
 			
 			

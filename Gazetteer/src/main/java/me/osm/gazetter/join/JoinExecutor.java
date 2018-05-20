@@ -9,6 +9,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -38,8 +39,13 @@ public class JoinExecutor implements JoinFailuresHandler{
 
 	private boolean dropHghNetGeometries = true;
 	private boolean cleanStripes = false;
+	private int throttleMemThreshold = -1;
 
-	public JoinExecutor(Boolean skipHghNets, Boolean keepHghNetGeometries, Boolean cleanStripes, Set<String> filter) {
+	public JoinExecutor(Boolean skipHghNets, 
+			Boolean keepHghNetGeometries, 
+			Boolean cleanStripes, 
+			Set<String> filter,
+			Integer throttleMemThreshold) {
 		this.filter = filter;
 
 		if(skipHghNets != null) {
@@ -53,11 +59,13 @@ public class JoinExecutor implements JoinFailuresHandler{
 		if(cleanStripes != null) {
 			this.cleanStripes  = cleanStripes;
 		}
+		
+		if (throttleMemThreshold != null) {
+			this.throttleMemThreshold = throttleMemThreshold;
+		}
 	}
 
 	private JoinBoundariesExecutor jbe = new JoinBoundariesExecutor();
-
-
 
 	public static class StripeFilenameFilter implements FilenameFilter {
 
@@ -126,8 +134,11 @@ public class JoinExecutor implements JoinFailuresHandler{
 		int threads = Options.get().getNumberOfThreads();
 
 		LinkedBlockingQueue<Runnable> queue = new LinkedBlockingQueue<Runnable>(threads);
-		ExecutorService executorService = new ThreadPoolExecutor(threads, threads, 0L,
+
+		ThreadPoolExecutor executorService = new ThreadPoolExecutor(threads, threads, 0L,
 				TimeUnit.MILLISECONDS, queue);
+		
+		executorService.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
 
 		File folder = new File(stripesFolder);
 		File[] stripesFiles = folder.listFiles(STRIPE_FILE_FN_FILTER);
@@ -171,20 +182,44 @@ public class JoinExecutor implements JoinFailuresHandler{
 			LinkedBlockingQueue<Runnable> queue,
 			ExecutorService executorService, File stripeF) {
 
-		long avaibleRAMMeg = MemorySupervizor.getAvaibleRAMMeg();
-		if(queue.size() < threads && avaibleRAMMeg > 500) {
-			log.trace("Send {} to execution queue. Free mem: {}meg", stripeF, avaibleRAMMeg);
-			executorService.execute(new JoinSliceRunable(addrPointFormatter, stripeF,
-					common, filter, buildStreetNetworks, dropHghNetGeometries, this, this));
+		int ntries = 10;
+		
+		if (throttleMemThreshold > 0) {
+			long avaibleRAMMeg = MemorySupervizor.getAvaibleRAMMeg();
+			
+			if (avaibleRAMMeg > throttleMemThreshold) {
+				executorService.execute(new JoinSliceRunable(addrPointFormatter, stripeF,
+						common, filter, buildStreetNetworks, dropHghNetGeometries, this, this));
+			}
+			else {
+				log.info("Not enought memory to execute task {} Free mem: {}meg", stripeF, avaibleRAMMeg);
+				
+				while (ntries > 0 && avaibleRAMMeg < throttleMemThreshold) {
+					try {
+						Thread.sleep(1000);
+					}
+					catch (InterruptedException e) {
+					}
+					
+					avaibleRAMMeg = MemorySupervizor.getAvaibleRAMMeg();
+					ntries--;
+				}
+				
+				if (avaibleRAMMeg > throttleMemThreshold) {
+					executorService.execute(new JoinSliceRunable(addrPointFormatter, stripeF,
+							common, filter, buildStreetNetworks, dropHghNetGeometries, this, this));
+				}
+				else {
+					// Still not enough memory
+					fails.add(stripeF);
+					log.warn("Not enought memory to execute task {} after {} retries. Will join it later.", stripeF, 10);
+				}
+			}
 		}
 		else {
-			try {
-				Thread.sleep(5000);
-			}
-			catch (InterruptedException e) {
-				throw new RuntimeException(e);
-			}
-			tryToExecute(common, threads, queue, executorService, stripeF);
+			executorService.execute(new JoinSliceRunable(addrPointFormatter, stripeF,
+					common, filter, buildStreetNetworks, dropHghNetGeometries, this, this));
+			
 		}
 	}
 
