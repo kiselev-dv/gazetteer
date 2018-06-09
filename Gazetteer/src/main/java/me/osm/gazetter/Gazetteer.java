@@ -602,7 +602,11 @@ public class Gazetteer {
 			join.addArgument("--throttle-mem-threshold").setDefault(-1).nargs("?")
 				.help("Throttle join tasks execution if available mameory is less then threshold im mb.");
 			
-			join.addArgument("--handlers").nargs("*");
+			join.addArgument("--handlers").nargs("*")
+				.help("You can export data in different formats in one run. "
+						+ "Handler is eighter out-gazetteer or out-csv or path to groovy script."
+						+ "Handlers itself gets arguments in form name=value "
+						+ "add usage or help to handler options for details");
 			
 			
 		}

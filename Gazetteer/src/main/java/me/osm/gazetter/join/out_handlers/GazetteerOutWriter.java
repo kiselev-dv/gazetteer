@@ -151,7 +151,7 @@ public class GazetteerOutWriter extends AddressPerRowJOHBase  {
 	@Override
 	public JoinOutHandler initialize(HandlerOptions parsedOpts) {
 
-		if(parsedOpts.has("usage")) {
+		if(parsedOpts.has("usage") || parsedOpts.has("help")) {
 			printUsage();
 			System.exit(0);
 		}
@@ -231,7 +231,7 @@ public class GazetteerOutWriter extends AddressPerRowJOHBase  {
 
 	protected void printUsage() {
 		StringBuilder usage = new StringBuilder();
-		usage.append("Usage: join --handlers ").append(NAME).append("[out_file]");
+		usage.append("Usage: join --handlers ").append(NAME).append("[<out_file>|out=<out_file>]");
 
 		int i = 0;
 		for(String opt : OPTIONS) {
