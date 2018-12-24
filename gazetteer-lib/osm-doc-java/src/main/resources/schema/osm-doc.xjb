@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+
+<jaxb:bindings version="2.0" xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
+	xmlns:xjc="http://java.sun.com/xml/ns/jaxb/xjc" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+	<jaxb:bindings schemaLocation="osm-doc-part.xsd"
+		node="/xs:schema">
+
+		<jaxb:globalBindings collectionType="java.util.ArrayList"
+			generateValueClass="true">
+			<jaxb:serializable uid="2" />
+		</jaxb:globalBindings>
+
+		<jaxb:schemaBindings>
+			<jaxb:package name="me.osm.osmdoc.model" />
+		</jaxb:schemaBindings>
+		
+		<jaxb:bindings node="//xs:attribute[@name='match']/xs:simpleType">
+			<jaxb:typesafeEnumClass name="MatchType" />
+		</jaxb:bindings>
+
+		<jaxb:bindings node="//xs:attribute[@name='tag-value-type']/xs:simpleType">
+			<jaxb:typesafeEnumClass name="TagValueType" />
+		</jaxb:bindings>
+
+		<jaxb:bindings node="//xs:simpleType[@name='applyedTo']//xs:list/xs:simpleType">
+			<jaxb:typesafeEnumClass name="TagValueType" />
+		</jaxb:bindings>
+
+	</jaxb:bindings>
+</jaxb:bindings>
