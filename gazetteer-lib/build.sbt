@@ -6,7 +6,7 @@ import sbtassembly.AssemblyPlugin.autoImport.assemblyOption
 lazy val commonSettings = Seq(
     organization := "me.osm",
     name := name.value,
-    version := "0.1.0-SNAPSHOT",
+    version := "1.9.0-SNAPSHOT",
 
     scalaVersion := "2.12.8",
     scalacOptions ++= Seq("-Xlint", "-feature", "-deprecation", "-target:jvm-1.7"),
@@ -22,9 +22,11 @@ lazy val commonSettings = Seq(
     )
 )
 
+// v 0.2.0
 lazy val `external-sorting` = (project in file("external-sorting"))
     .settings(commonSettings)
 
+// v 1.4.0
 lazy val `osm-doc-java` = (project in file("osm-doc-java"))
     .settings(commonSettings)
     .settings(
