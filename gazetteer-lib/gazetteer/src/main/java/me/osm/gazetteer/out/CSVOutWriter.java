@@ -34,7 +34,7 @@ import org.json.JSONObject;
 import org.supercsv.io.CsvListWriter;
 import org.supercsv.prefs.CsvPreference;
 
-import me.osm.gazetteer.ExternalSorting.ExternalSort;
+import com.google.code.externalsorting.ExternalSort;
 
 public class CSVOutWriter extends AddressPerRowJOHBase {
 

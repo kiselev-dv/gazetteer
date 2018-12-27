@@ -1,7 +1,7 @@
-package me.osm.gazetteer.ExternalSorting;
+package com.google.code.externalsorting;
 
 /**
- * Allows to reduce lines which where matched
+ * Allows to reduce lines which where matched 
  * as equals by Comparator while sort
  * */
 public interface Reducer {

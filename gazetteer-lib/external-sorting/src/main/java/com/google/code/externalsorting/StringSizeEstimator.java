@@ -1,13 +1,13 @@
 /**
- *
+ * 
  */
-package me.osm.gazetteer.ExternalSorting;
+package com.google.code.externalsorting;
 
 /**
  * Simple class used to estimate memory usage.
- *
+ * 
  * @author Eleftherios Chetzakis
- *
+ * 
  */
 public final class StringSizeEstimator {
 
@@ -44,7 +44,7 @@ public final class StringSizeEstimator {
 				IS_64_BIT_JVM = false;
 			}
 		}
-		// The sizes below are a bit rough as we don't take into account
+		// The sizes below are a bit rough as we don't take into account 
 		// advanced JVM options such as compressed oops
 		// however if our calculation is not accurate it'll be a bit over
 		// so there is no danger of an out of memory error because of this.
@@ -57,7 +57,7 @@ public final class StringSizeEstimator {
 
 	/**
 	 * Estimates the size of a {@link String} object in bytes.
-	 *
+	 * 
 	 * @param s The string to estimate memory footprint.
 	 * @return The <strong>estimated</strong> size in bytes.
 	 */

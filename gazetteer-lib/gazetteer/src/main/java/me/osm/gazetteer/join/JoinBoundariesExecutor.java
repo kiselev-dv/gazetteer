@@ -29,7 +29,7 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import me.osm.gazetteer.ExternalSorting.ExternalSort;
+import com.google.code.externalsorting.ExternalSort;
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.prep.PreparedGeometry;
 import com.vividsolutions.jts.geom.prep.PreparedGeometryFactory;

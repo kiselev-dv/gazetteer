@@ -41,7 +41,7 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import me.osm.gazetteer.ExternalSorting.ExternalSort;
+import com.google.code.externalsorting.ExternalSort;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.LineString;

@@ -43,6 +43,7 @@ lazy val gazetteer = (project in file("gazetteer"))
     .settings(commonSettings)
     .settings(
         libraryDependencies ++= Seq(
+//            "com.google.code.externalsortinginjava" % "externalsortinginjava" % "0.2.0",
             "org.apache.commons" % "commons-compress" % "1.0",
             "org.apache.commons" % "commons-collections4" % "4.1",
             "org.apache.lucene" % "lucene-analyzers-common" % "5.1.0",

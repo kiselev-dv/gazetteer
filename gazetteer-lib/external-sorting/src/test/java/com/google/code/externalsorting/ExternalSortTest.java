@@ -1,4 +1,4 @@
-package me.osm.gazetteer.ExternalSorting;
+package com.google.code.externalsorting;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -63,7 +63,7 @@ public class ExternalSortTest {
 
 		copyFile(this.file1, tmpFile1);
 		copyFile(this.file2, tmpFile2);
-
+		
 		this.fileList.add(tmpFile1);
 		this.fileList.add(tmpFile2);
 	}
@@ -82,7 +82,7 @@ public class ExternalSortTest {
 		this.fileList.clear();
 		this.fileList = null;
 	}
-
+	
 	private static void copyFile(File sourceFile, File destFile) throws IOException {
 	    if(!destFile.exists()) {
 	        destFile.createNewFile();
@@ -105,7 +105,7 @@ public class ExternalSortTest {
 	        }
 	    }
 	}
-
+	
         @Test
         public void testEmptyFiles() throws Exception {
                 File f1 = File.createTempFile("tmp", "unit");
@@ -128,7 +128,7 @@ public class ExternalSortTest {
 		File out = File.createTempFile("test_results", ".tmp", null);
 		ExternalSort.mergeSortedFiles(this.fileList, out, cmp,
 				Charset.defaultCharset(), false);
-
+		
 		bf = new BufferedReader(new FileReader(out));
 
 		result = new ArrayList<String>();
@@ -139,7 +139,7 @@ public class ExternalSortTest {
 		assertArrayEquals(Arrays.toString(result.toArray()), EXPECTED_MERGE_RESULTS,
 				result.toArray());
 	}
-
+	
     @Test
     public void testMergeSortedFiles_Distinct() throws Exception {
         String line;
@@ -150,7 +150,7 @@ public class ExternalSortTest {
             public int compare(String o1, String o2) {
             	if(o1 == null && o2 == null) {
             		return 0;
-            	}
+            	} 
             	if(o1 == null || o2 == null) {
             		return o1 == null ? -1 : 1;
             	}
@@ -160,7 +160,7 @@ public class ExternalSortTest {
         File out = File.createTempFile("test_results", ".tmp", null);
         ExternalSort.mergeSortedFiles(this.fileList, out, cmp,
                 Charset.defaultCharset(), true);
-
+        
         bf = new BufferedReader(new FileReader(out));
 
         result = new ArrayList<String>();
@@ -185,7 +185,7 @@ public class ExternalSortTest {
                 return o1.compareTo(o2);
             }
         };
-
+        
         File out = File.createTempFile("test_results", ".tmp", null);
         writeStringToFile(out, "HEADER, HEADER\n");
 
@@ -201,7 +201,7 @@ public class ExternalSortTest {
         bf.close();
         assertArrayEquals(Arrays.toString(result.toArray()), EXPECTED_HEADER_RESULTS, result.toArray());
     }
-
+    
 	@Test
 	public void testSortAndSave() throws Exception {
 		File f;
@@ -262,7 +262,7 @@ public class ExternalSortTest {
 				EXPECTED_DISTINCT_RESULTS, result.toArray());
 	}
 
-    @Test
+    @Test 
 	public void testSortInBatch() throws Exception {
         Comparator<String> cmp = new Comparator<String>() {
             @Override
@@ -274,27 +274,27 @@ public class ExternalSortTest {
 
 	    List<File> listOfFiles = ExternalSort.sortInBatch(this.csvFile, cmp, ExternalSort.DEFAULTMAXTEMPFILES, Charset.defaultCharset(), null, false, 1, false);
 	    assertEquals(1, listOfFiles.size());
-
+	    
 	    ArrayList<String> result = readLines(listOfFiles.get(0));
         assertArrayEquals(Arrays.toString(result.toArray()),EXPECTED_MERGE_DISTINCT_RESULTS, result.toArray());
 	}
-
+	
     /**
      * Sample case to sort csv file.
      * @throws Exception
-     *
+     * 
      */
     @Test
     public void testCSVSorting() throws Exception {
     	testCSVSortingWithParams(false);
     	testCSVSortingWithParams(true);
     }
-
+	
     /**
      * Sample case to sort csv file.
      * @param usegzip use compression for temporary files
      * @throws Exception
-     *
+     * 
      */
     public void testCSVSortingWithParams(boolean usegzip) throws Exception {
 
@@ -311,21 +311,21 @@ public class ExternalSortTest {
         // read header
         FileReader fr = new FileReader(this.csvFile);
         Scanner scan = new Scanner(fr);
-
+        
         try {
         	String head = scan.nextLine();
-
+        	
         	// write to the file
         	writeStringToFile(out, head+"\n");
-
+        	
         	// omit the first line, which is the header..
         	List<File> listOfFiles = ExternalSort.sortInBatch(this.csvFile, cmp, ExternalSort.DEFAULTMAXTEMPFILES, Charset.defaultCharset(), null, false, 1, usegzip);
-
-        	// now merge with append
+        	
+        	// now merge with append 
         	ExternalSort.mergeSortedFiles(listOfFiles, out, cmp, Charset.defaultCharset(), false, true, usegzip, null);
-
+        	
         	ArrayList<String> result = readLines(out);
-
+        	
         	assertEquals(12, result.size());
         	assertArrayEquals(Arrays.toString(result.toArray()),EXPECTED_HEADER_RESULTS, result.toArray());
         }
@@ -357,5 +357,5 @@ public class ExternalSortTest {
                     out.close();
             }
     }
-
+	
 }
