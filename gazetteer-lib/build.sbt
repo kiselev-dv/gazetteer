@@ -1,15 +1,20 @@
 import sbt.Keys.{javaOptions, javacOptions}
+import sbtassembly.AssemblyPlugin.autoImport.assemblyOption
 
 lazy val commonSettings = Seq(
     organization := "me.osm",
     name := name.value,
-    version := "0.1-NAPSHOT",
+    version := "0.1-SNAPSHOT",
 
     scalaVersion := "2.12.8",
     scalacOptions ++= Seq("-Xlint", "-feature", "-deprecation", "-target:jvm-1.7"),
-    javacOptions ++= Seq("-source", "1.7", "-target", "1.7"),
+
+    javacOptions ++= Seq("-source", "1.7", "-target", "1.7", "-Xlint:unchecked", "-Xlint:deprecation"),
     javaOptions ++= Seq("-Xms512M", "-Xmx2048M", "-XX:+CMSClassUnloadingEnabled"),
-    
+
+    test in assembly := {},
+    assemblyOption in assembly := (assemblyOption in assembly).value.copy(includeScala = false),
+
     libraryDependencies ++= Seq(
         "org.slf4j" % "slf4j-api" % "1.7.12",
         "net.sourceforge.argparse4j" % "argparse4j" % "0.4.3",
@@ -24,10 +29,9 @@ lazy val commonSettings = Seq(
         "commons-io" % "commons-io" % "1.3.2",
         "commons-codec" % "commons-codec" % "1.4",
         "org.apache.commons" % "commons-lang3" % "3.2.1",
-        "com.sun.xml.txw2" % "txw2" % "20110809"
+        "com.sun.xml.bind" % "jaxb-impl" % "2.2.7",
 
-        //    "me.osm.osm-doc" % "osm-doc-java" % "1.4",
-        //    "me.osm.gazetteer" % "ExternalSorting" % "0.2.0"
+        "junit" % "junit" % "4.11" % "test"
     )
 )
 
@@ -45,23 +49,20 @@ lazy val gazetteer = (project in file("gazetteer")).
     ).
     dependsOn(`external-sorting`, `osm-doc-java`)
 
-lazy val root = (project in file(".")).
-    aggregate(
-        `external-sorting`,
-        `osm-doc-java`,
-        gazetteer
-    ).
-    settings(commonSettings).
-    settings(
-        name := "gazetteer-lib",
-        unmanagedSourceDirectories in Compile := Nil,
-        unmanagedResourceDirectories in Compile := Nil,
-        unmanagedSourceDirectories in Test := Nil,
-        unmanagedResourceDirectories in Test := Nil,
-        sbt.Keys.`package` := target.value,
-        publish := {},
-        publishLocal := {}
-    )
-
-test in assembly := {}
-assemblyOption in assembly := (assemblyOption in assembly).value.copy(includeScala = false)
+//lazy val root = (project in file(".")).
+//    aggregate(
+//        `external-sorting`,
+//        `osm-doc-java`,
+//        gazetteer
+//    ).
+//    settings(commonSettings).
+//    settings(
+//        name := "gazetteer-lib",
+//        unmanagedSourceDirectories in Compile := Nil,
+//        unmanagedResourceDirectories in Compile := Nil,
+//        unmanagedSourceDirectories in Test := Nil,
+//        unmanagedResourceDirectories in Test := Nil,
+//        sbt.Keys.`package` := target.value,
+//        publish := {},
+//        publishLocal := {}
+//    )
