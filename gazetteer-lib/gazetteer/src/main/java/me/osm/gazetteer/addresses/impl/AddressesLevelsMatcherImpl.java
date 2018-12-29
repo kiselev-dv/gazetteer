@@ -6,10 +6,10 @@ import gnu.trove.set.hash.TLongHashSet;
 import java.util.List;
 import java.util.Map;
 
-import me.osm.gazetteer.addresses.AddressesLevelsMatcher;
-import me.osm.gazetteer.addresses.NamesMatcher;
 import me.osm.gazetteer.addresses.AddrLevelsComparator;
+import me.osm.gazetteer.addresses.AddressesLevelsMatcher;
 import me.osm.gazetteer.addresses.AddressesUtils;
+import me.osm.gazetteer.addresses.NamesMatcher;
 
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
@@ -33,7 +33,7 @@ public class AddressesLevelsMatcherImpl implements AddressesLevelsMatcher {
 	 * @param placeBoundaries
 	 * */
 	public AddressesLevelsMatcherImpl(AddrLevelsComparator lelvelsComparator,
-                                      NamesMatcher namesMatcher, List<String> placeBoundaries) {
+			NamesMatcher namesMatcher, List<String> placeBoundaries) {
 
 		this.lelvelsComparator = lelvelsComparator;
 		this.namesMatcher = namesMatcher;

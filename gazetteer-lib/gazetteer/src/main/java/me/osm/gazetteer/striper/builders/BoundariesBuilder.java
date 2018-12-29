@@ -5,23 +5,19 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import me.osm.gazetteer.Options;
-import me.osm.gazetteer.striper.BoundariesFallbacker;
-import me.osm.gazetteer.striper.FeatureTypes;
-import me.osm.gazetteer.striper.builders.handlers.BoundariesHandler;
-import me.osm.gazetteer.striper.readers.PointsReader;
-import me.osm.gazetteer.striper.readers.RelationsReader;
-import me.osm.gazetteer.striper.readers.WaysReader;
-import me.osm.gazetteer.utils.index.Accessors;
-import me.osm.gazetteer.utils.index.IndexFactory;
+import org.apache.commons.lang3.StringUtils;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,9 +30,21 @@ import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
 
+import me.osm.gazetteer.Options;
+import me.osm.gazetteer.striper.BoundariesFallbacker;
+import me.osm.gazetteer.striper.FeatureTypes;
 import me.osm.gazetteer.striper.GeoJsonWriter;
+import me.osm.gazetteer.striper.builders.handlers.BoundariesHandler;
+import me.osm.gazetteer.striper.readers.PointsReader.Node;
+import me.osm.gazetteer.striper.readers.RelationsReader.Relation;
+import me.osm.gazetteer.striper.readers.RelationsReader.Relation.RelationMember;
+import me.osm.gazetteer.striper.readers.RelationsReader.Relation.RelationMember.ReferenceType;
+import me.osm.gazetteer.striper.readers.WaysReader.Way;
 import me.osm.gazetteer.utils.index.Accessor;
+import me.osm.gazetteer.utils.index.Accessors;
 import me.osm.gazetteer.utils.index.BinaryIndex;
+import me.osm.gazetteer.utils.index.IndexFactory;
+import me.osm.gazetteer.utils.index.BinaryIndex.IndexLineAccessMode;
 
 public class BoundariesBuilder extends ABuilder {
 
@@ -64,8 +72,15 @@ public class BoundariesBuilder extends ABuilder {
 
 	private boolean indexFilled = false;
 
-	private final ExecutorService executorService =
-			Executors.newFixedThreadPool(Options.get().getNumberOfThreads());
+	private final BlockingQueue<Runnable> boundariesBuildQueue =
+			new LinkedBlockingQueue<Runnable>(Options.get().getNumberOfThreads() * 2);
+	private final ExecutorService executorService = new ThreadPoolExecutor(
+			Options.get().getNumberOfThreads(),
+			Options.get().getNumberOfThreads(),
+            100L,
+            TimeUnit.MILLISECONDS,
+            boundariesBuildQueue,
+            new ThreadPoolExecutor.CallerRunsPolicy());
 
 	private static final Accessor n2wWayAccessor = Accessors.longAccessor(8);
 	private static final Accessor n2wNodeAccessor = Accessors.longAccessor(0);
@@ -82,10 +97,10 @@ public class BoundariesBuilder extends ABuilder {
 
 	private static final class Task implements Runnable {
 
-		private final RelationsReader.Relation relation;
+		private final Relation relation;
 		private final BoundariesBuilder bb;
 
-		public Task(RelationsReader.Relation relation, BoundariesBuilder bb) {
+		public Task(Relation relation, BoundariesBuilder bb) {
 			this.relation = relation;
 			this.bb = bb;
 		}
@@ -98,18 +113,25 @@ public class BoundariesBuilder extends ABuilder {
 	}
 
 	@Override
-	public void handle(RelationsReader.Relation rel) {
+	public void handle(Relation rel) {
 		if(filterByTags(rel.tags)) {
 			if(!isIndexFilled()) {
 				addRelIndex(rel);
 			}
 			else {
-				executorService.execute(new Task(rel, this));
+				try {
+					executorService.execute(new Task(rel, this));
+				}
+				catch (Exception e) {
+					log.error("Failed to submit relation {} to polygon builder. Queue size: {}",
+							rel.id, boundariesBuildQueue.size());
+					throw e;
+				}
 			}
 		}
 	}
 
-	private void handleAdminBoundaryRelation(RelationsReader.Relation rel) {
+	private void handleAdminBoundaryRelation(Relation rel) {
 
 		MultiPolygon geometry = buildRelationGeometry(rel);
 		if(geometry != null) {
@@ -130,8 +152,8 @@ public class BoundariesBuilder extends ABuilder {
 		}
 	}
 
-	protected void doneRelation(RelationsReader.Relation rel, MultiPolygon geometry,
-                                JSONObject meta) {
+	protected void doneRelation(Relation rel, MultiPolygon geometry,
+			JSONObject meta) {
 
 		String fType = FeatureTypes.ADMIN_BOUNDARY_FTYPE;
 		Point originalCentroid = geometry.getEnvelope().getCentroid();
@@ -148,7 +170,7 @@ public class BoundariesBuilder extends ABuilder {
 		handler.handleBoundary(featureWithoutGeometry, geometry);
 	}
 
-	protected static JSONObject getRelMeta(RelationsReader.Relation rel) {
+	protected static JSONObject getRelMeta(Relation rel) {
 
 		JSONObject meta = new JSONObject();
 
@@ -158,18 +180,35 @@ public class BoundariesBuilder extends ABuilder {
 		return meta;
 	}
 
-	private MultiPolygon buildRelationGeometry(final RelationsReader.Relation rel) {
+	private MultiPolygon buildRelationGeometry(final Relation rel) {
 
 		orderByWay();
+
+		int relOuters = 0;
+		int relInners = 0;
 
 		List<LineString> outers = new ArrayList<>();
 		List<LineString> inners = new ArrayList<>();
 
-		for(final RelationsReader.Relation.RelationMember m : rel.members) {
-			if(m.type == RelationsReader.Relation.RelationMember.ReferenceType.WAY) {
-				int wi = node2way.find(m.ref, n2wWayAccessor);
+		List<String> notFound = new ArrayList<>();
 
-				List<ByteBuffer> points = node2way.findAll(wi, m.ref, n2wWayAccessor);
+		for(final RelationMember m : rel.members) {
+			if(m.type == ReferenceType.WAY) {
+
+				if(isInnerRole(m)) {
+					relInners++;
+				}
+				else if (isOuterRole(m)){
+					relOuters++;
+				}
+				else {
+					// Ignore members with undefined role
+					continue;
+				}
+
+				int wi = node2way.find(m.ref, n2wWayAccessor, IndexLineAccessMode.UNLINKED);
+
+				List<ByteBuffer> points = node2way.findAll(wi, m.ref, n2wWayAccessor, IndexLineAccessMode.UNLINKED);
 				Collections.sort(points, new Comparator<ByteBuffer>() {
 					@Override
 					public int compare(ByteBuffer bb1, ByteBuffer bb2) {
@@ -190,25 +229,51 @@ public class BoundariesBuilder extends ABuilder {
 
 					if(coords.size() >= 2) {
 						LineString ls = geometryFactory.createLineString(coords.toArray(new Coordinate[coords.size()]));
-						if("inner".equals(m.role)) {
+						if(isInnerRole(m)) {
 							inners.add(ls);
 						}
-						else {
+						else if (isOuterRole(m)){
 							outers.add(ls);
 						}
 					}
+					else {
+						notFound.add(String.valueOf(m.ref));
+					}
+				}
+				else {
+					notFound.add(String.valueOf(m.ref));
 				}
 			}
 		}
 
-		return BuildUtils.buildMultyPolygon(log, rel, outers, inners);
+		if (relOuters == outers.size() && relInners == inners.size()) {
+			return BuildUtils.buildMultyPolygon(log, rel, outers, inners);
+		}
+		else {
+
+			log.warn("Some memmbers of admin boundary relation {} ({}) are missed.\n{}",
+					rel.id,
+					rel.tags.get("name"),
+					StringUtils.join(notFound, ", "));
+
+			return null;
+		}
+
 	}
 
-	private Coordinate[] buildWayGeometry(WaysReader.Way line) {
+	private boolean isOuterRole(final RelationMember m) {
+		return StringUtils.stripToNull(m.role) == null || "outer".equals(m.role);
+	}
+
+	private static boolean isInnerRole(final RelationMember m) {
+		return "inner".equals(m.role);
+	}
+
+	private Coordinate[] buildWayGeometry(Way line) {
 		orderByWay();
 
-		int wayIndex = node2way.find(line.id, n2wWayAccessor);
-		List<ByteBuffer> nodes = node2way.findAll(wayIndex, line.id, n2wWayAccessor);
+		int wayIndex = node2way.find(line.id, n2wWayAccessor, IndexLineAccessMode.UNLINKED);
+		List<ByteBuffer> nodes = node2way.findAll(wayIndex, line.id, n2wWayAccessor, IndexLineAccessMode.UNLINKED);
 
 		return BuildUtils.buildWayGeometry(line, nodes, 0, 20, 28);
 	}
@@ -217,9 +282,9 @@ public class BoundariesBuilder extends ABuilder {
 		return indexFilled;
 	}
 
-	private void addRelIndex(RelationsReader.Relation rel) {
-		for(RelationsReader.Relation.RelationMember m : rel.members){
-			if(m.type == RelationsReader.Relation.RelationMember.ReferenceType.WAY) {
+	private void addRelIndex(Relation rel) {
+		for(RelationMember m : rel.members){
+			if(m.type == ReferenceType.WAY) {
 				Boolean outer = isOuter(m);
 
 				if(outer != null) {
@@ -232,12 +297,12 @@ public class BoundariesBuilder extends ABuilder {
 		}
 	}
 
-	protected static Boolean isOuter(RelationsReader.Relation.RelationMember m) {
+	protected static Boolean isOuter(RelationMember m) {
 		Boolean outer = null;
 		if("outer".equals(m.role) || "".equals(m.role) || m.role == null || "exclave".equals(m.role))	{
 			outer = true;
 		}
-		else if("inner".equals(m.role) || "enclave".equals(m.role)) {
+		else if(isInnerRole(m) || "enclave".equals(m.role)) {
 			outer = false;
 		}
 		return outer;
@@ -250,10 +315,10 @@ public class BoundariesBuilder extends ABuilder {
 	}
 
 	@Override
-	public void handle(WaysReader.Way line) {
+	public void handle(Way line) {
 
 		if(!isIndexFilled()) {
-			int i = way2relation.find(line.id, w2rWayAccessor);
+			int i = way2relation.find(line.id, w2rWayAccessor, IndexLineAccessMode.UNLINKED);
 			if (i >= 0 || (line.isClosed() && filterByTags(line.tags))) {
 				addWayToIndex(line);
 			}
@@ -290,7 +355,7 @@ public class BoundariesBuilder extends ABuilder {
 		}
 	}
 
-	protected void doneWay(WaysReader.Way line, MultiPolygon multiPolygon) {
+	protected void doneWay(Way line, MultiPolygon multiPolygon) {
 
 		String fType = FeatureTypes.ADMIN_BOUNDARY_FTYPE;
 		Point originalCentroid = multiPolygon.getEnvelope().getCentroid();
@@ -309,7 +374,7 @@ public class BoundariesBuilder extends ABuilder {
 	}
 
 
-	protected JSONObject getWayMeta(WaysReader.Way line) {
+	protected JSONObject getWayMeta(Way line) {
 		JSONObject result = new JSONObject();
 
 		result.put("id", line.id);
@@ -318,7 +383,7 @@ public class BoundariesBuilder extends ABuilder {
 		return result;
 	}
 
-	private void addWayToIndex(WaysReader.Way line) {
+	private void addWayToIndex(Way line) {
 		int i = 0;
 		for(long node : line.nodes) {
 			ByteBuffer bb = ByteBuffer.allocate(8 + 8 + 4 + 8 + 8);
@@ -359,10 +424,10 @@ public class BoundariesBuilder extends ABuilder {
 	}
 
 	@Override
-	public void handle(PointsReader.Node node) {
+	public void handle(Node node) {
 
-		int i = node2way.find(node.id, n2wNodeAccessor);
-		List<ByteBuffer> lines = node2way.findAll(i, node.id, n2wNodeAccessor);
+		int i = node2way.find(node.id, n2wNodeAccessor, IndexLineAccessMode.LINKED);
+		List<ByteBuffer> lines = node2way.findAll(i, node.id, n2wNodeAccessor, IndexLineAccessMode.LINKED);
 
 		for(ByteBuffer bb : lines) {
 			bb.putDouble(20, node.lon).putDouble(28, node.lat);

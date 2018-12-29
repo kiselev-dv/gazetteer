@@ -16,23 +16,26 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import me.osm.gazetteer.addresses.sorters.CityStreetHNComparator;
-import me.osm.gazetteer.join.util.MemorySupervizor;
-import me.osm.gazetteer.striper.JSONFeature;
-import me.osm.gazetteer.utils.FileUtils;
 import me.osm.gazetteer.Options;
 import me.osm.gazetteer.addresses.AddrLevelsComparator;
 import me.osm.gazetteer.addresses.AddrLevelsSorting;
 import me.osm.gazetteer.addresses.AddressesParser;
 import me.osm.gazetteer.addresses.AddressesUtils;
 import me.osm.gazetteer.addresses.NamesMatcher;
+import me.osm.gazetteer.addresses.sorters.CityStreetHNComparator;
 import me.osm.gazetteer.addresses.sorters.HNStreetCityComparator;
 import me.osm.gazetteer.addresses.sorters.StreetHNCityComparator;
 import me.osm.gazetteer.join.PoiAddrJoinBuilder.BestFitAddresses;
 import me.osm.gazetteer.join.out_handlers.JoinOutHandler;
 import me.osm.gazetteer.join.util.JoinFailuresHandler;
+import me.osm.gazetteer.join.util.JsonObjectWrapper;
+import me.osm.gazetteer.join.util.MemorySupervizor;
+import me.osm.gazetteer.join.util.MemorySupervizor.InsufficientMemoryException;
 import me.osm.gazetteer.striper.FeatureTypes;
 import me.osm.gazetteer.striper.GeoJsonWriter;
+import me.osm.gazetteer.striper.JSONFeature;
+import me.osm.gazetteer.utils.FileUtils;
+import me.osm.gazetteer.utils.FileUtils.LineHandler;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DurationFormatUtils;
@@ -283,7 +286,7 @@ public class JoinSliceRunable implements Runnable {
 					this.stripesCounter.decrementAndGet());
 
 		}
-		catch (MemorySupervizor.InsufficientMemoryException e) {
+		catch (InsufficientMemoryException e) {
 			log.trace("Join delayed. File: {}.", this.src);
 			if(failureHandler != null) {
 				failureHandler.failed(this.src);
@@ -509,9 +512,9 @@ public class JoinSliceRunable implements Runnable {
 		addrPnt2AsStreet = new HashMap<>(associatedStreets.size() * 10);
 	}
 
-	private void readFeatures() throws IOException, MemorySupervizor.InsufficientMemoryException {
+	private void readFeatures() throws IOException, InsufficientMemoryException {
 		try {
-			FileUtils.handleLines(src, new FileUtils.LineHandler() {
+			FileUtils.handleLines(src, new LineHandler() {
 
 				private int counter = 0;
 
@@ -524,7 +527,7 @@ public class JoinSliceRunable implements Runnable {
 						try {
 							MemorySupervizor.checkMemory();
 						}
-						catch (MemorySupervizor.InsufficientMemoryException e) {
+						catch (InsufficientMemoryException e) {
 							throw new RuntimeException(e);
 						}
 					}
@@ -582,8 +585,8 @@ public class JoinSliceRunable implements Runnable {
 			});
 		}
 		catch (Exception e) {
-			if(e.getCause() instanceof MemorySupervizor.InsufficientMemoryException) {
-				throw (MemorySupervizor.InsufficientMemoryException)e.getCause();
+			if(e.getCause() instanceof InsufficientMemoryException) {
+				throw (InsufficientMemoryException)e.getCause();
 			}
 			else {
 				throw e;
@@ -591,7 +594,7 @@ public class JoinSliceRunable implements Runnable {
 		}
 	}
 
-	private void join() throws MemorySupervizor.InsufficientMemoryException {
+	private void join() throws InsufficientMemoryException {
 
 		long s = new Date().getTime();
 

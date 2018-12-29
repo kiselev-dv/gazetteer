@@ -10,15 +10,10 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import me.osm.gazetteer.LOGMarkers;
-import me.osm.gazetteer.Options;
-import me.osm.gazetteer.striper.builders.handlers.HighwaysHandler;
-import me.osm.gazetteer.striper.readers.PointsReader;
-import me.osm.gazetteer.striper.readers.RelationsReader;
-import me.osm.gazetteer.striper.readers.WaysReader;
-import me.osm.gazetteer.utils.index.Accessors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.Marker;
+import org.slf4j.MarkerFactory;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
@@ -27,10 +22,20 @@ import com.vividsolutions.jts.geom.LineString;
 
 import gnu.trove.map.TLongIntMap;
 import gnu.trove.map.hash.TLongIntHashMap;
+import me.osm.gazetteer.LOGMarkers;
+import me.osm.gazetteer.Options;
+import me.osm.gazetteer.striper.builders.handlers.HighwaysHandler;
 import me.osm.gazetteer.striper.builders.handlers.JunctionsHandler;
+import me.osm.gazetteer.striper.readers.PointsReader.Node;
+import me.osm.gazetteer.striper.readers.RelationsReader.Relation;
+import me.osm.gazetteer.striper.readers.RelationsReader.Relation.RelationMember;
+import me.osm.gazetteer.striper.readers.RelationsReader.Relation.RelationMember.ReferenceType;
+import me.osm.gazetteer.striper.readers.WaysReader.Way;
 import me.osm.gazetteer.utils.index.Accessor;
+import me.osm.gazetteer.utils.index.Accessors;
 import me.osm.gazetteer.utils.index.BinaryIndex;
 import me.osm.gazetteer.utils.index.IndexFactory;
+import me.osm.gazetteer.utils.index.BinaryIndex.IndexLineAccessMode;
 
 /**
  * Класс строит геометрию way'ев
@@ -45,10 +50,10 @@ public class HighwaysBuilder extends ABuilder implements HighwaysHandler {
 
 	private final class BuildWayGeometryTask implements Runnable {
 
-		private WaysReader.Way way;
+		private Way way;
 		private HighwaysHandler handler;
 
-		public BuildWayGeometryTask(WaysReader.Way way, HighwaysHandler handler) {
+		public BuildWayGeometryTask(Way way, HighwaysHandler handler) {
 			this.way = way;
 			this.handler = handler;
 		}
@@ -87,14 +92,14 @@ public class HighwaysBuilder extends ABuilder implements HighwaysHandler {
 	private static final GeometryFactory factory = new GeometryFactory();
 
 	@Override
-	public void handle(RelationsReader.Relation rel) {
+	public void handle(Relation rel) {
 		if("associatedStreet".equals(rel.tags.get("type"))) {
 			if(indexFilled) {
 				buildAssociatedStreet(rel);
 			}
 			else {
-				for(RelationsReader.Relation.RelationMember m : rel.members) {
-					if(m.type == RelationsReader.Relation.RelationMember.ReferenceType.WAY && ("street".equals(m.role) || !("house".equals(m.role)))) {
+				for(RelationMember m : rel.members) {
+					if(m.type == ReferenceType.WAY && ("street".equals(m.role) || !("house".equals(m.role)))) {
 						w2n.put(m.ref, -1);
 					}
 				}
@@ -102,11 +107,11 @@ public class HighwaysBuilder extends ABuilder implements HighwaysHandler {
 		}
 	}
 
-	private void buildAssociatedStreet(RelationsReader.Relation rel) {
+	private void buildAssociatedStreet(Relation rel) {
 		List<Long> waysIds = new ArrayList<>();
-		List<RelationsReader.Relation.RelationMember> buildingsIds = new ArrayList<>();
-		for(RelationsReader.Relation.RelationMember m : rel.members) {
-			if(m.type == RelationsReader.Relation.RelationMember.ReferenceType.WAY && ("street".equals(m.role) || !("house".equals(m.role)))) {
+		List<RelationMember> buildingsIds = new ArrayList<>();
+		for(RelationMember m : rel.members) {
+			if(m.type == ReferenceType.WAY && ("street".equals(m.role) || !("house".equals(m.role)))) {
 				waysIds.add(m.ref);
 			}
 			else {
@@ -136,7 +141,7 @@ public class HighwaysBuilder extends ABuilder implements HighwaysHandler {
 	}
 
 	@Override
-	public void handle(WaysReader.Way line) {
+	public void handle(Way line) {
 		if (isHighway(line) && isNamed(line)) {
 			if (indexFilled) {
 				if(!this.doneReadNodes) {
@@ -164,25 +169,25 @@ public class HighwaysBuilder extends ABuilder implements HighwaysHandler {
 		log.info("Nodes coordinates loaded");
 	}
 
-	private boolean isHighway(WaysReader.Way line) {
+	private boolean isHighway(Way line) {
 		return line.tags.containsKey(HIGHWAY_TAG)
 				&& !line.tags.get(HIGHWAY_TAG).equals("bus_stop")
 				&& !line.tags.get(HIGHWAY_TAG).equals("platform");
 	}
 
-	private boolean isNamed(WaysReader.Way line) {
+	private boolean isNamed(Way line) {
 		return line.tags.containsKey("name");
 	}
 
-	private void buildLine(final WaysReader.Way line, HighwaysHandler handler) {
+	private void buildLine(final Way line, HighwaysHandler handler) {
 
 		Accessor lneIDAccessor = Accessors.longAccessor(8);
-		int li = node2way.find(line.id, lneIDAccessor);
+		int li = node2way.find(line.id, lneIDAccessor, IndexLineAccessMode.UNLINKED);
 
-		List<ByteBuffer> nodeRows = node2way.findAll(li, line.id, lneIDAccessor);
+		List<ByteBuffer> nodeRows = node2way.findAll(li, line.id, lneIDAccessor, IndexLineAccessMode.UNLINKED);
 
 		//sort by node
-		Collections.sort(nodeRows, FIRST_LONG_FIELD_COMPARATOR);
+		Collections.sort(nodeRows, Builder.FIRST_LONG_FIELD_COMPARATOR);
 
 		List<Coordinate> coords = new ArrayList<>(line.nodes.size());
 		for (final long pid : line.nodes) {
@@ -227,18 +232,18 @@ public class HighwaysBuilder extends ABuilder implements HighwaysHandler {
 
 	private void orderByWay() {
 		if (!byWayOrdered) {
-			node2way.sort(SECOND_LONG_FIELD_COMPARATOR);
+			node2way.sort(Builder.SECOND_LONG_FIELD_COMPARATOR);
 			byWayOrdered = true;
 		}
 	}
 
 	@Override
-	public void handle(final PointsReader.Node node) {
+	public void handle(final Node node) {
 
 		Accessor nodeIdAccessor = Accessors.longAccessor(0);
-		int ni = node2way.find(node.id, nodeIdAccessor);
+		int ni = node2way.find(node.id, nodeIdAccessor, IndexLineAccessMode.LINKED);
 
-		List<ByteBuffer> nodeRows = node2way.findAll(ni, node.id, nodeIdAccessor);
+		List<ByteBuffer> nodeRows = node2way.findAll(ni, node.id, nodeIdAccessor, IndexLineAccessMode.LINKED);
 		for (ByteBuffer row : nodeRows) {
 			row.putDouble(LON_OFFSET, node.lon);
 			row.putDouble(LAT_OFFSET, node.lat);
@@ -248,7 +253,7 @@ public class HighwaysBuilder extends ABuilder implements HighwaysHandler {
 	@Override
 	public void firstRunDoneWays() {
 		indexFilled = true;
-		node2way.sort(FIRST_LONG_FIELD_COMPARATOR);
+		node2way.sort(Builder.FIRST_LONG_FIELD_COMPARATOR);
 
 		this.highwaysHandler.newThreadpoolUser(getThreadPoolUser());
 		this.junctionsHandler.newThreadpoolUser(getThreadPoolUser());
@@ -257,7 +262,7 @@ public class HighwaysBuilder extends ABuilder implements HighwaysHandler {
 	@Override
 	public void secondRunDoneRelations() {
 		if (this.junctionsHandler != null) {
-			node2way.sort(FIRST_LONG_FIELD_COMPARATOR);
+			node2way.sort(Builder.FIRST_LONG_FIELD_COMPARATOR);
 			findJunctions();
 		}
 		executorService.shutdown();
@@ -309,7 +314,7 @@ public class HighwaysBuilder extends ABuilder implements HighwaysHandler {
 	}
 
 	@Override
-	public void handleHighway(LineString geometry, WaysReader.Way way) {
+	public void handleHighway(LineString geometry, Way way) {
 
 		if(w2n.containsKey(way.id)) {
 			Envelope env = geometry.getEnvelopeInternal();
@@ -327,8 +332,8 @@ public class HighwaysBuilder extends ABuilder implements HighwaysHandler {
 
 	@Override
 	public void handleAssociatedStreet(int minN, int maxN, List<Long> wayId,
-                                       List<RelationsReader.Relation.RelationMember> buildings, long relationId,
-                                       Map<String, String> relAttributes) {
+			List<RelationMember> buildings, long relationId,
+			Map<String, String> relAttributes) {
 		//do nothing
 	}
 

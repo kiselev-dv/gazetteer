@@ -9,17 +9,19 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 
-import me.osm.gazetteer.diff.Diff;
-import me.osm.gazetteer.join.JoinExecutor;
-import me.osm.gazetteer.split.Split;
-import me.osm.gazetteer.striper.Slicer;
+//import javax.sound.midi.SysexMessage;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import me.osm.gazetteer.addresses.AddrLevelsSorting;
+import me.osm.gazetteer.diff.Diff;
+import me.osm.gazetteer.join.JoinExecutor;
 import me.osm.gazetteer.sortupdate.SortUpdate;
+import me.osm.gazetteer.split.Split;
+import me.osm.gazetteer.striper.Slicer;
 import me.osm.gazetteer.tilebuildings.TileBuildings;
 import net.sourceforge.argparse4j.ArgumentParsers;
 import net.sourceforge.argparse4j.impl.Arguments;
@@ -255,7 +257,9 @@ public class Gazetteer {
 						list(namespace.getList(BOUNDARIES_FALLBACK_TYPES_VAL)),
 						namespace.getBoolean("x10"),
 						namespace.getBoolean("skip_interpolation"),
-						namespace.getBoolean("disk_index")
+						namespace.getBoolean("disk_index"),
+						!namespace.getBoolean("skip_point_to_boundary_merge"),
+						!namespace.getBoolean("skip_nearest_city")
 				);
 
 			}
@@ -274,7 +278,8 @@ public class Gazetteer {
 				new JoinExecutor(namespace.getBoolean("skip_hghnets"),
 						namespace.getBoolean("keep_hghnets_geometry"),
 						namespace.getBoolean("clean_stripes"),
-						new HashSet(list(namespace.getList("check_boundaries")))).run(
+						new HashSet(list(namespace.getList("check_boundaries"))),
+						namespace.getInt("throttle_mem_threshold")).run(
 								data_dir,
 								namespace.getString(JOIN_COMMON_VAL));
 
@@ -537,7 +542,15 @@ public class Gazetteer {
 
 			slice.addArgument("--disk-index").setConst(Boolean.TRUE)
 				.setDefault(Boolean.FALSE).action(new StoreTrueArgumentAction())
-				.help("Do not parse addr:interpolation lines");
+				.help("Use off RAM index for points/ways/relations build");
+
+			slice.addArgument("--skip-point-to-boundary-merge").setConst(Boolean.TRUE)
+				.setDefault(Boolean.FALSE).action(new StoreTrueArgumentAction())
+				.help("Don't merge place point to it's boundary");
+
+			slice.addArgument("--skip-nearest-city").setConst(Boolean.TRUE)
+				.setDefault(Boolean.FALSE).action(new StoreTrueArgumentAction())
+				.help("Use only polygonal boundaries for cities");
 
 		}
 
@@ -586,7 +599,14 @@ public class Gazetteer {
 				.setDefault(Boolean.FALSE).action(new StoreTrueArgumentAction())
 				.help("Do not drop highway networks geometries.");
 
-			join.addArgument("--handlers").nargs("*");
+			join.addArgument("--throttle-mem-threshold").setDefault(-1).nargs("?")
+				.help("Throttle join tasks execution if available mameory is less then threshold im mb.");
+
+			join.addArgument("--handlers").nargs("*")
+				.help("You can export data in different formats in one run. "
+						+ "Handler is eighter out-gazetteer or out-csv or path to groovy script."
+						+ "Handlers itself gets arguments in form name=value "
+						+ "add usage or help to handler options for details");
 
 
 		}

@@ -10,7 +10,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import me.osm.gazetteer.striper.GeoJsonWriter;
 
-import me.osm.gazetteer.utils.FileUtils;
 import org.joda.time.DateTime;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -32,7 +31,7 @@ public class SortAndUpdateTask implements Runnable {
 	public void run() {
 		try {
 
-			List<String> lines = FileUtils.readLines(stripeF);
+			List<String> lines = me.osm.gazetteer.utils.FileUtils.readLines(stripeF);
 
 			Collections.sort(lines, new Comparator<String>() {
 
@@ -85,7 +84,7 @@ public class SortAndUpdateTask implements Runnable {
 				prevTimestamp = timestamp;
 			}
 
-			FileUtils.writeLines(stripeF, lines);
+			me.osm.gazetteer.utils.FileUtils.writeLines(stripeF, lines);
 		} catch (IOException e) {
 			throw new RuntimeException("Failed to update " + this.stripeF, e);
 		}

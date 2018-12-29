@@ -7,12 +7,15 @@ import java.io.PrintWriter;
 import java.nio.ByteBuffer;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Map.Entry;
 import java.util.Set;
+import java.util.TreeMap;
 
-import me.osm.gazetteer.diff.indx.DiffMapIndex;
 import me.osm.gazetteer.diff.indx.ByteUtils;
 import me.osm.gazetteer.diff.indx.DiffMapHashMapIndex;
+import me.osm.gazetteer.diff.indx.DiffMapIndex;
 import me.osm.gazetteer.diff.indx.ByteUtils.IdParts;
+import me.osm.gazetteer.diff.indx.DiffMapIndex.DiffMapIndexRow;
 import me.osm.gazetteer.diff.readers.DiffNewFileFirstPassReader;
 import me.osm.gazetteer.diff.readers.DiffOldFileFirstPassReader;
 import me.osm.gazetteer.diff.readers.DiffOldFileSecondPassReader;
@@ -195,9 +198,9 @@ public class Diff {
 							new DiffOldFileSecondPassReader(map, outTmp, olds, counters));
 				}
 				else {
-					Iterator<DiffMapIndex.DiffMapIndexRow> ri = map.rowsIterator();
+					Iterator<DiffMapIndexRow> ri = map.rowsIterator();
 					while(ri.hasNext()) {
-						DiffMapIndex.DiffMapIndexRow row = ri.next();
+						DiffMapIndexRow row = ri.next();
 						outTmp.println("- " + "{\"id\":\"" + row.key + "\"}");
 						counters.remove++;
 					}

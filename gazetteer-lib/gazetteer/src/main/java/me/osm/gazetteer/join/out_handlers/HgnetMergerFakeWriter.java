@@ -4,13 +4,18 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
-import me.osm.gazetteer.striper.JSONFeature;
 import org.apache.commons.io.output.NullWriter;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONObject;
+
+import me.osm.gazetteer.striper.GeoJsonWriter;
+import me.osm.gazetteer.striper.JSONFeature;
 
 /**
  * Allow to pass line handler into external libraries

@@ -11,21 +11,21 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import me.osm.gazetteer.addresses.NamesMatcher;
-import me.osm.gazetteer.addresses.impl.AddrTextFormatterImpl;
-import me.osm.gazetteer.addresses.impl.AddressesSchemesParserImpl;
-import me.osm.gazetteer.addresses.impl.NamesMatcherImpl;
-import me.osm.gazetteer.addresses.sorters.CityStreetHNComparator;
-import me.osm.gazetteer.join.out_handlers.JoinOutHandler;
 import me.osm.gazetteer.addresses.AddrLevelsComparator;
 import me.osm.gazetteer.addresses.AddrLevelsSorting;
 import me.osm.gazetteer.addresses.AddressesParser;
 import me.osm.gazetteer.addresses.AddressesParserFactory;
+import me.osm.gazetteer.addresses.NamesMatcher;
+import me.osm.gazetteer.addresses.impl.AddrTextFormatterImpl;
 import me.osm.gazetteer.addresses.impl.AddressesParserFactoryImpl;
 import me.osm.gazetteer.addresses.impl.AddressesParserImpl;
+import me.osm.gazetteer.addresses.impl.AddressesSchemesParserImpl;
+import me.osm.gazetteer.addresses.impl.NamesMatcherImpl;
+import me.osm.gazetteer.addresses.sorters.CityStreetHNComparator;
 import me.osm.gazetteer.addresses.sorters.HNStreetCityComparator;
 import me.osm.gazetteer.addresses.sorters.StreetHNCityComparator;
 import me.osm.gazetteer.join.out_handlers.GazetteerOutWriter;
+import me.osm.gazetteer.join.out_handlers.JoinOutHandler;
 import me.osm.gazetteer.join.out_handlers.PrintJoinOutHandler;
 import me.osm.gazetteer.out.CSVOutWriter;
 

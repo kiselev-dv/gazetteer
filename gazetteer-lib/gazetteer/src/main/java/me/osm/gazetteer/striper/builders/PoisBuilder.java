@@ -9,11 +9,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import me.osm.gazetteer.LOGMarkers;
-import me.osm.gazetteer.striper.Slicer;
-import me.osm.gazetteer.striper.readers.RelationsReader;
-import me.osm.gazetteer.striper.readers.WaysReader;
-import me.osm.gazetteer.utils.index.Accessors;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -29,12 +24,20 @@ import com.vividsolutions.jts.geom.Polygon;
 
 import gnu.trove.list.TLongList;
 import gnu.trove.list.array.TLongArrayList;
+import me.osm.gazetteer.LOGMarkers;
 import me.osm.gazetteer.striper.GeoJsonWriter;
+import me.osm.gazetteer.striper.Slicer;
 import me.osm.gazetteer.striper.builders.handlers.PoisHandler;
 import me.osm.gazetteer.striper.readers.PointsReader.Node;
+import me.osm.gazetteer.striper.readers.RelationsReader.Relation;
+import me.osm.gazetteer.striper.readers.RelationsReader.Relation.RelationMember;
+import me.osm.gazetteer.striper.readers.RelationsReader.Relation.RelationMember.ReferenceType;
+import me.osm.gazetteer.striper.readers.WaysReader.Way;
 import me.osm.gazetteer.utils.index.Accessor;
+import me.osm.gazetteer.utils.index.Accessors;
 import me.osm.gazetteer.utils.index.BinaryIndex;
 import me.osm.gazetteer.utils.index.IndexFactory;
+import me.osm.gazetteer.utils.index.BinaryIndex.IndexLineAccessMode;
 import me.osm.osmdoc.model.Feature;
 import me.osm.osmdoc.read.DOCFileReader;
 import me.osm.osmdoc.read.DOCFolderReader;
@@ -99,7 +102,7 @@ public class PoisBuilder extends ABuilder {
 	}
 
 	@Override
-	public void handle(final RelationsReader.Relation rel) {
+	public void handle(final Relation rel) {
 		if(!indexFilled) {
 			if("multipolygon".equals(rel.tags.get("type")) && filterByTags(rel.tags)) {
 				indexRelation(rel);
@@ -122,9 +125,9 @@ public class PoisBuilder extends ABuilder {
 		return typeFound;
 	}
 
-	private void buildAddrPoint4Relation(final RelationsReader.Relation rel) {
+	private void buildAddrPoint4Relation(final Relation rel) {
 
-		int i = way2relation.find(rel.id, w2rRelAccessor);
+		int i = way2relation.find(rel.id, w2rRelAccessor, IndexLineAccessMode.UNLINKED);
 
 		if(i < 0) {
 			return;
@@ -133,10 +136,10 @@ public class PoisBuilder extends ABuilder {
 		Point centroid = null;
 		List<LineString> lines = new ArrayList<>();
 
-		for(ByteBuffer bb : way2relation.findAll(i, rel.id, w2rRelAccessor)) {
+		for(ByteBuffer bb : way2relation.findAll(i, rel.id, w2rRelAccessor, IndexLineAccessMode.UNLINKED)) {
 			final long way = bb.getLong(0);
 
-			int p = node2way.find(way, n2wWayAccessor);
+			int p = node2way.find(way, n2wWayAccessor, IndexLineAccessMode.UNLINKED);
 
 			if(fullGeometry) {
 				List<ByteBuffer> wayPoints = getWayPoints(way);
@@ -168,7 +171,7 @@ public class PoisBuilder extends ABuilder {
 				}
 			}
 			else {
-				for(ByteBuffer bb2 : node2way.findAll(p, way, n2wWayAccessor)) {
+				for(ByteBuffer bb2 : node2way.findAll(p, way, n2wWayAccessor, IndexLineAccessMode.UNLINKED)) {
 					double lon = bb2.getDouble(8 + 8 + 2);
 					double lat = bb2.getDouble(8 + 8 + 2 + 8);
 					centroid = factory.createPoint(new Coordinate(lon, lat));
@@ -211,14 +214,14 @@ public class PoisBuilder extends ABuilder {
 
 	private void orderByRelation() {
 		if(!this.byRealtionOrdered) {
-			way2relation.sort(SECOND_LONG_FIELD_COMPARATOR);
+			way2relation.sort(Builder.SECOND_LONG_FIELD_COMPARATOR);
 			this.byRealtionOrdered = true;
 		}
 	}
 
-	private void indexRelation(RelationsReader.Relation rel) {
-		for (RelationsReader.Relation.RelationMember rm : rel.members) {
-			if(rm.type == RelationsReader.Relation.RelationMember.ReferenceType.WAY && (StringUtils.isEmpty(rm.role) || "outer".equals(rm.role))) {
+	private void indexRelation(Relation rel) {
+		for (RelationMember rm : rel.members) {
+			if(rm.type == ReferenceType.WAY && (StringUtils.isEmpty(rm.role) || "outer".equals(rm.role))) {
 				ByteBuffer bb = ByteBuffer.allocate(8 + 8);
 				bb.putLong(rm.ref).putLong(rel.id);
 				way2relation.add(bb);
@@ -234,11 +237,11 @@ public class PoisBuilder extends ABuilder {
 	@Override
 	public void firstRunDoneRelations() {
 		handler.newThreadpoolUser(getThreadPoolUser());
-		way2relation.sort(FIRST_LONG_FIELD_COMPARATOR);
+		way2relation.sort(Builder.FIRST_LONG_FIELD_COMPARATOR);
 	}
 
 	@Override
-	public void handle(final WaysReader.Way line) {
+	public void handle(final Way line) {
 		if(!indexFilled) {
 			indexWay(line);
 		}
@@ -252,7 +255,7 @@ public class PoisBuilder extends ABuilder {
 			if(line.isClosed() && line.tags.containsKey("building")) {
 				for(int i = 0; i < line.nodes.size() - 1; i++) {
 					long nid = line.nodes.get(i);
-					int nodeIndex = binarySearchWithMask(writedAddrNodes, nid);
+					int nodeIndex = ABuilder.binarySearchWithMask(writedAddrNodes, nid);
 					if(nodeIndex >= 0) {
 						long addrNodeIdWithN = writedAddrNodes.get(nodeIndex);
 						long n = addrNodeIdWithN & MASK_16_BITS;
@@ -266,9 +269,10 @@ public class PoisBuilder extends ABuilder {
 	}
 
 	private List<ByteBuffer> getWayPoints(final long lineId) {
-		int i = node2way.find(lineId, n2wWayAccessor);
+		int i = node2way.find(lineId, n2wWayAccessor, IndexLineAccessMode.UNLINKED);
 
-		List<ByteBuffer> points = node2way.findAll(i, lineId, n2wWayAccessor);
+		List<ByteBuffer> points = node2way.findAll(
+				i, lineId, n2wWayAccessor, IndexLineAccessMode.UNLINKED);
 		Collections.sort(points, new Comparator<ByteBuffer>() {
 
 			@Override
@@ -281,8 +285,8 @@ public class PoisBuilder extends ABuilder {
 		return points;
 	}
 
-	private void buildAddrPointForWay(final WaysReader.Way line) {
-		int i = node2way.find(line.id, n2wWayAccessor);
+	private void buildAddrPointForWay(final Way line) {
+		int i = node2way.find(line.id, n2wWayAccessor, IndexLineAccessMode.UNLINKED);
 		if(i >= 0) {
 			JSONObject meta = new JSONObject();
 			meta.put("id", line.id);
@@ -335,7 +339,7 @@ public class PoisBuilder extends ABuilder {
 
 			}
 			else {
-				ByteBuffer bb = node2way.get(i);
+				ByteBuffer bb = node2way.get(i, IndexLineAccessMode.UNLINKED);
 				double lon = bb.getDouble(8 + 8 + 2);
 				double lat = bb.getDouble(8 + 8 + 2 + 8);
 				centroid = factory.createPoint(new Coordinate(lon, lat));
@@ -353,24 +357,24 @@ public class PoisBuilder extends ABuilder {
 
 	}
 
-	private boolean isClosed(final WaysReader.Way line) {
+	private boolean isClosed(final Way line) {
 		return line.nodes.get(0).equals(line.nodes.get(line.nodes.size() - 1));
 	}
 
 	private void orderByWay() {
 		if(!this.orderedByway) {
-			node2way.sort(SECOND_LONG_FIELD_COMPARATOR);
+			node2way.sort(Builder.SECOND_LONG_FIELD_COMPARATOR);
 			this.orderedByway = true;
 		}
 	}
 
-	private void indexWay(WaysReader.Way line) {
-		if(filterByTags(line.tags) || way2relation.find(line.id, w2rWayAccessor) >= 0) {
+	private void indexWay(Way line) {
+		if(filterByTags(line.tags) || way2relation.find(line.id, w2rWayAccessor, IndexLineAccessMode.IGNORE) >= 0) {
 			indexLine(line);
 		}
 	}
 
-	private void indexLine(WaysReader.Way line) {
+	private void indexLine(Way line) {
 		short i = 0;
 		for(long ln :line.nodes) {
 			ByteBuffer bb = ByteBuffer.allocate(8 + 8 + 2 + 8 + 8);
@@ -385,7 +389,7 @@ public class PoisBuilder extends ABuilder {
 
 	@Override
 	public void firstRunDoneWays() {
-		node2way.sort(FIRST_LONG_FIELD_COMPARATOR);
+		node2way.sort(Builder.FIRST_LONG_FIELD_COMPARATOR);
 		log.info("Done read ways. {} nodes added to index.", node2way.size());
 		this.indexFilled = true;
 	}
@@ -427,9 +431,9 @@ public class PoisBuilder extends ABuilder {
 
 	private void indexNode2Way(final Node node) {
 
-		int ni = node2way.find(node.id, n2wNodeAccessor);
+		int ni = node2way.find(node.id, n2wNodeAccessor, IndexLineAccessMode.LINKED);
 
-		for(ByteBuffer bb : node2way.findAll(ni, node.id, n2wNodeAccessor)) {
+		for(ByteBuffer bb : node2way.findAll(ni, node.id, n2wNodeAccessor, IndexLineAccessMode.LINKED)) {
 			bb.putDouble(8 + 8 + 2, node.lon);
 			bb.putDouble(8 + 8 + 2 + 8, node.lat);
 		}

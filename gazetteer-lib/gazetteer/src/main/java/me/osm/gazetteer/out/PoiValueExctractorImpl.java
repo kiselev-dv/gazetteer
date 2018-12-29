@@ -115,7 +115,7 @@ public class PoiValueExctractorImpl extends FeatureValueExctractorImpl {
 					return new JSONObject(result).toString();
 				}
 				else {
-					return asHStore(result);
+					return FeatureValueExctractorImpl.asHStore(result);
 				}
 
 			//operator, opening_hours, brand, phone, fax, website, email

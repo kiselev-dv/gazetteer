@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.nio.Buffer;
 import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 import java.nio.MappedByteBuffer;
@@ -19,6 +20,7 @@ import junit.framework.Assert;
 import me.osm.gazetteer.utils.index.BinaryIndex;
 import me.osm.gazetteer.utils.index.MMapBBIndex;
 import me.osm.gazetteer.utils.index.MMapIndexFactory;
+import me.osm.gazetteer.utils.index.BinaryIndex.IndexLineAccessMode;
 
 public class MMapIndexTest {
 
@@ -26,8 +28,8 @@ public class MMapIndexTest {
 		@Override
 		public int compare(ByteBuffer o1, ByteBuffer o2) {
 			try {
-				o1.rewind();
-				o2.rewind();
+				((Buffer)o1).rewind();
+				((Buffer)o2).rewind();
 
 				o1.getInt();
 				o2.getInt();
@@ -87,8 +89,8 @@ public class MMapIndexTest {
 		index.synchronize();
 
 		for(int i = 0; i < TEST_INDEX_SIZE; i++) {
-			ByteBuffer byteBuffer = index.get(i);
-			byteBuffer.rewind();
+			ByteBuffer byteBuffer = index.get(i, IndexLineAccessMode.IGNORE);
+			((Buffer)byteBuffer).rewind();
 			Assert.assertEquals(i, byteBuffer.getInt());
 		}
 
@@ -103,7 +105,7 @@ public class MMapIndexTest {
 			protected void writePage(MappedByteBuffer page, List<ByteBuffer> bblist) {
 				int min = Integer.MIN_VALUE;
 				for(ByteBuffer bb : bblist) {
-					bb.rewind();
+					((Buffer)bb).rewind();
 					bb.getInt();
 					int i = bb.getInt();
 					if (i >= min) {
@@ -112,7 +114,7 @@ public class MMapIndexTest {
 					else {
 						throw new AssertionError("Page not sorted");
 					}
-					bb.rewind();
+					((Buffer)bb).rewind();
 				}
 				super.writePage(page, bblist);
 			}
@@ -130,7 +132,7 @@ public class MMapIndexTest {
 
 		int min = Integer.MIN_VALUE;
 		for(ByteBuffer bb : index) {
-			bb.rewind();
+			((Buffer)bb).rewind();
 
 			bb.getInt();
 			int i = bb.getInt();
@@ -153,7 +155,7 @@ public class MMapIndexTest {
 			protected void writePage(MappedByteBuffer page, List<ByteBuffer> bblist) {
 				int min = Integer.MIN_VALUE;
 				for(ByteBuffer bb : bblist) {
-					bb.rewind();
+					((Buffer)bb).rewind();
 					bb.getInt();
 					int i = bb.getInt();
 					if (i >= min) {
@@ -162,7 +164,7 @@ public class MMapIndexTest {
 					else {
 						throw new AssertionError("Page for write not sorted");
 					}
-					bb.rewind();
+					((Buffer)bb).rewind();
 				}
 				super.writePage(page, bblist);
 			}
@@ -194,7 +196,7 @@ public class MMapIndexTest {
 		int min = Integer.MIN_VALUE;
 		int rc = 0;
 		for(ByteBuffer bb : index) {
-			bb.rewind();
+			((Buffer)bb).rewind();
 			bb.getInt();
 			int i = bb.getInt();
 			if(i >= min) {
@@ -256,7 +258,7 @@ public class MMapIndexTest {
 
 			Assert.assertEquals(offset1 + length1, j);
 
-			map.clear();
+			((Buffer)map).clear();
 
 			for(int i = 0; i < length1; i++) {
 				map.putInt(i);
@@ -294,13 +296,13 @@ public class MMapIndexTest {
 			MappedByteBuffer map1 = raf.getChannel().map(MapMode.READ_WRITE, 4 * offset1, 4 * length1);
 			MappedByteBuffer map2 = raf.getChannel().map(MapMode.READ_WRITE, 4 * offset2, 4 * length2);
 
-			map1.clear();
+			((Buffer)map1).clear();
 			for(int i = 0; i < length1; i++) {
 				map1.putInt(length1 - i);
 			}
 			map1.force();
 
-			map2.clear();
+			((Buffer)map2).clear();
 			for(int i = 0; i < length2; i++) {
 				map2.putInt(i * 2);
 			}
@@ -351,7 +353,7 @@ public class MMapIndexTest {
 		int min = Integer.MIN_VALUE;
 		int rc = 0;
 		for(ByteBuffer bb : index) {
-			bb.rewind();
+			((Buffer)bb).rewind();
 			bb.getInt();
 			int i = bb.getInt();
 			if(i >= min) {
@@ -382,9 +384,8 @@ public class MMapIndexTest {
 
 		// Update rows
 		{
-			int i = 0;
-			for(ByteBuffer bb : index) {
-				bb.putInt(i++);
+			for (int i = 0; i < index.size(); i++) {
+				index.get(i, IndexLineAccessMode.LINKED).putInt(i);
 			}
 		}
 
@@ -393,12 +394,39 @@ public class MMapIndexTest {
 		// Check
 		{
 			int i = 0;
+			// Underlying iterator uses UNLINKED access, so we
+			// check synchronization as well
 			for(ByteBuffer bb : index) {
 				Assert.assertEquals(i++, bb.getInt());
 			}
 		}
 
 		index.close();
+	}
+
+	@Test
+	public void testPageCalculation() {
+		// Can't get subbufer for
+		// row: 363286
+		// buffer.from=302640
+		// buffer.to=302760
+		// rowLength=34
+		int indexSize=7750127;
+
+		int searchPageSize=120;
+
+		int i = 363286;
+
+		int pageN = i / searchPageSize;
+
+		int from = pageN * searchPageSize;
+		int to =   pageN * searchPageSize + searchPageSize;
+
+		from = Math.max(from, 0);
+		to   = Math.min(to, indexSize);
+
+		Assert.assertTrue(i >= from && i < to);
+
 	}
 
 }

@@ -5,8 +5,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-import me.osm.gazetteer.striper.JSONFeature;
 import me.osm.gazetteer.addresses.AddressesSchemesParser;
+import me.osm.gazetteer.striper.JSONFeature;
 
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONObject;

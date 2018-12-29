@@ -10,7 +10,7 @@ import com.vividsolutions.jts.geom.Polygon;
 public class BufferSelfIntersectionsMender implements SelfIntersectionsMender {
 
 	/* (non-Javadoc)
-	 * @see SelfIntersectionsMender#mend(com.vividsolutions.jts.geom.Geometry)
+	 * @see me.osm.gazetteer.striper.builders.SelfIntersectionsMender#mend(com.vividsolutions.jts.geom.Geometry)
 	 */
 	@Override
 	@SuppressWarnings("unchecked")

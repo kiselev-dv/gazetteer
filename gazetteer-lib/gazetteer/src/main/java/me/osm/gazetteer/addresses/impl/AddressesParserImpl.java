@@ -1,5 +1,10 @@
 package me.osm.gazetteer.addresses.impl;
 
+import static me.osm.gazetteer.addresses.AddressesLevelsMatcher.ADDR_LVL;
+import static me.osm.gazetteer.addresses.AddressesLevelsMatcher.ADDR_LVL_SIZE;
+import static me.osm.gazetteer.addresses.AddressesLevelsMatcher.ADDR_NAME;
+import static me.osm.gazetteer.addresses.AddressesLevelsMatcher.ADDR_NAMES;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -12,7 +17,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
-import me.osm.gazetteer.addresses.sorters.CityStreetHNComparator;
 import me.osm.gazetteer.addresses.AddrLevelsComparator;
 import me.osm.gazetteer.addresses.AddrLevelsSorting;
 import me.osm.gazetteer.addresses.AddrTextFormatter;
@@ -21,6 +25,7 @@ import me.osm.gazetteer.addresses.AddressesParser;
 import me.osm.gazetteer.addresses.AddressesSchemesParser;
 import me.osm.gazetteer.addresses.AddressesUtils;
 import me.osm.gazetteer.addresses.Constants;
+import me.osm.gazetteer.addresses.sorters.CityStreetHNComparator;
 import me.osm.gazetteer.addresses.sorters.HNStreetCityComparator;
 import me.osm.gazetteer.addresses.sorters.StreetHNCityComparator;
 
@@ -73,8 +78,8 @@ public class AddressesParserImpl implements AddressesParser {
 	 * @param findLangs
 	 */
 	public AddressesParserImpl(AddressesSchemesParser schemesParser,
-                               AddressesLevelsMatcher levelsMatcher, AddrTextFormatter textFormatter,
-                               AddrLevelsSorting sorting, Set<String> skipInFullText, boolean findLangs) {
+			AddressesLevelsMatcher levelsMatcher, AddrTextFormatter textFormatter,
+			AddrLevelsSorting sorting, Set<String> skipInFullText, boolean findLangs) {
 
 		this.schemesParser = schemesParser;
 		this.levelsMatcher = levelsMatcher;
@@ -203,10 +208,10 @@ public class AddressesParserImpl implements AddressesParser {
 					addrLVL.put("lnk", bndry.getString("id"));
 
 
-					addrLVL.put(AddressesLevelsMatcher.ADDR_LVL, addrLevel);
-					addrLVL.put(AddressesLevelsMatcher.ADDR_LVL_SIZE, addrLevelComparator.getLVLSize(addrLevel));
-					addrLVL.put(AddressesLevelsMatcher.ADDR_NAME, nTags.get(AddressesLevelsMatcher.ADDR_NAME));
-					addrLVL.put(AddressesLevelsMatcher.ADDR_NAMES, new JSONObject(nTags));
+					addrLVL.put(ADDR_LVL, addrLevel);
+					addrLVL.put(ADDR_LVL_SIZE, addrLevelComparator.getLVLSize(addrLevel));
+					addrLVL.put(ADDR_NAME, nTags.get(ADDR_NAME));
+					addrLVL.put(ADDR_NAMES, new JSONObject(nTags));
 
 					addrJsonRow.add(addrLVL);
 				}
@@ -415,14 +420,14 @@ public class AddressesParserImpl implements AddressesParser {
 
 				Map<String, String> nTags = AddressesUtils.filterNameTags(bndry);
 
-				if(!nTags.containsKey(AddressesLevelsMatcher.ADDR_NAME)) {
+				if(!nTags.containsKey(ADDR_NAME)) {
 					continue;
 				}
 
-				addrLVL.put(AddressesLevelsMatcher.ADDR_LVL, addrLevel);
-				addrLVL.put(AddressesLevelsMatcher.ADDR_LVL_SIZE, addrLevelComparator.getLVLSize(addrLevel));
-				addrLVL.put(AddressesLevelsMatcher.ADDR_NAME, nTags.get(AddressesLevelsMatcher.ADDR_NAME));
-				addrLVL.put(AddressesLevelsMatcher.ADDR_NAMES, new JSONObject(nTags));
+				addrLVL.put(ADDR_LVL, addrLevel);
+				addrLVL.put(ADDR_LVL_SIZE, addrLevelComparator.getLVLSize(addrLevel));
+				addrLVL.put(ADDR_NAME, nTags.get(ADDR_NAME));
+				addrLVL.put(ADDR_NAMES, new JSONObject(nTags));
 
 				result.add(addrLVL);
 			}
@@ -437,11 +442,11 @@ public class AddressesParserImpl implements AddressesParser {
 
 				Map<String, String> nTags = AddressesUtils.filterNameTags(subj);
 
-				if(nTags.containsKey(AddressesLevelsMatcher.ADDR_NAME)) {
-					addrLVL.put(AddressesLevelsMatcher.ADDR_LVL, addrLevel);
-					addrLVL.put(AddressesLevelsMatcher.ADDR_LVL_SIZE, addrLevelComparator.getLVLSize(addrLevel));
-					addrLVL.put(AddressesLevelsMatcher.ADDR_NAME, nTags.get(AddressesLevelsMatcher.ADDR_NAME));
-					addrLVL.put(AddressesLevelsMatcher.ADDR_NAMES, new JSONObject(nTags));
+				if(nTags.containsKey(ADDR_NAME)) {
+					addrLVL.put(ADDR_LVL, addrLevel);
+					addrLVL.put(ADDR_LVL_SIZE, addrLevelComparator.getLVLSize(addrLevel));
+					addrLVL.put(ADDR_NAME, nTags.get(ADDR_NAME));
+					addrLVL.put(ADDR_NAMES, new JSONObject(nTags));
 
 					result.add(addrLVL);
 				}

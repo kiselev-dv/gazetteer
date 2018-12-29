@@ -13,11 +13,12 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 import me.osm.gazetteer.Options;
-import me.osm.gazetteer.addresses.NamesMatcher;
-import me.osm.gazetteer.striper.JSONFeature;
-import me.osm.gazetteer.utils.LocatePoint;
 import me.osm.gazetteer.addresses.AddressesUtils;
+import me.osm.gazetteer.addresses.NamesMatcher;
 import me.osm.gazetteer.striper.GeoJsonWriter;
+import me.osm.gazetteer.striper.JSONFeature;
+import me.osm.gazetteer.utils.HilbertCurveHasher;
+import me.osm.gazetteer.utils.LocatePoint;
 
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;

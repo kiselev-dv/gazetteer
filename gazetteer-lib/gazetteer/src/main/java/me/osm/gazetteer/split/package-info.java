@@ -14,7 +14,7 @@
  * files neither read whole file for many times.
  *
  * Actual job is performed in
- * Split
+ * me.osm.gazetteer.split.Split
  *
  * Next slice phase: @see me.osm.gazetteer.striper
  * */

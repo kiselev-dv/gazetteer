@@ -14,6 +14,25 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.apache.commons.lang3.time.DurationFormatUtils;
+import org.json.JSONArray;
+import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Envelope;
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.LineString;
+import com.vividsolutions.jts.geom.MultiPolygon;
+import com.vividsolutions.jts.geom.Point;
+import com.vividsolutions.jts.geom.Polygon;
+import com.vividsolutions.jts.io.WKTWriter;
+import com.vividsolutions.jts.operation.valid.IsValidOp;
+import com.vividsolutions.jts.operation.valid.TopologyValidationError;
+
 import me.osm.gazetteer.Options;
 import me.osm.gazetteer.dao.FileWriteDao;
 import me.osm.gazetteer.dao.WriteDao;
@@ -37,23 +56,6 @@ import me.osm.gazetteer.utils.HilbertCurveHasher;
 import me.osm.gazetteer.utils.index.BBListIndexFactory;
 import me.osm.gazetteer.utils.index.IndexFactory;
 import me.osm.gazetteer.utils.index.MMapIndexFactory;
-
-import org.apache.commons.lang3.exception.ExceptionUtils;
-import org.apache.commons.lang3.time.DurationFormatUtils;
-import org.json.JSONArray;
-import org.json.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Envelope;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.geom.LineString;
-import com.vividsolutions.jts.geom.MultiPolygon;
-import com.vividsolutions.jts.geom.Point;
-import com.vividsolutions.jts.geom.Polygon;
-import com.vividsolutions.jts.io.WKTWriter;
 
 public class Slicer implements BoundariesHandler,
 	AddrPointHandler, PlacePointHandler, HighwaysHandler, JunctionsHandler, PoisHandler {
@@ -85,7 +87,8 @@ public class Slicer implements BoundariesHandler,
 	public void run(String poiCatalogPath, List<String> types, List<String> exclude,
 			List<String> named, List<String> dropList, String boundariesFallbackIndex,
 			List<String> boundariesFallbackTypes, boolean x10,
-			boolean skipInterpolation, boolean offMemoryIndex) {
+			boolean skipInterpolation, boolean offMemoryIndex,
+			boolean mergeCityPointsToBoundary, boolean doNearestCityLookup) {
 
 		long start = new Date().getTime();
 
@@ -116,8 +119,12 @@ public class Slicer implements BoundariesHandler,
 			}
 
 			if(typesSet.contains("all") || typesSet.contains("places")) {
-				builders.add(new PlaceBuilder(this, this,
-						BoundariesFallbacker.getInstance(boundariesFallbackIndex, boundariesFallbackTypes), indexesFactory));
+				PlaceBuilder placeBuilder = new PlaceBuilder(this, this,
+						BoundariesFallbacker.getInstance(boundariesFallbackIndex, boundariesFallbackTypes),
+						indexesFactory, new File(this.osmSlicesPath, "city_nodes.csv"),
+						mergeCityPointsToBoundary,
+						doNearestCityLookup);
+				builders.add(placeBuilder);
 			}
 
 			if(typesSet.contains("all") || typesSet.contains("highways")) {
@@ -205,14 +212,21 @@ public class Slicer implements BoundariesHandler,
 			for(int i = 0; i < multiPolygon.getNumGeometries(); i++) {
 				Polygon p = (Polygon) (multiPolygon.getGeometryN(i));
 
+				if (!p.isValid()) {
+					p = (Polygon) p.buffer(0.0);
+				}
+
 				if(p.isValid()) {
 					stripe(p, polygons);
 				}
 				else {
-					log.warn("Couldn't slice {} {}.\nPolygon:\n{}", new Object[]{
-						meta.getString("type"),
-						meta.getLong("id"),
-						new WKTWriter().write(p)
+					TopologyValidationError validationError = new IsValidOp(p).getValidationError();
+
+					log.warn("Can't slice {} {}.\nError: {}\nPolygon:\n{}", new Object[]{
+							meta.getString("type"),
+							meta.getLong("id"),
+							validationError.getMessage(),
+							new WKTWriter().write(p)
 					});
 				}
 			}

@@ -3,8 +3,8 @@ package me.osm.gazetteer.diff.readers;
 import java.io.PrintWriter;
 import java.util.Set;
 
-import me.osm.gazetteer.diff.indx.DiffMapIndex;
 import me.osm.gazetteer.diff.Counters;
+import me.osm.gazetteer.diff.indx.DiffMapIndex;
 import me.osm.gazetteer.striper.GeoJsonWriter;
 import me.osm.gazetteer.utils.FileUtils.LineHandler;
 

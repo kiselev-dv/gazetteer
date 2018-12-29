@@ -6,9 +6,9 @@ import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.Map;
 
-import me.osm.gazetteer.utils.FileUtils;
 import me.osm.gazetteer.Options;
 import me.osm.gazetteer.striper.GeoJsonWriter;
+import me.osm.gazetteer.utils.FileUtils;
 
 /**
  * Abstraction for writing in multiple "files"

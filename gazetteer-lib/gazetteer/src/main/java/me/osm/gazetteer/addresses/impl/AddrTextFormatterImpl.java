@@ -1,9 +1,10 @@
 package me.osm.gazetteer.addresses.impl;
 
+import static me.osm.gazetteer.addresses.AddressesLevelsMatcher.ADDR_NAME;
+
 import java.util.List;
 
 import me.osm.gazetteer.addresses.AddrTextFormatter;
-import me.osm.gazetteer.addresses.AddressesLevelsMatcher;
 
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONObject;
@@ -32,7 +33,7 @@ public class AddrTextFormatterImpl implements AddrTextFormatter {
 			String string = null;
 
 			if(lang == null) {
-				string = lvl.getString(AddressesLevelsMatcher.ADDR_NAME);
+				string = lvl.getString(ADDR_NAME);
 			}
 			else {
 				JSONObject names = lvl.optJSONObject("names");
@@ -42,11 +43,11 @@ public class AddrTextFormatterImpl implements AddrTextFormatter {
 						string = translated;
 					}
 					else {
-						string = lvl.getString(AddressesLevelsMatcher.ADDR_NAME);
+						string = lvl.getString(ADDR_NAME);
 					}
 				}
 				else {
-					string = lvl.getString(AddressesLevelsMatcher.ADDR_NAME);
+					string = lvl.getString(ADDR_NAME);
 				}
 			}
 

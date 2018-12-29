@@ -1,11 +1,12 @@
 package me.osm.gazetteer.diff.readers;
 
-import me.osm.gazetteer.diff.indx.DiffMapIndex;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import me.osm.gazetteer.diff.Counters;
+import me.osm.gazetteer.diff.indx.DiffMapIndex;
+import me.osm.gazetteer.diff.indx.DiffMapIndex.DiffMapIndexRow;
 import me.osm.gazetteer.striper.GeoJsonWriter;
 import me.osm.gazetteer.utils.FileUtils.LineHandler;
 
@@ -40,13 +41,13 @@ public final class DiffOldFileFirstPassReader implements LineHandler {
 			counters.oldTs =  GeoJsonWriter.getTimestamp(s);
 		}
 		else {
-			DiffMapIndex.DiffMapIndexRow row = new DiffMapIndex.DiffMapIndexRow();
+			DiffMapIndexRow row = new DiffMapIndexRow();
 
 			row.key = GeoJsonWriter.getId(s);
 			row.timestamp = GeoJsonWriter.getTimestamp(s);
 			row.hash = GeoJsonWriter.getMD5(s).hashCode();
 
-			DiffMapIndex.DiffMapIndexRow previous = map.put(row);
+			DiffMapIndexRow previous = map.put(row);
 			if (previous != null) {
 				log.warn("Different lines with the same id: {}",
 						row.key);

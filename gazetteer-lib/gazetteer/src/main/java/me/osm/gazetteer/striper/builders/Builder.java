@@ -3,11 +3,11 @@ package me.osm.gazetteer.striper.builders;
 import java.nio.ByteBuffer;
 import java.util.Comparator;
 
-import me.osm.gazetteer.striper.readers.PointsReader;
-import me.osm.gazetteer.striper.readers.RelationsReader;
-import me.osm.gazetteer.striper.readers.WaysReader;
+import me.osm.gazetteer.striper.readers.PointsReader.PointsHandler;
+import me.osm.gazetteer.striper.readers.RelationsReader.RelationsHandler;
+import me.osm.gazetteer.striper.readers.WaysReader.WaysHandler;
 
-public interface Builder extends RelationsReader.RelationsHandler, WaysReader.WaysHandler, PointsReader.PointsHandler {
+public interface Builder extends RelationsHandler, WaysHandler, PointsHandler {
 
 	public static final class FirstLongFieldComparator implements
 			Comparator<ByteBuffer> {

@@ -18,10 +18,10 @@ import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import me.osm.gazetteer.join.out_handlers.AddressPerRowJOHBase;
 import me.osm.gazetteer.join.out_handlers.HandlerOptions;
 import me.osm.gazetteer.join.out_handlers.JoinOutHandler;
 import me.osm.gazetteer.striper.FeatureTypes;
-import me.osm.gazetteer.join.out_handlers.AddressPerRowJOHBase;
 import me.osm.osmdoc.read.DOCFileReader;
 import me.osm.osmdoc.read.DOCFolderReader;
 import me.osm.osmdoc.read.DOCReader;
@@ -73,6 +73,11 @@ public class CSVOutWriter extends AddressPerRowJOHBase {
 	@Override
 	public JoinOutHandler initialize(HandlerOptions parsedOpts) {
 
+		if(parsedOpts.has("usage") || parsedOpts.has("help")) {
+			printUsage();
+			System.exit(0);
+		}
+
 		if(parsedOpts.has(null)) {
 			initializeWriter(parsedOpts.getString(null, null));
 		}
@@ -102,6 +107,22 @@ public class CSVOutWriter extends AddressPerRowJOHBase {
 		initializePOICatalog(parsedOpts);
 
 		return this;
+	}
+
+	private void printUsage() {
+		StringBuilder usage = new StringBuilder();
+		usage.append("Usage: join --handlers ").append(NAME).append("[<out_file>|out=<out_file>]");
+
+		int i = 0;
+		for(String opt : OPTIONS) {
+			usage.append(" ").append("[").append(opt).append("[=<val>]]");
+			if(i%3 == 0 && i > 0) {
+				usage.append("\n\t");
+			}
+			i++;
+		}
+
+		System.out.println(usage.toString());
 	}
 
 	@Override

@@ -1,8 +1,14 @@
 package me.osm.gazetteer.striper.builders;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.RandomAccessFile;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -10,22 +16,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import me.osm.gazetteer.addresses.NamesMatcher;
-import me.osm.gazetteer.addresses.impl.NamesMatcherImpl;
-import me.osm.gazetteer.striper.BoundariesFallbacker;
-import me.osm.gazetteer.striper.FeatureTypes;
-import me.osm.gazetteer.striper.JSONFeature;
-import me.osm.gazetteer.striper.Slicer;
-import me.osm.gazetteer.striper.builders.handlers.BoundariesHandler;
-import me.osm.gazetteer.striper.builders.handlers.PlacePointHandler;
-import me.osm.gazetteer.striper.readers.PointsReader;
-import me.osm.gazetteer.striper.readers.RelationsReader;
-import me.osm.gazetteer.striper.readers.WaysReader;
-import me.osm.gazetteer.utils.index.IndexFactory;
-import me.osm.gazetteer.addresses.AddressesUtils;
-import me.osm.gazetteer.striper.GeoJsonWriter;
-
+import org.apache.commons.collections4.map.LRUMap;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.DurationFormatUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONString;
@@ -45,7 +38,30 @@ import com.vividsolutions.jts.triangulate.VoronoiDiagramBuilder;
 import com.vividsolutions.jts.triangulate.quadedge.QuadEdgeSubdivision;
 import com.vividsolutions.jts.triangulate.quadedge.Vertex;
 
+import me.osm.gazetteer.addresses.AddressesUtils;
+import me.osm.gazetteer.addresses.NamesMatcher;
+import me.osm.gazetteer.addresses.impl.NamesMatcherImpl;
+import me.osm.gazetteer.striper.BoundariesFallbacker;
+import me.osm.gazetteer.striper.FeatureTypes;
+import me.osm.gazetteer.striper.GeoJsonWriter;
+import me.osm.gazetteer.striper.JSONFeature;
+import me.osm.gazetteer.striper.Slicer;
+import me.osm.gazetteer.striper.builders.handlers.BoundariesHandler;
+import me.osm.gazetteer.striper.builders.handlers.PlacePointHandler;
+import me.osm.gazetteer.striper.readers.PointsReader.Node;
+import me.osm.gazetteer.striper.readers.RelationsReader.Relation;
+import me.osm.gazetteer.striper.readers.WaysReader.Way;
+import me.osm.gazetteer.utils.FileLinesOffsetsIndex;
+import me.osm.gazetteer.utils.index.IndexFactory;
+
 public class PlaceBuilder extends BoundariesBuilder {
+
+	private final Map<String, JSONObject> cachedCityNodes = new LRUMap<>(1000);
+	private volatile FileLinesOffsetsIndex cityNodesFileIndex;
+	private final double citiesIndexPreloadFactor = 0.5;
+
+	private static final String CITY = "city";
+	private static final String NEIGHBOUR = "neighbour";
 
 	private NamesMatcher namesMatcher = new NamesMatcherImpl();
 
@@ -55,8 +71,10 @@ public class PlaceBuilder extends BoundariesBuilder {
 	private static GeometryFactory fatory = new GeometryFactory();
 	private PlacePointHandler handler;
 
-	private Map<Coordinate, JSONObject> cityes = new HashMap<>();
-	private Map<Coordinate, JSONObject> neighbours = new HashMap<>();
+	private long cityPointsCounter = 0;
+
+	private Map<Coordinate, String> cityes = new HashMap<>();
+	private Map<Coordinate, String> neighbours = new HashMap<>();
 	private Quadtree cityesIndex = new Quadtree();
 
 	private final BBOX originalBBOX = new BBOX();
@@ -67,6 +85,9 @@ public class PlaceBuilder extends BoundariesBuilder {
 
 	private final Set<String> files = new HashSet<>();
 
+	private File cityNodesIndex;
+	private PrintWriter fileWriter;
+
 	private static final Set<String> PLACE_CITY = new HashSet<String>(
 			Arrays.asList(new String[] { "city", "town", "hamlet", "village",
 					"isolated_dwelling" }));
@@ -75,6 +96,12 @@ public class PlaceBuilder extends BoundariesBuilder {
 			Arrays.asList(new String[] { "suburb", "neighbourhood", "quarter" }));
 
 	private static final double DEGREE_OFFSET = -90.0;
+
+	private int cityHit = 0;
+	private int cityMiss = 0;
+	private boolean buildCitiesIndex;
+	private boolean mergeCityPointsToBoundary;
+	private boolean doNearestCityLookup;
 
 	public static final double moveTo(double x) {
 		if (x < DEGREE_OFFSET) {
@@ -93,9 +120,27 @@ public class PlaceBuilder extends BoundariesBuilder {
 	public PlaceBuilder(PlacePointHandler slicer,
 			BoundariesHandler handler,
 			BoundariesFallbacker fallback,
-			IndexFactory indexFactory) {
+			IndexFactory indexFactory,
+			File cityNodesIndex,
+			boolean mergeCityPointsToBoundary,
+			boolean doNearestCityLookup) {
+
 		super(handler, indexFactory, fallback);
 		this.handler = slicer;
+
+		this.buildCitiesIndex = mergeCityPointsToBoundary || doNearestCityLookup;
+		this.mergeCityPointsToBoundary = mergeCityPointsToBoundary;
+		this.doNearestCityLookup = doNearestCityLookup;
+
+		if (buildCitiesIndex) {
+			this.cityNodesIndex = cityNodesIndex;
+			try {
+				fileWriter = new PrintWriter(new FileOutputStream(this.cityNodesIndex));
+			}
+			catch (Exception e) {
+				throw new RuntimeException(e);
+			}
+		}
 	}
 
 	@Override
@@ -105,7 +150,7 @@ public class PlaceBuilder extends BoundariesBuilder {
 	}
 
 	@Override
-	public void handle(PointsReader.Node node) {
+	public void handle(Node node) {
 		super.handle(node);
 
 		if (filterByTags(node.tags)) {
@@ -121,21 +166,23 @@ public class PlaceBuilder extends BoundariesBuilder {
 			originalBBOX.extend(node.lon, node.lat);
 			translatedBBOX.extend(moveTo(node.lon), node.lat);
 
-			String id = GeoJsonWriter.getId(FeatureTypes.PLACE_DELONEY_FTYPE,
-					pnt, meta);
-			JSONObject feature = GeoJsonWriter.createFeature(id,
-					FeatureTypes.PLACE_DELONEY_FTYPE, node.tags, pnt, meta);
+			if (buildCitiesIndex) {
+				String id = GeoJsonWriter.getId(FeatureTypes.PLACE_DELONEY_FTYPE,
+						pnt, meta);
+				JSONObject feature = GeoJsonWriter.createFeature(id,
+						FeatureTypes.PLACE_DELONEY_FTYPE, node.tags, pnt, meta);
 
-			Envelope envelope = pnt.getEnvelopeInternal();
-			if (PLACE_CITY.contains(node.tags.get("place"))) {
-				cityesIndex.insert(envelope, feature);
-				cityes.put(coordinate, feature);
-				files.add(Slicer.getFilePrefix(node.lon, node.lat));
-			}
+				Envelope envelope = pnt.getEnvelopeInternal();
+				if (PLACE_CITY.contains(node.tags.get("place"))) {
+					cityesIndex.insert(envelope, String.valueOf(node.id));
+					saveCityToIndex(node.id, coordinate, CITY, feature);
+					files.add(Slicer.getFilePrefix(node.lon, node.lat));
+				}
 
-			if (PLACE_NEIGHBOUR.contains(node.tags.get("place"))) {
-				neighbours.put(coordinate, feature);
-				files.add(Slicer.getFilePrefix(node.lon, node.lat));
+				if (PLACE_NEIGHBOUR.contains(node.tags.get("place"))) {
+					saveCityToIndex(node.id, coordinate, NEIGHBOUR, feature);
+					files.add(Slicer.getFilePrefix(node.lon, node.lat));
+				}
 			}
 		}
 
@@ -146,16 +193,114 @@ public class PlaceBuilder extends BoundariesBuilder {
 	}
 
 	@Override
+	public void firstRunDoneNodes() {
+		// Boundaries are loaded during ways second run
+		// and relations second run
+		if (mergeCityPointsToBoundary) {
+
+			log.info("Saved {} city/neighourhoods for delaney", cityPointsCounter);
+
+			fileWriter.flush();
+			fileWriter.close();
+
+			try {
+				loadCityNodesIndex();
+			} catch (IOException e) {
+				throw new RuntimeException("Failed to sort city nodes index", e);
+			}
+		}
+	}
+
+	private void saveCityToIndex(long nodeId, Coordinate coordinate, String type, JSONObject feature) {
+		cityPointsCounter++;
+
+		StringBuilder builder = new StringBuilder();
+
+		builder.append(nodeId).append("\t");
+		builder.append(coordinate.x).append("\t");
+		builder.append(coordinate.y).append("\t");
+		builder.append(type).append("\t");
+		builder.append(feature.toString());
+
+		fileWriter.println(builder.toString());
+	}
+
+	@Override
 	public void secondRunDoneRelations() {
-		buildVoronoyDiagrams();
+		if(doNearestCityLookup) {
+			buildVoronoyDiagrams();
+		}
 
 		//shutdown executor services
 		super.secondRunDoneRelations();
 		this.handler.freeThreadPool(getThreadPoolUser());
 	}
 
+	@Override
+	public void close() {
+		super.close();
+
+		try {
+			if (cityNodesFileIndex != null) {
+				cityNodesFileIndex.close();
+			}
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	private void loadCityNodesIndex() throws IOException {
+		assert buildCitiesIndex;
+
+		long bufferSize = cityPointsCounter;
+		if (cityPointsCounter > 3000) {
+			bufferSize = (long) (bufferSize * citiesIndexPreloadFactor);
+		}
+
+		if (cityNodesFileIndex == null) {
+			log.info("Load index for nearest city and neighbour");
+
+			cityNodesFileIndex = new FileLinesOffsetsIndex(
+					new RandomAccessFile(this.cityNodesIndex, "r"),
+					new FileLinesOffsetsIndex.Accessor() {
+						@Override
+						public String getKey(String line) {
+							String[] split = StringUtils.split(line, '\t');
+
+							String id = split[0];
+							double lon = Double.valueOf(split[1]);
+							double lat = Double.valueOf(split[2]);
+
+							String type = split[3];
+							if(CITY.equals(type)) {
+								cityes.put(new Coordinate(lon, lat), id);
+							}
+
+							if (NEIGHBOUR.equals(type)) {
+								neighbours.put(new Coordinate(lon, lat), id);
+							}
+
+							return split[0];
+						}
+					},
+					false,
+					(int)bufferSize);
+		}
+
+		cityNodesFileIndex.build();
+
+	}
+
 	//single threaded
 	private void buildVoronoyDiagrams() {
+
+		try {
+			loadCityNodesIndex();
+		} catch (IOException e) {
+			throw new RuntimeException("Failed to load cities index", e);
+		}
+
+		long started = new Date().getTime();
 
 		// Possibly we processing Russia.
 		// And we have wrong originalBBOX which covers whole planet.
@@ -165,16 +310,16 @@ public class PlaceBuilder extends BoundariesBuilder {
 			weAreInRussia = true;
 			log.trace("Wrap 180 degree line.");
 
-			Map<Coordinate, JSONObject> russianCityes = new HashMap<>();
-			for (Entry<Coordinate, JSONObject> entry : cityes.entrySet()) {
+			Map<Coordinate, String> russianCityes = new HashMap<>();
+			for (Entry<Coordinate, String> entry : cityes.entrySet()) {
 				Coordinate c = entry.getKey();
 				c.x = moveTo(c.x);
 				russianCityes.put(c, entry.getValue());
 			}
 			cityes = russianCityes;
 
-			Map<Coordinate, JSONObject> russianNeighbours = new HashMap<>();
-			for (Entry<Coordinate, JSONObject> entry : neighbours.entrySet()) {
+			Map<Coordinate, String> russianNeighbours = new HashMap<>();
+			for (Entry<Coordinate, String> entry : neighbours.entrySet()) {
 				Coordinate c = entry.getKey();
 				c.x = moveTo(c.x);
 				russianNeighbours.put(c, entry.getValue());
@@ -182,12 +327,10 @@ public class PlaceBuilder extends BoundariesBuilder {
 			neighbours = russianNeighbours;
 		}
 
-
-
 		VoronoiDiagramBuilder cvb = new VoronoiDiagramBuilder();
 
 		Quadtree neighboursQT = new Quadtree();
-		for (Entry<Coordinate, JSONObject> entry : neighbours.entrySet()) {
+		for (Entry<Coordinate, String> entry : neighbours.entrySet()) {
 			neighboursQT.insert(new Envelope(entry.getKey()), entry.getValue());
 		}
 
@@ -199,7 +342,7 @@ public class PlaceBuilder extends BoundariesBuilder {
 
 		QuadEdgeSubdivision subdivision = cvb.getSubdivision();
 
-		Map<JSONObject, Set<JSONObject>> nCities = new HashMap<JSONObject, Set<JSONObject>>();
+		Map<String, Set<String>> nCities = new HashMap<String, Set<String>>();
 
 		@SuppressWarnings("unchecked")
 		List<Vertex[]> triangleVertices = (List<Vertex[]>)subdivision.getTriangleVertices(false);
@@ -211,37 +354,84 @@ public class PlaceBuilder extends BoundariesBuilder {
 
 		try {
 			@SuppressWarnings("unchecked")
-			Collection<Polygon> cityVoronoiPolygons = subdivision
-			.getVoronoiCellPolygons(fatory);
+			Collection<Polygon> cityVoronoiPolygons =
+				subdivision.getVoronoiCellPolygons(fatory);
 
 			for (Polygon cityPolygon : cityVoronoiPolygons) {
-				JSONObject cityJSON = cityes.get(cityPolygon
+				String cityId = cityes.get(cityPolygon
 						.getUserData());
-				handleCityVoronoy(cityJSON, cityPolygon, neighboursQT, nCities.get(cityJSON));
+
+				JSONObject cityJSON = getCityById(cityId);
+				if (cityJSON != null) {
+					Set<JSONObject> neighbourCities = new HashSet<>();
+					for(String cityNodeId : nCities.get(cityId)) {
+						JSONObject neighbourCity = getCityById(cityNodeId);
+						if (neighbourCity != null) {
+							neighbourCities.add(neighbourCity);
+						}
+					}
+
+					handleCityVoronoy(cityJSON, cityPolygon, neighboursQT, neighbourCities);
+				}
 			}
 		}
 		catch (IllegalArgumentException e) {
 			log.warn("Failed to build Voronoy cell");
 		}
+
+		log.info("Done build cities Voronoy cells in {}",
+				DurationFormatUtils.formatDurationHMS(new Date().getTime() - started));
+
+		log.info("Cyties cache hit/miss {}/{}", cityHit, cityMiss);
+
+	}
+
+	private synchronized JSONObject getCityById(final String cityId) {
+
+		JSONObject cached = cachedCityNodes.get(cityId);
+		if (cached != null) {
+			cityHit ++;
+			return cached;
+		}
+		cityMiss ++;
+
+		try {
+
+			String line = cityNodesFileIndex.get(cityId);
+
+			if (line != null) {
+				JSONObject obj = new JSONObject(StringUtils.split(line, '\t')[4]);
+				cachedCityNodes.put(cityId, obj);
+				return obj;
+			}
+			else {
+				log.warn("Cities deloney for {} not found", cityId);
+			}
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+
+		return null;
 	}
 
 	private void putNeighbours(Vertex vertexA, Vertex vertexB,
-			Map<JSONObject, Set<JSONObject>> nCities) {
+			Map<String, Set<String>> nCities) {
 
 		if(hasNaNCoordinates(vertexA) || hasNaNCoordinates(vertexB)) {
 			log.warn("Skip neughbours, due to NaN coordinates.");
 			return;
 		}
 
-		JSONObject ca = cityes.get(vertexA.getCoordinate());
-		JSONObject cb = cityes.get(vertexB.getCoordinate());
+		String ca = cityes.get(vertexA.getCoordinate());
+		String cb = cityes.get(vertexB.getCoordinate());
 
 		if(nCities.get(ca) == null){
-			nCities.put(ca, new HashSet<JSONObject>());
+			nCities.put(ca, new HashSet<String>());
 		}
 
 		if(nCities.get(cb) == null){
-			nCities.put(cb, new HashSet<JSONObject>());
+			nCities.put(cb, new HashSet<String>());
 		}
 
 		nCities.get(ca).add(cb);
@@ -312,20 +502,23 @@ public class PlaceBuilder extends BoundariesBuilder {
 		Envelope cityPolygonEnv = cityPolygon.getEnvelopeInternal();
 
 		@SuppressWarnings("unchecked")
-		List<JSONObject> neighbourCandidates = neighboursQT
+		List<String> neighbourCandidates = neighboursQT
 				.query(cityPolygonEnv);
 
-		for (JSONObject neighbour : neighbourCandidates) {
+		for (String neighbourId : neighbourCandidates) {
 
-			// original coordinates
-			Coordinate coordinate = getCoordinateFromGJSON(neighbour);
+			JSONObject neighbour = getCityById(neighbourId);
+			if (neighbour != null) {
+				// original coordinates
+				Coordinate coordinate = getCoordinateFromGJSON(neighbour);
 
-			if (weAreInRussia) {
-				coordinate.x = moveTo(coordinate.x);
-			}
+				if (weAreInRussia) {
+					coordinate.x = moveTo(coordinate.x);
+				}
 
-			if (cityPolygon.contains(fatory.createPoint(coordinate))) {
-				neighboursCoords.add(coordinate);
+				if (cityPolygon.contains(fatory.createPoint(coordinate))) {
+					neighboursCoords.add(coordinate);
+				}
 			}
 		}
 
@@ -344,9 +537,13 @@ public class PlaceBuilder extends BoundariesBuilder {
 				Polygon intersection = (Polygon) neighbourPolygon
 						.intersection(cityPolygon);
 				if (!intersection.isEmpty()) {
-					JSONObject neighbour = neighbours.get(neighbourPolygon
+					String neighbourId = neighbours.get(neighbourPolygon
 							.getUserData());
-					handleNeighbour(intersection, cityFeature, neighbour);
+
+					JSONObject neighbourCityJSON = getCityById(neighbourId);
+					if(neighbourCityJSON != null) {
+						handleNeighbour(intersection, cityFeature, neighbourCityJSON);
+					}
 				}
 			}
 		}
@@ -381,7 +578,6 @@ public class PlaceBuilder extends BoundariesBuilder {
 
 		Envelope env = polygon.getEnvelopeInternal();
 
-		// TODO: handle 180*
 		double minX = env.getMinX();
 		double maxX = env.getMaxX();
 
@@ -469,15 +665,17 @@ public class PlaceBuilder extends BoundariesBuilder {
 	}
 
 	@Override
-	protected void doneRelation(RelationsReader.Relation rel, MultiPolygon geometry,
-                                JSONObject meta) {
+	protected void doneRelation(Relation rel, MultiPolygon geometry,
+			JSONObject meta) {
 
 		String fType = FeatureTypes.PLACE_BOUNDARY_FTYPE;
 		Point originalCentroid = geometry.getEnvelope().getCentroid();
 		String id = GeoJsonWriter.getId(fType, originalCentroid, meta);
 		JSONObject featureWithoutGeometry = GeoJsonWriter.createFeature(id, fType, rel.tags, null, meta);
 
-		mergeWithCenter(featureWithoutGeometry, geometry);
+		if (mergeCityPointsToBoundary) {
+			mergeWithCenter(featureWithoutGeometry, geometry);
+		}
 
 		assert GeoJsonWriter.getId(featureWithoutGeometry.toString()).equals(id)
 			: "Failed getId for " + featureWithoutGeometry.toString();
@@ -490,7 +688,7 @@ public class PlaceBuilder extends BoundariesBuilder {
 
 
 	@Override
-	protected void doneWay(WaysReader.Way line, MultiPolygon multiPolygon) {
+	protected void doneWay(Way line, MultiPolygon multiPolygon) {
 
 		String fType = FeatureTypes.PLACE_BOUNDARY_FTYPE;
 		Point originalCentroid = multiPolygon.getEnvelope().getCentroid();
@@ -498,7 +696,9 @@ public class PlaceBuilder extends BoundariesBuilder {
 		String id = GeoJsonWriter.getId(fType, originalCentroid, meta);
 		JSONObject featureWithoutGeometry = GeoJsonWriter.createFeature(id, fType, line.tags, null, meta);
 
-		mergeWithCenter(featureWithoutGeometry, multiPolygon);
+		if (mergeCityPointsToBoundary) {
+			mergeWithCenter(featureWithoutGeometry, multiPolygon);
+		}
 
 		assert GeoJsonWriter.getId(featureWithoutGeometry.toString()).equals(id)
 			: "Failed getId for " + featureWithoutGeometry.toString();
@@ -530,16 +730,19 @@ public class PlaceBuilder extends BoundariesBuilder {
 			for(int i = 0; i < geometry.getNumGeometries(); i++) {
 				Polygon polygon = (Polygon) geometry.getGeometryN(i);
 				if(!polygon.isEmpty() && polygon.isValid()) {
-					for(JSONObject pp : (List<JSONObject>)cityesIndex.query(polygon.getEnvelopeInternal())) {
-						Coordinate c = getCoordinateFromGJSON(pp);
-						if(polygon.contains(fatory.createPoint(c))) {
+					for(String ppId : (List<String>)cityesIndex.query(polygon.getEnvelopeInternal())) {
+						JSONObject pp = getCityById(ppId);
+						if (pp != null) {
+							Coordinate c = getCoordinateFromGJSON(pp);
+							if(polygon.contains(fatory.createPoint(c))) {
 
-							String placeName = pp.getJSONObject(GeoJsonWriter.PROPERTIES).optString("name");
-							if(namesMatcher.isPlaceNameMatch(placeName, pbNamesSet)) {
-								handlePlaceMatch(featureWithoutGeometry, pp);
-								return;
+								String placeName = pp.getJSONObject(GeoJsonWriter.PROPERTIES).optString("name");
+								if(namesMatcher.isPlaceNameMatch(placeName, pbNamesSet)) {
+									handlePlaceMatch(featureWithoutGeometry, pp);
+									return;
+								}
+
 							}
-
 						}
 					}
 				}

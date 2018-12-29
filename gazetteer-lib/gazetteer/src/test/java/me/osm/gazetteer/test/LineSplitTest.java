@@ -9,7 +9,6 @@ import me.osm.gazetteer.striper.Slicer;
 
 import org.json.JSONObject;
 import org.junit.Test;
-import org.junit.Ignore;
 
 import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.io.ParseException;
@@ -17,7 +16,7 @@ import com.vividsolutions.jts.io.WKTReader;
 
 public class LineSplitTest {
 
-	@Ignore @Test
+	@Test
 	public void test1() {
 		JSONObject obj = new JSONObject(Line1);
 

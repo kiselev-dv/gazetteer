@@ -12,14 +12,15 @@ import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
-import me.osm.gazetteer.Versions;
-import me.osm.gazetteer.striper.readers.RelationsReader;
 import org.apache.commons.lang3.StringUtils;
 
 import com.sun.xml.txw2.output.IndentingXMLStreamWriter;
 import com.vividsolutions.jts.geom.Envelope;
 
 import gnu.trove.set.hash.TLongHashSet;
+import me.osm.gazetteer.Versions;
+import me.osm.gazetteer.striper.readers.RelationsReader.Relation;
+import me.osm.gazetteer.striper.readers.RelationsReader.Relation.RelationMember;
 
 public class OSMXMLWriter {
 
@@ -159,7 +160,7 @@ public class OSMXMLWriter {
 		out.writeEndElement();
 	}
 
-	public void writeRelation(RelationsReader.Relation rel) {
+	public void writeRelation(Relation rel) {
 		try {
 			out.writeStartElement("relation");
 
@@ -167,7 +168,7 @@ public class OSMXMLWriter {
 
 			writeFakeAttributes();
 
-			for(RelationsReader.Relation.RelationMember rm : rel.members) {
+			for(RelationMember rm : rel.members) {
 				writeRelationMember(rm);
 			}
 
@@ -182,7 +183,7 @@ public class OSMXMLWriter {
 		}
 	}
 
-	private void writeRelationMember(RelationsReader.Relation.RelationMember rm) throws XMLStreamException {
+	private void writeRelationMember(RelationMember rm) throws XMLStreamException {
 		out.writeStartElement("relation");
 
 		out.writeAttribute("type", rm.type.name().toLowerCase());

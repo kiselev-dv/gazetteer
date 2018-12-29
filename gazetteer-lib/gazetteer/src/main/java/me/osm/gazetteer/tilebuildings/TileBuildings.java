@@ -9,16 +9,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import me.osm.gazetteer.striper.Engine;
-import me.osm.gazetteer.striper.readers.PointsReader;
-import me.osm.gazetteer.striper.readers.RelationsReader;
-import me.osm.gazetteer.striper.readers.WaysReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Point;
+
+import me.osm.gazetteer.striper.Engine;
+import me.osm.gazetteer.striper.readers.PointsReader.Node;
+import me.osm.gazetteer.striper.readers.RelationsReader.Relation;
+import me.osm.gazetteer.striper.readers.WaysReader.Way;
 
 public class TileBuildings implements Buildings3dHandler {
 
@@ -30,8 +31,8 @@ public class TileBuildings implements Buildings3dHandler {
 	private File dataDir;
 	private boolean diskIndex;
 
-	private Map<Long, PointsReader.Node> nodes;
-	private Map<Long, WaysReader.Way> ways;
+	private Map<Long, Node> nodes;
+	private Map<Long, Way> ways;
 	private Map<TileNumber, OSMXMLWriter> writers;
 
 	public TileBuildings(File dataDir, Integer lvl, File destFolder, List<String> exclude, boolean diskIndex) {
@@ -55,19 +56,19 @@ public class TileBuildings implements Buildings3dHandler {
 	}
 
 	@Override
-	public void saveNode(PointsReader.Node node) {
+	public void saveNode(Node node) {
 		this.nodes.put(node.id, node);
 	}
 
 	@Override
-	public void saveRelationWay(WaysReader.Way line, List<Point> coords) {
+	public void saveRelationWay(Way line, List<Point> coords) {
 		if (!line.tags.isEmpty()) {
 			this.ways.put(line.id, line);
 		}
 	}
 
 	@Override
-	public void handleWay(WaysReader.Way line, List<Point> coords) {
+	public void handleWay(Way line, List<Point> coords) {
 		Envelope bbox = new Envelope();
 		for (Point p : coords) {
 			bbox.expandToInclude(p.getEnvelopeInternal());
@@ -85,7 +86,7 @@ public class TileBuildings implements Buildings3dHandler {
 	private void writeWayNodes(List<Point> coords, OSMXMLWriter writer) {
 		for (Point p : coords) {
 			long id = (long) p.getUserData();
-			PointsReader.Node node = this.nodes.get(id);
+			Node node = this.nodes.get(id);
 			if (node != null) {
 				writer.writeNode(id, p.getCoordinate().x, p.getCoordinate().y, node.tags);
 
@@ -96,7 +97,7 @@ public class TileBuildings implements Buildings3dHandler {
 	}
 
 	@Override
-	public void handleRelation(RelationsReader.Relation rel, Map<Long, List<Point>> relationWays, List<Point> relationPoints) {
+	public void handleRelation(Relation rel, Map<Long, List<Point>> relationWays, List<Point> relationPoints) {
 		Envelope bbox = new Envelope();
 
 		// Count bbox only by outers/inners
@@ -116,7 +117,7 @@ public class TileBuildings implements Buildings3dHandler {
 			for (Entry<Long, List<Point>> pl : relationWays.entrySet()) {
 				writeWayNodes(pl.getValue(), writer);
 				long wayId = pl.getKey();
-				WaysReader.Way way = ways.get(wayId);
+				Way way = ways.get(wayId);
 				if (way != null) {
 					writer.writeWay(wayId, getIds(pl.getValue()), way.tags);
 				}

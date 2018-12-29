@@ -1,5 +1,8 @@
 package me.osm.gazetteer.striper;
 
+import static me.osm.gazetteer.join.out_handlers.GazetteerSchemeConstants.GAZETTEER_SCHEME_MD5;
+import static me.osm.gazetteer.join.out_handlers.GazetteerSchemeConstants.GAZETTEER_SCHEME_TIMESTAMP;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -8,7 +11,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
-import me.osm.gazetteer.join.out_handlers.GazetteerSchemeConstants;
 import me.osm.gazetteer.utils.HilbertCurveHasher;
 import me.osm.gazetteer.utils.JSONHash;
 
@@ -339,10 +341,10 @@ public class GeoJsonWriter {
 	}
 
 	private static final Set<String> hashIgnoreFields = new HashSet<String>(
-			Arrays.asList(new String[]{GazetteerSchemeConstants.GAZETTEER_SCHEME_TIMESTAMP}));
+			Arrays.asList(new String[]{GAZETTEER_SCHEME_TIMESTAMP}));
 
 	public static void addMD5(JSONObject poi) {
-		poi.put(GazetteerSchemeConstants.GAZETTEER_SCHEME_MD5, DigestUtils.md5Hex(JSONHash.asCanonicalString(
+		poi.put(GAZETTEER_SCHEME_MD5, DigestUtils.md5Hex(JSONHash.asCanonicalString(
 				poi, hashIgnoreFields)
 		));
 	}

@@ -5,9 +5,9 @@ import java.util.Map;
 
 import com.vividsolutions.jts.geom.Point;
 
-import me.osm.gazetteer.striper.readers.WaysReader;
 import me.osm.gazetteer.striper.readers.PointsReader.Node;
 import me.osm.gazetteer.striper.readers.RelationsReader.Relation;
+import me.osm.gazetteer.striper.readers.WaysReader.Way;
 
 public interface Buildings3dHandler {
 
@@ -16,11 +16,11 @@ public interface Buildings3dHandler {
 	void saveNode(Node node);
 
 
-	void handleWay(WaysReader.Way line, List<Point> coords);
+	void handleWay(Way line, List<Point> coords);
 
 	// Save it in memory, it might be needed to save it into
 	// two separate tiles to keep tiles consistent
-	void saveRelationWay(WaysReader.Way line, List<Point> coords);
+	void saveRelationWay(Way line, List<Point> coords);
 
 	void handleRelation(Relation rel, Map<Long, List<Point>> relationWays, List<Point> relationPoints);
 

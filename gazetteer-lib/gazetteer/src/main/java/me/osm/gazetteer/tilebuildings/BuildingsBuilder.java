@@ -29,6 +29,7 @@ import me.osm.gazetteer.utils.index.BBListIndexFactory;
 import me.osm.gazetteer.utils.index.BinaryIndex;
 import me.osm.gazetteer.utils.index.IndexFactory;
 import me.osm.gazetteer.utils.index.MMapIndexFactory;
+import me.osm.gazetteer.utils.index.BinaryIndex.IndexLineAccessMode;
 
 public class BuildingsBuilder extends ABuilder {
 
@@ -96,9 +97,10 @@ public class BuildingsBuilder extends ABuilder {
 		List<Point> relationPoints = new ArrayList<>();
 		Map<Long, List<Point>> relationWays = new HashMap<>();
 
-		int ri = node2relation.find(rel.id, n2rRelAccessor);
+		int ri = node2relation.find(rel.id, n2rRelAccessor, IndexLineAccessMode.UNLINKED);
 		if (ri >= 0) {
-			List<ByteBuffer> nodeBB = node2relation.findAll(ri, rel.id, n2rRelAccessor);
+			List<ByteBuffer> nodeBB = node2relation.findAll(
+					ri, rel.id, n2rRelAccessor, IndexLineAccessMode.UNLINKED);
 			for (ByteBuffer bb : nodeBB) {
 				double lon = bb.getDouble(8 + 8);
 				double lat = bb.getDouble(8 + 8 + 8);
@@ -108,9 +110,10 @@ public class BuildingsBuilder extends ABuilder {
 			}
 		}
 
-		ri = way2relation.find(rel.id, w2rRelAccessor);
+		ri = way2relation.find(rel.id, w2rRelAccessor, IndexLineAccessMode.UNLINKED);
 		if (ri >= 0) {
-			List<ByteBuffer> wayBB = node2relation.findAll(ri, rel.id, w2rRelAccessor);
+			List<ByteBuffer> wayBB = node2relation.findAll(
+					ri, rel.id, w2rRelAccessor, IndexLineAccessMode.UNLINKED);
 			for (ByteBuffer wbb : wayBB) {
 				long wayId = wbb.getLong(0);
 				List<ByteBuffer> wayPoints = getWayPoints(wayId);
@@ -164,9 +167,9 @@ public class BuildingsBuilder extends ABuilder {
 	}
 
 	private void handleIndexedWay(Way line) {
-		int w2rIndex = way2relation.find(line.id, w2rLineAccessor);
+		int w2rIndex = way2relation.find(line.id, w2rLineAccessor, IndexLineAccessMode.UNLINKED);
 
-		int i = node2way.find(line.id, n2wLineAccessor);
+		int i = node2way.find(line.id, n2wLineAccessor, IndexLineAccessMode.UNLINKED);
 		if (i >= 0 || w2rIndex >= 0) {
 			List<ByteBuffer> wayPoints = getWayPoints(line.id);
 			List<Point> coords = new ArrayList<>();
@@ -197,9 +200,10 @@ public class BuildingsBuilder extends ABuilder {
 	}
 
 	private List<ByteBuffer> getWayPoints(final long lineId) {
-		int i = node2way.find(lineId, n2wLineAccessor);
+		int i = node2way.find(lineId, n2wLineAccessor, IndexLineAccessMode.UNLINKED);
 
-		List<ByteBuffer> points = node2way.findAll(i, lineId, n2wLineAccessor);
+		List<ByteBuffer> points = node2way.findAll(
+				i, lineId, n2wLineAccessor, IndexLineAccessMode.UNLINKED);
 		Collections.sort(points, new Comparator<ByteBuffer>() {
 
 			@Override
@@ -215,7 +219,7 @@ public class BuildingsBuilder extends ABuilder {
 		if(line.isClosed() && isApplicable(line.tags)) {
 			indexLine(line);
 		}
-		else if (way2relation.find(line.id, w2rRelAccessor) >= 0) {
+		else if (way2relation.find(line.id, w2rRelAccessor, IndexLineAccessMode.IGNORE) >= 0) {
 			indexLine(line);
 		}
 	}
@@ -258,9 +262,11 @@ public class BuildingsBuilder extends ABuilder {
 	}
 
 	private boolean indexNode2Way(Node node) {
-		int ni = node2way.find(node.id, n2wNodeAccessor);
+		int ni = node2way.find(
+				node.id, n2wNodeAccessor, IndexLineAccessMode.LINKED);
 
-		for(ByteBuffer bb : node2way.findAll(ni, node.id, n2wNodeAccessor)) {
+		for(ByteBuffer bb : node2way.findAll(
+				ni, node.id, n2wNodeAccessor, IndexLineAccessMode.LINKED)) {
 			bb.putDouble(8 + 8 + 2, node.lon);
 			bb.putDouble(8 + 8 + 2 + 8, node.lat);
 		}
@@ -269,9 +275,10 @@ public class BuildingsBuilder extends ABuilder {
 	}
 
 	private boolean indexNode2Relation(Node node) {
-		int ni = node2relation.find(node.id, n2wNodeAccessor);
+		int ni = node2relation.find(node.id, n2wNodeAccessor, IndexLineAccessMode.LINKED);
 
-		for(ByteBuffer bb : node2relation.findAll(ni, node.id, n2rNodeAccessor)) {
+		for(ByteBuffer bb : node2relation.findAll(
+				ni, node.id, n2rNodeAccessor, IndexLineAccessMode.LINKED)) {
 			bb.putDouble(8 + 8, node.lon);
 			bb.putDouble(8 + 8 + 8, node.lat);
 		}

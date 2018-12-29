@@ -13,16 +13,16 @@
  * Details
  * -------
  *
- * * Entry point of split process is Slicer.run
+ * * Entry point of split process is me.osm.gazetteer.striper.Slicer.run
  *
- * * Slicer runs reading and filtering, and for
+ * * me.osm.gazetteer.striper.Slicer runs reading and filtering, and for
  *   red and filtered objects slices geometry into smaller peaces.
  *
  * * me.osm.gazetteer.striper.readers are responsible for xml stream parsing,
  *   they reads xml, create POJOs and calls
- *   PointsReader.PointsHandler,
- *   WaysReader.WaysHandler
- *   and RelationsReader.RelationsHandler accordingly.
+ *   me.osm.gazetteer.striper.readers.PointsReader.PointsHandler,
+ *   me.osm.gazetteer.striper.readers.WaysReader.WaysHandler
+ *   and me.osm.gazetteer.striper.readers.RelationsReader.RelationsHandler accordingly.
  *
  *
  * * me.osm.gazetteer.striper.builders are responsible for filtering xml data

@@ -1,5 +1,24 @@
 package me.osm.gazetteer.join.out_handlers;
 
+import static me.osm.gazetteer.join.out_handlers.GazetteerSchemeConstants.GAZETTEER_SCHEME_ADDRESS;
+import static me.osm.gazetteer.join.out_handlers.GazetteerSchemeConstants.GAZETTEER_SCHEME_ADDR_LEVEL;
+import static me.osm.gazetteer.join.out_handlers.GazetteerSchemeConstants.GAZETTEER_SCHEME_CENTER_POINT;
+import static me.osm.gazetteer.join.out_handlers.GazetteerSchemeConstants.GAZETTEER_SCHEME_FEATURE_ID;
+import static me.osm.gazetteer.join.out_handlers.GazetteerSchemeConstants.GAZETTEER_SCHEME_FULL_GEOMETRY;
+import static me.osm.gazetteer.join.out_handlers.GazetteerSchemeConstants.GAZETTEER_SCHEME_ID;
+import static me.osm.gazetteer.join.out_handlers.GazetteerSchemeConstants.GAZETTEER_SCHEME_NEARBY_PLACES;
+import static me.osm.gazetteer.join.out_handlers.GazetteerSchemeConstants.GAZETTEER_SCHEME_NEARBY_STREETS;
+import static me.osm.gazetteer.join.out_handlers.GazetteerSchemeConstants.GAZETTEER_SCHEME_NEAREST_NEIGHBOUR;
+import static me.osm.gazetteer.join.out_handlers.GazetteerSchemeConstants.GAZETTEER_SCHEME_NEAREST_PLACE;
+import static me.osm.gazetteer.join.out_handlers.GazetteerSchemeConstants.GAZETTEER_SCHEME_POI_ADDR_MATCH;
+import static me.osm.gazetteer.join.out_handlers.GazetteerSchemeConstants.GAZETTEER_SCHEME_POI_CLASS;
+import static me.osm.gazetteer.join.out_handlers.GazetteerSchemeConstants.GAZETTEER_SCHEME_POI_KEYWORDS;
+import static me.osm.gazetteer.join.out_handlers.GazetteerSchemeConstants.GAZETTEER_SCHEME_POI_TYPE_NAMES;
+import static me.osm.gazetteer.join.out_handlers.GazetteerSchemeConstants.GAZETTEER_SCHEME_REFS;
+import static me.osm.gazetteer.join.out_handlers.GazetteerSchemeConstants.GAZETTEER_SCHEME_TAGS;
+import static me.osm.gazetteer.join.out_handlers.GazetteerSchemeConstants.GAZETTEER_SCHEME_TIMESTAMP;
+import static me.osm.gazetteer.join.out_handlers.GazetteerSchemeConstants.GAZETTEER_SCHEME_TYPE;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
@@ -25,14 +44,6 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import me.osm.gazetteer.Options;
-import me.osm.gazetteer.join.util.ExportTagsStatisticCollector;
-import me.osm.gazetteer.out.AddrRowValueExctractorImpl;
-import me.osm.gazetteer.striper.FeatureTypes;
-import me.osm.gazetteer.striper.JSONFeature;
-import me.osm.gazetteer.utils.FileUtils;
-import me.osm.gazetteer.utils.JSONHash;
-import me.osm.gazetteer.utils.LocatePoint;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
@@ -49,8 +60,16 @@ import com.vividsolutions.jts.geom.LineString;
 import gnu.trove.impl.sync.TSynchronizedLongSet;
 import gnu.trove.set.TLongSet;
 import gnu.trove.set.hash.TLongHashSet;
+import me.osm.gazetteer.Options;
 import me.osm.gazetteer.addresses.AddressesUtils;
+import me.osm.gazetteer.join.util.ExportTagsStatisticCollector;
+import me.osm.gazetteer.out.AddrRowValueExctractorImpl;
+import me.osm.gazetteer.striper.FeatureTypes;
 import me.osm.gazetteer.striper.GeoJsonWriter;
+import me.osm.gazetteer.striper.JSONFeature;
+import me.osm.gazetteer.utils.FileUtils;
+import me.osm.gazetteer.utils.JSONHash;
+import me.osm.gazetteer.utils.LocatePoint;
 import me.osm.osmdoc.localization.L10n;
 import me.osm.osmdoc.model.Feature;
 import me.osm.osmdoc.model.Tag.Val;
@@ -132,7 +151,7 @@ public class GazetteerOutWriter extends AddressPerRowJOHBase  {
 	@Override
 	public JoinOutHandler initialize(HandlerOptions parsedOpts) {
 
-		if(parsedOpts.has("usage")) {
+		if(parsedOpts.has("usage") || parsedOpts.has("help")) {
 			printUsage();
 			System.exit(0);
 		}
@@ -212,7 +231,7 @@ public class GazetteerOutWriter extends AddressPerRowJOHBase  {
 
 	protected void printUsage() {
 		StringBuilder usage = new StringBuilder();
-		usage.append("Usage: join --handlers ").append(NAME).append("[out_file]");
+		usage.append("Usage: join --handlers ").append(NAME).append("[<out_file>|out=<out_file>]");
 
 		int i = 0;
 		for(String opt : OPTIONS) {
@@ -440,15 +459,15 @@ public class GazetteerOutWriter extends AddressPerRowJOHBase  {
 			String ftype = jsonObject.getString("ftype");
 			String rowId = AddrRowValueExctractorImpl.getUID(jsonObject, addrRow, ftype);
 
-			result.put(GazetteerSchemeConstants.GAZETTEER_SCHEME_ID, rowId);
-			result.put(GazetteerSchemeConstants.GAZETTEER_SCHEME_FEATURE_ID, jsonObject.getString("id"));
-			result.put(GazetteerSchemeConstants.GAZETTEER_SCHEME_TYPE, ftype);
-			result.put(GazetteerSchemeConstants.GAZETTEER_SCHEME_TIMESTAMP, jsonObject.getString("timestamp"));
+			result.put(GAZETTEER_SCHEME_ID, rowId);
+			result.put(GAZETTEER_SCHEME_FEATURE_ID, jsonObject.getString("id"));
+			result.put(GAZETTEER_SCHEME_TYPE, ftype);
+			result.put(GAZETTEER_SCHEME_TIMESTAMP, jsonObject.getString("timestamp"));
 			result.put("osm_id", jsonObject.getJSONObject("metainfo").get("id"));
 			result.put("osm_type", jsonObject.getJSONObject("metainfo").getString("type"));
 
 			if(fillAddrOpts.contains("obj")) {
-				result.put(GazetteerSchemeConstants.GAZETTEER_SCHEME_ADDRESS, addrRow);
+				result.put(GAZETTEER_SCHEME_ADDRESS, addrRow);
 			}
 
 			Set<String> langs = getLangs(addrRow);
@@ -475,22 +494,22 @@ public class GazetteerOutWriter extends AddressPerRowJOHBase  {
 				String minLVL = putAddrParts(result, refs, addrRow, mapLevels, langs);
 
 				if(fillAddrOpts.contains("ref")) {
-					result.put(GazetteerSchemeConstants.GAZETTEER_SCHEME_REFS, refs);
+					result.put(GAZETTEER_SCHEME_REFS, refs);
 				}
 
 				if(minLVL != null) {
-					result.put(GazetteerSchemeConstants.GAZETTEER_SCHEME_ADDR_LEVEL, minLVL);
+					result.put(GAZETTEER_SCHEME_ADDR_LEVEL, minLVL);
 				}
 			}
 
 			JSONObject properties = jsonObject.optJSONObject("properties");
 			if(properties != null) {
-				result.put(GazetteerSchemeConstants.GAZETTEER_SCHEME_TAGS, properties);
+				result.put(GAZETTEER_SCHEME_TAGS, properties);
 			}
 
 			JSONObject centroid = getCentroid(jsonObject, ftype);
 			if(centroid != null) {
-				result.put(GazetteerSchemeConstants.GAZETTEER_SCHEME_CENTER_POINT, centroid);
+				result.put(GAZETTEER_SCHEME_CENTER_POINT, centroid);
 			}
 
 			if(FeatureTypes.HIGHWAY_NET_FEATURE_TYPE.equals(ftype)) {
@@ -505,14 +524,14 @@ public class GazetteerOutWriter extends AddressPerRowJOHBase  {
 					if(g != null && g.isValid()) {
 
 						if(geom != null) {
-							String geomType = geom.getString(GazetteerSchemeConstants.GAZETTEER_SCHEME_TYPE);
+							String geomType = geom.getString(GAZETTEER_SCHEME_TYPE);
 							if (!geoJSONFormat) {
 								geomType = geomType.toLowerCase();
 							}
-							geom.put(GazetteerSchemeConstants.GAZETTEER_SCHEME_TYPE, geomType);
+							geom.put(GAZETTEER_SCHEME_TYPE, geomType);
 						}
 
-						result.put(GazetteerSchemeConstants.GAZETTEER_SCHEME_FULL_GEOMETRY, geom);
+						result.put(GAZETTEER_SCHEME_FULL_GEOMETRY, geom);
 					}
 				}
 			}
@@ -525,7 +544,7 @@ public class GazetteerOutWriter extends AddressPerRowJOHBase  {
 			return true;
 		}
 		catch (Exception e) {
-			log.error("Can't write {}", result.optString(GazetteerSchemeConstants.GAZETTEER_SCHEME_FEATURE_ID), e);
+			log.error("Can't write {}", result.optString(GAZETTEER_SCHEME_FEATURE_ID), e);
 			return false;
 		}
 	}
@@ -570,7 +589,7 @@ public class GazetteerOutWriter extends AddressPerRowJOHBase  {
 		JSONArray typesArray = jsonObject.getJSONArray("poiTypes");
 		JSONObject tags = jsonObject.getJSONObject("properties");
 
-		result.put(GazetteerSchemeConstants.GAZETTEER_SCHEME_POI_CLASS, typesArray);
+		result.put(GAZETTEER_SCHEME_POI_CLASS, typesArray);
 
 		List<Feature> poiClassess = new ArrayList<Feature>();
 		for(int i = 0; i < typesArray.length(); i++) {
@@ -598,7 +617,7 @@ public class GazetteerOutWriter extends AddressPerRowJOHBase  {
 				trans.put(className, classNameT);
 			}
 
-			result.put(GazetteerSchemeConstants.GAZETTEER_SCHEME_POI_TYPE_NAMES, trans);
+			result.put(GAZETTEER_SCHEME_POI_TYPE_NAMES, trans);
 		}
 
 		fillPoiAddrRefs(result, jsonObject, poiAddrMatch);
@@ -612,7 +631,7 @@ public class GazetteerOutWriter extends AddressPerRowJOHBase  {
 		LinkedHashSet<String> keywords = new LinkedHashSet<String>();
 		osmDocFacade.collectKeywords(poiClassess, moreTagsVals, keywords, null);
 
-		result.put(GazetteerSchemeConstants.GAZETTEER_SCHEME_POI_KEYWORDS, new JSONArray(keywords));
+		result.put(GAZETTEER_SCHEME_POI_KEYWORDS, new JSONArray(keywords));
 	}
 
 	protected void fillPoiAddrRefs(JSONFeature result, JSONObject jsonObject,
@@ -621,7 +640,7 @@ public class GazetteerOutWriter extends AddressPerRowJOHBase  {
 		JSONArray poiAddrRefs = new JSONArray();
 
 		if(poiAddrMatch != null) {
-			result.put(GazetteerSchemeConstants.GAZETTEER_SCHEME_POI_ADDR_MATCH, poiAddrMatch);
+			result.put(GAZETTEER_SCHEME_POI_ADDR_MATCH, poiAddrMatch);
 
 			if(!"boundaries".equals(poiAddrMatch)) {
 				Object matchedAddresses = jsonObject.getJSONObject("joinedAddresses").opt(poiAddrMatch);
@@ -892,11 +911,11 @@ public class GazetteerOutWriter extends AddressPerRowJOHBase  {
 				JSONObject place = asIdNameNames(nearestCitySRC, langs);
 				if(place != null) {
 					place.put("place", placeString);
-					if(place.has(GazetteerSchemeConstants.GAZETTEER_SCHEME_ID)) {
-						place.put(GazetteerSchemeConstants.GAZETTEER_SCHEME_ID, StringUtils.replace(place.getString(GazetteerSchemeConstants.GAZETTEER_SCHEME_ID),
+					if(place.has(GAZETTEER_SCHEME_ID)) {
+						place.put(GAZETTEER_SCHEME_ID, StringUtils.replace(place.getString(GAZETTEER_SCHEME_ID),
 								FeatureTypes.PLACE_DELONEY_FTYPE, FeatureTypes.PLACE_POINT_FTYPE));
 					}
-					result.put(GazetteerSchemeConstants.GAZETTEER_SCHEME_NEAREST_PLACE, place);
+					result.put(GAZETTEER_SCHEME_NEAREST_PLACE, place);
 				}
 			}
 		}
@@ -908,11 +927,11 @@ public class GazetteerOutWriter extends AddressPerRowJOHBase  {
 				JSONObject place = asIdNameNames(nearestCitySRC, langs);
 				if(place != null) {
 					place.put("place", placeString);
-					if(place.has(GazetteerSchemeConstants.GAZETTEER_SCHEME_ID)) {
-						place.put(GazetteerSchemeConstants.GAZETTEER_SCHEME_ID, StringUtils.replace(place.getString(GazetteerSchemeConstants.GAZETTEER_SCHEME_ID),
+					if(place.has(GAZETTEER_SCHEME_ID)) {
+						place.put(GAZETTEER_SCHEME_ID, StringUtils.replace(place.getString(GAZETTEER_SCHEME_ID),
 								FeatureTypes.PLACE_DELONEY_FTYPE, FeatureTypes.PLACE_POINT_FTYPE));
 					}
-					result.put(GazetteerSchemeConstants.GAZETTEER_SCHEME_NEAREST_NEIGHBOUR, place);
+					result.put(GAZETTEER_SCHEME_NEAREST_NEIGHBOUR, place);
 				}
 			}
 		}
@@ -926,14 +945,14 @@ public class GazetteerOutWriter extends AddressPerRowJOHBase  {
 				JSONObject place = asIdNameNames(placeSRC, langs);
 				if(place != null) {
 					place.put("place", placeString);
-					if(place.has(GazetteerSchemeConstants.GAZETTEER_SCHEME_ID)) {
-						place.put(GazetteerSchemeConstants.GAZETTEER_SCHEME_ID, StringUtils.replace(place.getString(GazetteerSchemeConstants.GAZETTEER_SCHEME_ID),
+					if(place.has(GAZETTEER_SCHEME_ID)) {
+						place.put(GAZETTEER_SCHEME_ID, StringUtils.replace(place.getString(GAZETTEER_SCHEME_ID),
 								FeatureTypes.PLACE_DELONEY_FTYPE, FeatureTypes.PLACE_POINT_FTYPE));
 					}
 					list.add(place);
 				}
 			}
-			result.put(GazetteerSchemeConstants.GAZETTEER_SCHEME_NEARBY_PLACES, new JSONArray(list));
+			result.put(GAZETTEER_SCHEME_NEARBY_PLACES, new JSONArray(list));
 		}
 	}
 
@@ -953,7 +972,7 @@ public class GazetteerOutWriter extends AddressPerRowJOHBase  {
 						streets.put(street);
 					}
 				}
-				result.put(GazetteerSchemeConstants.GAZETTEER_SCHEME_NEARBY_STREETS, streets);
+				result.put(GAZETTEER_SCHEME_NEARBY_STREETS, streets);
 			}
 		}
 	}
@@ -961,7 +980,7 @@ public class GazetteerOutWriter extends AddressPerRowJOHBase  {
 	protected JSONObject asIdNameNames(JSONObject src, Set<String> langs) {
 		JSONObject result = new JSONObject();
 
-		result.put(GazetteerSchemeConstants.GAZETTEER_SCHEME_ID, src.getString("id"));
+		result.put(GAZETTEER_SCHEME_ID, src.getString("id"));
 
 		JSONObject properties = src.optJSONObject("properties");
 		Map<String, String> nameTags = AddressesUtils.filterNameTags(properties);

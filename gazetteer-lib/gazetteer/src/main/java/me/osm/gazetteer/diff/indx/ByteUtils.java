@@ -1,5 +1,6 @@
 package me.osm.gazetteer.diff.indx;
 
+import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -7,6 +8,8 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
+
+import me.osm.gazetteer.diff.indx.ByteUtils.IdParts;
 
 public class ByteUtils {
 
@@ -42,7 +45,7 @@ public class ByteUtils {
 		IdParts result = new IdParts();
 		result.type = type;
 
-		bb.rewind();
+		((Buffer)bb).rewind();
 		int length = bb.get();
 		byte struct = bb.get();
 
@@ -66,16 +69,16 @@ public class ByteUtils {
 					if((osmid & (1L << 61)) != 0) {
 						ByteBuffer intpltnbb = ByteBuffer.allocate(8);
 						intpltnbb.putLong(osmiddec);
-						intpltnbb.position(2);
+						((Buffer)intpltnbb).position(2);
 
 						byte hi = intpltnbb.get();
 						byte low = intpltnbb.get();
 
 						ByteBuffer intbb = ByteBuffer.allocate(4);
-						intbb.position(2);
+						((Buffer)intbb).position(2);
 
 						intbb.put(hi).put(low);
-						intbb.rewind();
+						((Buffer)intbb).rewind();
 						int hash = intpltnbb.getInt();
 						String iPart = "i" + Integer.toUnsignedString(hash);
 
@@ -110,9 +113,9 @@ public class ByteUtils {
 			}
 			if (tl == 2) {
 				ByteBuffer tbb = ByteBuffer.allocate(4);
-				tbb.position(2);
+				((Buffer)tbb).position(2);
 				tbb.put(bb);
-				tbb.rewind();
+				((Buffer)tbb).rewind();
 				int tailTableIndex = tbb.getInt();
 				result.tail = tailsTable.get(tailTableIndex);
 			}
@@ -190,7 +193,7 @@ public class ByteUtils {
 			length += 1;
 
 			ByteBuffer t = tail;
-			t.rewind();
+			((Buffer)t).rewind();
 			tail = ByteBuffer.allocate(tail.capacity() + 1);
 			tail.put((byte) t.capacity()).put(t);
 			length += t.capacity();
@@ -207,7 +210,7 @@ public class ByteUtils {
 		}
 
 		if (tail != null) {
-			tail.rewind();
+			((Buffer)tail).rewind();
 			result.put(tail);
 		}
 
@@ -233,7 +236,7 @@ public class ByteUtils {
 
 		result.putInt(hash);
 
-		result.rewind();
+		((Buffer)result).rewind();
 		return result;
 	}
 
@@ -274,7 +277,7 @@ public class ByteUtils {
 			byte head = result.get(0);
 			result.put(0, (byte) (head | 128));
 		}
-		result.rewind();
+		((Buffer)result).rewind();
 		return result;
 	}
 

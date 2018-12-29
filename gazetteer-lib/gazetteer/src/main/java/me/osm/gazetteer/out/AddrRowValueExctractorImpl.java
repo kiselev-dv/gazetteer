@@ -9,6 +9,7 @@ import java.util.Set;
 import me.osm.gazetteer.addresses.AddressesSchemesParser;
 import me.osm.gazetteer.striper.FeatureTypes;
 import me.osm.gazetteer.striper.GeoJsonWriter;
+import me.osm.gazetteer.utils.JSONHash;
 
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONObject;

@@ -35,7 +35,7 @@ public class ByteBufferList implements BinaryIndex {
 	}
 
 	@Override
-	public int find(final long search, final Accessor accessor) {
+	public int find(final long search, final Accessor accessor, IndexLineAccessMode mode) {
 
 		return Collections.binarySearch(storage, null,
 				new Comparator<ByteBuffer>() {
@@ -65,28 +65,34 @@ public class ByteBufferList implements BinaryIndex {
 	}
 
 	@Override
-	public ByteBuffer get(int i)  {
-		return storage.get(i);
+	public ByteBuffer get(int i, IndexLineAccessMode mode)  {
+		ByteBuffer row = storage.get(i);
+
+		if (mode == IndexLineAccessMode.UNLINKED) {
+			return ByteBuffer.wrap(row.array());
+		}
+
+		return row;
 	}
 
 	@Override
-	public List<ByteBuffer> findAll(int index, long id, Accessor accessor) {
+	public List<ByteBuffer> findAll(int index, long id, Accessor accessor, IndexLineAccessMode mode) {
 		List<ByteBuffer> result = new ArrayList<ByteBuffer>();
 
 		if(index >= 0 ) {
-			result.add(get(index));
+			result.add(get(index, mode));
 			for(int i = 1; ;i++) {
 
 				boolean lp = false;
 				boolean ln = false;
 
-				ByteBuffer lineP = getSafe(index + i);
+				ByteBuffer lineP = getSafe(index + i, mode);
 				if(lineP != null && accessor.get(lineP) == id) {
 					result.add(lineP);
 					lp = true;
 				}
 
-				ByteBuffer lineN = getSafe(index - i);
+				ByteBuffer lineN = getSafe(index - i, mode);
 				if(lineN != null && accessor.get(lineN) == id) {
 					result.add(lineN);
 					ln = true;
@@ -118,9 +124,9 @@ public class ByteBufferList implements BinaryIndex {
 		return 0;
 	}
 
-	protected ByteBuffer getSafe(int i) {
+	protected ByteBuffer getSafe(int i, IndexLineAccessMode mode) {
 		if(i >= 0 && i < size()) {
-			return get(i);
+			return get(i, mode);
 		}
 		return null;
 	}

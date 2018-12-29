@@ -2,13 +2,16 @@ package me.osm.gazetteer.diff.readers;
 
 import java.io.PrintWriter;
 import java.util.Set;
+import java.util.TreeMap;
 
-import me.osm.gazetteer.diff.indx.DiffMapIndex;
 import me.osm.gazetteer.diff.Counters;
+import me.osm.gazetteer.diff.indx.DiffMapIndex;
+import me.osm.gazetteer.diff.indx.DiffMapIndex.DiffMapIndexRow;
 import me.osm.gazetteer.striper.GeoJsonWriter;
 import me.osm.gazetteer.utils.FileUtils.LineHandler;
 
 import org.apache.commons.lang3.StringUtils;
+import org.joda.time.DateTime;
 import org.json.JSONObject;
 
 /**
@@ -52,12 +55,12 @@ public final class DiffNewFileFirstPassReader implements LineHandler {
 		}
 		else {
 
-			DiffMapIndex.DiffMapIndexRow rowNew = new DiffMapIndex.DiffMapIndexRow();
+			DiffMapIndexRow rowNew = new DiffMapIndexRow();
 			rowNew.key = GeoJsonWriter.getId(s);
 			rowNew.timestamp = GeoJsonWriter.getTimestamp(s);
 			rowNew.hash = GeoJsonWriter.getMD5(s).hashCode();
 
-			DiffMapIndex.DiffMapIndexRow rowOld = map.get(rowNew.key);
+			DiffMapIndexRow rowOld = map.get(rowNew.key);
 			if(rowOld == null) {
 				outTmp.println("+ " + s);
 				counters.add++;

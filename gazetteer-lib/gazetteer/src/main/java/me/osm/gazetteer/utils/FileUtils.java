@@ -11,8 +11,10 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.io.RandomAccessFile;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
@@ -24,13 +26,15 @@ import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream;
  * */
 public class FileUtils {
 
+	private static final byte DELIMITER = (byte) '\n';
+
 	/**
 	 * Filter for readLines routine.
 	 *
 	 * Allows to filter lines during the iteration over
 	 * a list of lines from file.
 	 *
-	 * @see FileUtils.readLines(File, LineFilter)
+	 * @see me.osm.gazetteer.utils.FileUtils.readLines(File, LineFilter)
 	 * */
 	public static interface LineFilter {
 
@@ -45,7 +49,7 @@ public class FileUtils {
 	/**
 	 * Handles lines in file during the iteration over it.
 	 *
-	 * @see FileUtils.handleLines(InputStream, LineHandler)
+	 * @see me.osm.gazetteer.utils.FileUtils.handleLines(InputStream, LineHandler)
 	 * */
 	public static interface LineHandler {
 
@@ -310,6 +314,101 @@ public class FileUtils {
 	    final String[] units = new String[] { "B", "kB", "MB", "GB", "TB" };
 	    int digitGroups = (int) (Math.log10(size)/Math.log10(1024));
 	    return new DecimalFormat("#,##0.#").format(size/Math.pow(1024, digitGroups)) + " " + units[digitGroups];
+	}
+
+	public static List<String> binarySearch(RandomAccessFile raf, String prefix, Comparator<String> cmp) throws IOException {
+		List<String> result = new ArrayList<>();
+		binarySearch(raf, prefix, cmp, 0, raf.length(), result);
+		return result;
+	}
+
+	public static void binarySearch(RandomAccessFile raf, String prefix, Comparator<String> cmp,
+			long low, long high, List<String> result) throws IOException {
+
+		if (Math.abs(low - high) <= 1) {
+			return;
+		}
+
+        long m  = low + ((high - low) / 2);
+
+        // Search backwards for new line
+        String line = findLine(raf, m);
+
+        // We've found a match
+        if (cmp.compare(line, prefix) == 0) {
+        	long curentPointer = raf.getFilePointer();
+
+        	result.add(line);
+        	searchAround(raf, prefix, cmp, result, curentPointer - line.getBytes().length - 1);
+        	return;
+        }
+        else {
+        	int r = cmp.compare(line, prefix);
+
+        	if(r > 0) {
+                binarySearch(raf, prefix, cmp, low, m, result);
+            } else if (r < 0) {
+            	binarySearch(raf, prefix, cmp, m, high, result);
+            }
+        }
+	}
+
+	private static String searchAround(RandomAccessFile raf, String prefix,
+			Comparator<String> cmp, List<String> result, long curentPointer)
+			throws IOException {
+		// Now let's search forward
+		String line = raf.readLine();
+		while (line != null && cmp.compare(line, prefix) == 0) {
+			result.add(line);
+			line = raf.readLine();
+		}
+
+		// Now lets search backwards
+		if (curentPointer > 0) {
+			line = findLine(raf, curentPointer - 1);
+			while (line != null && cmp.compare(line, prefix) == 0) {
+				result.add(line);
+				curentPointer = raf.getFilePointer() - line.getBytes().length - 1;
+				if (curentPointer > 1) {
+					line = findLine(raf, curentPointer - 1);
+				}
+				else {
+					break;
+				}
+			}
+		}
+		return line;
+	}
+
+	private static String findLine(RandomAccessFile file, long position) throws IOException {
+		int bufferLength = 8 * 1024;
+
+		long low = position - bufferLength;
+
+		if(low < 0) {
+			// Beginning of the file
+			bufferLength = (int)position;
+			low = 0;
+		}
+		file.seek(low);
+
+		byte[] buffer = new byte[bufferLength];
+		int read = file.read(buffer);
+
+		// Now read the buffer from the end, to find new line
+		for (int i = read - 1;i >= 0; i--) {
+			if(DELIMITER == buffer[i]) {
+				file.seek(low + i + 1);
+				return file.readLine();
+			}
+		}
+
+		if (position - bufferLength <= 0) {
+			file.seek(0);
+			return file.readLine();
+		}
+
+		return findLine(file, position - bufferLength);
 	}
 
 }

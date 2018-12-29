@@ -16,12 +16,13 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import me.osm.gazetteer.join.out_handlers.JoinOutHandler;
-import me.osm.gazetteer.join.util.BoundaryCortage;
-import me.osm.gazetteer.utils.FileUtils;
 import me.osm.gazetteer.Options;
 import me.osm.gazetteer.addresses.AddressesParser;
+import me.osm.gazetteer.join.out_handlers.JoinOutHandler;
+import me.osm.gazetteer.join.util.BoundaryCortage;
 import me.osm.gazetteer.striper.GeoJsonWriter;
+import me.osm.gazetteer.utils.FileUtils;
+import me.osm.gazetteer.utils.FileUtils.LineHandler;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DurationFormatUtils;
@@ -158,7 +159,7 @@ public class JoinBoundariesExecutor {
 		final Map<Integer, List<BoundaryCortage>> boundariesByLevel = new LinkedHashMap<>();
 
 		// Говно, приходится грузить все
-		FileUtils.handleLines(binxFile, new FileUtils.LineHandler() {
+		FileUtils.handleLines(binxFile, new LineHandler() {
 
 			@Override
 			public void handle(String s) {
@@ -231,7 +232,7 @@ public class JoinBoundariesExecutor {
 			log.info("Done level {}", top);
 		}
 
-		FileUtils.handleLines(binxFile, new FileUtils.LineHandler() {
+		FileUtils.handleLines(binxFile, new LineHandler() {
 
 			@Override
 			public void handle(String s) {

@@ -3,8 +3,8 @@ package me.osm.gazetteer.addresses.sorters;
 import java.util.HashMap;
 import java.util.Map;
 
-import me.osm.gazetteer.addresses.AddressesLevelsMatcher;
 import me.osm.gazetteer.addresses.AddrLevelsComparator;
+import me.osm.gazetteer.addresses.AddressesLevelsMatcher;
 import me.osm.gazetteer.addresses.Constants;
 
 import org.apache.commons.lang3.ObjectUtils;

@@ -1,13 +1,15 @@
 package me.osm.gazetteer.striper;
 
+import static me.osm.gazetteer.utils.FileUtils.getFileIS;
+
 import java.io.File;
 import java.util.HashSet;
 
+import me.osm.gazetteer.striper.builders.Builder;
 import me.osm.gazetteer.striper.readers.PointsReader;
 import me.osm.gazetteer.striper.readers.RelationsReader;
 import me.osm.gazetteer.striper.readers.WaysReader;
 import me.osm.gazetteer.utils.FileUtils;
-import me.osm.gazetteer.striper.builders.Builder;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,33 +27,33 @@ public class Engine {
 		File rels = FileUtils.withGz(new File(datatDir + "/" + "rels.osm"));
 
 		try {
-			new RelationsReader(drop).read(FileUtils.getFileIS(rels), builders);
+			new RelationsReader(drop).read(getFileIS(rels), builders);
 			log.info("First run: done relations.");
 			for(Builder builder : builders) {
 				builder.firstRunDoneRelations();
 			}
 
-			new WaysReader(drop).read(FileUtils.getFileIS(ways), builders);
+			new WaysReader(drop).read(getFileIS(ways), builders);
 			log.info("First run: done ways.");
 			for(Builder builder : builders) {
 				builder.firstRunDoneWays();
 			}
 
 			PointsReader pr = new PointsReader(drop);
-			pr.read(FileUtils.getFileIS(nodes), builders);
+			pr.read(getFileIS(nodes), builders);
 			log.info("First run: done nodes.");
 			for(Builder builder : builders) {
 				builder.firstRunDoneNodes();
 			}
 			log.info("Yongest known timestamp of a node: " + pr.getLastNodeTimestamp());
 
-			new WaysReader(drop).read(FileUtils.getFileIS(ways), builders);
+			new WaysReader(drop).read(getFileIS(ways), builders);
 			log.info("Second run: done ways.");
 			for(Builder builder : builders) {
 				builder.secondRunDoneWays();
 			}
 
-			new RelationsReader(drop).read(FileUtils.getFileIS(rels), builders);
+			new RelationsReader(drop).read(getFileIS(rels), builders);
 			log.info("Second run: done relations.");
 			for(Builder builder : builders) {
 				builder.secondRunDoneRelations();
