@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 */bin/*
 */target/*
 .metadata/*
@@ -18,7 +17,7 @@ RemoteSystemsTempFiles/
 data/
 */.recomenders/*
 .recommenders/
-=======
+
 # Compiled class file
 *.class
 
@@ -32,7 +31,6 @@ data/
 .mtj.tmp/
 
 # Package Files #
-*.jar
 *.war
 *.ear
 *.zip
@@ -41,4 +39,22 @@ data/
 
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
->>>>>>> 1d40819fe5de342b5d214c0519a922123733ead0
+
+.DS_Store
+
+# sbt specific
+.cache
+.history
+target/
+lib_managed/
+src_managed/
+project/boot/
+project/plugins/project/
+
+# idea project
+.idea/
+
+# temp
+t/
+tmp/
+temp/

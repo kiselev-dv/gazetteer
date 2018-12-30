@@ -67,7 +67,7 @@ lazy val root = (project in file("."))
     .settings(commonSettings)
     .settings(
         assembleArtifact in assembly := false,
-        name := "gazetteer-deps",
+        name := "osm-gazetteer",
         unmanagedSourceDirectories in Compile := Nil,
         unmanagedResourceDirectories in Compile := Nil,
         unmanagedSourceDirectories in Test := Nil,
