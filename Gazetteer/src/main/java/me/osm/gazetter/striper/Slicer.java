@@ -213,7 +213,20 @@ public class Slicer implements BoundariesHandler,
 				Polygon p = (Polygon) (multiPolygon.getGeometryN(i));
 				
 				if (!p.isValid()) {
-					p = (Polygon) p.buffer(0.0);
+					Geometry g = p.buffer(0.0);
+					if (g instanceof Polygon) {
+						p = (Polygon) g;
+					}
+					else if (g instanceof MultiPolygon) {
+						double area = 0.0;
+						for (int n = 0; n < g.getNumGeometries(); n++) {
+							Polygon np = (Polygon) ((MultiPolygon)g).getGeometryN(n);
+							if (!np.isEmpty() && np.getArea() > area ) {
+								p = np;
+								area = np.getArea();
+							}
+						}
+					}
 				}
 
 				if(p.isValid()) {

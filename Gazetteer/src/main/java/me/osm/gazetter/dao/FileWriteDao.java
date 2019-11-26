@@ -54,10 +54,7 @@ public class FileWriteDao implements WriteDao {
 
 					File file = new File(dir.getAbsolutePath() + "/" + key + (useGZ ? ".gz" : ""));
 					
-					if(!file.exists()) {
-						file.createNewFile();
-					}
-					else if (PARTITION_STRIPE_FILES) {
+					if (PARTITION_STRIPE_FILES) {
 						List<Integer> existing = Files.walk(dir.toPath())
 							.filter(Files::isRegularFile)
 							.map(p -> p.getFileName().toString())
@@ -82,6 +79,9 @@ public class FileWriteDao implements WriteDao {
 					}
 					pw = FileUtils.getPrintWriterWithGZAppendTrick(file, true);
 
+					if(!file.exists()) {
+						file.createNewFile();
+					}
 					
 					writers.put(key, pw);
 				}
