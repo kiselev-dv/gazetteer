@@ -144,6 +144,10 @@ public class AddrPointsBuilder extends ABuilder {
 					return;
 				}
 				
+				if (coords.size() < 2) {
+					return;
+				}
+				
 				LineString l = factory.createLineString(coords.toArray(new Coordinate[coords.size()]));
 				lines.add(l);
 			}
