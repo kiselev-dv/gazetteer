@@ -120,6 +120,25 @@ public class FileUtils {
 			throw new RuntimeException("Failed to read file " + f.getName(), e);
 		}
 	}
+	
+	/**
+	 * Read files line by line, and pass lines without storing 
+	 * to the LineHandler.
+	 * <p>
+	 * If file ends with .gz or .bz2 - it will be readed with decompression
+	 * 
+	 * @param f - file to read
+	 * @param handler - callback interface
+	 * */
+	public static void handleLines(List<File> files, LineHandler handler) throws IOException {
+		for (File f : files) {
+			try {
+				handleLines(getFileIS(f), handler);
+			} catch (FileNotFoundException e) {
+				throw new RuntimeException("Failed to read file " + f.getName(), e);
+			}
+		}
+	}
 
 	/**
 	 * Read all lines in file into the List, with lines filtration.

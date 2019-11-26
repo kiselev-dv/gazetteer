@@ -23,7 +23,7 @@ import com.vividsolutions.jts.geom.GeometryFactory;
 public class SlicerTest {
 
 	private static GeometryFactory factory = new GeometryFactory();
-	private static Slicer slicer = new Slicer("");
+	private static Slicer slicer = new Slicer("", false);
 	private static WriteDao fakeWD = new FakeWriteDAO();
 	private static Map<String, List<String>> results = new HashMap<String, List<String>>();
 	

@@ -73,7 +73,7 @@ public class JoinSliceRunable implements Runnable {
 	private static final double STREET_BUFFER_DISTANCE = 1.0 / 111195.0 * 500;
 	private static final double POI_BUFFER_DISTANCE = 1.0 / 111195.0 * 100;
 	
-	private File src;
+	private List<File> src;
 	
 	// data and indexes 
 	private final List<JSONObject> addrPoints = new ArrayList<>();
@@ -158,7 +158,7 @@ public class JoinSliceRunable implements Runnable {
 	 * @param failureHandler
 	 * 			on fail callback
 	 */
-	public JoinSliceRunable(AddrJointHandler handler, File src, 
+	public JoinSliceRunable(AddrJointHandler handler, List<File> src, 
 			List<JSONObject> common, Set<String> filter, 
 			boolean buildStreetNetworks, 
 			boolean dropHghNetGeometries, JoinExecutor joiner, 
@@ -204,7 +204,7 @@ public class JoinSliceRunable implements Runnable {
 	@Override
 	public void run() {
 		
-		Thread.currentThread().setName("join-" + this.src.getName());
+		Thread.currentThread().setName("join-" + this.src.get(0).getName());
 		
 		try {
 			long total = new Date().getTime();
@@ -277,11 +277,11 @@ public class JoinSliceRunable implements Runnable {
 			write();
 
 			for(JoinOutHandler h : Options.get().getJoinOutHandlers()) {
-				h.stripeDone(this.src.getName());
+				h.stripeDone(this.src.get(0).getName());
 			}
 			
 			log.info("{} done in {}. {} left", 
-					this.src.getName(), 
+					this.src.get(0).getName(), 
 					DurationFormatUtils.formatDurationHMS(new Date().getTime() - total), 
 					this.stripesCounter.decrementAndGet());
 			
@@ -796,7 +796,7 @@ public class JoinSliceRunable implements Runnable {
 			
 			for(JoinOutHandler handler : Options.get().getJoinOutHandlers()) {
 				try {
-					handler.handle(poi, this.src.getName());
+					handler.handle(poi, this.src.get(0).getName());
 				}
 				catch (Exception e) {
 					String id = poi.optString("id"); 

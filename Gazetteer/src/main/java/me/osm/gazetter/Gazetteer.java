@@ -247,7 +247,7 @@ public class Gazetteer {
 					types.addAll((Collection<String>)namespace.get(FEATURE_TYPES_VAL));
 				}
 				
-				new Slicer(data_dir).run(
+				new Slicer(data_dir, namespace.getBoolean("use_partitions")).run(
 						namespace.getString(POI_CATALOG_VAL), 
 						types,
 						list(namespace.getList(EXCCLUDE_POI_BRANCH_VAL)),
@@ -551,6 +551,10 @@ public class Gazetteer {
 			slice.addArgument("--skip-nearest-city").setConst(Boolean.TRUE)
 				.setDefault(Boolean.FALSE).action(new StoreTrueArgumentAction())
 				.help("Use only polygonal boundaries for cities");
+			
+			slice.addArgument("--use-partitions").setConst(Boolean.TRUE)
+				.setDefault(Boolean.FALSE).action(new StoreTrueArgumentAction())
+				.help("Instead of appending to slice files, create a new file.");
 			
 		}
 

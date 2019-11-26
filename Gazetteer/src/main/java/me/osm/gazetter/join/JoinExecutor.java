@@ -4,28 +4,32 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FilenameFilter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import me.osm.gazetter.Options;
-import me.osm.gazetter.join.out_handlers.JoinOutHandler;
-import me.osm.gazetter.join.util.JoinFailuresHandler;
-import me.osm.gazetter.join.util.MemorySupervizor;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DurationFormatUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import me.osm.gazetter.Options;
+import me.osm.gazetter.join.out_handlers.JoinOutHandler;
+import me.osm.gazetter.join.util.JoinFailuresHandler;
+import me.osm.gazetter.join.util.MemorySupervizor;
 
 public class JoinExecutor implements JoinFailuresHandler{
 
@@ -71,7 +75,7 @@ public class JoinExecutor implements JoinFailuresHandler{
 
 		@Override
 		public boolean accept(File dir, String name) {
-			return name.matches("stripe[\\.\\d-_]+\\.gjson(\\.gz)?(?!.)");
+			return name.matches("stripe[\\.\\d-_]+\\.gjson(\\.[\\d]+)?(\\.gz)?(?!.)");
 		}
 
 	}
@@ -125,7 +129,7 @@ public class JoinExecutor implements JoinFailuresHandler{
 						- start));
 	}
 
-	private final List<File> fails = Collections.synchronizedList(new ArrayList<File>());
+	private final List<List<File>> fails = Collections.synchronizedList(new ArrayList<List<File>>());
 
 	private boolean buildStreetNetworks = true;
 
@@ -146,9 +150,19 @@ public class JoinExecutor implements JoinFailuresHandler{
 			log.info("Data directory is empty, nothing to join");
 			return;
 		}
-		stripesCounter = new AtomicInteger(stripesFiles.length);
+		
+		LinkedHashMap<String, List<File>> fileByStripe = new LinkedHashMap<String, List<File>>();
+		Pattern p = Pattern.compile("stripe[\\.\\d-_]+\\.gjson");
+		Arrays.stream(stripesFiles).forEach(f -> {
+			String key = p.matcher(f.getName()).group(0);
+			fileByStripe.getOrDefault(key, new ArrayList<File>(1)).add(f);
+		});
+		
+		
+		stripesCounter = new AtomicInteger(fileByStripe.size());
 		fails.clear();
-		for(File stripeF : stripesFiles) {
+		
+		for(List<File> stripeF : fileByStripe.values()) {
 			tryToExecute(common, threads, queue, executorService, stripeF);
 		}
 
@@ -166,9 +180,9 @@ public class JoinExecutor implements JoinFailuresHandler{
 			log.info("Rerun join for {} from {} files. In one thread.", fails.size(), stripesFiles.length);
 		}
 
-		ArrayList<File> oneThread = new ArrayList<File>(fails);
+		List<List<File>> oneThread = new ArrayList<List<File>>(fails);
 		fails.clear();
-		for(File stripeF : oneThread ) {
+		for(List<File> stripeF : oneThread ) {
 			new JoinSliceRunable(addrPointFormatter, stripeF, common,
 					filter, buildStreetNetworks, dropHghNetGeometries, this, this).run();
 		}
@@ -180,7 +194,7 @@ public class JoinExecutor implements JoinFailuresHandler{
 
 	private void tryToExecute(List<JSONObject> common, int threads,
 			LinkedBlockingQueue<Runnable> queue,
-			ExecutorService executorService, File stripeF) {
+			ExecutorService executorService, List<File> stripeF) {
 
 		int ntries = 10;
 		
@@ -239,7 +253,7 @@ public class JoinExecutor implements JoinFailuresHandler{
 					}
 
 				} catch (Exception e) {
-					throw new RuntimeException("Failed to read coomon part.", e);
+					throw new RuntimeException("Failed to read common part.", e);
 				}
 			}
 		}
@@ -253,7 +267,7 @@ public class JoinExecutor implements JoinFailuresHandler{
 	}
 
 	@Override
-	public void failed(File f) {
+	public void failed(List<File> f) {
 		fails.add(f);
 	}
 
