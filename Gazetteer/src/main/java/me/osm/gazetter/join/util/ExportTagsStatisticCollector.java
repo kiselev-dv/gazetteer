@@ -7,14 +7,14 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import me.osm.osmdoc.model.Feature;
-import me.osm.osmdoc.model.Tag;
-import me.osm.osmdoc.model.Tag.Val;
-import me.osm.osmdoc.read.tagvalueparsers.TagValueParser;
-import me.osm.osmdoc.read.tagvalueparsers.TagsStatisticCollector;
-
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONObject;
+
+import me.osm.osmdoc.model.v2.Feature;
+import me.osm.osmdoc.model.v2.Tag;
+import me.osm.osmdoc.model.v2.Tag.Val;
+import me.osm.osmdoc.read.tagvalueparsers.TagValueParser;
+import me.osm.osmdoc.read.tagvalueparsers.TagsStatisticCollector;
 
 public class ExportTagsStatisticCollector implements TagsStatisticCollector {
 	

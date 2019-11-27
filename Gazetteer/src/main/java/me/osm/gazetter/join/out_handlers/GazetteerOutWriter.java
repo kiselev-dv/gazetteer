@@ -38,7 +38,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -71,8 +70,9 @@ import me.osm.gazetter.utils.FileUtils;
 import me.osm.gazetter.utils.JSONHash;
 import me.osm.gazetter.utils.LocatePoint;
 import me.osm.osmdoc.localization.L10n;
-import me.osm.osmdoc.model.Feature;
-import me.osm.osmdoc.model.Tag.Val;
+import me.osm.osmdoc.model.v2.Feature;
+import me.osm.osmdoc.model.v2.LangString;
+import me.osm.osmdoc.model.v2.Tag.Val;
 import me.osm.osmdoc.read.DOCFileReader;
 import me.osm.osmdoc.read.DOCFolderReader;
 import me.osm.osmdoc.read.DOCReader;
@@ -610,9 +610,11 @@ public class GazetteerOutWriter extends AddressPerRowJOHBase  {
 			for(Feature f : poiClassess) {
 				String className = f.getName();
 				JSONObject classNameT = new JSONObject();
-				String title = f.getTitle();
-				for(String sl : L10n.supported) {
-					classNameT.put(sl, L10n.tr(title, Locale.forLanguageTag(sl)));
+				
+				for(LangString title : f.getTitle()) {
+					if(L10n.supported.contains(title.getLang())) {
+						classNameT.put(title.getLang(), title.getValue());
+					}
 				}
 				trans.put(className, classNameT);
 			}
@@ -624,7 +626,7 @@ public class GazetteerOutWriter extends AddressPerRowJOHBase  {
 
 		Map<String, List<Val>> moreTagsVals = new HashMap<String, List<Val>>();
 		JSONObject moreTags = osmDocFacade.parseMoreTags(poiClassess, tags,
-				tagStatistics, moreTagsVals);
+				tagStatistics, moreTagsVals, false);
 
 		result.put("more_tags", moreTags);
 

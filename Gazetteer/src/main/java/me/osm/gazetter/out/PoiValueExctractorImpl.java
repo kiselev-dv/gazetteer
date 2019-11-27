@@ -10,16 +10,15 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
-import me.osm.gazetter.striper.GeoJsonWriter;
-import me.osm.osmdoc.model.Feature;
-import me.osm.osmdoc.model.MoreTags;
-import me.osm.osmdoc.model.Tag;
-import me.osm.osmdoc.model.Tag.TagValueType;
-import me.osm.osmdoc.model.Tag.Val;
-import me.osm.osmdoc.read.OSMDocFacade;
-
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONObject;
+
+import me.osm.gazetter.striper.GeoJsonWriter;
+import me.osm.osmdoc.model.v2.Feature;
+import me.osm.osmdoc.model.v2.MoreTags;
+import me.osm.osmdoc.model.v2.Tag;
+import me.osm.osmdoc.model.v2.Tag.Val;
+import me.osm.osmdoc.read.OSMDocFacade;
 
 public class PoiValueExctractorImpl extends FeatureValueExctractorImpl {
 	
@@ -85,7 +84,7 @@ public class PoiValueExctractorImpl extends FeatureValueExctractorImpl {
 					
 					String valueString = Objects.toString(properties.opt(tagKey), "");
 					String valueName = valueString;
-					if(td.getTagValueType() == TagValueType.ENUM && lang != null) {
+					if(td.getTagValueType() == "enum" && lang != null) {
 						
 						//drop tag if there is no translated value parsed. 
 						valueName = "";
