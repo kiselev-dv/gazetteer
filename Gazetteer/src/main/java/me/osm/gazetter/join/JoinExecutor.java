@@ -15,11 +15,8 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DurationFormatUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -30,6 +27,7 @@ import me.osm.gazetter.Options;
 import me.osm.gazetter.join.out_handlers.JoinOutHandler;
 import me.osm.gazetter.join.util.JoinFailuresHandler;
 import me.osm.gazetter.join.util.MemorySupervizor;
+import me.osm.gazetter.utils.FileUtils;
 
 public class JoinExecutor implements JoinFailuresHandler{
 
@@ -152,12 +150,13 @@ public class JoinExecutor implements JoinFailuresHandler{
 		}
 		
 		LinkedHashMap<String, List<File>> fileByStripe = new LinkedHashMap<String, List<File>>();
-		Pattern p = Pattern.compile("stripe[\\.\\d-_]+\\.gjson");
 		Arrays.stream(stripesFiles).forEach(f -> {
-			String key = p.matcher(f.getName()).group(0);
-			fileByStripe.getOrDefault(key, new ArrayList<File>(1)).add(f);
+			String name = FileUtils.findStripeName(f);
+			if(name != null) {
+				fileByStripe.putIfAbsent(name, new ArrayList<File>(1));
+				fileByStripe.get(name).add(f);
+			}
 		});
-		
 		
 		stripesCounter = new AtomicInteger(fileByStripe.size());
 		fails.clear();

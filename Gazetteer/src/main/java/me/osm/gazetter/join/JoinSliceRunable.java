@@ -204,7 +204,7 @@ public class JoinSliceRunable implements Runnable {
 	@Override
 	public void run() {
 		
-		Thread.currentThread().setName("join-" + this.src.get(0).getName());
+		Thread.currentThread().setName("join-" + FileUtils.findStripeName(this.src.get(0)));
 		
 		try {
 			long total = new Date().getTime();
@@ -277,11 +277,11 @@ public class JoinSliceRunable implements Runnable {
 			write();
 
 			for(JoinOutHandler h : Options.get().getJoinOutHandlers()) {
-				h.stripeDone(this.src.get(0).getName());
+				h.stripeDone(FileUtils.findStripeName(this.src.get(0)));
 			}
 			
 			log.info("{} done in {}. {} left", 
-					this.src.get(0).getName(), 
+					FileUtils.findStripeName(this.src.get(0)), 
 					DurationFormatUtils.formatDurationHMS(new Date().getTime() - total), 
 					this.stripesCounter.decrementAndGet());
 			
@@ -796,7 +796,7 @@ public class JoinSliceRunable implements Runnable {
 			
 			for(JoinOutHandler handler : Options.get().getJoinOutHandlers()) {
 				try {
-					handler.handle(poi, this.src.get(0).getName());
+					handler.handle(poi, FileUtils.findStripeName(this.src.get(0)));
 				}
 				catch (Exception e) {
 					String id = poi.optString("id"); 

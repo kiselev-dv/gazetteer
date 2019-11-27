@@ -85,7 +85,12 @@ public class Split implements LineHandler {
 		relPW.println(HEADER);
 		relPW.println("<osm>");
 		
-		FileUtils.handleLines(fileIS, this);
+		try {
+			FileUtils.handleLines(fileIS, this);
+		}
+		catch (Exception e) {
+			throw new Error(e);
+		}
 		
 		done();
 		log.info("Split done in {}", DurationFormatUtils.formatDurationHMS(new Date().getTime() - start));

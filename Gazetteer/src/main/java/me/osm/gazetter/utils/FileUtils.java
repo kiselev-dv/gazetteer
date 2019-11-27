@@ -1,6 +1,7 @@
 package me.osm.gazetter.utils;
 
 import java.io.BufferedReader;
+import java.io.EOFException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -16,10 +17,13 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
 import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream;
+import org.slf4j.LoggerFactory;
 
 /**
  * File reading and writing utilities
@@ -27,6 +31,8 @@ import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream;
 public class FileUtils {
 	
 	private static final byte DELIMITER = (byte) '\n';
+	
+	private static final Pattern STRIPE_NAME_PATTERN = Pattern.compile("stripe[\\.\\d-_]+\\.gjson");
 
 	/**
 	 * Filter for readLines routine.
@@ -78,8 +84,9 @@ public class FileUtils {
 	 * 
 	 * @param f - input stream to read from
 	 * @param handler - lines handler callback 
+	 * @throws IOException 
 	 * */
-	public static void handleLines(InputStream f, LineHandler handler) {
+	public static void handleLines(InputStream f, LineHandler handler) throws IOException {
 		BufferedReader bufferedReader = null;
 		try {
 			bufferedReader = new BufferedReader(new InputStreamReader(f, "UTF8"));
@@ -91,9 +98,8 @@ public class FileUtils {
 				}
 				line = bufferedReader.readLine();
 			} while (line != null);
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		} finally {
+		}
+		finally {
 			if (bufferedReader != null) {
 				try {
 					bufferedReader.close();
@@ -134,8 +140,12 @@ public class FileUtils {
 		for (File f : files) {
 			try {
 				handleLines(getFileIS(f), handler);
-			} catch (FileNotFoundException e) {
+			} 
+			catch (FileNotFoundException e) {
 				throw new RuntimeException("Failed to read file " + f.getName(), e);
+			}
+			catch (EOFException e) {
+				LoggerFactory.getLogger(FileUtils.class).warn("Skip {} error {}", f, e.getMessage());
 			}
 		}
 	}
@@ -335,6 +345,14 @@ public class FileUtils {
 	    return new DecimalFormat("#,##0.#").format(size/Math.pow(1024, digitGroups)) + " " + units[digitGroups];
 	}
 
+	public static String findStripeName(File file) {
+		Matcher matcher = STRIPE_NAME_PATTERN.matcher(file.getName());
+		if(matcher.find()) {
+			return matcher.group(0);
+		}
+		return null;
+	}
+	
 	public static List<String> binarySearch(RandomAccessFile raf, String prefix, Comparator<String> cmp) throws IOException {
 		List<String> result = new ArrayList<>();
 		binarySearch(raf, prefix, cmp, 0, raf.length(), result);
