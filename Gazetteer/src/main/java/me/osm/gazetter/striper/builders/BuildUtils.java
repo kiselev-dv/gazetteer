@@ -253,7 +253,7 @@ public class BuildUtils {
 						sb.append("\n").append(wktWriter.write(ls));
 					}
 					
-					log.warn("Cant polygonize relation: {} \nLines ({}):{}\nCause: {}", new Object[]{
+					log.warn(LOGMarkers.E_POLYGON_BUID_ERR, "Cant polygonize relation: rel_osm_id({}) \nLines ({}):{}\nCause: {}", new Object[]{
 							rel.id,
 							linestrings.size(),
 							sb.toString(),

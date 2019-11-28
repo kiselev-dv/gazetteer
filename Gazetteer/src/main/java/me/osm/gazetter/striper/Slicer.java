@@ -13,6 +13,7 @@ import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.lang3.time.DurationFormatUtils;
@@ -456,21 +457,33 @@ public class Slicer implements BoundariesHandler,
 			try {
 				List<LineString> segments = stripe(geometry);
 
-				for(LineString stripe : segments) {
-					String n = getFilePrefix(stripe.getCentroid().getX(), stripe.getCentroid().getY());
-					String featureAsGeoJSON = GeoJsonWriter.featureAsGeoJSON(fid, FeatureTypes.HIGHWAY_FEATURE_TYPE, way.tags, stripe, meta);
-					
-					assert GeoJsonWriter.getId(featureAsGeoJSON).equals(fid) 
-					: "Failed getId for " + featureAsGeoJSON;
-					
-					assert GeoJsonWriter.getFtype(featureAsGeoJSON).equals(FeatureTypes.HIGHWAY_FEATURE_TYPE) 
-					: "Failed getFtype for " + featureAsGeoJSON;
-					
-					writeOut(featureAsGeoJSON, n);
+				List<LineString> filtered = segments.stream()
+					.filter(s -> !s.isEmpty())
+					.filter(s -> !s.getCentroid().isEmpty())
+					.collect(Collectors.toList());
+				
+				if (!filtered.isEmpty()) {
+					for(LineString stripe : filtered) {
+						String n = getFilePrefix(stripe.getCentroid().getX(), stripe.getCentroid().getY());
+						String featureAsGeoJSON = GeoJsonWriter.featureAsGeoJSON(fid, FeatureTypes.HIGHWAY_FEATURE_TYPE, way.tags, stripe, meta);
+						
+						assert GeoJsonWriter.getId(featureAsGeoJSON).equals(fid) 
+						: "Failed getId for " + featureAsGeoJSON;
+						
+						assert GeoJsonWriter.getFtype(featureAsGeoJSON).equals(FeatureTypes.HIGHWAY_FEATURE_TYPE) 
+						: "Failed getFtype for " + featureAsGeoJSON;
+						
+						writeOut(featureAsGeoJSON, n);
+					}
+				}
+				else {
+					log.warn("Failed to stripe LINESTRING for osm_way_id({}) segments are empty after stripe.", way.id);
 				}
 			}
 			catch (Throwable e) {
-				log.warn("Failed to stripe {}. Because of: ", geometry, ExceptionUtils.getRootCause(e));
+				Throwable root = ExceptionUtils.getRootCause(e);
+				root = root != null ? root : e;
+				log.warn("Failed to stripe LINESTRING for osm_way_id({})", way.id, root);
 			}
 		}
 	}
