@@ -16,27 +16,6 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import me.osm.gazetter.Options;
-import me.osm.gazetter.addresses.AddrLevelsComparator;
-import me.osm.gazetter.addresses.AddrLevelsSorting;
-import me.osm.gazetter.addresses.AddressesParser;
-import me.osm.gazetter.addresses.AddressesUtils;
-import me.osm.gazetter.addresses.NamesMatcher;
-import me.osm.gazetter.addresses.sorters.CityStreetHNComparator;
-import me.osm.gazetter.addresses.sorters.HNStreetCityComparator;
-import me.osm.gazetter.addresses.sorters.StreetHNCityComparator;
-import me.osm.gazetter.join.PoiAddrJoinBuilder.BestFitAddresses;
-import me.osm.gazetter.join.out_handlers.JoinOutHandler;
-import me.osm.gazetter.join.util.JoinFailuresHandler;
-import me.osm.gazetter.join.util.JsonObjectWrapper;
-import me.osm.gazetter.join.util.MemorySupervizor;
-import me.osm.gazetter.join.util.MemorySupervizor.InsufficientMemoryException;
-import me.osm.gazetter.striper.FeatureTypes;
-import me.osm.gazetter.striper.GeoJsonWriter;
-import me.osm.gazetter.striper.JSONFeature;
-import me.osm.gazetter.utils.FileUtils;
-import me.osm.gazetter.utils.FileUtils.LineHandler;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DurationFormatUtils;
 import org.json.JSONArray;
@@ -56,6 +35,26 @@ import com.vividsolutions.jts.index.SpatialIndex;
 import com.vividsolutions.jts.index.quadtree.Quadtree;
 import com.vividsolutions.jts.index.strtree.STRtree;
 import com.vividsolutions.jts.operation.buffer.BufferOp;
+
+import me.osm.gazetter.Options;
+import me.osm.gazetter.addresses.AddrLevelsComparator;
+import me.osm.gazetter.addresses.AddrLevelsSorting;
+import me.osm.gazetter.addresses.AddressesParser;
+import me.osm.gazetter.addresses.AddressesUtils;
+import me.osm.gazetter.addresses.NamesMatcher;
+import me.osm.gazetter.addresses.sorters.CityStreetHNComparator;
+import me.osm.gazetter.addresses.sorters.HNStreetCityComparator;
+import me.osm.gazetter.addresses.sorters.StreetHNCityComparator;
+import me.osm.gazetter.join.PoiAddrJoinBuilder.BestFitAddresses;
+import me.osm.gazetter.join.out_handlers.JoinOutHandler;
+import me.osm.gazetter.join.util.JoinFailuresHandler;
+import me.osm.gazetter.join.util.MemorySupervizor;
+import me.osm.gazetter.join.util.MemorySupervizor.InsufficientMemoryException;
+import me.osm.gazetter.striper.FeatureTypes;
+import me.osm.gazetter.striper.GeoJsonWriter;
+import me.osm.gazetter.striper.JSONFeature;
+import me.osm.gazetter.utils.FileUtils;
+import me.osm.gazetter.utils.FileUtils.LineHandler;
 
 /**
  * Join features from one stripe
@@ -855,34 +854,22 @@ public class JoinSliceRunable implements Runnable {
 		Coordinate pntc = new Coordinate(pntg.getDouble(0), pntg.getDouble(1));
 		final Point pnt = factory.createPoint(pntc);
 		
-		Collections.sort(list, new Comparator<JSONObject>() {
-
-			@Override
-			public int compare(JSONObject o1, JSONObject o2) {
-				LineString ls1 = GeoJsonWriter.getLineStringGeometry(
-						o1.getJSONObject("geometry").getJSONArray("coordinates"));
+		Collections.sort(list, 
+			Comparator.comparing((JSONObject json) -> {
+			
+				// around 10 cm after being rounded
+				return Math.round(1000000.0 * GeoJsonWriter.getLineStringGeometry(
+						json.getJSONObject("geometry").getJSONArray("coordinates")).distance(pnt));
+			
+			}).thenComparing((JSONObject json) -> {
 				
-				LineString ls2 = GeoJsonWriter.getLineStringGeometry(
-						o2.getJSONObject("geometry").getJSONArray("coordinates"));
-
 				// That's possible to get two streets on the exactly the same distance
 				// for instance two segments of the corner, with building close to the
 				// corner.
-				double d1 = ls1.distance(pnt);
-				double d2 = ls2.distance(pnt);
-				
-				// around 10 cm
-				if(Math.abs(d1 - d2) < 1.0 / 1000000.0) {
-					String id1 = o1.getString("id");
-					String id2 = o2.getString("id");
-					
-					return id1.compareTo(id2);
-				}
-				
-				return Double.compare(d1, d2);
-			}
+				return json.getString("id");
 			
-		});
+			}) 
+		);
 		
 		return list;
 	}
