@@ -16,10 +16,10 @@ You can use Gazetteer as standalone *osm* processor, to dump addresses from *osm
 You can ignore GazetteerWeb and use data in your own geocoding/geosearching applications.
 Take an osm.bz2 dump and generate `json` with
 
-* full geocoded buildins
+* full geocoded buildings
 * full geocoded POIs
 * streets
-* cyties
+* cities
 * administrative boundaries
 
 Details are here https://github.com/kiselev-dv/gazetteer/tree/develop/Gazetteer
