@@ -40,6 +40,7 @@ import net.sourceforge.argparse4j.inf.Subparsers;
  */
 public class Gazetteer {
 	
+	private static final String MAX_OPEN_FILES = "--max-open-files";
 	private static final String OUT_CSV = "--out-csv";
 	private static final String OUT_JSON = "--out-json";
 	private static final String BOUNDARIES_FALLBACK_TYPES = "--boundaries-fallback-types";
@@ -231,7 +232,9 @@ public class Gazetteer {
 					types.addAll((Collection<String>)namespace.get(FEATURE_TYPES_VAL));
 				}
 				
-				new Slicer(data_dir, namespace.getBoolean("use_partitions")).run(
+				int maxFiles = namespace.getInt(MAX_OPEN_FILES);
+				
+				new Slicer(data_dir, namespace.getBoolean("use_partitions"), maxFiles).run(
 						namespace.getString(POI_CATALOG), 
 						types,
 						list(namespace.getList(EXCCLUDE_POI_BRANCH)),
@@ -558,6 +561,9 @@ public class Gazetteer {
 				.setDefault(Boolean.FALSE).action(new StoreTrueArgumentAction())
 				.help("Instead of appending to slice files, create a new file.");
 			
+			slice.addArgument(MAX_OPEN_FILES).setDefault(1024)
+				.help("Set how many simultainesly open files to use. "
+						+ "Use together with --use-partitions.");
 		}
 
 		//join

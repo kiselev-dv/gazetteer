@@ -75,9 +75,9 @@ public class Slicer implements BoundariesHandler,
 			"all", "boundaries", "places", "highways", "addresses", "pois", "no-pois"
 	);
 	
-	public Slicer(String dirPath, boolean partitionSlices) {
+	public Slicer(String dirPath, boolean partitionSlices, int maxOpenFiles) {
 		this.osmSlicesPath = dirPath;
-		writeDAO = new FileWriteDao(new File(dirPath), partitionSlices);
+		writeDAO = new FileWriteDao(new File(dirPath), partitionSlices, maxOpenFiles);
 		executorService = Executors.newFixedThreadPool(Options.get().getNumberOfThreads());
 	}
 	

@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -19,17 +20,33 @@ import me.osm.gazetter.utils.FileUtils;
 public class FileWriteDao implements WriteDao {
 
 	private final boolean PARTITION_STRIPE_FILES;
+	private final int MAX_OPEN_FILES;
 
-	private static final Map<String, PrintWriter> writers = new HashMap<String, PrintWriter>();
-	private File dir;
+	private final Map<String, PrintWriter> writers;
+	private final File dir;
 	
 	
 	/**
 	 * @param dir directory for files
 	 */
-	public FileWriteDao(File dir, boolean partition) {
+	public FileWriteDao(File dir, boolean partition, int maxFiles) {
 		this.PARTITION_STRIPE_FILES = partition;
 		this.dir = dir;
+		this.MAX_OPEN_FILES = maxFiles;
+		
+		// Poor mans LRU Cache
+		this.writers = new LinkedHashMap<String, PrintWriter>(MAX_OPEN_FILES, 0.75f, true) {
+			private static final long serialVersionUID = 8645291126106604903L;
+
+			protected boolean removeEldestEntry(Map.Entry<String, PrintWriter> eldest) {
+				if (size() > MAX_OPEN_FILES) {
+					eldest.getValue().close();
+					return true;
+				}
+                return false;
+            }
+		};
+		
 		dir.mkdirs();
 	}
 	
