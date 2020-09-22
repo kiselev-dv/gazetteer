@@ -5,11 +5,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-
-import javax.sound.midi.SysexMessage;
+import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
@@ -19,10 +19,13 @@ import org.slf4j.LoggerFactory;
 import me.osm.gazetter.addresses.AddrLevelsSorting;
 import me.osm.gazetter.diff.Diff;
 import me.osm.gazetter.join.JoinExecutor;
+import me.osm.gazetter.join.out_handlers.GazetteerOutWriter;
+import me.osm.gazetter.out.CSVOutWriter;
 import me.osm.gazetter.sortupdate.SortUpdate;
 import me.osm.gazetter.split.Split;
 import me.osm.gazetter.striper.Slicer;
 import me.osm.gazetter.tilebuildings.TileBuildings;
+import me.osm.gazetter.utils.SnakeSpaceKeysMapWrapper;
 import net.sourceforge.argparse4j.ArgumentParsers;
 import net.sourceforge.argparse4j.impl.Arguments;
 import net.sourceforge.argparse4j.impl.action.StoreTrueArgumentAction;
@@ -37,40 +40,25 @@ import net.sourceforge.argparse4j.inf.Subparsers;
  */
 public class Gazetteer {
 	
-	private static final String BOUNDARIES_FALLBACK_TYPES_PARAM = "--boundaries-fallback-types";
-	private static final String BOUNDARIES_FALLBACK_TYPES_VAL = "boundaries_fallback_types";
+	private static final String OUT_CSV = "--out-csv";
+	private static final String OUT_JSON = "--out-json";
+	private static final String BOUNDARIES_FALLBACK_TYPES = "--boundaries-fallback-types";
+	private static final String BOUNDARIES_FALLBACK = "--boundaries-fallback-file";
+	private static final String NAMED_POI_BRANCH = "--named-poi-branch";
+	private static final String EXCCLUDE_POI_BRANCH = "--excclude-poi-branch";
+	private static final String ADDR_FORMATTER = "--addr-parser";
+	private static final String ADDR_ORDER = "--addr-order";
+	private static final String JOIN_COMMON = "--common";
 
-	private static final String BOUNDARIES_FALLBACK_PARAM = "--boundaries-fallback-file";
-	private static final String BOUNDARIES_FALLBACK_VAL = "boundaries_fallback_file";
+	private static final String NO_COMPRESS = "--no-compress";
+	private static final String DATA_DIR = "--data-dir";
 	
-	private static final String NAMED_POI_BRANCH_OPT = "--named-poi-branch";
-	private static final String NAMED_POI_BRANCH_VAL = "named_poi_branch";
-
-	private static final String EXCCLUDE_POI_BRANCH_OPT = "--excclude-poi-branch";
-	private static final String EXCCLUDE_POI_BRANCH_VAL = "excclude_poi_branch";
-	
-	private static final String ADDR_FORMATTER_OPT = "--addr-parser";
-	private static final String ADDR_FORMATTER_VAL = "addr_parser";
-
-	private static final String ADDR_ORDER_OPT = "--addr-order";
-	private static final String ADDR_ORDER_VAL = "addr_order";
-	
-	private static final String JOIN_COMMON_VAL = "common";
-	private static final String JOIN_COMMON_OPT = "--common";
-
-	private static final String COMPRESS_VAL = "no_compress";
-	private static final String NO_COMPRESS_OPT = "--no-compress";
-
-	private static final String DATA_DIR_VAL = "data_dir";
-	private static final String DATA_DIR_OPT = "--data-dir";
-	
-	private static final String LOG_OPT = "--log-level";
+	private static final String LOG_LEVEL = "--log-level";
 	private static final String LOG_FILE_OPT = "--log-file";
 	private static final String LOG_PREFIX_OPT = "--log-prefix";
 	private static final String LOG_FILE_ONLY = "--log-console-mute";
 
-	private static final String POI_CATALOG_VAL = "poi_catalog";
-	private static final String POI_CATALOG_OPT = "--poi-catalog";
+	private static final String POI_CATALOG = "--poi-catalog";
 
 	private static final String FEATURE_TYPES_VAL = "feature_types";
 
@@ -161,13 +149,6 @@ public class Gazetteer {
 	    	public String help() {return "Write difference between two gazetteer json files.";}
 	    },
 
-	    MATCH_FLAP {
-	    	@Override
-	    	public String longName() {return name().toLowerCase().replace('_', '-');}
-	    	@Override
-	    	public String help() {return "Match features with flap objects.";}
-	    },
-		
 		TILE_BUILDINGS {
 	    	@Override
 	    	public String longName() {return name().toLowerCase().replace('_', '-');}
@@ -189,16 +170,19 @@ public class Gazetteer {
 		initLog(args);
 		log = LoggerFactory.getLogger(Gazetteer.class);
 		
-		
 		ArgumentParser parser = getArgumentsParser();
 
-		if(args.length > 0 && ("-v".equals(args[0]) || "--version".equals(args[0]))) {
+		// Parse --version before full argument parsing, to skip 
+		// required arguments checks and errors.
+		if(args.length == 1 && ("-v".equals(args[0]) || "--version".equals(args[0]))) {
 			printVersion("--version".equals(args[0]));
 			return;
 		}
 		
 		try {
-			Namespace namespace = parser.parseArgs(args);
+			Map<String, Object> parsed = new SnakeSpaceKeysMapWrapper(new HashMap<String, Object>());
+			parser.parseArgs(args, parsed);
+			Namespace namespace = new Namespace(parsed);
 			
 			if(namespace.getBoolean("version")) {
 				printVersion(true);
@@ -210,8 +194,8 @@ public class Gazetteer {
 			
 			if(namespace.get(COMMAND).equals(Command.JOIN)) {
 				Options.initialize(
-						AddrLevelsSorting.valueOf(namespace.getString(ADDR_ORDER_VAL)),
-						namespace.getString(ADDR_FORMATTER_VAL),
+						AddrLevelsSorting.valueOf(namespace.getString(ADDR_ORDER)),
+						namespace.getString(ADDR_FORMATTER),
 						new HashSet(list(namespace.getList("skip_in_text"))),
 						namespace.getBoolean("find_langs")
 				);
@@ -221,14 +205,14 @@ public class Gazetteer {
 				Options.get().setNThreads(threads);
 			}
 
-			Options.get().setCompress(namespace.getBoolean(COMPRESS_VAL));
+			Options.get().setCompress(namespace.getBoolean(NO_COMPRESS));
 
 			if(namespace.get(COMMAND).equals(Command.MAN)) {
 				printFullHelp(parser);
 				System.exit(0);
 			}
 
-			String data_dir = namespace.getString(DATA_DIR_VAL);
+			String data_dir = namespace.getString(DATA_DIR);
 			if(namespace.get(COMMAND).equals(Command.SPLIT)) {
 				File destFolder = new File(data_dir);
 				String in = namespace.getString("osm_file");
@@ -248,13 +232,13 @@ public class Gazetteer {
 				}
 				
 				new Slicer(data_dir, namespace.getBoolean("use_partitions")).run(
-						namespace.getString(POI_CATALOG_VAL), 
+						namespace.getString(POI_CATALOG), 
 						types,
-						list(namespace.getList(EXCCLUDE_POI_BRANCH_VAL)),
-						list(namespace.getList(NAMED_POI_BRANCH_VAL)),
+						list(namespace.getList(EXCCLUDE_POI_BRANCH)),
+						list(namespace.getList(NAMED_POI_BRANCH)),
 						list(namespace.getList("drop")),
-						namespace.getString(BOUNDARIES_FALLBACK_VAL),
-						list(namespace.getList(BOUNDARIES_FALLBACK_TYPES_VAL)),
+						namespace.getString(BOUNDARIES_FALLBACK),
+						list(namespace.getList(BOUNDARIES_FALLBACK_TYPES)),
 						namespace.getBoolean("x10"),
 						namespace.getBoolean("skip_interpolation"),
 						namespace.getBoolean("disk_index"),
@@ -266,7 +250,7 @@ public class Gazetteer {
 
 			if(namespace.get(COMMAND).equals(Command.JOIN)) {
 				
-				List<String> handlers = list(namespace.getList("handlers"));
+				List<String> handlers = parseHandlers(namespace);
 				Options.get().setJoinHandlers(handlers);
 				
 				if(Options.get().getJoinOutHandlers().isEmpty()) {
@@ -281,7 +265,7 @@ public class Gazetteer {
 						new HashSet(list(namespace.getList("check_boundaries"))),
 						namespace.getInt("throttle_mem_threshold")).run(
 								data_dir, 
-								namespace.getString(JOIN_COMMON_VAL));
+								namespace.getString(JOIN_COMMON));
 				
 			}
 
@@ -303,13 +287,9 @@ public class Gazetteer {
 				diffExecutor.run();
 			}
 			
-			if(namespace.get(COMMAND).equals(Command.MATCH_FLAP)) {
-				log.info("Not implemented, exit");
-			}
-			
 			if(namespace.get(COMMAND).equals(Command.TILE_BUILDINGS)) {
 				File destFolder = new File(namespace.getString("out_dir"));
-				File dataDir = new File(namespace.getString(DATA_DIR_VAL));
+				File dataDir = new File(namespace.getString(DATA_DIR));
 				Integer lvl = Integer.valueOf(namespace.getString("level"));
 				if (lvl == null || lvl < 0 || lvl > 22) {
 					log.info("Use default level 13");
@@ -333,6 +313,28 @@ public class Gazetteer {
 			System.exit(1);
 		} 
 		
+	}
+
+	private static List<String> parseHandlers(Namespace namespace) {
+		String outJson = namespace.getString(OUT_JSON);
+		String outCSV = namespace.getString(OUT_CSV);
+		List<String> handlers = new ArrayList<String>(list(namespace.getList("handlers")));
+		
+		if (handlers.isEmpty() && outJson == null && outCSV == null) {
+			handlers.add(GazetteerOutWriter.NAME);
+		} 
+		
+		if (outJson != null) {
+			handlers.add(GazetteerOutWriter.NAME);
+			handlers.add("out=" + outJson);
+		}
+		
+		if (outCSV != null) {
+			handlers.add(CSVOutWriter.NAME);
+			handlers.add("out=" + outCSV);
+		}
+		
+		return handlers;
 	}
 
 	/**
@@ -423,7 +425,7 @@ public class Gazetteer {
 		Iterator<String> iterator = Arrays.asList(args).iterator();
 		while(iterator.hasNext()) {
 			String k = iterator.next();
-			if(k.equals(LOG_OPT) && iterator.hasNext()) {
+			if(k.equals(LOG_LEVEL) && iterator.hasNext()) {
 				LogbackConfigurator.level = iterator.next();
 			}
 			else if(k.equals(LOG_FILE_OPT) && iterator.hasNext()) {
@@ -453,15 +455,15 @@ public class Gazetteer {
 		parser.addArgument("--threads").required(false)
 			.help("set number of threads avaible. By default will be used runtime.availableProcessors value.");
 		
-		parser.addArgument(NO_COMPRESS_OPT).required(false).action(Arguments.storeFalse())
+		parser.addArgument(NO_COMPRESS).required(false).action(Arguments.storeFalse())
 			.help("Do not cmpress tepmlorary stored data")
 			.setDefault(Boolean.TRUE);
 		
-        parser.addArgument(DATA_DIR_OPT).required(false)
+        parser.addArgument(DATA_DIR).required(false)
         	.help("Use this folder as data storage.")
         	.setDefault("data");
         
-        parser.addArgument(LOG_OPT).required(false).setDefault("WARN");
+        parser.addArgument(LOG_LEVEL).required(false).setDefault("WARN");
         parser.addArgument(LOG_FILE_OPT).required(false).help("Path to log file");
         parser.addArgument(LOG_PREFIX_OPT).required(false).help("Add that prefix to all log messages");
         parser.addArgument(LOG_FILE_ONLY).required(false)
@@ -509,15 +511,15 @@ public class Gazetteer {
         			.setDefault(COMMAND, command)
 					.help(command.help());
 			
-			slice.addArgument(POI_CATALOG_OPT).setDefault("jar")
+			slice.addArgument(POI_CATALOG).setDefault("jar")
 				.help("Path to osm-doc catalog xml file. By default internal osm-doc.xml will be used.");
 			
-			slice.addArgument(EXCCLUDE_POI_BRANCH_OPT).nargs("*")
+			slice.addArgument(EXCCLUDE_POI_BRANCH).nargs("*")
 				.help("Exclude branch of osm-doc features hierarchy. "
 					+ "Eg: osm-ru:transport where osm-ru is a name of the hierarchy, "
 					+ "and transport is a name of the branch");
 
-			slice.addArgument(NAMED_POI_BRANCH_OPT).nargs("*")
+			slice.addArgument(NAMED_POI_BRANCH).nargs("*")
 				.help("Kepp POIS from this banch only if they have name tag");
 			
 			slice.addArgument(FEATURE_TYPES_VAL).help("Parse and slice axact feature(s) type.")
@@ -526,10 +528,10 @@ public class Gazetteer {
 			slice.addArgument("--drop").nargs("*")
 				.help("List of objects osm ids which will be dropped ex r60189.");
 			
-			slice.addArgument(BOUNDARIES_FALLBACK_PARAM).nargs("?")
+			slice.addArgument(BOUNDARIES_FALLBACK).nargs("?")
 				.help("Path to boundaries fallback file.");
 			
-			slice.addArgument(BOUNDARIES_FALLBACK_TYPES_PARAM).nargs("*")
+			slice.addArgument(BOUNDARIES_FALLBACK_TYPES).nargs("*")
 				.help("List of boundaries to keep in boundaries fallback file. Eg. boundary:2");
 			
 			slice.addArgument("--x10").setConst(Boolean.TRUE)
@@ -565,14 +567,14 @@ public class Gazetteer {
         			.setDefault(COMMAND, command)
 					.help(command.help());
 			
-			join.addArgument(JOIN_COMMON_OPT)
+			join.addArgument(JOIN_COMMON)
 				.help("Path for *.json with array of features which will be added to boundaries "
 						+ "list for every feature.");
 			
-			join.addArgument(ADDR_ORDER_OPT).choices("HN_STREET_CITY", "STREET_HN_CITY", "CITY_STREET_HN").setDefault("HN_STREET_CITY")
+			join.addArgument(ADDR_ORDER).choices("HN_STREET_CITY", "STREET_HN_CITY", "CITY_STREET_HN").setDefault("HN_STREET_CITY")
 				.help("How to sort addr levels in full addr text");
 
-			join.addArgument(ADDR_FORMATTER_OPT)
+			join.addArgument(ADDR_FORMATTER)
 				.help("Path to *.groovy file with full addresses texts formatter.");
 
 			join.addArgument("--check-boundaries").nargs("*")
@@ -612,6 +614,11 @@ public class Gazetteer {
 						+ "Handlers itself gets arguments in form name=value "
 						+ "add usage or help to handler options for details");
 			
+			join.addArgument(OUT_JSON).setConst("-").setDefault((String)null).nargs("?")
+				.help("Write data as json to specified file.");
+			
+			join.addArgument(OUT_CSV).setConst("-").setDefault((String)null).nargs("?")
+				.help("Write data as csv to specified file.");
 			
 		}
 
