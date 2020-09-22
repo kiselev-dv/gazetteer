@@ -20,9 +20,28 @@ import me.osm.gazetter.utils.FileUtils;
 public class FileWriteDao implements WriteDao {
 
 	private final boolean PARTITION_STRIPE_FILES;
-	private final int MAX_OPEN_FILES;
-
-	private final Map<String, PrintWriter> writers;
+	private static final int MAX_OPEN_FILES = 8;
+	
+	private static final Map<String, PrintWriter> writers = new HashMap<String, PrintWriter>();
+	
+//	private static final Map<String, PrintWriter> writers = new LinkedHashMap<String, PrintWriter>(Math.min(MAX_OPEN_FILES, 1024), 0.75f, true) {
+//		
+//		private static final long serialVersionUID = 8645291126106604903L;
+//
+//		protected boolean removeEldestEntry(Map.Entry<String, PrintWriter> eldest) {
+//			if (size() > MAX_OPEN_FILES) {
+//				PrintWriter w = eldest.getValue();
+//				w.flush();
+//				w.close();
+//				
+//				System.out.println("Close eldest writer");
+//				
+//				return true;
+//			}
+//			return false;
+//		}
+//	};
+	
 	private final File dir;
 	
 	
@@ -32,20 +51,6 @@ public class FileWriteDao implements WriteDao {
 	public FileWriteDao(File dir, boolean partition, int maxFiles) {
 		this.PARTITION_STRIPE_FILES = partition;
 		this.dir = dir;
-		this.MAX_OPEN_FILES = maxFiles;
-		
-		// Poor mans LRU Cache
-		this.writers = new LinkedHashMap<String, PrintWriter>(MAX_OPEN_FILES, 0.75f, true) {
-			private static final long serialVersionUID = 8645291126106604903L;
-
-			protected boolean removeEldestEntry(Map.Entry<String, PrintWriter> eldest) {
-				if (size() > MAX_OPEN_FILES) {
-					eldest.getValue().close();
-					return true;
-				}
-                return false;
-            }
-		};
 		
 		dir.mkdirs();
 	}
@@ -72,25 +77,7 @@ public class FileWriteDao implements WriteDao {
 					File file = new File(dir.getAbsolutePath() + "/" + key + (useGZ ? ".gz" : ""));
 					
 					if (PARTITION_STRIPE_FILES) {
-						List<Integer> existing = Files.walk(dir.toPath())
-							.filter(Files::isRegularFile)
-							.map(p -> p.getFileName().toString())
-							.filter(name -> name.startsWith(key))
-							.map(name -> name.replace(key, "").replace(".gz", "").replace(".", ""))
-							.map(name -> {
-								try {
-									return Integer.parseInt(name);
-								}
-								catch (Exception e) {
-									return 0;
-								}
-							})
-							.collect(Collectors.toList());
-						
-						int partition = 0;
-						if (!existing.isEmpty()) {
-							partition = existing.stream().reduce(Math::max).get() + 1;
-						}
+						int partition = nextPartitionNumber(key);
 						
 						file = new File(dir.getAbsolutePath() + "/" + key + "." + partition + (useGZ ? ".gz" : ""));
 					}
@@ -105,6 +92,29 @@ public class FileWriteDao implements WriteDao {
 			}
 		}
 		return pw;
+	}
+
+	private int nextPartitionNumber(String key) throws IOException {
+		List<Integer> existing = Files.walk(dir.toPath())
+			.filter(Files::isRegularFile)
+			.map(p -> p.getFileName().toString())
+			.filter(name -> name.startsWith(key))
+			.map(name -> name.replace(key, "").replace(".gz", "").replace(".", ""))
+			.map(name -> {
+				try {
+					return Integer.parseInt(name);
+				}
+				catch (Exception e) {
+					return 0;
+				}
+			})
+			.collect(Collectors.toList());
+		
+		int partition = 0;
+		if (!existing.isEmpty()) {
+			partition = existing.stream().reduce(Math::max).get() + 1;
+		}
+		return partition;
 	}
 
 	@Override
