@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 OpenStreetMap (OSM) geocoder
 ======================
 
@@ -16,10 +15,10 @@ You can use Gazetteer as standalone *osm* processor, to dump addresses from *osm
 You can ignore GazetteerWeb and use data in your own geocoding/geosearching applications.
 Take an osm.bz2 dump and generate `json` with
 
-* full geocoded buildins
+* full geocoded buildings
 * full geocoded POIs
 * streets
-* cyties
+* cities
 * administrative boundaries
 
 Details are here https://github.com/kiselev-dv/gazetteer/tree/develop/Gazetteer
@@ -33,9 +32,3 @@ GazetteerWeb is a second part of the project.
 You may take it as example implementation of search engine for Gazetteer generated data or use it for your own purposes.
 
 Details are here https://github.com/kiselev-dv/gazetteer/tree/develop/GazetteerWeb
-
-Live demo map: http://osm.me/
-(covers Russia, Montenegro, Croatia, Bosnia and Hercegovina)
-=======
-# gazetteer-psql
->>>>>>> 1d40819fe5de342b5d214c0519a922123733ead0
