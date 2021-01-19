@@ -20,27 +20,40 @@ import me.osm.gazetter.utils.FileUtils;
 public class FileWriteDao implements WriteDao {
 
 	private final boolean PARTITION_STRIPE_FILES;
-	private static final int MAX_OPEN_FILES = 8;
 	
-	private static final Map<String, PrintWriter> writers = new HashMap<String, PrintWriter>();
+	/* 
+	 * Cap max amount of writers (of open files).
+	 * 
+	 * XXX: cause error, unexpected end of zip stream. Turned off by default
+	 */
+	private static final int MAX_OPEN_FILES = 0;
 	
-//	private static final Map<String, PrintWriter> writers = new LinkedHashMap<String, PrintWriter>(Math.min(MAX_OPEN_FILES, 1024), 0.75f, true) {
-//		
-//		private static final long serialVersionUID = 8645291126106604903L;
-//
-//		protected boolean removeEldestEntry(Map.Entry<String, PrintWriter> eldest) {
-//			if (size() > MAX_OPEN_FILES) {
-//				PrintWriter w = eldest.getValue();
-//				w.flush();
-//				w.close();
-//				
-//				System.out.println("Close eldest writer");
-//				
-//				return true;
-//			}
-//			return false;
-//		}
-//	};
+	private static final Map<String, PrintWriter> writers;
+	static {
+		writers = MAX_OPEN_FILES == 0 ? new HashMap<String, PrintWriter>() : 
+			new WritersLRUcacheMap(Math.min(MAX_OPEN_FILES, 1024), 0.75f, true);
+	}
+	
+	private static class WritersLRUcacheMap extends LinkedHashMap<String, PrintWriter> {
+		private static final long serialVersionUID = 8645291126106604903L;
+
+		public WritersLRUcacheMap(int capacity, float loadFactor, boolean accessOrder) {
+			super(capacity, loadFactor, accessOrder);
+		}
+
+		protected boolean removeEldestEntry(Map.Entry<String, PrintWriter> eldest) {
+			if (size() > MAX_OPEN_FILES) {
+				PrintWriter w = eldest.getValue();
+				w.flush();
+				w.close();
+				
+				System.out.println("Close eldest writer");
+				
+				return true;
+			}
+			return false;
+		}
+	}
 	
 	private final File dir;
 	
