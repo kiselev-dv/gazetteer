@@ -564,7 +564,8 @@ public class Gazetteer {
 			slice.addArgument(MAX_OPEN_FILES).type(Integer.class)
 				.setDefault(0)
 				.help("Set how many simultainesly open files to use. "
-						+ "Use 0 for unbound number of files. Default is 0. ");
+						+ "Use 0 for unbound number of files. Default is 0. "
+						+ "Cause error at this moment.");
 		}
 
 		//join
