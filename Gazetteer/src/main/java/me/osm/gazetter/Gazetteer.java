@@ -678,14 +678,13 @@ public class Gazetteer {
 			
 			tileBuildings.addArgument("--disk-index").setConst(Boolean.TRUE)
 				.setDefault(Boolean.FALSE).action(new StoreTrueArgumentAction())
-				.help("Do not parse addr:interpolation lines");
+				.help("Use index files instead of in memory indexes.");
 			
 			tileBuildings.addArgument("--out-dir").setDefault("tiles")
-				.help("Where to print results.");
+				.help("Where to output results.");
 			
 			tileBuildings.addArgument("--level").setDefault("12")
 				.help("Zoom level for generated tiles.");
-			
 			
 		}
 		
