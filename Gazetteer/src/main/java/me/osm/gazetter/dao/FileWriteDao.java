@@ -26,28 +26,27 @@ public class FileWriteDao implements WriteDao {
 	 * 
 	 * XXX: cause error, unexpected end of zip stream. Turned off by default
 	 */
-	private static final int MAX_OPEN_FILES = 0;
-	
-	private static final Map<String, PrintWriter> writers;
-	static {
-		writers = MAX_OPEN_FILES == 0 ? new HashMap<String, PrintWriter>() : 
-			new WritersLRUcacheMap(Math.min(MAX_OPEN_FILES, 1024), 0.75f, true);
-	}
+	private final int MAX_OPEN_FILES;
+	private final Map<String, PrintWriter> writers;
 	
 	private static class WritersLRUcacheMap extends LinkedHashMap<String, PrintWriter> {
 		private static final long serialVersionUID = 8645291126106604903L;
+		private final int capacity;
 
-		public WritersLRUcacheMap(int capacity, float loadFactor, boolean accessOrder) {
-			super(capacity, loadFactor, accessOrder);
+		public WritersLRUcacheMap(int capacity, float loadFactor) {
+			super(capacity, loadFactor, true);
+			this.capacity = capacity;
 		}
 
 		protected boolean removeEldestEntry(Map.Entry<String, PrintWriter> eldest) {
-			if (size() > MAX_OPEN_FILES) {
+			if (size() > capacity) {
+				String key = eldest.getKey();
+
 				PrintWriter w = eldest.getValue();
 				w.flush();
 				w.close();
 				
-				System.out.println("Close eldest writer");
+				System.out.println("Evict writer for " + key);
 				
 				return true;
 			}
@@ -62,8 +61,13 @@ public class FileWriteDao implements WriteDao {
 	 * @param dir directory for files
 	 */
 	public FileWriteDao(File dir, boolean partition, int maxFiles) {
-		this.PARTITION_STRIPE_FILES = partition;
+		PARTITION_STRIPE_FILES = true;
+		MAX_OPEN_FILES = maxFiles;
+		
 		this.dir = dir;
+		
+		writers = MAX_OPEN_FILES == 0 ? new HashMap<String, PrintWriter>() : 
+			new WritersLRUcacheMap(MAX_OPEN_FILES, 0.75f);
 		
 		dir.mkdirs();
 	}
@@ -132,9 +136,12 @@ public class FileWriteDao implements WriteDao {
 
 	@Override
 	public void close() {
-		for(PrintWriter writer : writers.values()) {
-			writer.flush();
-			writer.close();
+		synchronized (writers) {
+			for(PrintWriter writer : writers.values()) {
+				writer.flush();
+				writer.close();
+			}
+			writers.clear();
 		}
 	}
 

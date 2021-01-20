@@ -562,9 +562,9 @@ public class Gazetteer {
 				.help("Instead of appending to slice files, create a new file.");
 			
 			slice.addArgument(MAX_OPEN_FILES).type(Integer.class)
-				.setDefault(Integer.MAX_VALUE)
+				.setDefault(0)
 				.help("Set how many simultainesly open files to use. "
-						+ "Use together with --use-partitions.");
+						+ "Use 0 for unbound number of files. Default is 0. ");
 		}
 
 		//join
